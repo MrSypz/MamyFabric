@@ -187,7 +187,7 @@ public class LevelCommand {
             component.setLevel((short) 1);
             component.getLevelSystem().setExperience(0);
             component.getLevelSystem().setStatPoints(ModConfig.startStatpoints);
-            component.getLivingStats().resetStats(player);
+            component.getLivingStats().resetStats(player,false);
         });
 
         Text message = Text.literal(String.format(
@@ -216,11 +216,7 @@ public class LevelCommand {
         int oldLevel = component.getLevel();
         int maxLevel = component.getLevelSystem().getMaxLevel();
 
-        // Use batch operation like Dominatus
-        component.performBatchUpdate(() -> {
-            component.getLevelSystem().setLevel((short) maxLevel);
-            component.getLevelSystem().updateNextLvl();
-        });
+        component.setLevel(maxLevel);
 
         Text message = Text.literal(String.format(
                 "§6Set %s to maximum level (§f%d §6→ §f%d§6)",
@@ -243,9 +239,8 @@ public class LevelCommand {
     private static int getPlayerInfo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "player");
 
-        for (ServerPlayerEntity player : players) {
+        for (ServerPlayerEntity player : players)
             showLevelInfo(context.getSource(), player);
-        }
 
         return players.size();
     }

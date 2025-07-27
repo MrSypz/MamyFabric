@@ -97,19 +97,19 @@ public class ExpCommand {
         component.addExperience(amount);
         int newLevel = component.getLevel();
 
+        Text message;
         if (newLevel > oldLevel) {
-            Text message = Text.literal(String.format(
+            message = Text.literal(String.format(
                     "§6Added §f%d §6experience to %s - Leveled up to §f%d§6!",
                     amount, player.getName().getString(), newLevel
             ));
-            source.sendFeedback(() -> message, true);
         } else {
-            Text message = Text.literal(String.format(
+            message = Text.literal(String.format(
                     "§6Added §f%d §6experience to %s",
                     amount, player.getName().getString()
             ));
-            source.sendFeedback(() -> message, true);
         }
+        source.sendFeedback(() -> message, true);
 
         return 1;
     }

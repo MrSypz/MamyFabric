@@ -32,11 +32,8 @@ public final class LivingStats {
         }
     }
 
-    public void resetStatsWithPointReturn(PlayerEntity player) {
-        stats.values().forEach(stat -> stat.reset(player, levelSystem,true));
-    }
-    public void resetStats(PlayerEntity player) {
-        stats.values().forEach(stat -> stat.reset(player, levelSystem,false));
+    public void resetStats(PlayerEntity player,boolean shouldReturnPoint) {
+        stats.values().forEach(stat -> stat.reset(player, levelSystem,shouldReturnPoint));
     }
 
     public LevelSystem getLevelSystem() {

@@ -46,16 +46,14 @@ public class LevelSystem {
         experience -= experienceToNextLevel;
         level++;
         statPoints += getStatPointsForLevel(level);
-        if (level < MAX_LEVEL) {
-            updateNextLvl();
-        }
+        if (level < MAX_LEVEL) updateNextLvl();
     }
 
     private short getStatPointsForLevel(short level) {
         return (short) (level / 5 + 3);
     }
 
-    public void updateNextLvl() {
+    private void updateNextLvl() {
         experienceToNextLevel = calculateXpForNextLevel(level);
     }
 
@@ -73,6 +71,7 @@ public class LevelSystem {
 
     public void setLevel(short level) {
         this.level = level;
+        updateNextLvl();
     }
 
     public long getExperience() {

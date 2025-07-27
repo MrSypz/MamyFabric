@@ -92,21 +92,13 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     }
 
     public void setLevel(int level) {
-        performBatchUpdate(() -> {
-            livingStats.getLevelSystem().setLevel((short) level);
-            livingStats.getLevelSystem().updateNextLvl();
-        });
+        performBatchUpdate(() -> livingStats.getLevelSystem().setLevel((short) level));
     }
 
     public void resetStatsWithPointReturn() {
         if (!LivingEntityUtil.isPlayer(living)) return;
 
-        performBatchUpdate(() -> livingStats.resetStatsWithPointReturn((PlayerEntity) living));
-    }
-    public void resetStats() {
-        if (!LivingEntityUtil.isPlayer(living)) return;
-
-        performBatchUpdate(() -> livingStats.resetStats((PlayerEntity) living));
+        performBatchUpdate(() -> livingStats.resetStats((PlayerEntity) living, true));
     }
 
     public void handleRespawn() {
