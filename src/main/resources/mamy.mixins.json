@@ -7,7 +7,12 @@
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
-    "core.registry.attribute.LivingEntityMixin"
+    "core.registry.attribute.LivingEntityMixin",
+    "vanilla.agility.projectileclip.PersistentProjectileEntityMixin",
+    "vanilla.agility.projectileclip.TridentEntityMixin",
+    "vanilla.dexterity.RangedWeaponItemMixin",
+    "vanilla.vitalitybonus.HungerManagerMixin",
+    "vanilla.vitalitybonus.LivingEntityMixin"
   ],
   "client": [
   ],

@@ -1,10 +1,9 @@
 package com.sypztep.mamy.mixin.core.critevasion;
 
-import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.client.util.TextParticleProvider;
+import com.sypztep.mamy.common.api.MissingAccessor;
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.init.ModCustomParticles;
 import net.minecraft.entity.Entity;
@@ -20,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+public abstract class LivingEntityMixin extends Entity implements MissingAccessor {
     @Unique
     protected LivingEntity target = (LivingEntity) (Object) this;
 
@@ -49,5 +48,10 @@ public abstract class LivingEntityMixin extends Entity {
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
         isCrit = LivingEntityUtil.isCrit(attacker);
         return DominatusLivingEntityEvents.PRE_ARMOR_DAMAGE.invoker().preModifyDamage(target, source, amount, isCrit);
+    }
+
+    @Override
+    public boolean isMissing() {
+        return !isHit;
     }
 }

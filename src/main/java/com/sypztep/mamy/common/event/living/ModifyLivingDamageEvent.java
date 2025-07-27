@@ -2,7 +2,7 @@ package com.sypztep.mamy.common.event.living;
 
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
-import com.sypztep.mamy.common.util.CombatUtil;
+import com.sypztep.mamy.common.util.DamageUtil;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -16,7 +16,7 @@ public final class ModifyLivingDamageEvent implements DominatusLivingEntityEvent
     public float preModifyDamage(LivingEntity entity, DamageSource source, float amount, boolean isCrit) {
         if(entity.getWorld().isClient()) return amount;
         if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) LivingEntityUtil.playCriticalSound(projectile);
-        float finalDmg = CombatUtil.damageModifier(entity, amount, source, isCrit);
+        float finalDmg = DamageUtil.damageModifier(entity, amount, source, isCrit);
         //Store value
         DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(entity, source, finalDmg);
 
