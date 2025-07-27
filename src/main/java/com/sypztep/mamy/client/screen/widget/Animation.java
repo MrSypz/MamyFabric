@@ -2,7 +2,7 @@ package com.sypztep.mamy.client.screen.widget;
 
 public class Animation {
     protected final float duration; // Duration of the animation in seconds
-    protected float elapsedTime; // Time elapsed since animation started
+    public float elapsedTime; // Time elapsed since animation started
     protected final boolean isLooping; // Whether the animation should loop
     protected boolean isCompleted; // Whether the animation is completed
 
@@ -35,6 +35,10 @@ public class Animation {
                 isCompleted = true; // Mark as completed
             }
         }
+    }
+
+    public float getDuration() {
+        return duration;
     }
 
     // Get the progress of the animation as a value between 0 and 1

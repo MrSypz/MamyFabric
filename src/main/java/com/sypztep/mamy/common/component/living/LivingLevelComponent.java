@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.component.living;
 
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.level.LevelSystem;
+import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.system.stat.LivingStats;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
@@ -15,15 +16,25 @@ import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 public final class LivingLevelComponent implements AutoSyncedComponent {
     private final LivingEntity living;
     private final LivingStats livingStats;
+    private PassiveAbilityManager passiveAbilityManager;
 
     public LivingLevelComponent(LivingEntity living) {
         this.living = living;
         this.livingStats = new LivingStats(living);
+
+        if (LivingEntityUtil.isPlayer(living)) {
+            this.passiveAbilityManager = new PassiveAbilityManager((PlayerEntity) living);
+        }
     }
+
 
     // ====================
     // CORE GETTERS - Keep only what's actually used
     // ====================
+    public PassiveAbilityManager getPassiveAbilityManager() {
+        return passiveAbilityManager;
+    }
+
     public LevelSystem getLevelSystem() {
         return livingStats.getLevelSystem();
     }
@@ -83,6 +94,9 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         performBatchUpdate(() -> {
             livingStats.useStatPoint(statType, points);
             refreshStatEffectsInternal(statType);
+            if (passiveAbilityManager != null) {
+                passiveAbilityManager.updatePassiveAbilities();
+            }
         });
         return true;
     }
@@ -92,17 +106,34 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     }
 
     public void setLevel(int level) {
-        performBatchUpdate(() -> livingStats.getLevelSystem().setLevel((short) level));
+        performBatchUpdate(() -> {
+            livingStats.getLevelSystem().setLevel((short) level);
+        });
     }
 
     public void resetStatsWithPointReturn() {
         if (!LivingEntityUtil.isPlayer(living)) return;
 
-        performBatchUpdate(() -> livingStats.resetStats((PlayerEntity) living, true));
+        performBatchUpdate(() -> {
+            livingStats.resetStats((PlayerEntity) living, true);
+
+            // Reset passive abilities when stats are reset
+            if (passiveAbilityManager != null) {
+                passiveAbilityManager.resetAll();
+                passiveAbilityManager.updatePassiveAbilities();
+            }
+        });
     }
 
     public void handleRespawn() {
-        performBatchUpdate(this::refreshAllStatEffectsInternal);
+        performBatchUpdate(() -> {
+            refreshAllStatEffectsInternal();
+
+            // Refresh passive abilities after respawn
+            if (passiveAbilityManager != null) {
+                passiveAbilityManager.refreshActiveAbilities();
+            }
+        });
     }
 
     // ====================
@@ -139,14 +170,32 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     @Override
     public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
         livingStats.readFromNbt(nbtCompound, living);
+
+        // Read passive abilities for players
+        if (passiveAbilityManager != null && nbtCompound.contains("PassiveAbilities")) {
+            passiveAbilityManager.readFromNbt(nbtCompound.getCompound("PassiveAbilities"));
+        }
     }
 
     @Override
     public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
         livingStats.writeToNbt(nbtCompound, living);
+
+        // Write passive abilities for players
+        if (passiveAbilityManager != null) {
+            NbtCompound passiveTag = new NbtCompound();
+            passiveAbilityManager.writeToNbt(passiveTag);
+            nbtCompound.put("PassiveAbilities", passiveTag);
+        }
     }
 
     private void sync() {
         ModEntityComponents.LIVINGLEVEL.sync(this.living);
+    }
+
+    public void updatePassiveAbilities() {
+        if (passiveAbilityManager != null) {
+            performBatchUpdate(() -> passiveAbilityManager.updatePassiveAbilities());
+        }
     }
 }
