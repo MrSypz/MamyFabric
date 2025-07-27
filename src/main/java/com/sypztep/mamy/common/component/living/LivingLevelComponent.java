@@ -154,15 +154,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         livingStats.writeToNbt(nbtCompound, living);
     }
 
-    public void sync() {
+    private void sync() {
         ModEntityComponents.LIVINGLEVEL.sync(this.living);
-    }
-
-    // ====================
-    // UTILITY
-    // ====================
-
-    public LivingEntity getEntity() {
-        return living;
     }
 }

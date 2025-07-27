@@ -79,7 +79,6 @@ public class ExpCommand {
 
         component.performBatchUpdate(() -> {
             component.getLevelSystem().setExperience(amount);
-            component.refreshAllStatEffectsInternal();
         });
 
         Text message = Text.literal(String.format(

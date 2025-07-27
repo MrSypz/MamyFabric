@@ -14,18 +14,11 @@ public final class LivingStats {
     public LivingStats(LivingEntity living) {
         this.stats = new EnumMap<>(StatTypes.class);
         this.levelSystem = new LevelSystem(living);
-        for (StatTypes statType : StatTypes.values()) {
-            this.stats.put(statType, statType.createStat((short) 0)); // Base value = 0
-        }
+        for (StatTypes statType : StatTypes.values()) this.stats.put(statType, statType.createStat((short) 0)); // Base value = 0
     }
 
     public Stat getStat(StatTypes statType) {
         return stats.get(statType);
-    }
-
-    private void allocatePoints(StatTypes statType, short points) {
-        Stat stat = getStat(statType);
-        if (stat != null) stat.increase(points);
     }
 
     public void useStatPoint(StatTypes types, short points) {
@@ -34,14 +27,16 @@ public final class LivingStats {
 
         if (statPoints >= perPoint * points) {
             this.getLevelSystem().subtractStatPoints((short) (perPoint * points));
-            allocatePoints(types, points);
+            Stat stat = getStat(types);
+            if (stat != null) stat.increase(points);
         }
     }
+
     public void resetStatsWithPointReturn(PlayerEntity player) {
-        stats.values().forEach(stat -> stat.reset(player, levelSystem));
+        stats.values().forEach(stat -> stat.reset(player, levelSystem,true));
     }
     public void resetStats(PlayerEntity player) {
-        stats.values().forEach(stat -> stat.reset(player));
+        stats.values().forEach(stat -> stat.reset(player, levelSystem,false));
     }
 
     public LevelSystem getLevelSystem() {
@@ -70,7 +65,6 @@ public final class LivingStats {
         }
         levelSystem.readFromNbt(tag);
     }
-
 }
 
 

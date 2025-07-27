@@ -1,6 +1,5 @@
 package com.sypztep.mamy.common.system.stat;
 
-import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
@@ -10,7 +9,6 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -106,8 +104,8 @@ public abstract class Stat {
             }
         }
     }
-    public void reset(PlayerEntity player, LevelSystem levelSystem) {
-        levelSystem.addStatPoints(this.totalPointsUsed);
+    public void reset(PlayerEntity player, LevelSystem levelSystem, boolean shouldReturnPoint) {
+        if (shouldReturnPoint) levelSystem.addStatPoints(this.totalPointsUsed); // return player point for each apply
 
         this.currentValue = baseValue;
         this.totalPointsUsed = 0;
@@ -115,14 +113,7 @@ public abstract class Stat {
         applyPrimaryEffect(player);
         applySecondaryEffect(player);
     }
-    // Reset like base
-    public void reset(PlayerEntity player) {
-        this.currentValue = baseValue;
-        this.totalPointsUsed = 0;
 
-        applyPrimaryEffect(player);
-        applySecondaryEffect(player);
-    }
     public abstract List<Text> getEffectDescription(int additionalPoints);
     protected Identifier getPrimaryId() {
         return null;

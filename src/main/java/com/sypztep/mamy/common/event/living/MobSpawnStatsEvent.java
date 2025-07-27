@@ -53,7 +53,7 @@ public final class MobSpawnStatsEvent implements ServerEntityEvents.Load {
         for (var statType : StatTypes.values()) {
             int value = mobEntry.getStat(statType);
             if (value > 0) {
-                levelComponent.getLivingStats().getStat(statType).setPoints((short) value);
+                levelComponent.getStatByType(statType).setPoints((short) value);
             }
         }
     }

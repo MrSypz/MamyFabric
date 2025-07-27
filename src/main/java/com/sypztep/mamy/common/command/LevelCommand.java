@@ -157,8 +157,7 @@ public class LevelCommand {
 
         int oldLevel = component.getLevel();
 
-        // ✅ FIX: Use setLevel method which properly updates everything
-        component.setLevel(level); // This already calls performBatchUpdate internally
+        component.setLevel(level);
 
         Text message = Text.literal(String.format(
                 "§6Set %s's level from §f%d §6to §f%d",
@@ -185,11 +184,10 @@ public class LevelCommand {
         int oldStatPoints = component.getAvailableStatPoints();
 
         component.performBatchUpdate(() -> {
-            component.resetStats();
             component.setLevel((short) 1);
             component.getLevelSystem().setExperience(0);
             component.getLevelSystem().setStatPoints(ModConfig.startStatpoints);
-            component.refreshAllStatEffectsInternal();
+            component.getLivingStats().resetStats(player);
         });
 
         Text message = Text.literal(String.format(
