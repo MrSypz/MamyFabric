@@ -7,9 +7,9 @@ import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
 public final class LivingLevelComponent implements AutoSyncedComponent {
@@ -84,7 +84,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         return true;
     }
 
-    public void addExperience(int amount) {
+    public void addExperience(long amount) {
         performBatchUpdate(() -> livingStats.getLevelSystem().addExperience(amount));
     }
 
@@ -95,10 +95,15 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         });
     }
 
+    public void resetStatsWithPointReturn() {
+        if (!LivingEntityUtil.isPlayer(living)) return;
+
+        performBatchUpdate(() -> livingStats.resetStatsWithPointReturn((PlayerEntity) living));
+    }
     public void resetStats() {
         if (!LivingEntityUtil.isPlayer(living)) return;
 
-        performBatchUpdate(() -> livingStats.resetStats((ServerPlayerEntity) living));
+        performBatchUpdate(() -> livingStats.resetStats((PlayerEntity) living));
     }
 
     public void handleRespawn() {

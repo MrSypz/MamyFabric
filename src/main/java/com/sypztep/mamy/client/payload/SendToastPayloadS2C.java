@@ -36,7 +36,7 @@ public record SendToastPayloadS2C(String message, int toastTypeOrdinal) implemen
         send(player, message, ToastNotification.ToastType.EXPERIENCE);
     }
 
-    public static void sendLevelUp(ServerPlayerEntity player, int oldLevel, int newLevel) {
+    public static void sendLevelUp(ServerPlayerEntity player, int newLevel) {
         String message = String.format("§l§6⚔ LEVEL GAINED ⚔§r\n§7You are now level §e§l%d§r§7!", newLevel);
         send(player, message, ToastNotification.ToastType.LEVEL_UP);
     }

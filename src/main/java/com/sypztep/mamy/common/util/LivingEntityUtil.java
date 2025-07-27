@@ -22,12 +22,17 @@ public final class LivingEntityUtil {
     public static boolean hitCheck(LivingEntity attacker, LivingEntity defender) {
         int aAccuracy = (int) attacker.getAttributeValue(ModEntityAttributes.ACCURACY);
         int dEvasion = (int) defender.getAttributeValue(ModEntityAttributes.EVASION);
-        Mamy.LOGGER.info("Attacker Accuracy: {}",  aAccuracy);
-        int hitRate = aAccuracy - dEvasion;
-        Mamy.LOGGER.info("hitRate: {}", hitRate);
-        float hitChane = hitRate * 0.01f;
-        Mamy.LOGGER.info("hitChane: {}%", hitChane * 100);
-        return roll(attacker) < hitChane;
+
+        float baseHitRate = 0.67f; // 67% base hit rate
+        float hitRate = baseHitRate + ((aAccuracy - dEvasion) * 0.0025f);
+
+        // Clamp hit rate between reasonable bounds (e.g., 5% to 95%)
+        hitRate = Math.max(0.05f, Math.min(0.95f, hitRate));
+
+        Mamy.LOGGER.info("Hit calculation: Base=67%, AccFlat={}, EvaFlat={}, Final={}%",
+                aAccuracy, dEvasion, hitRate * 100);
+
+        return roll(attacker) < hitRate;
     }
 
     public static void playCriticalSound(Entity target) {

@@ -1,11 +1,13 @@
 package com.sypztep.mamy.common.system.stat;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -104,11 +106,17 @@ public abstract class Stat {
             }
         }
     }
-
-    // Reset the stat to its base value and clean up attribute instances
-    public void reset(ServerPlayerEntity player, LevelSystem levelSystem) {
+    public void reset(PlayerEntity player, LevelSystem levelSystem) {
         levelSystem.addStatPoints(this.totalPointsUsed);
 
+        this.currentValue = baseValue;
+        this.totalPointsUsed = 0;
+
+        applyPrimaryEffect(player);
+        applySecondaryEffect(player);
+    }
+    // Reset like base
+    public void reset(PlayerEntity player) {
         this.currentValue = baseValue;
         this.totalPointsUsed = 0;
 

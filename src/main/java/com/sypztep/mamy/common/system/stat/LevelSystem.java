@@ -26,7 +26,7 @@ public class LevelSystem {
         return ModConfig.EXP_MAP[level - 1];
     }
 
-    public void addExperience(int amount) {
+    public void addExperience(long amount) {
         if (level >= MAX_LEVEL) {
             experience = Math.min(experience + amount, experienceToNextLevel);
             return;

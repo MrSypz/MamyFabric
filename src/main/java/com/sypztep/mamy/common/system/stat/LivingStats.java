@@ -1,8 +1,8 @@
 package com.sypztep.mamy.common.system.stat;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -37,8 +37,11 @@ public final class LivingStats {
             allocatePoints(types, points);
         }
     }
-    public void resetStats(ServerPlayerEntity player) {
+    public void resetStatsWithPointReturn(PlayerEntity player) {
         stats.values().forEach(stat -> stat.reset(player, levelSystem));
+    }
+    public void resetStats(PlayerEntity player) {
+        stats.values().forEach(stat -> stat.reset(player));
     }
 
     public LevelSystem getLevelSystem() {
