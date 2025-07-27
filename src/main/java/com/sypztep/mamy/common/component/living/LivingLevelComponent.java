@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.component.living;
 
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.system.stat.LevelSystem;
+import com.sypztep.mamy.common.system.level.LevelSystem;
 import com.sypztep.mamy.common.system.stat.LivingStats;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;

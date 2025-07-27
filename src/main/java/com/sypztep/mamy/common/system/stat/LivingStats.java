@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.stat;
 
+import com.sypztep.mamy.common.system.level.LevelSystem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;

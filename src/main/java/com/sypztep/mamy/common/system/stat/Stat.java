@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.stat;
 
+import com.sypztep.mamy.common.system.level.LevelSystem;
 import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;

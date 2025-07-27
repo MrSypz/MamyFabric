@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.stat;
+package com.sypztep.mamy.common.system.level;
 
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
