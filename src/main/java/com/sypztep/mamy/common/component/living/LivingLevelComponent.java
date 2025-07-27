@@ -80,7 +80,10 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     public boolean tryIncreaseStat(StatTypes statType, short points) {
         if (!canIncreaseStat(statType)) return false;
 
-        performBatchUpdate(() -> livingStats.useStatPoint(statType, points));
+        performBatchUpdate(() -> {
+            livingStats.useStatPoint(statType, points);
+            refreshStatEffectsInternal(statType);
+        });
         return true;
     }
 
@@ -129,6 +132,12 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
             stat.applyPrimaryEffect(living);
             stat.applySecondaryEffect(living);
         }
+    }
+    // single
+    public void refreshStatEffectsInternal(StatTypes statType) {
+        Stat stat = getStatByType(statType);
+        stat.applyPrimaryEffect(living);
+        stat.applySecondaryEffect(living);
     }
 
     // ====================
