@@ -27,8 +27,8 @@ public class ScrollBehavior {
     private boolean isDragging = false;
 
     // Animation constants
-    private static final float HOVER_ANIMATION_SPEED = 0.15f;
-    private static final float FADE_ANIMATION_SPEED = 0.1f;
+    private static final float HOVER_ANIMATION_SPEED = 2f;
+    private static final float FADE_ANIMATION_SPEED = 0.5f;
     private static final float SCROLL_LERP_SPEED = 0.3f;
     private static final double SCROLL_SENSITIVITY = 20.0;
 
@@ -63,7 +63,7 @@ public class ScrollBehavior {
     public void update(DrawContext context, int mouseX, int mouseY, float delta) {
         updateMaxScroll();
         updateScrolling(delta);
-        updateScrollbarAnimation(mouseX, mouseY);
+        updateScrollbarAnimation(mouseX, mouseY, delta);
 
         if (enableScrollbar && maxScroll > 0) {
             renderScrollbar(context, mouseX, mouseY);
@@ -149,23 +149,29 @@ public class ScrollBehavior {
     }
 
     private void updateScrolling(float delta) {
-        // Smooth scrolling with lerp
         if (Math.abs(scrollAmount - targetScrollAmount) > 0.1) {
-            scrollAmount = MathHelper.lerp(SCROLL_LERP_SPEED, scrollAmount, targetScrollAmount);
+            // Frame-rate independent smooth scrolling
+            float lerpFactor = 1.0f - (float)Math.exp(-SCROLL_LERP_SPEED * delta);
+            scrollAmount = MathHelper.lerp(lerpFactor, scrollAmount, targetScrollAmount);
         } else {
             scrollAmount = targetScrollAmount;
         }
         scrollAmount = MathHelper.clamp(scrollAmount, 0, maxScroll);
     }
 
-    private void updateScrollbarAnimation(int mouseX, int mouseY) {
+    private void updateScrollbarAnimation(int mouseX, int mouseY, float delta) {
         if (enableScrollbar && maxScroll > 0) {
             scrollbarHovered = isScrollbarHovered(mouseX, mouseY);
 
-            if (scrollbarHovered || isDragging) {
-                scrollbarHoverAnimation = Math.min(1.0f, scrollbarHoverAnimation + HOVER_ANIMATION_SPEED);
-            } else {
-                scrollbarHoverAnimation = Math.max(0.0f, scrollbarHoverAnimation - FADE_ANIMATION_SPEED);
+            float targetAnimation = (scrollbarHovered || isDragging) ? 1.0f : 0.0f;
+
+            // Frame-rate independent animation
+            if (scrollbarHoverAnimation < targetAnimation) {
+                scrollbarHoverAnimation = Math.min(1.0f,
+                        scrollbarHoverAnimation + HOVER_ANIMATION_SPEED * delta);
+            } else if (scrollbarHoverAnimation > targetAnimation) {
+                scrollbarHoverAnimation = Math.max(0.0f,
+                        scrollbarHoverAnimation - FADE_ANIMATION_SPEED * delta);
             }
         }
     }
