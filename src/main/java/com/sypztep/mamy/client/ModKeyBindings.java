@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client;
 
+import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -28,7 +29,7 @@ public class ModKeyBindings {
     private static void handleKeyInputs(MinecraftClient client) {
         if (OPEN_STAT_SCREEN.wasPressed()) {
             if (client.player != null && client.currentScreen == null) {
-                client.setScreen(new PlayerInfoScreen(client));
+                client.setScreen(new PassiveAbilityScreen(client));
             }
         }
     }

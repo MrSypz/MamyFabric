@@ -2,48 +2,37 @@ package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.client.util.AnimationUtils;
 import com.sypztep.mamy.client.util.DrawContextUtils;
-import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public final class ScrollableTextList {
-    private static final float SCROLL_SPEED = 1.2F;
     private static final int ICON_SIZE = 16;
 
-    // Enhanced scrollbar properties
-    private static final int SCROLLBAR_WIDTH = 6;
-    private static final int SCROLLBAR_PADDING = 2;
-    private static final float SCROLLBAR_ANIMATION_SPEED = 0.15f;
-    private static final float SCROLLBAR_FADE_SPEED = 0.1f;
-
     private final List<ListElement> items;
-    private float scrollOffset;
-    private float targetScrollOffset;
     private Map<String, Object> values;
     private final int textHeight;
     private int x, y, width, height;
 
-    // Animation and interaction state
-    private float scrollbarHoverAnimation = 0.0f;
-    private boolean scrollbarHovered = false;
-    private boolean isDragging = false;
-    private int contentTotalHeight = 0;
-    private int maxScroll = 0;
+    // Scroll behavior
+    private final ScrollBehavior scrollBehavior;
 
     public ScrollableTextList(List<ListElement> items, Map<String, Object> values) {
         this.items = items;
         this.values = values;
-        this.scrollOffset = 0;
-        this.targetScrollOffset = 0;
         this.textHeight = 25;
+
+        // Initialize scroll behavior
+        this.scrollBehavior = new ScrollBehavior()
+                .setScrollbarWidth(6)
+                .setScrollbarPadding(2)
+                .setMinHandleSize(20);
     }
 
     public void updateValues(Map<String, Object> newValues) {
@@ -62,27 +51,32 @@ public final class ScrollableTextList {
             return;
         }
 
+        // Calculate content height and update scroll behavior
         calculateContentHeight();
-        updateScrolling(deltaTick);
-        updateScrollbarAnimation();
+        scrollBehavior.setBounds(x, y, width, height);
+        scrollBehavior.setContentHeight(getCalculatedContentHeight());
 
-        // Draw the container background that was in the original
+        // Update scroll behavior
+        scrollBehavior.update(context, 0, 0, deltaTick); // We'll handle mouse in mouse methods
+
+        // Draw the container background
         DrawContextUtils.drawRect(context, x, y, width, height + 10, 0xFF1E1E1E);
 
         // Add subtle border enhancements
         renderEnhancements(context, x, y, width, height);
 
+        // Enable scissor for content clipping
+        scrollBehavior.enableScissor(context);
+
         // Render content with proper positioning
         renderContent(context, textRenderer, x, y, width, height, scale, iconscale, alpha);
 
-        // Render enhanced scrollbar
-        if (maxScroll > 0) {
-            renderEnhancedScrollbar(context);
-        }
+        // Disable scissor
+        scrollBehavior.disableScissor(context);
     }
 
     private void renderEnhancements(DrawContext context, int x, int y, int width, int height) {
-        // Just add subtle corner highlights for premium feel without disrupting main rendering
+        // Just add subtle corner highlights for premium feel
         context.fill(x, y, x + 2, y + 2, 0xFF444444);
         context.fill(x + width - 2, y, x + width, y + 2, 0xFF444444);
         context.fill(x, y + height - 2, x + 2, y + height, 0xFF444444);
@@ -91,7 +85,8 @@ public final class ScrollableTextList {
 
     private void renderContent(DrawContext context, TextRenderer textRenderer, int x, int y, int width, int height,
                                float scale, float iconscale, int alpha) {
-        int currentY = y - (int)scrollOffset;
+        int scrollOffset = scrollBehavior.getScrollOffset();
+        int currentY = y - scrollOffset;
 
         MatrixStack matrixStack = context.getMatrices();
         matrixStack.push();
@@ -113,7 +108,7 @@ public final class ScrollableTextList {
 
             String displayText = isMainContext ? itemText.getString() : "● " + itemText.getString();
             String formattedText = StringFormatter.format(displayText, values);
-            List<String> wrappedLines = wrapText(textRenderer, formattedText, (int)(width / scale) - 60);
+            List<String> wrappedLines = wrapText(textRenderer, formattedText, (int)((width - scrollBehavior.getContentWidth()) / scale) - 60);
 
             int textBlockHeight = wrappedLines.size() * textRenderer.fontHeight;
 
@@ -140,7 +135,7 @@ public final class ScrollableTextList {
                         matrixStack.pop();
                     }
 
-                    // Render text - use direct method if AnimationUtils is causing issues
+                    // Render text
                     if (alpha > 0) {
                         AnimationUtils.drawFadeText(context, textRenderer, line, textX, textY, alpha);
                     }
@@ -162,162 +157,46 @@ public final class ScrollableTextList {
         matrixStack.pop();
     }
 
-    private void renderEnhancedScrollbar(DrawContext context) {
-        if (maxScroll <= 0) return;
-
-        int visibleHeight = height;
-        int scrollbarX = x + width - SCROLLBAR_WIDTH - SCROLLBAR_PADDING;
-        int scrollbarY = y;
-        int scrollbarHeight = height;
-
-        // Background with animation
-        int bgAlpha = 25 + (int)(55 * scrollbarHoverAnimation);
-        context.fill(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight,
-                (bgAlpha << 24));
-
-        // Handle
-        int handleHeight = Math.max(20, scrollbarHeight * visibleHeight / contentTotalHeight);
-        int handleY = scrollbarY + (int)((scrollbarHeight - handleHeight) * scrollOffset / maxScroll);
-
-        // Animate handle size when hovered
-        int handleExpansion = (int)scrollbarHoverAnimation;
-        int animatedScrollbarX = scrollbarX - handleExpansion;
-        int animatedHandleHeight = handleHeight + handleExpansion * 2;
-
-        // Colors with smooth transitions
-        int baseAlpha = 120 + (int)(135 * scrollbarHoverAnimation);
-        int handleBgColor = (baseAlpha << 24) | 0x666666;
-        int handleFgColor = ColorUtils.interpolateColor(0xFFAAAAAA, 0xFFFFFFFF, scrollbarHoverAnimation);
-
-        // Glow effect when hovered
-        if (scrollbarHoverAnimation > 0.1f) {
-            int glowSize = (int)(4 * scrollbarHoverAnimation);
-            int glowAlpha = (int)(40 * scrollbarHoverAnimation);
-            int glowColor = (glowAlpha << 24) | 0xFFFFFF;
-
-            context.fill(animatedScrollbarX - glowSize, handleY - glowSize,
-                    animatedScrollbarX + SCROLLBAR_WIDTH + glowSize,
-                    handleY + animatedHandleHeight + glowSize, glowColor);
-        }
-
-        // Handle background
-        context.fill(animatedScrollbarX, handleY,
-                animatedScrollbarX + SCROLLBAR_WIDTH, handleY + animatedHandleHeight,
-                handleBgColor);
-
-        // Handle foreground with rounded effect
-        context.fill(animatedScrollbarX + 1, handleY + 1,
-                animatedScrollbarX + SCROLLBAR_WIDTH - 1, handleY + animatedHandleHeight - 1,
-                handleFgColor);
-
-        // Grip lines when highly hovered
-        if (scrollbarHoverAnimation > 0.5f) {
-            int lineY = handleY + animatedHandleHeight / 2 - 3;
-            int lineAlpha = (int)(255 * ((scrollbarHoverAnimation - 0.5f) * 2));
-            int lineColor = (lineAlpha << 24) | 0x999999;
-
-            for (int i = 0; i < 3; i++) {
-                context.fill(animatedScrollbarX + 2, lineY + (i * 3),
-                        animatedScrollbarX + SCROLLBAR_WIDTH - 2, lineY + (i * 3) + 1,
-                        lineColor);
-            }
-        }
-    }
-
     private void calculateContentHeight() {
-        int totalItems = items.size();
-        contentTotalHeight = totalItems * textHeight;
-        maxScroll = Math.max(0, contentTotalHeight - height);
-        // Clamp current scroll
-        scrollOffset = MathHelper.clamp(scrollOffset, 0, maxScroll);
-        targetScrollOffset = MathHelper.clamp(targetScrollOffset, 0, maxScroll);
+        // This would be calculated based on your content
+        // For now, using a simple calculation
+        int totalHeight = items.size() * textHeight;
+        // Add extra height for wrapped text if needed
+        // This is a simplified version - you might want to be more precise
     }
 
-    private void updateScrolling(float deltaTick) {
-        // Smooth scrolling with lerp
-        if (Math.abs(scrollOffset - targetScrollOffset) > 0.1f) {
-            float delta = (targetScrollOffset - scrollOffset) * SCROLL_SPEED * deltaTick;
-            scrollOffset += delta;
-        } else {
-            scrollOffset = targetScrollOffset;
+    private int getCalculatedContentHeight() {
+        // Calculate the actual height needed for all content
+        int totalHeight = 0;
+        for (ListElement listElement : items) {
+            // For each item, calculate its height including wrapped text
+            // This is simplified - you might want to cache this calculation
+            totalHeight += textHeight;
         }
-
-        scrollOffset = MathHelper.clamp(scrollOffset, 0, maxScroll);
+        return totalHeight;
     }
 
-    private void updateScrollbarAnimation() {
-        // Update scrollbar hover animation
-        if (scrollbarHovered || isDragging) {
-            scrollbarHoverAnimation = Math.min(1.0f, scrollbarHoverAnimation + SCROLLBAR_ANIMATION_SPEED);
-        } else {
-            scrollbarHoverAnimation = Math.max(0.0f, scrollbarHoverAnimation - SCROLLBAR_FADE_SPEED);
-        }
-    }
-
-    private boolean isScrollbarClicked(double mouseX, double mouseY) {
-        if (maxScroll <= 0) return false;
-
-        int scrollbarX = x + width - SCROLLBAR_WIDTH - SCROLLBAR_PADDING;
-        int scrollbarY = y;
-        int scrollbarHeight = height;
-
-        return mouseX >= scrollbarX && mouseX <= scrollbarX + SCROLLBAR_WIDTH &&
-                mouseY >= scrollbarY && mouseY <= scrollbarY + scrollbarHeight;
-    }
-
+    // Mouse interaction methods that delegate to ScrollBehavior
     public void scroll(int amount, double mouseX, double mouseY) {
-        if (isMouseOver(mouseX, mouseY, this.x, this.y, this.width, this.height)) {
-            targetScrollOffset -= amount;
-            targetScrollOffset = MathHelper.clamp(targetScrollOffset, 0, maxScroll);
-
-            // Update scrollbar hover state
-            scrollbarHovered = isScrollbarClicked(mouseX, mouseY);
-        }
+        // Convert old scroll API to new ScrollBehavior API
+        double verticalAmount = -amount / 20.0; // Convert to scroll wheel units
+        scrollBehavior.handleScroll(mouseX, mouseY, 0, verticalAmount);
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (isScrollbarClicked(mouseX, mouseY)) {
-            isDragging = true;
-            // Calculate new scroll position
-            int scrollbarY = y;
-            int scrollbarHeight = height;
-            double scrollRatio = (mouseY - scrollbarY) / (double)scrollbarHeight;
-            scrollOffset = (float)(scrollRatio * maxScroll);
-            targetScrollOffset = scrollOffset;
-            scrollOffset = MathHelper.clamp(scrollOffset, 0, maxScroll);
-            targetScrollOffset = MathHelper.clamp(targetScrollOffset, 0, maxScroll);
-            return true;
-        }
-        return false;
+        return scrollBehavior.handleMouseClick(mouseX, mouseY, button);
     }
 
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (isDragging) {
-            int scrollbarY = y;
-            int scrollbarHeight = height;
-
-            double scrollRatio = (mouseY - scrollbarY) / (double)scrollbarHeight;
-            scrollOffset = (float)(scrollRatio * maxScroll);
-            targetScrollOffset = scrollOffset;
-            scrollOffset = MathHelper.clamp(scrollOffset, 0, maxScroll);
-            targetScrollOffset = MathHelper.clamp(targetScrollOffset, 0, maxScroll);
-            return true;
-        }
-        return false;
+        return scrollBehavior.handleMouseDrag(mouseX, mouseY, button, dragX, dragY);
     }
 
     public void mouseReleased(double mouseX, double mouseY, int button) {
-        isDragging = false;
+        scrollBehavior.handleMouseRelease(mouseX, mouseY, button);
     }
 
     public boolean isMouseOver(double mouseX, double mouseY, int x, int y, int width, int height) {
-        boolean isOver = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
-        if (isOver && maxScroll > 0) {
-            scrollbarHovered = isScrollbarClicked(mouseX, mouseY);
-        } else {
-            scrollbarHovered = false;
-        }
-        return isOver;
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
     private List<String> wrapText(TextRenderer textRenderer, String text, int maxWidth) {
@@ -355,6 +234,9 @@ public final class ScrollableTextList {
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+
+    // Access to scroll behavior for advanced usage
+    public ScrollBehavior getScrollBehavior() { return scrollBehavior; }
 
     public static class StringFormatter {
         public static String format(String template, Map<String, Object> values) {
