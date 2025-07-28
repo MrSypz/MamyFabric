@@ -12,7 +12,7 @@ import org.lwjgl.glfw.GLFW;
 public class ModKeyBindings {
 
     public static KeyBinding OPEN_STAT_SCREEN;
-    public static KeyBinding OPEN_MODERN_CHARACTER_SCREEN;
+    public static KeyBinding OPEN_PASSIEV_SCREEN;
 
 
     public static void register() {
@@ -22,12 +22,23 @@ public class ModKeyBindings {
                 GLFW.GLFW_KEY_K, // K key
                 "category.mamy.keys" // Category translation key
         ));
+        OPEN_PASSIEV_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.open_passive_screen", // Translation key
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_P, // K key
+                "category.mamy.keys" // Category translation key
+        ));
 
         ClientTickEvents.END_CLIENT_TICK.register(ModKeyBindings::handleKeyInputs);
     }
 
     private static void handleKeyInputs(MinecraftClient client) {
         if (OPEN_STAT_SCREEN.wasPressed()) {
+            if (client.player != null && client.currentScreen == null) {
+                client.setScreen(new PlayerInfoScreen(client));
+            }
+        }
+        if (OPEN_PASSIEV_SCREEN.wasPressed()) {
             if (client.player != null && client.currentScreen == null) {
                 client.setScreen(new PassiveAbilityScreen(client));
             }
