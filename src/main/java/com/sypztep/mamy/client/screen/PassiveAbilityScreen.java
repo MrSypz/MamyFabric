@@ -10,6 +10,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
+import com.sypztep.mamy.common.util.AttributeModification;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -30,7 +31,7 @@ public class PassiveAbilityScreen extends Screen {
     // UI constants
     private static final int CONTENT_PADDING = 50;
     private static final int SECTION_SPACING = 10;
-    private static final int SUMMARY_HEIGHT = 35;
+    private static final int SUMMARY_HEIGHT = 25;
     private static final int MIN_ITEM_HEIGHT = 25;
     private static final int ITEM_PADDING = 8;
 
@@ -163,10 +164,6 @@ public class PassiveAbilityScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Render background
-        this.renderBackground(context, mouseX, mouseY, delta);
-
-        // Update animations
         fadeAnimation.update(delta);
         slideAnimation.update(delta);
 
@@ -241,8 +238,8 @@ public class PassiveAbilityScreen extends Screen {
         context.fill(x, y + SUMMARY_HEIGHT - 1, x + width, y + SUMMARY_HEIGHT, 0xFF4CAF50);
 
         // Summary text
-        String summaryText = String.format("Unlocked: %d/%d | Active: %d | Can Unlock: %d",
-                unlockedCount, totalCount, activeCount, getCanUnlockCount());
+        String summaryText = String.format("Unlocked: %d/%d | Active: %d ",
+                unlockedCount, totalCount, activeCount);
 
         AnimationUtils.drawFadeText(context, textRenderer,
                 Text.literal(summaryText).formatted(Formatting.WHITE),
@@ -526,33 +523,24 @@ public class PassiveAbilityScreen extends Screen {
     }
 
     private String getEffectDescription(PassiveAbility ability) {
-        // Get a brief description of what the ability does based on its attribute modifications
-        var modifications = ability.getAttributeModifications();
-        if (modifications.isEmpty()) {
-            return "No specific attribute bonuses.";
-        }
+        List<AttributeModification> modifications = ability.getAttributeModifications();
+        if (modifications.isEmpty()) return "No specific attribute bonuses.";
 
         StringBuilder desc = new StringBuilder();
         for (var mod : modifications) {
             if (!desc.isEmpty()) desc.append(", ");
-
-            // You could expand this to be more descriptive based on the attribute type
             String attributeName = mod.attribute().getIdAsString();
             desc.append(attributeName.substring(attributeName.lastIndexOf('.') + 1));
         }
 
         return desc.toString();
     }
-
+    @Deprecated
     private int getCanUnlockCount() {
         if (abilityManager == null) return 0;
 
         int count = 0;
-        for (PassiveAbility ability : displayedAbilities) {
-            if (!abilityManager.isUnlocked(ability) && ability.meetsRequirements(client.player)) {
-                count++;
-            }
-        }
+        for (PassiveAbility ability : displayedAbilities) if (!abilityManager.isUnlocked(ability) && ability.meetsRequirements(client.player)) count++;
         return count;
     }
 
@@ -599,19 +587,8 @@ public class PassiveAbilityScreen extends Screen {
                 int itemY = currentY;
                 int actualItemHeight = itemHeight - 2; // Same as hover detection
 
-                // Check if mouse is within this item's bounds
                 if (adjustedMouseY >= itemY && adjustedMouseY <= itemY + actualItemHeight) {
-                    // Also verify the item is actually visible (same check as render)
                     if (itemY + actualItemHeight >= listY && itemY <= listY + contentHeight) {
-//                        selectedAbility = displayedAbilities.get(i);
-//
-//                        // Recalculate details content height when selection changes
-//                        int detailsWidth = (contentWidth - SECTION_SPACING) / 2;
-//                        int detailsContentHeight = calculateDetailsContentHeight(detailsWidth - 20);
-//                        detailsScrollBehavior.setContentHeight(detailsContentHeight);
-//                        detailsScrollBehavior.resetScroll(); // Reset scroll to top when selecting new ability
-//
-//                        return true;
                         selectedAbility = displayedAbilities.get(i);
                         listScrollBehavior.scrollToItem(i, itemHeight);
                         return true;
