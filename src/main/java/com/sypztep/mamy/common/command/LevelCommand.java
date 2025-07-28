@@ -188,6 +188,7 @@ public class LevelCommand {
             component.getLevelSystem().setExperience(0);
             component.getLevelSystem().setStatPoints(ModConfig.startStatpoints);
             component.getLivingStats().resetStats(player,false);
+            component.getPassiveAbilityManager().resetAll();
         });
 
         Text message = Text.literal(String.format(
