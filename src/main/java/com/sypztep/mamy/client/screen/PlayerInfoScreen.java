@@ -141,7 +141,6 @@ public final class PlayerInfoScreen extends Screen {
         increaseButtons = new ArrayList<>(); // Initialize the list to hold buttons
 
         int y = 50;
-        // Use the stat arrays instead of StatTypes.values()
         for (StatTypes statType : StatTypes.values()) {
             int statValueWidth = 30;
             int startX = 50;
@@ -155,7 +154,6 @@ public final class PlayerInfoScreen extends Screen {
             y += statRowHeight; // Move to the next row
         }
 
-        // Updated to use new level system methods
         texts = Arrays.asList(
                 Text.of("Lvl Progress: " + playerStats.getExperience() + "/" + playerStats.getExperienceToNextLevel()),
                 Text.of(playerStats.getExperienceToNextLevel() + " XP to Level " + (playerStats.getLevel() + 1)),
@@ -187,7 +185,7 @@ public final class PlayerInfoScreen extends Screen {
 
         // Set background color
         DrawContextUtils.fillScreen(context, 0xF0121212);
-        drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta);
+        drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
 
         renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);
 
@@ -207,8 +205,8 @@ public final class PlayerInfoScreen extends Screen {
         ToastRenderer.renderToasts(context, this.width, deltaTime);
     }
 
-    private void drawStatsSection(DrawContext context, int xOffset, float yOffset, int contentWidth, int contentHeight, float deltatick) {
-        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 55), contentWidth, contentHeight, 0.5f, 1f, AnimationUtils.getAlpha(fadeAnimation.getProgress()), deltatick);
+    private void drawStatsSection(DrawContext context, int xOffset, float yOffset, int contentWidth, int contentHeight, float deltatick, int mouseX, int mouseY) {
+        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, 1f, AnimationUtils.getAlpha(fadeAnimation.getProgress()), deltatick, mouseX, mouseY);
     }
 
     private void renderStyledText(DrawContext context, int x, int y, int statValue, float scale) { // Updated parameter name
@@ -321,69 +319,6 @@ public final class PlayerInfoScreen extends Screen {
         context.getMatrices().pop();
         AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma), (int) (screenWidth * 0.5f), (int) (screenHeight * 0.5f) + 25, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
     }
-    private void renderPassiveAbilities(DrawContext context, int x, int y, float delta) {
-        LivingLevelComponent component = ModEntityComponents.LIVINGLEVEL.get(client.player);
-        PassiveAbilityManager manager = component.getPassiveAbilityManager();
-
-        if (manager == null) return;
-
-        List<PassiveAbility> unlockedAbilities = manager.getUnlockedAbilities();
-        List<PassiveAbility> allAbilities = ModPassiveAbilities.getAbilitiesOrderedByLevel();
-
-        int currentY = y;
-
-        // Header
-        context.drawTextWithShadow(textRenderer, Text.literal("Passive Abilities").formatted(Formatting.GOLD), x, currentY, 0xFFFFFF);
-        currentY += textRenderer.fontHeight + 5;
-
-        // Show unlocked count
-        context.drawTextWithShadow(textRenderer,
-                Text.literal(String.format("Unlocked: %d/%d", unlockedAbilities.size(), allAbilities.size())),
-                x, currentY, 0xAAAAAA);
-        currentY += textRenderer.fontHeight + 10;
-
-        // Show first few abilities (or all if there's space)
-        int shown = 0;
-        int maxShown = 8; // Limit displayed abilities
-
-        for (PassiveAbility ability : allAbilities) {
-            if (shown >= maxShown) break;
-
-            boolean unlocked = manager.isUnlocked(ability);
-            boolean active = manager.isActive(ability);
-            boolean meetsRequirements = ability.meetsRequirements(client.player);
-
-            // Determine color based on status
-            Formatting color;
-            String statusIcon;
-            if (active) {
-                color = Formatting.GREEN;
-                statusIcon = "✓ ";
-            } else if (unlocked) {
-                color = Formatting.YELLOW;
-                statusIcon = "⚠ ";
-            } else if (meetsRequirements) {
-                color = Formatting.AQUA;
-                statusIcon = "! ";
-            } else {
-                color = Formatting.GRAY;
-                statusIcon = "✗ ";
-            }
-
-            Text abilityText = Text.literal(statusIcon + ability.getDisplayName().getString()).formatted(color);
-            context.drawTextWithShadow(textRenderer, abilityText, x, currentY, 0xFFFFFF);
-
-            currentY += textRenderer.fontHeight + 2;
-            shown++;
-        }
-
-        // Show "..." if there are more abilities
-        if (allAbilities.size() > maxShown) {
-            context.drawTextWithShadow(textRenderer,
-                    Text.literal(String.format("... and %d more", allAbilities.size() - maxShown)),
-                    x, currentY, 0x888888);
-        }
-    }
 
     private void renderBottomLeftSection(DrawContext context, int screenWidth, int screenHeight, float delta) {
         int labelX = (int) (screenWidth * 0.025f); // X position, a little inset from the left edge
@@ -412,15 +347,35 @@ public final class PlayerInfoScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        boolean isAnyScrolled = false;
-        int scrollAmount = (int) (verticalAmount * 25);
-        if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY() - 30, playerInfo.getWidth(), playerInfo.getHeight())) {
-            playerInfo.scroll(scrollAmount, mouseX, mouseY + 30);
-            isAnyScrolled = true;
+        if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY() - 30,
+                playerInfo.getWidth(), playerInfo.getHeight() + 30)) {
+            if (playerInfo.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
         }
-        return isAnyScrolled || super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY(),
+                playerInfo.getWidth(), playerInfo.getHeight())) {
+            if (playerInfo.handleMouseClick(mouseX, mouseY, button)) return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (playerInfo.handleMouseDrag(mouseX, mouseY, button, deltaX, deltaY)) return true;
+
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        playerInfo.handleMouseRelease(mouseX, mouseY, button);
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
     @Override
     public boolean shouldPause() {
         return false;
