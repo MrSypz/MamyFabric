@@ -163,7 +163,6 @@ public final class PlayerInfoScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
         assert client != null;
         updateValues(client);
 
@@ -201,7 +200,7 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     private void renderToastsOverScreen(DrawContext context, float delta) {
-        float deltaTime = delta / 20.0f;
+        float deltaTime = delta / 16.0f;
         ToastRenderer.renderToasts(context, this.width, deltaTime);
     }
 
@@ -220,8 +219,6 @@ public final class PlayerInfoScreen extends Screen {
         // Render the styled text
         context.drawTextWithShadow(this.textRenderer, text, (int) (x / scale), (int) (y / scale), 0xFFFFFF);
     }
-
-    // Replace Dominatus code with Mamy equivalents
 
     private void renderStatsAndButtons(DrawContext context, int screenWidth, int yOffset, int mouseX, int mouseY, float delta) {
         int rectX = (int) (screenWidth * 0.025f);

@@ -1,15 +1,17 @@
 package com.sypztep.mamy.client.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.sypztep.mamy.client.screen.widget.ListElement;
 import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
-    // Utility method to draw simple text with an optional icon
     public static void drawTextWithIcon(DrawContext context, TextRenderer textRenderer, ListElement listElement, int x, int y, float scale, float iconscale, int alpha) {
         final int ICON_SIZE = 16;
         Text text = listElement.text();
@@ -28,7 +30,7 @@ public final class DrawContextUtils {
             matrixStack.push();
             matrixStack.translate((x - ICON_SIZE) / scale - 10, (y + (textRenderer.fontHeight * scale) / 2 - (float) ICON_SIZE / 2), 0);
             matrixStack.scale(iconscale, iconscale, 1.0F);
-            context.drawGuiTexture(icon, 0, 0, ICON_SIZE, ICON_SIZE); // Adjust x, y, width, height
+            context.drawGuiTexture(icon, 0, 0, ICON_SIZE, ICON_SIZE);
             matrixStack.pop();
         }
 
@@ -47,7 +49,8 @@ public final class DrawContextUtils {
         AnimationUtils.drawFadeText(context, textRenderer, text, textX, textY, alpha);
         matrixStack.pop();
     }
-    public static void drawBoldText(DrawContext context, TextRenderer renderer, String string, int i, int j, int color,int bordercolor) {
+
+    public static void drawBoldText(DrawContext context, TextRenderer renderer, String string, int i, int j, int color, int bordercolor) {
         context.drawText(renderer, string, i+1, j, bordercolor, false);
         context.drawText(renderer, string, i-1, j, bordercolor, false);
         context.drawText(renderer, string, i, j+1, bordercolor, false);
@@ -67,94 +70,178 @@ public final class DrawContextUtils {
         // Right border
         context.fill(width - thickness, 0, width, height, color);
     }
-    public static void renderVerticalLine(DrawContext context, int positionX, int positionY, int height,int thickness, int z, int color) {
+
+    public static void renderVerticalLine(DrawContext context, int positionX, int positionY, int height, int thickness, int z, int color) {
         context.fill(positionX, positionY, positionX + thickness, positionY + height, z, color);
     }
+
     public static void renderHorizontalLine(DrawContext context, int positionX, int positionY, int width, int thickness, int z, int color) {
         context.fill(positionX, positionY, positionX + width, positionY + thickness, z, color);
     }
-    //Fill the entire screen
+
+    // Fill the entire screen
     public static void fillScreen(DrawContext context, int red, int green, int blue, int alpha) {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
         int color = ColorUtils.rgbaToHex(red, green, blue, alpha);
-
         context.fill(0, 0, width, height, color);
     }
+
     public static void fillScreen(DrawContext context, int red, int green, int blue) {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
         int color = ColorUtils.fromRgb(red, green, blue);
-
         context.fill(0, 0, width, height, color);
     }
+
     public static void fillScreen(DrawContext context, int color) {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
-
         context.fill(0, 0, width, height, color);
-    }
-    public static void renderVerticalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
-        int centerY = y + height / 2;
-
-        for (int dy = 0; dy < height; dy++) {
-            for (int dx = 0; dx < width; dx++) {
-                int pixelX = x + dx;
-                int pixelY = y + dy;
-
-                // Calculate the distance from the center vertically
-                float distance = (float) Math.abs(pixelY - centerY);
-                float normalizedDistance = Math.min(distance / ((float) height / 2), 1.0f); // Normalize distance to [0, 1]
-
-                // Interpolate color based on distance
-                int color = ColorUtils.interpolateColor(centerColor, edgeColor, normalizedDistance);
-
-                // Set pixel color
-                context.fill(pixelX, pixelY, pixelX + 1, pixelY + 1, z, color);
-            }
-        }
-    }
-    public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
-        int centerX = x + width / 2;
-
-        for (int dy = 0; dy < height; dy++) {
-            for (int dx = 0; dx < width; dx++) {
-                int pixelX = x + dx;
-                int pixelY = y + dy;
-
-                float distance = (float) Math.abs(pixelX - centerX);
-                float normalizedDistance = Math.min(distance / ((float) width / 2), 1.0f); // Normalize distance to [0, 1]
-
-                int color = ColorUtils.interpolateColor(centerColor, edgeColor, normalizedDistance);
-
-                context.fill(pixelX, pixelY, pixelX + 1, pixelY + 1, z, color);
-            }
-        }
-    }
-    //fade Animation
-    public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor, float alpha) {
-        int centerX = x + width / 2;
-
-        for (int dy = 0; dy < height; dy++) {
-            for (int dx = 0; dx < width; dx++) {
-                int pixelX = x + dx;
-                int pixelY = y + dy;
-
-                float distance = (float) Math.abs(pixelX - centerX);
-                float normalizedDistance = Math.min(distance / ((float) width / 2), 1.0f); // Normalize distance to [0, 1]
-
-                int gradientColor = ColorUtils.interpolateColor(centerColor, edgeColor, normalizedDistance);
-
-                int originalAlpha = (gradientColor >> 24) & 0xFF; // Extract the alpha from the gradient color
-
-                int finalAlpha = (int) (alpha * originalAlpha); // Apply the fade-in effect
-                int finalColor = (gradientColor & 0x00FFFFFF) | (finalAlpha << 24);
-                context.fill(pixelX, pixelY, pixelX + 1, pixelY + 1, z, finalColor);
-            }
-        }
     }
 
     public static void drawRect(DrawContext context, int contentX, int contentY, int contentWidth, int contentHeight, int color) {
         context.fill(contentX, contentY, contentX + contentWidth, contentY + contentHeight, color);
+    }
+
+    // ===== OPTIMIZED VERTEX-BASED GRADIENT METHODS =====
+
+    /**
+     * Renders a vertical gradient using GPU vertex interpolation (top to bottom)
+     * Much more efficient than pixel-by-pixel rendering
+     */
+    public static void renderVerticalGradient(DrawContext context, int x, int y, int width, int height, int topColor, int bottomColor) {
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+
+        // Extract color components
+        float topR = ((topColor >> 16) & 0xFF) / 255.0f;
+        float topG = ((topColor >> 8) & 0xFF) / 255.0f;
+        float topB = (topColor & 0xFF) / 255.0f;
+        float topA = ((topColor >> 24) & 0xFF) / 255.0f;
+
+        float bottomR = ((bottomColor >> 16) & 0xFF) / 255.0f;
+        float bottomG = ((bottomColor >> 8) & 0xFF) / 255.0f;
+        float bottomB = (bottomColor & 0xFF) / 255.0f;
+        float bottomA = ((bottomColor >> 24) & 0xFF) / 255.0f;
+
+        // Set up render state
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+        // Create quad with vertex colors (GPU will interpolate)
+        bufferBuilder.vertex(matrix, x + width, y, 0).color(topR, topG, topB, topA);
+        bufferBuilder.vertex(matrix, x, y, 0).color(topR, topG, topB, topA);
+        bufferBuilder.vertex(matrix, x, y + height, 0).color(bottomR, bottomG, bottomB, bottomA);
+        bufferBuilder.vertex(matrix, x + width, y + height, 0).color(bottomR, bottomG, bottomB, bottomA);
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Renders a horizontal gradient using GPU vertex interpolation (left to right)
+     */
+    public static void renderHorizontalGradient(DrawContext context, int x, int y, int width, int height, int leftColor, int rightColor) {
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+
+        // Extract color components
+        float leftR = ((leftColor >> 16) & 0xFF) / 255.0f;
+        float leftG = ((leftColor >> 8) & 0xFF) / 255.0f;
+        float leftB = (leftColor & 0xFF) / 255.0f;
+        float leftA = ((leftColor >> 24) & 0xFF) / 255.0f;
+
+        float rightR = ((rightColor >> 16) & 0xFF) / 255.0f;
+        float rightG = ((rightColor >> 8) & 0xFF) / 255.0f;
+        float rightB = (rightColor & 0xFF) / 255.0f;
+        float rightA = ((rightColor >> 24) & 0xFF) / 255.0f;
+
+        // Set up render state
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+        // Create quad with vertex colors (GPU will interpolate)
+        bufferBuilder.vertex(matrix, x + width, y, 0).color(rightR, rightG, rightB, rightA);
+        bufferBuilder.vertex(matrix, x, y, 0).color(leftR, leftG, leftB, leftA);
+        bufferBuilder.vertex(matrix, x, y + height, 0).color(leftR, leftG, leftB, leftA);
+        bufferBuilder.vertex(matrix, x + width, y + height, 0).color(rightR, rightG, rightB, rightA);
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
+    }
+
+    /**
+     * Renders a horizontal center gradient (edge -> center -> edge) using two quads
+     * This is much more efficient than the old pixel-by-pixel method
+     */
+    public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
+        int centerX = x + width / 2;
+
+        // Left half: edge to center
+        renderHorizontalGradient(context, x, y, width / 2, height, edgeColor, centerColor);
+
+        // Right half: center to edge
+        renderHorizontalGradient(context, centerX, y, width - width / 2, height, centerColor, edgeColor);
+    }
+
+    /**
+     * Renders a horizontal center gradient with alpha blending
+     */
+    public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor, float alpha) {
+        // Apply alpha to both colors
+        int alphaCenterColor = applyAlpha(centerColor, alpha);
+        int alphaEdgeColor = applyAlpha(edgeColor, alpha);
+
+        renderHorizontalLineWithCenterGradient(context, x, y, width, height, z, alphaCenterColor, alphaEdgeColor);
+    }
+
+    /**
+     * Renders a vertical center gradient (edge -> center -> edge) using two quads
+     */
+    public static void renderVerticalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
+        int centerY = y + height / 2;
+
+        // Top half: edge to center
+        renderVerticalGradient(context, x, y, width, height / 2, edgeColor, centerColor);
+
+        // Bottom half: center to edge
+        renderVerticalGradient(context, x, centerY, width, height - height / 2, centerColor, edgeColor);
+    }
+
+    /**
+     * Simple horizontal gradient - kept for backward compatibility but now uses efficient rendering
+     */
+    public static void renderSimpleHorizontalGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
+        renderHorizontalLineWithCenterGradient(context, x, y, width, height, z, centerColor, edgeColor);
+    }
+
+    // ===== UTILITY METHODS =====
+
+    /**
+     * Apply alpha multiplier to a color
+     */
+    private static int applyAlpha(int color, float alpha) {
+        int originalAlpha = (color >> 24) & 0xFF;
+        int newAlpha = (int) (originalAlpha * alpha);
+        return (color & 0x00FFFFFF) | (newAlpha << 24);
+    }
+
+    /**
+     * Create a color with specific alpha
+     */
+    public static int colorWithAlpha(int rgb, int alpha) {
+        return (rgb & 0x00FFFFFF) | ((alpha & 0xFF) << 24);
+    }
+
+    /**
+     * Blend two colors with a ratio
+     */
+    public static int blendColors(int color1, int color2, float ratio) {
+        return ColorUtils.interpolateColor(color1, color2, ratio);
     }
 }

@@ -11,14 +11,6 @@ public final class ColorUtils {
     public static int fromRgb(int red, int green, int blue) {
         return rgbaToHex(red, green, blue, 255);
     }
-    /**
-     * Interpolates between two colors using a ratio.
-     *
-     * @param color1 The starting color in RGBA format.
-     * @param color2 The ending color in RGBA format.
-     * @param ratio  The interpolation ratio between 0.0 (color1) and 1.0 (color2).
-     * @return The interpolated color in RGBA format.
-     */
     public static int interpolateColor(int color1, int color2, float ratio) {
         // Extract RGBA components from the first color
         int r1 = (color1 >> 16) & 0xFF;
