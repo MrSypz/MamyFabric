@@ -60,7 +60,7 @@ public final class PlayerInfoScreen extends Screen {
     private final ScrollableTextList playerInfo;
 
     // Tab dimensions
-    private static final int TAB_WIDTH = 120;
+    private static final int TAB_WIDTH = 80;
     private static final int TAB_HEIGHT = 30;
     private static final int TAB_SPACING = 5;
 
@@ -356,23 +356,23 @@ public final class PlayerInfoScreen extends Screen {
         int contentX = 50;
         int contentY = yOffset + 50;
         int contentWidth = screenWidth - 100;
-        int contentHeight = screenHeight - contentY - 50;
+        int contentHeight = screenHeight - contentY - 20;
 
         // Split into two sections: ability list (left) and details (right)
-        int listWidth = contentWidth * 2 / 3;
-        int detailsWidth = contentWidth / 3 - 20;
-        int detailsX = contentX + listWidth + 20;
+        int listWidth = contentWidth * 2 / 4;
+        int detailsWidth = contentWidth / 2 - 2 ;
+        int detailsX = contentX + listWidth + 5;
 
         // Render ability list
-        renderPassiveAbilityList(context, contentX, contentY, listWidth, contentHeight, mouseX, mouseY, delta);
+        renderPassiveAbilityList(context, contentX, contentY + 10, listWidth, contentHeight, mouseX, mouseY, delta);
 
         // Render details panel
         if (selectedAbility != null) {
-            renderPassiveAbilityDetails(context, detailsX, contentY, detailsWidth, contentHeight, delta);
+            renderPassiveAbilityDetails(context, detailsX, contentY + 10, detailsWidth, contentHeight, delta);
         }
 
         // Render summary info at top
-        renderPassiveSummary(context, contentX, contentY - 30, contentWidth, delta);
+        renderPassiveSummary(context, contentX, contentY - 20, contentWidth, delta);
     }
 
     private void renderPassiveSummary(DrawContext context, int x, int y, int width, float delta) {
@@ -423,7 +423,7 @@ public final class PlayerInfoScreen extends Screen {
         if (manager == null) return;
 
         int itemHeight = 35;
-        int visibleCount = (height - 20) / itemHeight;
+        int visibleCount = (height - 10) / itemHeight;
         int maxScroll = Math.max(0, displayedAbilities.size() - visibleCount);
         passiveScrollOffset = Math.max(0, Math.min(passiveScrollOffset, maxScroll));
 
@@ -743,22 +743,6 @@ public final class PlayerInfoScreen extends Screen {
             cyclingTextIcon.updateTexts(texts);
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Handle tab clicking
-        if (handleTabClick(mouseX, mouseY, button)) {
-            return true;
-        }
-
-        // Handle passive ability selection in PASSIVES tab
-        if (currentTab == Tab.PASSIVES && button == 0) {
-            if (handlePassiveAbilityClick(mouseX, mouseY)) {
-                return true;
-            }
-        }
-
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
 
     private boolean handleTabClick(double mouseX, double mouseY, int button) {
         if (button != 0) return false; // Left click only
@@ -820,19 +804,68 @@ public final class PlayerInfoScreen extends Screen {
         tabAnimations.get(newTab).elapsedTime = 0;
     }
 
+    // Add these methods to your PlayerInfoScreen class
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Handle tab clicking first
+        if (handleTabClick(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        // Handle passive ability selection in PASSIVES tab
+        if (currentTab == Tab.PASSIVES && button == 0) {
+            if (handlePassiveAbilityClick(mouseX, mouseY)) {
+                return true;
+            }
+        }
+
+        // Handle scrollable text list interactions in STATS tab
+        if (currentTab == Tab.STATS && button == 0) {
+            if (playerInfo.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        // Handle scrollable text list dragging in STATS tab
+        if (currentTab == Tab.STATS) {
+            if (playerInfo.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+                return true;
+            }
+        }
+
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        // Handle scrollable text list mouse release in STATS tab
+        if (currentTab == Tab.STATS) {
+            playerInfo.mouseReleased(mouseX, mouseY, button);
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (currentTab == Tab.STATS) {
-            // Handle scrolling in stats info panel
+            // Handle scrolling in stats info panel with enhanced smoothness
             boolean isAnyScrolled = false;
-            int scrollAmount = (int) (verticalAmount * 25);
-            if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY() - 30, playerInfo.getWidth(), playerInfo.getHeight())) {
+            int scrollAmount = (int)(verticalAmount * 25);
+            if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY() - 30,
+                    playerInfo.getWidth(), playerInfo.getHeight())) {
                 playerInfo.scroll(scrollAmount, mouseX, mouseY + 30);
                 isAnyScrolled = true;
             }
             return isAnyScrolled || super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
         } else if (currentTab == Tab.PASSIVES) {
-            // Handle scrolling in passive abilities list
+            // Handle scrolling in passive abilities list (existing code)
             int contentX = 50;
             int yOffset = (int) AnimationUtils.getPositionOffset(verticalAnimation.getProgress(), FINAL_Y_OFFSET, height);
             int contentY = yOffset + 50;
