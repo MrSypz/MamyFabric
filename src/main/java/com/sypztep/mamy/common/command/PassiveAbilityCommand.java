@@ -369,7 +369,7 @@ public class PassiveAbilityCommand {
 
         int unlockedCount = manager.getUnlockedAbilities().size();
 
-        component.performBatchUpdate(() -> manager.resetAll());
+        component.performBatchUpdate(manager::resetAll);
 
         Text message = Text.literal(String.format(
                 "§6Reset all passive abilities for %s §7(§e%d §7abilities removed)",
