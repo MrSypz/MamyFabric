@@ -76,6 +76,16 @@ public final class DamageUtil {
                 return extra;
             }
             return 0.0f;
+        }),
+
+        MELEE_DAMAGE(ModifierOperationType.ADD,(attacker, target, source, isCrit) -> {
+            if (source.isIn(ModDamageTags.MELEE_DAMAGE)) {
+                float meleeBonus = (float) attacker.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
+                float extra = meleeBonus + specialAttack(attacker);
+                debugLog("Melee Damage: +%.1f (%.1f melee, %.1f special)", extra, meleeBonus, specialAttack(attacker));
+                return extra;
+            }
+            return 0.0f;
         });
 
         private final ModifierOperationType opType;

@@ -33,16 +33,14 @@ public final class DexterityStat extends Stat {
     @Override
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
-                new AttributeModification(
+                AttributeModification.addValue(
                         ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (PROJECTILE_DAMAGE_SCALING * this.currentValue)
                 ),
-                new AttributeModification(
+                AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
                 )
         );

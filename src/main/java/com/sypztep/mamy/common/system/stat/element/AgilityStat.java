@@ -21,8 +21,8 @@ public final class AgilityStat extends Stat {
 
     @Override
     public void applyPrimaryEffect(LivingEntity living) {
-        applyEffect(living, EntityAttributes.GENERIC_ATTACK_SPEED, getPrimaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
+        applyEffect(living, EntityAttributes.GENERIC_ATTACK_SPEED,
+                getPrimaryId(),
                 baseValue -> (ATTACK_SPEED_SCALING * this.currentValue));
     }
 

@@ -29,7 +29,6 @@ public final class VitalityStat extends Stat {
                 living,
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 getPrimaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> baseValue * (MAX_HEALTH_SCALING * this.currentValue)
         );
     }
@@ -37,16 +36,14 @@ public final class VitalityStat extends Stat {
     @Override
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
-                new AttributeModification(
+                AttributeModification.addValue(
                         ModEntityAttributes.HEALTH_REGEN,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (HEALTH_REGEN_SCALING * this.currentValue)
                 ),
-                new AttributeModification(
+                AttributeModification.addValue(
                         ModEntityAttributes.HEAL_EFFECTIVE,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (HEALTH_EFFECTIVE_SCALING * this.currentValue)
                 )
         );

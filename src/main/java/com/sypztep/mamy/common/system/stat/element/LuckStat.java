@@ -28,7 +28,6 @@ public final class LuckStat extends Stat {
         applyEffect(living,
                 ModEntityAttributes.CRIT_CHANCE,
                 getPrimaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> (CRIT_CHANCE_SCALING * this.currentValue)
         );
     }
@@ -36,16 +35,14 @@ public final class LuckStat extends Stat {
     @Override
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
-                new AttributeModification(
+                AttributeModification.addValue(
                         ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (MAGIC_DAMAGE_SCALING * this.currentValue)
                 ),
-                new AttributeModification(
+                AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
                 )
         );

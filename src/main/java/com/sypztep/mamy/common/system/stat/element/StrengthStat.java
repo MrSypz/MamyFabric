@@ -28,7 +28,6 @@ public final class StrengthStat extends Stat {
         applyEffect(living,
                 ModEntityAttributes.MELEE_ATTACK_DAMAGE,
                 getPrimaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> (MELEE_DAMAGE_SCALING * this.currentValue)
         );
     }
@@ -36,16 +35,9 @@ public final class StrengthStat extends Stat {
     @Override
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
-                new AttributeModification(
-                        ModEntityAttributes.CRIT_CHANCE,
-                        getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
-                        baseValue -> (CRIT_CHANCE_SCALING * this.currentValue)
-                ),
-                new AttributeModification(
+                AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        EntityAttributeModifier.Operation.ADD_VALUE,
                         baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
                 )
         );
@@ -57,13 +49,10 @@ public final class StrengthStat extends Stat {
     public List<Text> getEffectDescription(int additionalPoints) {
         int futureValue = getValue() + additionalPoints;
 
-        double currentMeleeDamage = Math.max(0, calculateMeleeDamageBonus(getValue(), getBaseValue()) * 100);
-        double futureMeleeDamage = Math.max(0, calculateMeleeDamageBonus(futureValue, getBaseValue()) * 100);
+        double currentMeleeDamage = Math.max(0, calculateMeleeDamageBonus(getValue(), getBaseValue()));
+        double futureMeleeDamage = Math.max(0, calculateMeleeDamageBonus(futureValue, getBaseValue()));
         double meleeDamageIncrease = futureMeleeDamage - currentMeleeDamage;
 
-        double currentCritChance = Math.max(0, calculateCritChanceBonus(getValue(), getBaseValue()) * 100);
-        double futureCritChance = Math.max(0, calculateCritChanceBonus(futureValue, getBaseValue()) * 100);
-        double critChanceIncrease = futureCritChance - currentCritChance;
 
         double currentAttackSpeed = Math.max(0, calculateAttackSpeedBonus(getValue(), getBaseValue()) * 100);
         double futureAttackSpeed = Math.max(0, calculateAttackSpeedBonus(futureValue, getBaseValue()) * 100);
@@ -88,9 +77,6 @@ public final class StrengthStat extends Stat {
                 Text.literal(""),
 
                 Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Critical Hit Chance: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", critChanceIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentCritChance, futureCritChance)).formatted(Formatting.DARK_GRAY)),
 
                 Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
                         .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
@@ -98,13 +84,8 @@ public final class StrengthStat extends Stat {
         );
     }
 
-    // ✅ Static helper methods like Dominatus
     public static double calculateMeleeDamageBonus(int currentValue, int baseValue) {
         return (currentValue - baseValue) * MELEE_DAMAGE_SCALING;
-    }
-
-    public static double calculateCritChanceBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * CRIT_CHANCE_SCALING;
     }
 
     public static double calculateAttackSpeedBonus(int currentValue, int baseValue) {

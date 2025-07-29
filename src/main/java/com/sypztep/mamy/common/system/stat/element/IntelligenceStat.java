@@ -25,7 +25,6 @@ public final class IntelligenceStat extends Stat {
                 living,
                 ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
                 getPrimaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> MAGIC_DAMAGE_SCALING * this.currentValue
         );
     }
@@ -36,7 +35,6 @@ public final class IntelligenceStat extends Stat {
                 living,
                 ModEntityAttributes.MAGIC_RESISTANCE,
                 getSecondaryId(),
-                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> MAGIC_RESISTANCE_SCALING * this.currentValue
         );
     }

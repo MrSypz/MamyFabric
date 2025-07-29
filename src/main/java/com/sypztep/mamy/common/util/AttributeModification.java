@@ -10,4 +10,9 @@ import java.util.function.ToDoubleFunction;
 public record AttributeModification(RegistryEntry<EntityAttribute> attribute, Identifier modifierId,
                                     EntityAttributeModifier.Operation operation,
                                     ToDoubleFunction<Double> effectFunction) {
+    public static AttributeModification addValue(RegistryEntry<EntityAttribute> attribute,
+                                                 Identifier modifierId,
+                                                 ToDoubleFunction<Double> effectFunction) {
+        return new AttributeModification(attribute, modifierId, EntityAttributeModifier.Operation.ADD_VALUE, effectFunction);
+    }
 }
