@@ -28,44 +28,58 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         String key = "mamy.info.";
         translator.add("mamy.gui.player_info.header", "Player Stats");
         translator.add("mamy.gui.player_info.header_level", "Stats");
-        // Section headers
-        translator.add(key + "header_1", "MELEE");
-        translator.add(key + "header_2", "MAGIC");
-        translator.add(key + "header_3", "VITALITY");
-        translator.add(key + "header_4", "STATS");
-        translator.add(key + "header_5", "RESISTANCE");
 
-        // MELEE
-        translator.add(key + "physical", "Attack Power: $phyd");
-        translator.add(key + "melee_damage", "Melee Damage: $meleed");
-        translator.add(key + "projectile_damage", "Projectile Damage: $projd");
+        // ==========================================
+        // SECTION HEADERS
+        // ==========================================
+        translator.add(key + "header_combat", "COMBAT POWER");
+        translator.add(key + "header_precision", "PRECISION & CRITICAL");
+        translator.add(key + "header_defense", "DEFENSIVE STATS");
+        translator.add(key + "header_recovery", "REGENERATION");
+        translator.add(key + "header_attributes", "STATS");
+
+        // ==========================================
+        // COMBAT POWER STATS
+        // ==========================================
+        translator.add(key + "physical", "Base Attack Power: $phyd");
+        translator.add(key + "melee_damage", "Melee Damage Bonus: + $meleed%");
+        translator.add(key + "projectile_damage", "Projectile Damage Bonus: + $projd%");
+        translator.add(key + "magic_damage", "Magic Attack Power: $mdmg");
         translator.add(key + "attack_speed", "Attack Speed: $asp");
-        translator.add(key + "accuracy", "Accuracy: $acc");
-        translator.add(key + "backattack_damage", "Back Damage: $bkdmg %");
-        translator.add(key + "critical_damage", "Critical Damage: $cdmg %");
-        translator.add(key + "critical_chance", "Critical Chance: $ccn %");
 
-        // MAGIC
-        translator.add(key + "magic_damage", "Magic Damage: $mdmg");
+        // ==========================================
+        // PRECISION & CRITICAL STATS
+        // ==========================================
+        translator.add(key + "accuracy", "Accuracy Rating: $acc");
+        translator.add(key + "critical_chance", "Critical Hit Chance: $ccn%");
+        translator.add(key + "critical_damage", "Critical Hit Damage: + $cdmg%");
+        translator.add(key + "backattack_damage", "Back Attack Damage: + $bkdmg%");
+        translator.add(key + "special_damage", "Special Damage: + $spedmg%");
 
-        // VITALITY
-        translator.add(key + "health", "Health: $hp");
-        translator.add(key + "max_health", "Max Health: $maxhp");
-        translator.add(key + "defense", "Defense: $dp");
-        translator.add(key + "nature_health_regen", "Nature Health Regen: $nhrg");
-        translator.add(key + "heal_effective", "Heal Effective: $hef");
-        translator.add(key + "evasion", "Evasion: $eva");
+        // ==========================================
+        // DEFENSIVE STATS
+        // ==========================================
+        translator.add(key + "health", "Current Health: $hp");
+        translator.add(key + "max_health", "Maximum Health: $maxhp");
+        translator.add(key + "defense", "Armor Rating: $dp");
+        translator.add(key + "evasion", "Evasion Rating: $eva");
+        translator.add(key + "magic_resistance", "Magic Resistance: $mresis%");
 
-        // STATS
+        // ==========================================
+        // REGENERATION & RECOVERY
+        // ==========================================
+        translator.add(key + "nature_health_regen", "Health Regeneration: $nhrg/sec");
+        translator.add(key + "heal_effective", "Healing Effectiveness: + $hef%");
+
+        // ==========================================
+        // BASE ATTRIBUTES
+        // ==========================================
         translator.add(key + "strength", "Strength: $str");
         translator.add(key + "agility", "Agility: $agi");
         translator.add(key + "vitality", "Vitality: $vit");
         translator.add(key + "intelligence", "Intelligence: $int");
         translator.add(key + "dexterity", "Dexterity: $dex");
         translator.add(key + "luck", "Luck: $luk");
-
-        // RESISTANCE
-        translator.add(key + "magic_resistance", "Magic Resistance: $mresis %");
     }
     private void generateConfigTranslations(TranslationBuilder translator) {
         String base = "text.autoconfig.mamy";

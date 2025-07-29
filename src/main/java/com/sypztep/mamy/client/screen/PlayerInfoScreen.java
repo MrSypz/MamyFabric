@@ -9,9 +9,6 @@ import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.init.ModPassiveAbilities;
-import com.sypztep.mamy.common.system.passive.PassiveAbility;
-import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -68,24 +65,44 @@ public final class PlayerInfoScreen extends Screen {
 
     private Map<String, Object> createPlayerInfoKey(MinecraftClient client) {
         Map<String, Object> values = new HashMap<>();
-
         assert client.player != null;
+
+        // ==========================================
+        // COMBAT STATS - Offensive Power
+        // ==========================================
         values.put("phyd", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
         values.put("meleed", client.player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE));
         values.put("projd", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE));
+        values.put("mdmg", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE));
         values.put("asp", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
-        values.put("bkdmg", client.player.getAttributeValue(ModEntityAttributes.BACK_ATTACK) * 100f);
-        values.put("cdmg", client.player.getAttributeValue(ModEntityAttributes.CRIT_DAMAGE) * 100f);
+
+        // ==========================================
+        // PRECISION & CRITICAL STATS
+        // ==========================================
+        values.put("acc", client.player.getAttributeValue(ModEntityAttributes.ACCURACY));
         values.put("ccn", client.player.getAttributeValue(ModEntityAttributes.CRIT_CHANCE) * 100f);
-        values.put("acc", client.player.getAttributeValue(ModEntityAttributes.ACCURACY)); // Updated this line
+        values.put("cdmg", client.player.getAttributeValue(ModEntityAttributes.CRIT_DAMAGE) * 100f);
+        values.put("bkdmg", client.player.getAttributeValue(ModEntityAttributes.BACK_ATTACK) * 100f);
+        values.put("spedmg", client.player.getAttributeValue(ModEntityAttributes.SPECIAL_ATTACK) * 100f);
+
+        // ==========================================
+        // DEFENSIVE STATS
+        // ==========================================
         values.put("hp", client.player.getHealth());
         values.put("maxhp", client.player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
         values.put("dp", client.player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
+        values.put("eva", client.player.getAttributeValue(ModEntityAttributes.EVASION));
+        values.put("mresis", client.player.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100f);
+
+        // ==========================================
+        // REGENERATION & RECOVERY
+        // ==========================================
         values.put("nhrg", client.player.getAttributeValue(ModEntityAttributes.HEALTH_REGEN));
         values.put("hef", client.player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE));
-        values.put("eva", client.player.getAttributeValue(ModEntityAttributes.EVASION)); // Updated this line
 
-        // Updated stat retrieval using PlayerStatManager
+        // ==========================================
+        // BASE ATTRIBUTES
+        // ==========================================
         values.put("str", playerStats.getStatValue(StatTypes.STRENGTH));
         values.put("agi", playerStats.getStatValue(StatTypes.AGILITY));
         values.put("vit", playerStats.getStatValue(StatTypes.VITALITY));
@@ -93,41 +110,63 @@ public final class PlayerInfoScreen extends Screen {
         values.put("dex", playerStats.getStatValue(StatTypes.DEXTERITY));
         values.put("luk", playerStats.getStatValue(StatTypes.LUCK));
 
-        values.put("mdmg", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE));
-        values.put("mresis", client.player.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100f);
         return values;
     }
-
     private List<ListElement> createListItems() {
         List<ListElement> listElements = new ArrayList<>();
 
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_1"), Mamy.id("hud/container/icon_1")));
+        // ==========================================
+        // COMBAT POWER SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_combat"),
+                Mamy.id("hud/container/icon_sword")));
         listElements.add(new ListElement(Text.translatable("mamy.info.physical")));
         listElements.add(new ListElement(Text.translatable("mamy.info.melee_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.projectile_damage")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.attack_speed")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.accuracy")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.backattack_damage")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.critical_damage")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.critical_chance")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_2"), Mamy.id("hud/container/icon_0")));
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_damage")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_3"), Identifier.ofVanilla("hud/heart/full")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.attack_speed")));
+
+        // ==========================================
+        // PRECISION & CRITICAL SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_precision"),
+                Mamy.id("hud/container/icon_crosshair")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.accuracy")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.critical_chance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.critical_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.backattack_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.special_damage")));
+
+        // ==========================================
+        // DEFENSIVE SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_defense"),
+                Identifier.ofVanilla("hud/heart/full")));
         listElements.add(new ListElement(Text.translatable("mamy.info.health")));
         listElements.add(new ListElement(Text.translatable("mamy.info.max_health")));
         listElements.add(new ListElement(Text.translatable("mamy.info.defense")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.evasion")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.magic_resistance")));
+
+        // ==========================================
+        // REGENERATION & RECOVERY SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_recovery"),
+                Mamy.id("hud/container/icon_heal")));
         listElements.add(new ListElement(Text.translatable("mamy.info.nature_health_regen")));
         listElements.add(new ListElement(Text.translatable("mamy.info.heal_effective")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.evasion")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_4"), Identifier.ofVanilla("icon/accessibility")));
+
+        // ==========================================
+        // BASE ATTRIBUTES SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_attributes"),
+                Identifier.ofVanilla("icon/accessibility")));
         listElements.add(new ListElement(Text.translatable("mamy.info.strength")));
         listElements.add(new ListElement(Text.translatable("mamy.info.agility")));
         listElements.add(new ListElement(Text.translatable("mamy.info.vitality")));
         listElements.add(new ListElement(Text.translatable("mamy.info.intelligence")));
         listElements.add(new ListElement(Text.translatable("mamy.info.dexterity")));
         listElements.add(new ListElement(Text.translatable("mamy.info.luck")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_5"), Mamy.id("hud/container/icon_2")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.magic_resistance")));
 
         return listElements;
     }
@@ -182,15 +221,15 @@ public final class PlayerInfoScreen extends Screen {
         int xOffset = (int) (screenWidth * 0.67f); // 2/3 of the screen width
         int yOffset = (int) AnimationUtils.getPositionOffset(verticalAnimation.getProgress(), FINAL_Y_OFFSET, screenHeight);
 
-        // Set background color
-        DrawContextUtils.fillScreen(context, 0xF0121212);
+        int color = DrawContextUtils.applyAlpha(0xF0121212, fadeAnimation.getProgress());
+        DrawContextUtils.fillScreenHorizontalRatio(context,color,0,color);
         drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
 
         renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);
 
         renderBottomLeftSection(context, screenWidth, screenHeight, delta);
 
-        renderMiddleSection(context, screenWidth, screenHeight, fadeAnimation.getProgress());
+        renderBenefitPoint(context, screenWidth, screenHeight, fadeAnimation.getProgress());
 
         // Draw header section - updated translation keys
         drawHeaderSection(context, xOffset + 100, yOffset, fadeAnimation.getProgress(), "mamy.gui.player_info.header");
@@ -259,7 +298,6 @@ public final class PlayerInfoScreen extends Screen {
             int labelY = y + (buttonHeight - this.textRenderer.fontHeight) / 2;
             float scale = 0.9f;
 
-            // Draw Stat Label
             matrixStack.push();
             matrixStack.scale(scale, scale, 0);
             context.drawTextWithShadow(this.textRenderer, Text.of(displayName + ":"),
@@ -268,10 +306,8 @@ public final class PlayerInfoScreen extends Screen {
 
             DrawContextUtils.renderHorizontalLineWithCenterGradient(context, rectX, y + 20, maxWidth, 1, 1, 0xFFFFFFFF, 0x00FFFFFF);
 
-            // Draw Stat Value (showing point cost) - using Mamy's system
             int valueX = labelX + statLabelWidth;
 
-            // Get point cost using Mamy's component
             int pointCost; // Default value
             pointCost = playerStats.getStatCost(statType); // Direct access to cost
 
@@ -287,7 +323,6 @@ public final class PlayerInfoScreen extends Screen {
             button.setY(y);
             button.render(context, mouseX, mouseY, delta);
 
-            // Increment Y for the next stat row
             y += statRowHeight;
             buttonIndex++;
         }
@@ -300,11 +335,13 @@ public final class PlayerInfoScreen extends Screen {
             cyclingTextIcon.updateTexts(texts);
     }
 
-    private void renderMiddleSection(DrawContext context, int screenWidth, int screenHeight, float fadeProgress) {
+    private void renderBenefitPoint(DrawContext context, int screenWidth, int screenHeight, float fadeProgress) {
         int remainingPoints = playerStats.getAvailableStatPoints();
         float scaleFactor = 2.5f;
-        int adjustedX = (int) (screenWidth * 0.5f / scaleFactor);
-        int adjustedY = (int) (screenHeight * 0.5f / scaleFactor);
+        int posX = (int) (screenWidth * 0.15f);
+        int posY = (int) (screenHeight * 0.75f);
+        int adjustedX = (int) (posX / scaleFactor);
+        int adjustedY = (int) (posY / scaleFactor);
 
         String fuckyougramma = remainingPoints > 1 ? "Benefit Points" : "Benefit Point"; // Updated text
 
@@ -312,9 +349,8 @@ public final class PlayerInfoScreen extends Screen {
         context.getMatrices().scale(scaleFactor, scaleFactor, 0.0f);
 
         AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY, 0xF17633, AnimationUtils.getAlpha(fadeProgress));
-
         context.getMatrices().pop();
-        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma), (int) (screenWidth * 0.5f), (int) (screenHeight * 0.5f) + 25, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
+        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma),  posX, posY + 25, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
     }
 
     private void renderBottomLeftSection(DrawContext context, int screenWidth, int screenHeight, float delta) {

@@ -1,62 +1,13 @@
 package com.sypztep.mamy.client.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.sypztep.mamy.client.screen.widget.ListElement;
 import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
-    public static void drawTextWithIcon(DrawContext context, TextRenderer textRenderer, ListElement listElement, int x, int y, float scale, float iconscale, int alpha) {
-        final int ICON_SIZE = 16;
-        Text text = listElement.text();
-        Identifier icon = listElement.icon();
-
-        MatrixStack matrixStack = context.getMatrices();
-        matrixStack.push();
-        matrixStack.scale(scale, scale, 1.0F);
-
-        // Calculate position for text considering scaling
-        int textX = (int) (x / scale);
-        int textY = (int) (y / scale);
-
-        // Render icon if present
-        if (icon != null) {
-            matrixStack.push();
-            matrixStack.translate((x - ICON_SIZE) / scale - 10, (y + (textRenderer.fontHeight * scale) / 2 - (float) ICON_SIZE / 2), 0);
-            matrixStack.scale(iconscale, iconscale, 1.0F);
-            context.drawGuiTexture(icon, 0, 0, ICON_SIZE, ICON_SIZE);
-            matrixStack.pop();
-        }
-
-        // Draw text
-        AnimationUtils.drawFadeText(context, textRenderer, text, textX, textY, alpha);
-
-        matrixStack.pop();
-    }
-
-    public static void drawText(DrawContext context, TextRenderer textRenderer, Text text, int x, int y, float scale, int alpha) {
-        MatrixStack matrixStack = context.getMatrices();
-        matrixStack.push();
-        matrixStack.scale(scale, scale, 1.0F);
-        int textX = (int) (x / scale);
-        int textY = (int) (y / scale);
-        AnimationUtils.drawFadeText(context, textRenderer, text, textX, textY, alpha);
-        matrixStack.pop();
-    }
-
-    public static void drawBoldText(DrawContext context, TextRenderer renderer, String string, int i, int j, int color, int bordercolor) {
-        context.drawText(renderer, string, i+1, j, bordercolor, false);
-        context.drawText(renderer, string, i-1, j, bordercolor, false);
-        context.drawText(renderer, string, i, j+1, bordercolor, false);
-        context.drawText(renderer, string, i, j-1, bordercolor, false);
-        context.drawText(renderer, string, i, j, color, false);
-    }
 
     public static void drawBorder(DrawContext context, int color, int thickness) {
         int width = context.getScaledWindowWidth();
@@ -99,6 +50,195 @@ public final class DrawContextUtils {
         int height = context.getScaledWindowHeight();
         context.fill(0, 0, width, height, color);
     }
+    /**
+     * Fills the screen with three horizontal sections, each occupying
+     * approximately one-third of the screen height.
+     *
+     * <p><b>Example Usage:</b></p>
+     * <pre>{@code
+     * public static void exampleHorizontal(DrawContext context) {
+     * ScreenFiller.fillScreenHorizontalRatio(context,
+     * 0xFF1E1E1E, // Top - dark gray
+     * 0xFF4CAF50, // Middle - green
+     * 0xFF2196F3  // Bottom - blue
+     * );
+     * }
+     * }</pre>
+     *
+     * @param context    The drawing context providing screen dimensions and fill capabilities.
+     * @param topColor   The ARGB color for the top one-third section of the screen.
+     * @param middleColor The ARGB color for the middle one-third section of the screen.
+     * @param bottomColor The ARGB color for the bottom one-third section of the screen.
+     */
+    public static void fillScreenHorizontalRatio(DrawContext context, int topColor, int middleColor, int bottomColor) {
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
+
+        int sectionHeight = height / 3;
+
+        // Top section (1/3)
+        context.fill(0, 0, width, sectionHeight, topColor);
+
+        // Middle section (1/3)
+        context.fill(0, sectionHeight, width, sectionHeight * 2, middleColor);
+
+        // Bottom section (1/3)
+        context.fill(0, sectionHeight * 2, width, height, bottomColor);
+    }
+    /**
+     * Fills the screen with three vertical sections, each occupying
+     * approximately one-third of the screen width.
+     *
+     * <p><b>Example Usage:</b></p>
+     * <pre>{@code
+     * public static void exampleVertical(DrawContext context) {
+     * ScreenFiller.fillScreenVerticalRatio(context,
+     * 0xFFFF5722, // Left - red
+     * 0xFFFFEB3B, // Center - yellow
+     * 0xFF9C27B0  // Right - purple
+     * );
+     * }
+     * }</pre>
+     *
+     * @param context     The drawing context providing screen dimensions and fill capabilities.
+     * @param leftColor   The ARGB color for the left one-third section of the screen.
+     * @param centerColor The ARGB color for the center one-third section of the screen.
+     * @param rightColor  The ARGB color for the right one-third section of the screen.
+     */
+    public static void fillScreenVerticalRatio(DrawContext context, int leftColor, int centerColor, int rightColor) {
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
+
+        int sectionWidth = width / 3;
+
+        // Left section (1/3)
+        context.fill(0, 0, sectionWidth, height, leftColor);
+
+        // Center section (1/3)
+        context.fill(sectionWidth, 0, sectionWidth * 2, height, centerColor);
+
+        // Right section (1/3)
+        context.fill(sectionWidth * 2, 0, width, height, rightColor);
+    }
+    /**
+     * Fills the screen with a 3x3 grid of nine equal sections, each colored
+     * according to the provided array of colors.
+     *
+     * <p>The colors are applied row by row, from left to right within each row.
+     * The {@code colors} array must contain exactly 9 ARGB color integers.</p>
+     *
+     * <p><b>Example Usage:</b></p>
+     * <pre>{@code
+     * public static void exampleGrid(DrawContext context) {
+     * int[] gridColors = {
+     * 0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3, // Top row
+     * 0xFFFF5722, 0xFFFFEB3B, 0xFF9C27B0, // Middle row
+     * 0xFF795548, 0xFF607D8B, 0xFFFFC107  // Bottom row
+     * };
+     * ScreenFiller.fillScreenGridRatio(context, gridColors);
+     * }
+     * }</pre>
+     *
+     * @param context The drawing context providing screen dimensions and fill capabilities.
+     * @param colors  An array of exactly 9 ARGB color integers for the 3x3 grid sections.
+     * @throws IllegalArgumentException If the {@code colors} array does not contain exactly 9 elements.
+     */
+    public static void fillScreenGridRatio(DrawContext context, int[] colors) {
+        if (colors.length != 9) {
+            throw new IllegalArgumentException("Grid ratio requires exactly 9 colors");
+        }
+
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
+
+        int sectionWidth = width / 3;
+        int sectionHeight = height / 3;
+
+        int colorIndex = 0;
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                int x1 = col * sectionWidth;
+                int y1 = row * sectionHeight;
+                int x2 = (col == 2) ? width : (col + 1) * sectionWidth;  // Handle remainder
+                int y2 = (row == 2) ? height : (row + 1) * sectionHeight; // Handle remainder
+
+                context.fill(x1, y1, x2, y2, colors[colorIndex++]);
+            }
+        }
+    }
+    /**
+     * Fills the screen with sections based on custom ratios, either horizontally or vertically.
+     *
+     * <p>This method allows for flexible screen partitioning where each section's size
+     * is proportional to its corresponding ratio value. The sum of all ratios
+     * determines the total proportion.</p>
+     *
+     * <p><b>Example Usage (Horizontal 2:3:1):</b></p>
+     * <pre>{@code
+     * public static void exampleCustom(DrawContext context) {
+     * int[] ratios = {2, 3, 1}; // 2:3:1 ratio
+     * int[] colors = {0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3};
+     * ScreenFiller.fillScreenCustomRatio(context, ratios, colors, true); // true = horizontal
+     * }
+     * }</pre>
+     *
+     * <p><b>Example Usage (Equal 1:1:1 Horizontal):</b></p>
+     * <pre>{@code
+     * public static void exampleEqual(DrawContext context) {
+     * int[] ratios = {1, 1, 1}; // 1:1:1 ratio
+     * int[] colors = {0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3};
+     * ScreenFiller.fillScreenCustomRatio(context, ratios, colors, true); // true = horizontal
+     * }
+     * }</pre>
+     *
+     * @param context    The drawing context providing screen dimensions and fill capabilities.
+     * @param ratios     An array of integers representing the proportional sizes of each section.
+     * For example, {@code {1, 2, 1}} means the sections will have sizes
+     * in a 1:2:1 proportion.
+     * @param colors     An array of ARGB color integers, where each color corresponds
+     * to a ratio in the {@code ratios} array. The length of this array
+     * must match the length of the {@code ratios} array.
+     * @param horizontal If {@code true}, the sections will be arranged horizontally;
+     * otherwise, they will be arranged vertically.
+     * @throws IllegalArgumentException If the {@code ratios} and {@code colors} arrays
+     * do not have the same length.
+     */
+    public static void fillScreenCustomRatio(DrawContext context, int[] ratios, int[] colors, boolean horizontal) {
+        if (ratios.length != colors.length) {
+            throw new IllegalArgumentException("Ratios and colors arrays must have the same length");
+        }
+
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
+
+        // Calculate total ratio
+        int totalRatio = 0;
+        for (int ratio : ratios) {
+            totalRatio += ratio;
+        }
+
+        if (horizontal) {
+            // Horizontal sections
+            int currentY = 0;
+            for (int i = 0; i < ratios.length; i++) {
+                int sectionHeight = (height * ratios[i]) / totalRatio;
+                int nextY = (i == ratios.length - 1) ? height : currentY + sectionHeight;
+
+                context.fill(0, currentY, width, nextY, colors[i]);
+                currentY = nextY;
+            }
+        } else {
+            // Vertical sections
+            int currentX = 0;
+            for (int i = 0; i < ratios.length; i++) {
+                int sectionWidth = (width * ratios[i]) / totalRatio;
+                int nextX = (i == ratios.length - 1) ? width : currentX + sectionWidth;
+
+                context.fill(currentX, 0, nextX, height, colors[i]);
+                currentX = nextX;
+            }
+        }
+    }
 
     public static void drawRect(DrawContext context, int contentX, int contentY, int contentWidth, int contentHeight, int color) {
         context.fill(contentX, contentY, contentX + contentWidth, contentY + contentHeight, color);
@@ -108,7 +248,6 @@ public final class DrawContextUtils {
 
     /**
      * Renders a vertical gradient using GPU vertex interpolation (top to bottom)
-     * Much more efficient than pixel-by-pixel rendering
      */
     public static void renderVerticalGradient(DrawContext context, int x, int y, int width, int height, int topColor, int bottomColor) {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
@@ -176,21 +315,51 @@ public final class DrawContextUtils {
     }
 
     /**
-     * Renders a horizontal center gradient (edge -> center -> edge) using two quads
-     * This is much more efficient than the old pixel-by-pixel method
+     * OPTIMIZED: Renders a horizontal center gradient (edge -> center -> edge) using optimized approach
+     * Uses a single BufferBuilder with proper vertex positioning for correct gradient
      */
     public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+
+        // Extract color components for edge color
+        float edgeR = ((edgeColor >> 16) & 0xFF) / 255.0f;
+        float edgeG = ((edgeColor >> 8) & 0xFF) / 255.0f;
+        float edgeB = (edgeColor & 0xFF) / 255.0f;
+        float edgeA = ((edgeColor >> 24) & 0xFF) / 255.0f;
+
+        // Extract color components for center color
+        float centerR = ((centerColor >> 16) & 0xFF) / 255.0f;
+        float centerG = ((centerColor >> 8) & 0xFF) / 255.0f;
+        float centerB = (centerColor & 0xFF) / 255.0f;
+        float centerA = ((centerColor >> 24) & 0xFF) / 255.0f;
+
+        // Set up render state
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
         int centerX = x + width / 2;
 
-        // Left half: edge to center
-        renderHorizontalGradient(context, x, y, width / 2, height, edgeColor, centerColor);
+        // Left half: edge -> center gradient
+        bufferBuilder.vertex(matrix, centerX, y, 0).color(centerR, centerG, centerB, centerA);     // Center top
+        bufferBuilder.vertex(matrix, x, y, 0).color(edgeR, edgeG, edgeB, edgeA);                   // Left top
+        bufferBuilder.vertex(matrix, x, y + height, 0).color(edgeR, edgeG, edgeB, edgeA);          // Left bottom
+        bufferBuilder.vertex(matrix, centerX, y + height, 0).color(centerR, centerG, centerB, centerA); // Center bottom
 
-        // Right half: center to edge
-        renderHorizontalGradient(context, centerX, y, width - width / 2, height, centerColor, edgeColor);
+        // Right half: center -> edge gradient
+        bufferBuilder.vertex(matrix, x + width, y, 0).color(edgeR, edgeG, edgeB, edgeA);           // Right top
+        bufferBuilder.vertex(matrix, centerX, y, 0).color(centerR, centerG, centerB, centerA);    // Center top
+        bufferBuilder.vertex(matrix, centerX, y + height, 0).color(centerR, centerG, centerB, centerA); // Center bottom
+        bufferBuilder.vertex(matrix, x + width, y + height, 0).color(edgeR, edgeG, edgeB, edgeA); // Right bottom
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
     }
 
     /**
-     * Renders a horizontal center gradient with alpha blending
+     * Optimized horizontal center gradient with alpha blending
      */
     public static void renderHorizontalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor, float alpha) {
         // Apply alpha to both colors
@@ -201,16 +370,46 @@ public final class DrawContextUtils {
     }
 
     /**
-     * Renders a vertical center gradient (edge -> center -> edge) using two quads
+     * OPTIMIZED: Renders a vertical center gradient (edge -> center -> edge) using optimized approach
      */
     public static void renderVerticalLineWithCenterGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+
+        // Extract color components for edge color
+        float edgeR = ((edgeColor >> 16) & 0xFF) / 255.0f;
+        float edgeG = ((edgeColor >> 8) & 0xFF) / 255.0f;
+        float edgeB = (edgeColor & 0xFF) / 255.0f;
+        float edgeA = ((edgeColor >> 24) & 0xFF) / 255.0f;
+
+        // Extract color components for center color
+        float centerR = ((centerColor >> 16) & 0xFF) / 255.0f;
+        float centerG = ((centerColor >> 8) & 0xFF) / 255.0f;
+        float centerB = (centerColor & 0xFF) / 255.0f;
+        float centerA = ((centerColor >> 24) & 0xFF) / 255.0f;
+
+        // Set up render state
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.BLIT_SCREEN);
+
         int centerY = y + height / 2;
 
-        // Top half: edge to center
-        renderVerticalGradient(context, x, y, width, height / 2, edgeColor, centerColor);
+        // Top half: edge -> center gradient
+        bufferBuilder.vertex(matrix, x + width, centerY, 0).color(centerR, centerG, centerB, centerA); // Center right
+        bufferBuilder.vertex(matrix, x, centerY, 0).color(centerR, centerG, centerB, centerA);         // Center left
+        bufferBuilder.vertex(matrix, x, y, 0).color(edgeR, edgeG, edgeB, edgeA);                       // Top left
+        bufferBuilder.vertex(matrix, x + width, y, 0).color(edgeR, edgeG, edgeB, edgeA);              // Top right
 
-        // Bottom half: center to edge
-        renderVerticalGradient(context, x, centerY, width, height - height / 2, centerColor, edgeColor);
+        // Bottom half: center -> edge gradient
+        bufferBuilder.vertex(matrix, x + width, y + height, 0).color(edgeR, edgeG, edgeB, edgeA);     // Bottom right
+        bufferBuilder.vertex(matrix, x, y + height, 0).color(edgeR, edgeG, edgeB, edgeA);             // Bottom left
+        bufferBuilder.vertex(matrix, x, centerY, 0).color(centerR, centerG, centerB, centerA);       // Center left
+        bufferBuilder.vertex(matrix, x + width, centerY, 0).color(centerR, centerG, centerB, centerA); // Center right
+
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        RenderSystem.disableBlend();
     }
 
     /**
@@ -225,7 +424,7 @@ public final class DrawContextUtils {
     /**
      * Apply alpha multiplier to a color
      */
-    private static int applyAlpha(int color, float alpha) {
+    public static int applyAlpha(int color, float alpha) {
         int originalAlpha = (color >> 24) & 0xFF;
         int newAlpha = (int) (originalAlpha * alpha);
         return (color & 0x00FFFFFF) | (newAlpha << 24);

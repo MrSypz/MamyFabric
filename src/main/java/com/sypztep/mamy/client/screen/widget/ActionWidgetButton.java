@@ -81,9 +81,7 @@ public abstract class ActionWidgetButton extends ClickableWidget {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) { // Left click
-            isPressed = false;
-        }
+        if (button == 0) isPressed = false;
         return false;
     }
 
@@ -125,7 +123,6 @@ public abstract class ActionWidgetButton extends ClickableWidget {
             borderColor = getHoverBorderColor();
             textColor = getHoverTextColor();
         } else if (isHovered) {
-            // Interpolate hover colors
             bgColor = ColorUtils.interpolateColor(getBackgroundColor(), getHoverBackgroundColor(), hoverAnimation);
             borderColor = ColorUtils.interpolateColor(getBorderColor(), getHoverBorderColor(), hoverAnimation);
             textColor = ColorUtils.interpolateColor(getTextColor(), getHoverTextColor(), hoverAnimation);
@@ -139,15 +136,24 @@ public abstract class ActionWidgetButton extends ClickableWidget {
     }
 
     protected void renderBackground(DrawContext context, ButtonColors colors) {
-        context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), colors.background());
+        context.fill(getX(), getY(), getX() + getWidth() - 1, getY() + getHeight() - 1, colors.background());
     }
+
     protected void renderBorder(DrawContext context, ButtonColors colors) {
         int borderThickness = getBorderThickness();
+        int x1 = getX();
+        int y1 = getY();
+        int x2 = getX() + getWidth() - 1;  // Match background bounds
+        int y2 = getY() + getHeight() - 1; // Match background bounds
 
-        context.fill(getX(), getY(), getX() + getWidth(), getY() + borderThickness, colors.border());
-        context.fill(getX(), getY() + getHeight() - borderThickness, getX() + getWidth(), getY() + getHeight(), colors.border());
-        context.fill(getX(), getY(), getX() + borderThickness, getY() + getHeight(), colors.border());
-        context.fill(getX() + getWidth() - borderThickness, getY(), getX() + getWidth(), getY() + getHeight(), colors.border());
+        // Top border
+        context.fill(x1, y1, x2, y1 + borderThickness, colors.border());
+        // Bottom border
+        context.fill(x1, y2 - borderThickness, x2, y2, colors.border());
+        // Left border
+        context.fill(x1, y1, x1 + borderThickness, y2, colors.border());
+        // Right border
+        context.fill(x2 - borderThickness, y1, x2, y2, colors.border());
     }
 
     protected void renderText(DrawContext context, ButtonColors colors) {

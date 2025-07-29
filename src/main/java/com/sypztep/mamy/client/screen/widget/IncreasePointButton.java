@@ -33,19 +33,17 @@ public final class IncreasePointButton extends ActionWidgetButton {
             return;
         }
 
-        // Use Mamy's stat system instead of Dominatus PlayerStatManager
         Stat stat = stats.getStatByType(statType);
         if (stat == null) {
             return;
         }
 
-        // Check if stat is maxed (you can define MAX_STAT_VALUE in ModConfig or as constant)
-        if (stat.getValue() >= ModConfig.maxStatValue) { // Assuming you have this in ModConfig
+        if (stat.getValue() >= ModConfig.maxStatValue) {
             return;
         }
 
-        int requiredPoints = stat.getIncreasePerPoint() * pointsToIncrease; // Mamy cost calculation
-        int availablePoints = stats.getAvailableStatPoints(); // Mamy method
+        int requiredPoints = stat.getIncreasePerPoint() * pointsToIncrease;
+        int availablePoints = stats.getAvailableStatPoints();
 
         if (availablePoints >= requiredPoints) {
             performAction();
@@ -54,7 +52,6 @@ public final class IncreasePointButton extends ActionWidgetButton {
     }
 
     private void performAction() {
-        // Use Mamy's enum-based networking
         IncreaseStatsPayloadC2S.send(statType);
     }
 
@@ -73,27 +70,20 @@ public final class IncreasePointButton extends ActionWidgetButton {
 
         initializeTooltip();
 
-        // Update enabled state based on available points
         boolean canAfford = stats != null && stats.getAvailableStatPoints() >= requiredStatPoints;
         boolean isMaxed = false;
 
         if (stats != null) {
             Stat stat = stats.getStatByType(statType);
-            if (stat != null) {
-                isMaxed = stat.getValue() >= ModConfig.maxStatValue; // Use your config
-            }
+            if (stat != null) isMaxed = stat.getValue() >= ModConfig.maxStatValue;
         }
 
         setEnabled(canAfford && !isMaxed);
     }
 
     @Override
-    protected void renderAdditionalOverlays(DrawContext context, int mouseX, int mouseY,
-                                            float delta, boolean isHovered, boolean isPressed) {
-        // Render tooltip on hover
-        if (isHovered && (isEnabled() || ModConfig.tooltipinfo)) {
-            renderStatTooltip(context, mouseX, mouseY);
-        }
+    protected void renderAdditionalOverlays(DrawContext context, int mouseX, int mouseY, float delta, boolean isHovered, boolean isPressed) {
+        if (isHovered && ModConfig.tooltipinfo) renderStatTooltip(context, mouseX, mouseY);
     }
 
     private void renderStatTooltip(DrawContext context, int mouseX, int mouseY) {
@@ -117,8 +107,6 @@ public final class IncreasePointButton extends ActionWidgetButton {
                     .append(Text.literal("Current: ").formatted(Formatting.GRAY))
                     .append(Text.literal(String.valueOf(ModConfig.maxStatValue)).formatted(Formatting.GOLD)));
 
-            // Note: Mamy tracks totalPointsUsed per stat, but you'd need a getter method
-            // For now, showing current value
             tooltip.add(Text.literal("♠  ").formatted(Formatting.RED)
                     .append(Text.literal("Points spent: ").formatted(Formatting.GRAY))
                     .append(Text.literal(String.valueOf(stat.getTotalPointsUsed())).formatted(Formatting.WHITE)));
@@ -126,7 +114,6 @@ public final class IncreasePointButton extends ActionWidgetButton {
             tooltip.add(Text.literal(""));
             tooltip.add(Text.literal("§7This stat is at maximum level!"));
 
-            // Show what the stat does, even when maxed
             List<Text> descriptions = stat.getEffectDescription(0);
             tooltip.addAll(descriptions);
 

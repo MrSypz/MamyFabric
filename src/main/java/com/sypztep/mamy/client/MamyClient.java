@@ -2,6 +2,7 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.client.event.LevelHudRenderer;
 import com.sypztep.mamy.client.event.ToastHudRenderer;
+import com.sypztep.mamy.client.event.ScreenEventHandler;
 import com.sypztep.mamy.common.init.ModPayloads;
 import net.fabricmc.api.ClientModInitializer;
 
@@ -13,5 +14,6 @@ public class MamyClient implements ClientModInitializer {
         ModKeyBindings.register();
         LevelHudRenderer.register();
         ToastHudRenderer.register();
+        ScreenEventHandler.register();
     }
 }

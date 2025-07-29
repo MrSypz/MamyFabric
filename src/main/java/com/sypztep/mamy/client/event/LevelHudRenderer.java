@@ -11,7 +11,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.math.MathHelper;
 
-public class LevelHudRenderer implements HudRenderCallback {
+public final class LevelHudRenderer implements HudRenderCallback {
     // Position settings
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;
