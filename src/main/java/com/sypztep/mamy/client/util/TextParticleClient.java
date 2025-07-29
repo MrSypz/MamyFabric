@@ -11,7 +11,7 @@ import net.minecraft.util.math.Vec3d;
 import java.awt.*;
 
 @Environment(EnvType.CLIENT)
-public class TextParticleClient {
+public final class TextParticleClient {
     public static void spawnParticle(Entity target, String text, Color color, float maxSize, float yPos) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld world = client.world;

@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import java.awt.*;
 import java.util.function.Supplier;
 
-public class TextParticleProvider {
+public final class TextParticleProvider {
     private static final TextParticleProvider[] REGISTRY = new TextParticleProvider[8];
     private static int nextId = 0;
 

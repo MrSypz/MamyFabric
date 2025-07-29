@@ -7,7 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class ParticleHandler {
+public final class ParticleHandler {
 
     private static void send(Entity target, Entity attacker, ParticleType<?> particle, boolean self, boolean others) {
         if (target == null) return;
