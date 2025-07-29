@@ -5,14 +5,17 @@ import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.init.ModCustomParticles;
 import com.sypztep.mamy.common.init.ModDamageTags;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[CombatUtil] {}", String.format(message, args));
@@ -28,8 +31,7 @@ public final class DamageUtil {
     }
 
     private enum ModifierOperationType {
-        MULTIPLY,
-        ADD
+        MULTIPLY, ADD
     }
 
     private enum CombatModifierType {
@@ -78,7 +80,7 @@ public final class DamageUtil {
             return 0.0f;
         }),
 
-        MELEE_DAMAGE(ModifierOperationType.ADD,(attacker, target, source, isCrit) -> {
+        MELEE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (source.isIn(ModDamageTags.MELEE_DAMAGE)) {
                 float meleeBonus = (float) attacker.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
                 float extra = meleeBonus + specialAttack(attacker);
@@ -123,9 +125,36 @@ public final class DamageUtil {
 
         float finalDamage = (amount * multiplicativeMultiplier) + additiveBonus;
 
-        debugLog("Damage calculation: base %.1f × %.2fx + %.1f → final %.1f",
-                amount, multiplicativeMultiplier, additiveBonus, finalDamage);
+        debugLog("Damage calculation: base %.1f × %.2fx + %.1f → final %.1f", amount, multiplicativeMultiplier, additiveBonus, finalDamage);
 
         return finalDamage;
+    }
+
+    public static float calculateFinalDamage(LivingEntity self, float originalDamage,
+                                             DamageSource source, float flatArmor) {
+    debugLog("====START====");
+        float armorPenetration = 0.0f;
+        ItemStack itemStack = source.getWeaponStack();
+
+        if (itemStack != null && self.getWorld() instanceof ServerWorld serverWorld) {
+            armorPenetration = 1.0f - EnchantmentHelper.getArmorEffectiveness(
+                    serverWorld, itemStack, self, source, 1.0f);
+            debugLog("Armor Penetration: %.1f%%", armorPenetration * 100);
+        }
+
+        float effectiveArmor = flatArmor * (1.0f - armorPenetration);
+        debugLog("Base Armor: %.1f → Effective: %.1f", flatArmor, effectiveArmor);
+
+        float damageReduction = effectiveArmor / (effectiveArmor + 20.0f);
+        float damageAfterArmor = originalDamage * (1.0f - damageReduction);
+
+        debugLog("Damage After Armor: %.1f (%.1f%% reduction)", damageAfterArmor, damageReduction * 100);
+
+        float percentageReduction = (float) self.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION);
+        float finalDamage = damageAfterArmor * (1.0f - percentageReduction);
+
+        debugLog("Final Damage: %.1f", finalDamage);
+        debugLog("====END====");
+        return Math.max(0.1f, finalDamage);
     }
 }

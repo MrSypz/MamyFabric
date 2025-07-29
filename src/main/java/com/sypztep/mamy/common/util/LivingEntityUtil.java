@@ -1,6 +1,5 @@
 package com.sypztep.mamy.common.util;
 
-import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -8,6 +7,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.MathHelper;
 
 public final class LivingEntityUtil {
 
@@ -27,10 +27,7 @@ public final class LivingEntityUtil {
         float hitRate = baseHitRate + ((aAccuracy - dEvasion) * 0.0025f);
 
         // Clamp hit rate between reasonable bounds (e.g., 5% to 95%)
-        hitRate = Math.max(0.05f, Math.min(0.95f, hitRate));
-
-        Mamy.LOGGER.info("Hit calculation: Base=67%, AccFlat={}, EvaFlat={}, Final={}%",
-                aAccuracy, dEvasion, hitRate * 100);
+        hitRate = MathHelper.clamp(hitRate, 0,1);
 
         return roll(attacker) < hitRate;
     }

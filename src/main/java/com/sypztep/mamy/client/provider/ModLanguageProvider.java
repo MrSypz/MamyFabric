@@ -42,8 +42,8 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         // COMBAT POWER STATS
         // ==========================================
         translator.add(key + "physical", "Base Attack Power: $phyd");
-        translator.add(key + "melee_damage", "Melee Damage Bonus: + $meleed%");
-        translator.add(key + "projectile_damage", "Projectile Damage Bonus: + $projd%");
+        translator.add(key + "melee_damage", "Melee Damage Bonus: $meleed");
+        translator.add(key + "projectile_damage", "Projectile Damage Bonus: $projd");
         translator.add(key + "magic_damage", "Magic Attack Power: $mdmg");
         translator.add(key + "attack_speed", "Attack Speed: $asp");
 
@@ -52,9 +52,9 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         // ==========================================
         translator.add(key + "accuracy", "Accuracy Rating: $acc");
         translator.add(key + "critical_chance", "Critical Hit Chance: $ccn%");
-        translator.add(key + "critical_damage", "Critical Hit Damage: + $cdmg%");
-        translator.add(key + "backattack_damage", "Back Attack Damage: + $bkdmg%");
-        translator.add(key + "special_damage", "Special Damage: + $spedmg%");
+        translator.add(key + "critical_damage", "Critical Hit Damage: $cdmg%");
+        translator.add(key + "backattack_damage", "Back Attack Damage: $bkdmg%");
+        translator.add(key + "special_damage", "Special Damage: $spedmg%");
 
         // ==========================================
         // DEFENSIVE STATS
@@ -69,7 +69,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         // REGENERATION & RECOVERY
         // ==========================================
         translator.add(key + "nature_health_regen", "Health Regeneration: $nhrg/sec");
-        translator.add(key + "heal_effective", "Healing Effectiveness: + $hef%");
+        translator.add(key + "heal_effective", "Healing Effectiveness: $hef%");
 
         // ==========================================
         // BASE ATTRIBUTES

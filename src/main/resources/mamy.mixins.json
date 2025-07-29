@@ -6,13 +6,15 @@
   "mixins": [
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
+    "core.damage.DamageUtilMixin",
     "core.registry.attribute.EntityAttributesMixin",
     "core.registry.attribute.LivingEntityMixin",
     "vanilla.agility.projectileclip.PersistentProjectileEntityMixin",
     "vanilla.agility.projectileclip.TridentEntityMixin",
     "vanilla.dexterity.RangedWeaponItemMixin",
-    "vanilla.vitalitybonus.HungerManagerMixin",
-    "vanilla.vitalitybonus.LivingEntityMixin"
+    "vanilla.strength.ItemStackMixin",
+    "vanilla.vitality.HungerManagerMixin",
+    "vanilla.vitality.LivingEntityMixin"
   ],
   "client": [
     "feature.screenanimation.CameraMixin",
