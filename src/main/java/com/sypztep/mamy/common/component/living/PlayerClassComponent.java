@@ -1,6 +1,8 @@
 package com.sypztep.mamy.common.component.living;
 
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.ClassRegistry;
+import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -46,7 +48,7 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public boolean evolveToClass(String classId) {
-        var targetClass = com.sypztep.mamy.common.system.classes.ClassRegistry.getClass(classId);
+        PlayerClass targetClass = ClassRegistry.getClass(classId);
         if (targetClass == null) return false;
 
         boolean[] result = {false};

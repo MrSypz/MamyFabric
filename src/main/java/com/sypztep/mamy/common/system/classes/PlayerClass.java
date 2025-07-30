@@ -24,14 +24,18 @@ public class PlayerClass {
     private final ResourceType primaryResource;
     private final float maxResource;
     private final String description;
+    private final int maxLevel;        // NEW: Max level for this class
+    private final boolean isTranscendent; // NEW: Is this a transcendent class
 
     // Class progression requirements
     private final List<ClassRequirement> requirements;
     private final List<PlayerClass> nextClasses; // Possible evolution paths
 
+    // Constructor with transcendent support
     public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
                        Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, float maxResource, String description) {
+                       ResourceType primaryResource, float maxResource, String description,
+                       int maxLevel, boolean isTranscendent) {
         this.id = id;
         this.tier = tier;
         this.branch = branch;
@@ -41,11 +45,29 @@ public class PlayerClass {
         this.primaryResource = primaryResource;
         this.maxResource = maxResource;
         this.description = description;
+        this.maxLevel = maxLevel;
+        this.isTranscendent = isTranscendent;
         this.requirements = new ArrayList<>();
         this.nextClasses = new ArrayList<>();
     }
 
+    // Constructor for backward compatibility (assumes max level based on tier and not transcendent)
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
+                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
+                       ResourceType primaryResource, float maxResource, String description) {
+        this(id, tier, branch, displayName, color, attributeModifiers, primaryResource, maxResource, description,
+                tier == 0 ? 10 : 50, false); // Novice gets 10, others get 50
+    }
+
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
+        requirements.add(new ClassRequirement(previousClass, requiredLevel));
+        if (previousClass != null) {
+            previousClass.nextClasses.add(this);
+        }
+        return this;
+    }
+
+    public PlayerClass addTranscendentRequirement(PlayerClass previousClass, int requiredLevel) {
         requirements.add(new ClassRequirement(previousClass, requiredLevel));
         if (previousClass != null) {
             previousClass.nextClasses.add(this);
@@ -64,8 +86,13 @@ public class PlayerClass {
         return false;
     }
 
+    public boolean canTranscendFrom(PlayerClass currentClass, int currentClassLevel) {
+        if (this.tier != 3 || currentClass.tier != 2) return false;
+        return canEvolveFrom(currentClass, currentClassLevel);
+    }
+
     public String getClassCode() {
-        return tier + "-" + branch;
+        return tier + "-" + branch + (isTranscendent ? "T" : "");
     }
 
     public boolean isHigherTierThan(PlayerClass other) {
@@ -76,15 +103,32 @@ public class PlayerClass {
         return new ArrayList<>(nextClasses);
     }
 
+    // NEW: Get transcendent evolutions only
+    public List<PlayerClass> getTranscendentEvolutions() {
+        return nextClasses.stream()
+                .filter(PlayerClass::isTranscendent)
+                .toList();
+    }
+
     public void applyAttributeModifiers(LivingEntity entity) {
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
             if (attribute != null) {
                 Identifier modifierId = getClassModifierId();
                 attribute.removeModifier(modifierId);
+
+                double effectValue = entry.getValue();
+
+                // For health, replace the base value instead of adding to it
+                if (entry.getKey().equals(EntityAttributes.GENERIC_MAX_HEALTH)) {
+                    double vanillaBase = 20.0; // Minecraft default health
+                    double classBase = effectValue;
+                    effectValue = classBase - vanillaBase; // This will make total = classBase
+                }
+
                 attribute.addTemporaryModifier(new EntityAttributeModifier(
                         modifierId,
-                        entry.getValue(),
+                        effectValue,
                         EntityAttributeModifier.Operation.ADD_VALUE
                 ));
             }
@@ -98,7 +142,6 @@ public class PlayerClass {
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
             if (attribute != null) attribute.removeModifier(modifierId);
-
         }
     }
 
@@ -107,9 +150,10 @@ public class PlayerClass {
         float oldMaxHealth = player.getMaxHealth();
         float newMaxHealth = (float) player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH);
 
-        if (newMaxHealth != oldMaxHealth && newMaxHealth < currentHealth) {
-            float healthRatio = Math.max(0.1f, newMaxHealth / oldMaxHealth);
-            player.setHealth(currentHealth * healthRatio);
+        // Maintain health percentage when max health changes
+        if (oldMaxHealth != newMaxHealth && oldMaxHealth > 0) {
+            float healthPercentage = currentHealth / oldMaxHealth;
+            player.setHealth(healthPercentage * newMaxHealth);
         }
     }
 
@@ -117,44 +161,9 @@ public class PlayerClass {
         return Mamy.id("class_modify_" + id);
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public int getTier() {
-        return tier;
-    }
-
-    public int getBranch() {
-        return branch;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public Formatting getColor() {
-        return color;
-    }
-
-    public ResourceType getPrimaryResource() {
-        return primaryResource;
-    }
-
-    public float getMaxResource() {
-        return maxResource;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public List<ClassRequirement> getRequirements() {
-        return requirements;
-    }
-
     public Text getFormattedName() {
-        return Text.literal(displayName).formatted(color);
+        String transcendentPrefix = isTranscendent ? "High " : "";
+        return Text.literal(transcendentPrefix + displayName).formatted(color);
     }
 
     public Text getFormattedNameWithTier() {
@@ -165,18 +174,20 @@ public class PlayerClass {
         return Text.literal(description).formatted(Formatting.GRAY);
     }
 
-    /**
-     * Requirement for class evolution
-     */
-    public record ClassRequirement(PlayerClass previousClass, int requiredLevel) {
+    // Getters
+    public String getId() { return id; }
+    public int getTier() { return tier; }
+    public int getBranch() { return branch; }
+    public String getDisplayName() { return displayName; }
+    public Formatting getColor() { return color; }
+    public Map<RegistryEntry<EntityAttribute>, Double> getAttributeModifiers() { return attributeModifiers; }
+    public ResourceType getPrimaryResource() { return primaryResource; }
+    public float getMaxResource() { return maxResource; }
+    public String getDescription() { return description; }
+    public List<ClassRequirement> getRequirements() { return requirements; }
+    public List<PlayerClass> getNextClasses() { return nextClasses; }
+    public int getMaxLevel() { return maxLevel; } // NEW
+    public boolean isTranscendent() { return isTranscendent; } // NEW
 
-        public Text getFormattedRequirement() {
-            if (previousClass == null) {
-                return Text.literal("Starting class").formatted(Formatting.GREEN);
-            }
-            return Text.literal("Requires: ").formatted(Formatting.GRAY)
-                    .append(previousClass.getFormattedName())
-                    .append(Text.literal(" Lv." + requiredLevel).formatted(Formatting.YELLOW));
-        }
-    }
+    public record ClassRequirement(PlayerClass previousClass, int requiredLevel) {}
 }

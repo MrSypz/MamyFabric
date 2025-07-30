@@ -1,6 +1,11 @@
 package com.sypztep.mamy.common.system.classes;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.system.stat.Stat;
+import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -9,14 +14,11 @@ import net.minecraft.util.Formatting;
 
 import java.util.List;
 
-/**
- * Manages all class-related data for a player
- * Similar to LivingStats but for class system
- */
 public class PlayerClassManager {
     private final PlayerEntity player;
     private final ClassLevelSystem classLevelSystem;
     private PlayerClass currentClass;
+    private boolean hasTranscended; // Track if player has ever transcended
 
     // Resource system
     private float currentResource;
@@ -28,9 +30,10 @@ public class PlayerClassManager {
 
     public PlayerClassManager(PlayerEntity player) {
         this.player = player;
-        this.classLevelSystem = new ClassLevelSystem(player);
+        this.classLevelSystem = new ClassLevelSystem(player, currentClass);
         this.currentClass = ClassRegistry.getDefaultClass(); // NOVICE
         this.currentResource = currentClass.getMaxResource();
+        this.hasTranscended = false;
         // Future: Initialize skill manager
         // this.skillManager = new ClassSkillManager(player);
     }
@@ -55,6 +58,22 @@ public class PlayerClassManager {
         return classLevelSystem.getExperience();
     }
 
+    public long getClassExperienceToNext() {
+        return classLevelSystem.getExperienceToNextLevel();
+    }
+
+    public boolean isClassMaxLevel() {
+        return classLevelSystem.isMaxLevel();
+    }
+
+    public short getClassStatPoints() {
+        return classLevelSystem.getStatPoints();
+    }
+
+    public boolean hasTranscended() {
+        return hasTranscended;
+    }
+
     public void addClassExperience(long amount) {
         if (amount <= 0) return;
 
@@ -75,24 +94,41 @@ public class PlayerClassManager {
         return ClassRegistry.getAvailableEvolutions(currentClass, getClassLevel());
     }
 
+    public List<PlayerClass> getAvailableTranscendence() {
+        return ClassRegistry.getAvailableTranscendence(currentClass, getClassLevel());
+    }
+
+    public boolean canTranscend() {
+        return !getAvailableTranscendence().isEmpty();
+    }
+
     public boolean evolveToClass(PlayerClass newClass) {
         if (!canEvolveTo(newClass)) return false;
 
+        if (newClass.isTranscendent() && newClass.canTranscendFrom(currentClass, getClassLevel()))
+            return transcendToClass(newClass);
+
+
+        // Normal evolution
+        return normalEvolveToClass(newClass);
+    }
+
+    private boolean normalEvolveToClass(PlayerClass newClass) {
         // Remove old class attributes
         currentClass.removeAttributeModifiers(player);
 
         PlayerClass oldClass = currentClass;
         currentClass = newClass;
+        classLevelSystem.updateForClass(currentClass);
 
         // Apply new class attributes
         currentClass.applyAttributeModifiers(player);
 
-        // Reset class level and experience (configurable)
-        classLevelSystem.setLevel((short) 1);
-        classLevelSystem.setExperience(0);
-
         // Reset resource to full for new class
         currentResource = currentClass.getMaxResource();
+
+        // Reset stats when changing class (but keep class level)
+        resetStatsForClassChange();
 
         // Notify player
         if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -109,14 +145,86 @@ public class PlayerClassManager {
         return true;
     }
 
+    private boolean transcendToClass(PlayerClass targetClass) {
+        if (!targetClass.isTranscendent()) return false;
+
+        // Remove current class modifiers
+        if (currentClass != null) currentClass.removeAttributeModifiers(player);
+
+        PlayerClass oldClass = currentClass;
+        currentClass = targetClass;
+        hasTranscended = true;
+
+        // Reset level and experience (like RO transcendence)
+        classLevelSystem.resetForTranscendence();
+        classLevelSystem.updateForClass(currentClass);
+
+        // Apply new class modifiers
+        currentClass.applyAttributeModifiers(player);
+
+        // Reset resource to full
+        currentResource = targetClass.getMaxResource();
+
+        // Reset all stats to base values (transcendence resets everything)
+        resetAllStatsForTranscendence();
+
+        // Send transcendence message
+        if (player instanceof ServerPlayerEntity serverPlayer) {
+            serverPlayer.sendMessage(Text.literal("✨ TRANSCENDENCE ✨").formatted(Formatting.GOLD, Formatting.BOLD), false);
+            Text transcendMessage = Text.literal("You have transcended from ")
+                    .append(oldClass.getFormattedName())
+                    .append(Text.literal(" to "))
+                    .append(targetClass.getFormattedName())
+                    .append(Text.literal("! You are reborn with greater potential!"));
+            serverPlayer.sendMessage(transcendMessage, false);
+        }
+
+        return true;
+    }
+
     public void setClass(PlayerClass newClass) {
         if (currentClass != null) {
             currentClass.removeAttributeModifiers(player);
         }
 
         currentClass = newClass;
+        classLevelSystem.updateForClass(currentClass);
         currentClass.applyAttributeModifiers(player);
         currentResource = currentClass.getMaxResource();
+    }
+
+    // Reset stats when changing class (not transcending)
+    private void resetStatsForClassChange() {
+        LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
+        if (levelComponent == null) return;
+
+        // Return stat points and reset stats (but don't reset main level stats)
+        for (StatTypes statType : StatTypes.values()) {
+            Stat stat = levelComponent.getStatByType(statType);
+            if (stat != null) {
+                // Return the points used for class-specific stats
+                short pointsUsed = stat.getTotalPointsUsed();
+                classLevelSystem.addStatPoints(pointsUsed);
+
+                // Reset to base value
+                stat.reset(player, classLevelSystem, false);
+            }
+        }
+    }
+
+    // Reset everything for transcendence
+    private void resetAllStatsForTranscendence() {
+        LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
+        if (levelComponent == null) return;
+
+        // Reset all stats to base values (no point return for transcendence)
+        for (StatTypes statType : StatTypes.values()) {
+            Stat stat = levelComponent.getStatByType(statType);
+            if (stat != null) {
+                stat.reset(player, classLevelSystem, false);
+                levelComponent.getLevelSystem().setStatPoints((short) (ModConfig.startStatpoints * 4)); // Trancendence start with 4 time point
+            }
+        }
     }
 
     private void onClassLevelUp(int newLevel) {
@@ -159,6 +267,10 @@ public class PlayerClassManager {
     public float getResourcePercentage() {
         float max = getMaxResource();
         return max > 0 ? (currentResource / max) * 100f : 0f;
+    }
+
+    public float getCurrentResourcePercentage() {
+        return currentResource / getMaxResource();
     }
 
     /**
@@ -208,6 +320,7 @@ public class PlayerClassManager {
 
     public void writeToNbt(NbtCompound nbt) {
         nbt.putString("CurrentClass", currentClass.getId());
+        nbt.putBoolean("HasTranscended", hasTranscended);
 
         classLevelSystem.writeToNbt(nbt);
 
@@ -231,6 +344,9 @@ public class PlayerClassManager {
             currentClass = ClassRegistry.getDefaultClass();
         }
 
+        hasTranscended = nbt.getBoolean("HasTranscended");
+
+        classLevelSystem.updateForClass(currentClass);
         classLevelSystem.readFromNbt(nbt);
 
         // Load resource state
@@ -259,6 +375,10 @@ public class PlayerClassManager {
 
     public boolean isReadyForEvolution() {
         return getClassLevel() >= 45 && !getAvailableEvolutions().isEmpty();
+    }
+
+    public boolean isReadyForTranscendence() {
+        return getClassLevel() >= 45 && !getAvailableTranscendence().isEmpty();
     }
 
     public float getClassProgressPercentage() {
