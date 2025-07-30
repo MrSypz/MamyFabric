@@ -38,18 +38,52 @@ public final class ScreenEventHandler {
 
     private static void onScreenOpened(Screen screen) {
         if (shouldAnimateForScreen(screen)) {
+            // Start spiral out animation when screen opens
             cameraController.startSpiralAnimation();
         }
     }
 
     private static void onScreenClosed(Screen screen) {
         if (shouldAnimateForScreen(screen)) {
-            cameraController.stopSpiralAnimation();
+            // Start spiral return animation when screen closes (instead of stopping immediately)
+            if (cameraController.isSpirallingOut()) {
+                // If currently spiraling out, start return animation
+                cameraController.startSpiralReturn();
+            } else if (cameraController.isSpirallingIn()) {
+                // If already returning, let it continue
+                // Do nothing - let the return animation finish naturally
+            } else {
+                // If not animating (shouldn't happen), stop immediately
+                cameraController.stopSpiralAnimation();
+            }
         }
     }
 
     private static boolean shouldAnimateForScreen(Screen screen) {
         return screen instanceof PlayerInfoScreen ||
                 screen instanceof PassiveAbilityScreen;
+        // Add more screen types here if needed:
+        // || screen instanceof SomeOtherScreen;
+    }
+
+    /**
+     * Force stop camera animation (can be called from keybinding or other events)
+     */
+    public static void forceStopCameraAnimation() {
+        cameraController.stopSpiralAnimation();
+    }
+
+    /**
+     * Check if camera is currently animating
+     */
+    public static boolean isCameraAnimating() {
+        return cameraController.isAnimating();
+    }
+
+    /**
+     * Get camera animation state for debugging
+     */
+    public static String getCameraAnimationState() {
+        return cameraController.getAnimationState();
     }
 }
