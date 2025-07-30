@@ -2,6 +2,7 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
+import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +14,7 @@ public class ModKeyBindings {
 
     public static KeyBinding OPEN_STAT_SCREEN;
     public static KeyBinding OPEN_PASSIEV_SCREEN;
-    public static KeyBinding OPEN_LEVEL_INFO;
+    public static KeyBinding SWITCH_STANCE;
 
     public static void register() {
         OPEN_STAT_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -28,11 +29,11 @@ public class ModKeyBindings {
                 GLFW.GLFW_KEY_P, // K key
                 "category.mamy.keys" // Category translation key
         ));
-        OPEN_LEVEL_INFO = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_level_info", // Translation key
+        SWITCH_STANCE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.swotch_stance", // Translation key
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_LEFT_ALT, // K key
-                "category.mamy.keys" // Category translation key
+                GLFW.GLFW_KEY_R, // K key
+                "category.mamy.combat" // Category translation key
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(ModKeyBindings::handleKeyInputs);
@@ -48,6 +49,9 @@ public class ModKeyBindings {
             if (client.player != null && client.currentScreen == null) {
                 client.setScreen(new PassiveAbilityScreen(client));
             }
+        }
+        if (SWITCH_STANCE.wasPressed()) {
+            ToggleStancePayloadC2S.send();
         }
     }
 }
