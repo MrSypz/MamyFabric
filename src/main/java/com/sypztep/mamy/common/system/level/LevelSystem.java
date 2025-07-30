@@ -62,6 +62,8 @@ public class LevelSystem {
         return level >= maxLevel;
     }
 
+    public void setMaxLevel(short maxLevel) { this.maxLevel = maxLevel; }
+
     public short getMaxLevel() {
         return maxLevel;
     }
