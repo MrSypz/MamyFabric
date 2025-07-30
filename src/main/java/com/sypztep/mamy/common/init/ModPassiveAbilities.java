@@ -2,6 +2,9 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.abilities.*;
+import com.sypztep.mamy.common.system.passive.abilities.agility.DodgeMasterAbility;
+import com.sypztep.mamy.common.system.passive.abilities.agility.SwiftFeetAbility;
+import com.sypztep.mamy.common.system.passive.abilities.agility.WindWalkerAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 
 import java.util.*;

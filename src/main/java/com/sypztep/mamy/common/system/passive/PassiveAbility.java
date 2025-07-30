@@ -1,8 +1,14 @@
 package com.sypztep.mamy.common.system.passive;
 
+import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.AttributeModification;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -33,7 +39,7 @@ public abstract class PassiveAbility {
      * Check if player meets the stat requirements for this ability
      */
     public boolean meetsRequirements(PlayerEntity player) {
-        var levelComponent = com.sypztep.mamy.common.init.ModEntityComponents.LIVINGLEVEL.get(player);
+        LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.get(player);
 
         for (var entry : requirements.entrySet()) {
             StatTypes statType = entry.getKey();
@@ -52,19 +58,19 @@ public abstract class PassiveAbility {
      */
     public void applyEffects(PlayerEntity player) {
         for (AttributeModification modification : attributeModifications) {
-            var attributeInstance = player.getAttributeInstance(modification.attribute());
+            EntityAttributeInstance attributeInstance = player.getAttributeInstance(modification.attribute());
             if (attributeInstance != null) {
                 double baseValue = player.getAttributeBaseValue(modification.attribute());
                 double effectValue = modification.effectFunction().applyAsDouble(baseValue);
 
                 // Remove existing modifier if present
-                var existingModifier = attributeInstance.getModifier(modification.modifierId());
+                EntityAttributeModifier existingModifier = attributeInstance.getModifier(modification.modifierId());
                 if (existingModifier != null) {
                     attributeInstance.removeModifier(existingModifier);
                 }
 
                 // Apply new modifier
-                var modifier = new net.minecraft.entity.attribute.EntityAttributeModifier(
+                EntityAttributeModifier modifier = new EntityAttributeModifier(
                         modification.modifierId(), effectValue, modification.operation()
                 );
                 attributeInstance.addPersistentModifier(modifier);
@@ -80,9 +86,9 @@ public abstract class PassiveAbility {
      */
     public void removeEffects(PlayerEntity player) {
         for (AttributeModification modification : attributeModifications) {
-            var attributeInstance = player.getAttributeInstance(modification.attribute());
+            EntityAttributeInstance attributeInstance = player.getAttributeInstance(modification.attribute());
             if (attributeInstance != null) {
-                var existingModifier = attributeInstance.getModifier(modification.modifierId());
+                EntityAttributeModifier existingModifier = attributeInstance.getModifier(modification.modifierId());
                 if (existingModifier != null) {
                     attributeInstance.removeModifier(existingModifier);
                 }

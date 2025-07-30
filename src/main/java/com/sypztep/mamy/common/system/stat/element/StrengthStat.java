@@ -16,7 +16,6 @@ import java.util.List;
 public final class StrengthStat extends Stat {
     // Static constants for clean calculations
     private static final double MELEE_DAMAGE_SCALING = 0.05; // 5% per point
-    private static final double CRIT_CHANCE_SCALING = 0.005; // 0.5% per point
     private static final double ATTACK_SPEED_SCALING = 0.002; // 0.2% per point
 
     public StrengthStat(short baseValue) {
@@ -44,7 +43,6 @@ public final class StrengthStat extends Stat {
         applyEffects(living, modifications);
     }
 
-    // ✅ Rich tooltip like Dominatus
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
         int futureValue = getValue() + additionalPoints;

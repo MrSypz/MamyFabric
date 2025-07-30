@@ -50,11 +50,11 @@ public class ItemStackMixin {
     @Inject(method = "appendAttributeModifierTooltip",
             at = @At(value = "INVOKE",
                     target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V",
-                    shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILHARD)
+                    shift = At.Shift.AFTER)
+    )
     private void addMeleeDamageAfterMainTooltip(Consumer<Text> textConsumer, PlayerEntity player,
                                                 RegistryEntry<EntityAttribute> attribute, EntityAttributeModifier modifier,
-                                                CallbackInfo ci, double d, boolean bl, double e) {
+                                                CallbackInfo ci, @Local(ordinal = 0) double d, @Local boolean bl) {
         // Only add when bl is true (base modifiers) and it's attack damage and shift is held
         if (bl && player != null && Screen.hasShiftDown() &&
                 attribute.matches(EntityAttributes.GENERIC_ATTACK_DAMAGE) &&

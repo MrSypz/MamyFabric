@@ -61,19 +61,20 @@ public class MamyMobExpReloadListener implements SimpleSynchronousResourceReload
                                 continue;
                             }
 
-                            if (!object.has("expReward")) {
-                                Mamy.LOGGER.error("Missing 'expReward' field in file '{}'", identifier);
+                            if (!object.has("expReward") && !object.has("classReward")) {
+                                Mamy.LOGGER.error("Missing 'expReward' and 'classReward' field in file '{}'", identifier);
                                 errorCount.getAndIncrement();
                                 continue;
                             }
 
                             int expReward = object.get("expReward").getAsInt();
+                            int classReward = object.get("classReward").getAsInt();
 
                             int baseLevel = object.has("baseLevel") ? object.get("baseLevel").getAsInt() : 1;
 
                             Map<StatTypes, Integer> stats = parseStats(object, entityIdStr, baseLevel);
 
-                            MobExpEntry entry = new MobExpEntry(expReward, baseLevel, stats);
+                            MobExpEntry entry = new MobExpEntry(expReward,classReward, baseLevel, stats);
                             MobExpEntry.addEntry(entityType, entry);
 
                             loadedCount.getAndIncrement();

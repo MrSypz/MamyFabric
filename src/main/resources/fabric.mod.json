@@ -37,7 +37,8 @@
   "custom": {
     "cardinal-components": [
       "mamy:livinglevel",
-      "mamy:dmgtracker"
+      "mamy:dmgtracker",
+      "mamy:playerclass"
     ]
   }
 }

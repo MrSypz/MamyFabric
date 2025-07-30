@@ -13,7 +13,7 @@ public class ModKeyBindings {
 
     public static KeyBinding OPEN_STAT_SCREEN;
     public static KeyBinding OPEN_PASSIEV_SCREEN;
-
+    public static KeyBinding OPEN_LEVEL_INFO;
 
     public static void register() {
         OPEN_STAT_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -26,6 +26,12 @@ public class ModKeyBindings {
                 "key.mamy.open_passive_screen", // Translation key
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_P, // K key
+                "category.mamy.keys" // Category translation key
+        ));
+        OPEN_LEVEL_INFO = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.open_level_info", // Translation key
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_LEFT_ALT, // K key
                 "category.mamy.keys" // Category translation key
         ));
 

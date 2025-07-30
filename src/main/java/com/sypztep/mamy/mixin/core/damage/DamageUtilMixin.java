@@ -11,7 +11,7 @@ import static com.sypztep.mamy.common.util.DamageUtil.calculateFinalDamage;
 
 @Mixin(DamageUtil.class)
 public class DamageUtilMixin {
-    @ModifyReturnValue(method = "getDamageLeft", at = @At("HEAD"))
+    @ModifyReturnValue(method = "getDamageLeft", at = @At("RETURN"))
     private static float replaceArmorCalculation(float originalReturn,
                                                  LivingEntity armorWearer, float damageAmount, DamageSource damageSource,
                                                  float armor, float armorToughness) {

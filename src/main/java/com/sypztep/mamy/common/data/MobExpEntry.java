@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 public record MobExpEntry(
         int expReward,
+        int classReward,
         int baseLevel,
         Map<StatTypes, Integer> stats
 ) {
@@ -17,35 +18,36 @@ public record MobExpEntry(
     public static final Map<EntityType<?>, MobExpEntry> MOBEXP_MAP = new ConcurrentHashMap<>();
 
     // Convenience constructor with default stats
-    public MobExpEntry(int expReward, int baseLevel) {
-        this(expReward, baseLevel, createDefaultStats());
+    public MobExpEntry(int expReward,int classReward, int baseLevel) {
+        this(expReward,classReward, baseLevel, createDefaultStats());
     }
 
     private static Map<StatTypes, Integer> createDefaultStats() {
         return Map.of(
-                StatTypes.STRENGTH, 1,
-                StatTypes.AGILITY, 1,
-                StatTypes.VITALITY, 1,
-                StatTypes.INTELLIGENCE, 1,
-                StatTypes.DEXTERITY, 1,
-                StatTypes.LUCK, 1
+                StatTypes.STRENGTH, 0,
+                StatTypes.AGILITY, 0,
+                StatTypes.VITALITY, 0,
+                StatTypes.INTELLIGENCE, 0,
+                StatTypes.DEXTERITY, 0,
+                StatTypes.LUCK, 0
         );
     }
 
     // Convenience constructor with level-based stats
-    public static MobExpEntry withLevelStats(int expReward, int baseLevel) {
+    public static MobExpEntry withLevelStats(int expReward, int classReward, int baseLevel) {
         var stats = Arrays.stream(StatTypes.values())
                 .collect(Collectors.toMap(
                         stat -> stat,
                         stat -> baseLevel,
                         (existing, replacement) -> replacement // In case of duplicates, use the new value
                 ));
-        return new MobExpEntry(expReward, baseLevel, stats);
+        return new MobExpEntry(expReward, classReward, baseLevel, stats);
     }
 
+
     // Convenience constructors for specialized mobs
-    public static MobExpEntry warrior(int expReward, int baseLevel) {
-        return new MobExpEntry(expReward, baseLevel, Map.of(
+    public static MobExpEntry warrior(int expReward, int classReward, int baseLevel) {
+        return new MobExpEntry(expReward, classReward, baseLevel , Map.of(
                 StatTypes.STRENGTH, baseLevel + 2,
                 StatTypes.AGILITY, baseLevel,
                 StatTypes.VITALITY, baseLevel + 5,
@@ -55,19 +57,19 @@ public record MobExpEntry(
         ));
     }
 
-    public static MobExpEntry archer(int expReward, int baseLevel) {
-        return new MobExpEntry(expReward, baseLevel, Map.of(
+    public static MobExpEntry archer(int expReward, int classReward, int baseLevel) {
+        return new MobExpEntry(expReward, classReward, baseLevel , Map.of(
                 StatTypes.STRENGTH, baseLevel,
                 StatTypes.AGILITY, baseLevel + 8,
                 StatTypes.VITALITY, baseLevel,
                 StatTypes.INTELLIGENCE, baseLevel,
-                StatTypes.DEXTERITY, baseLevel + 5,
-                StatTypes.LUCK, baseLevel + 8
+                StatTypes.DEXTERITY, baseLevel + 10,
+                StatTypes.LUCK, baseLevel + 15
         ));
     }
 
-    public static MobExpEntry mage(int expReward, int baseLevel) {
-        return new MobExpEntry(expReward, baseLevel, Map.of(
+    public static MobExpEntry mage(int expReward, int classReward, int baseLevel) {
+        return new MobExpEntry(expReward, classReward, baseLevel , Map.of(
                 StatTypes.STRENGTH, Math.max(1, baseLevel - 1),
                 StatTypes.AGILITY, baseLevel,
                 StatTypes.VITALITY, baseLevel,
@@ -77,8 +79,8 @@ public record MobExpEntry(
         ));
     }
 
-    public static MobExpEntry tank(int expReward, int baseLevel) {
-        return new MobExpEntry(expReward, baseLevel, Map.of(
+    public static MobExpEntry tank(int expReward, int classReward, int baseLevel) {
+        return new MobExpEntry(expReward, classReward, baseLevel, Map.of(
                 StatTypes.STRENGTH, baseLevel + 1,
                 StatTypes.AGILITY, Math.max(1, baseLevel - 5),
                 StatTypes.VITALITY, baseLevel + 8,
@@ -88,8 +90,8 @@ public record MobExpEntry(
         ));
     }
 
-    public static MobExpEntry boss(int expReward, int baseLevel) {
-        return new MobExpEntry(expReward, baseLevel, Map.of(
+    public static MobExpEntry boss(int expReward, int classReward, int baseLevel) {
+        return new MobExpEntry(expReward, classReward, baseLevel, Map.of(
                 StatTypes.STRENGTH, baseLevel + 15,
                 StatTypes.AGILITY, baseLevel + 13,
                 StatTypes.VITALITY, baseLevel + 15,
@@ -101,7 +103,7 @@ public record MobExpEntry(
 
     // Easy access method for stats
     public int getStat(StatTypes statType) {
-        return stats.getOrDefault(statType, 1);
+        return stats.getOrDefault(statType, 0);
     }
 
     // Existing static methods for MOBEXP_MAP
@@ -112,6 +114,10 @@ public record MobExpEntry(
     public static int getExpReward(EntityType<?> entityType) {
         MobExpEntry entry = MOBEXP_MAP.get(entityType);
         return entry != null ? entry.expReward() : 0;
+    }
+    public static int getClassReward(EntityType<?> entityType) {
+        MobExpEntry entry = MOBEXP_MAP.get(entityType);
+        return entry != null ? entry.classReward() : 0;
     }
 
     public static int getBaseLevel(EntityType<?> entityType) {

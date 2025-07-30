@@ -35,7 +35,7 @@ public class LuckyStrikesAbility extends PassiveAbility {
     }
 
     @Override
-    protected void onApply(PlayerEntity player) {
+    protected void  onApply(PlayerEntity player) {
         // Could add chance for double hits or other lucky effects
     }
 

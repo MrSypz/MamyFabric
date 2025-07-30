@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.event;
 
+import com.sypztep.mamy.client.ModKeyBindings;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
@@ -63,9 +64,9 @@ public final class LevelHudRenderer implements HudRenderCallback {
         long currentXp = levelComponent.getExperience();
         long xpToNext = levelComponent.getExperienceToNextLevel();
         boolean isMaxLevel = levelComponent.getLevelSystem().isMaxLevel();
-
+        shouldBeVisible = true;
         // Detect XP/Level changes
-        if (currentXp > lastXp || level > lastLevel) {
+        if ((currentXp > lastXp || level > lastLevel)) {
             xpGainGlowTimer = XP_GLOW_DURATION;
             shouldBeVisible = true;
             hideTimer = AUTO_HIDE_DELAY;
@@ -87,7 +88,6 @@ public final class LevelHudRenderer implements HudRenderCallback {
     }
 
     private void updateAnimations(long currentXp, long xpToNext, boolean isMaxLevel, float deltaTime) {
-        // XP bar smooth animation
         float targetProgress = isMaxLevel ? 1.0f : (float) ((double) currentXp / (double) xpToNext);
         float lerpSpeed = 0.08f;
         animatedXpProgress = MathHelper.lerp(lerpSpeed, animatedXpProgress, targetProgress);
@@ -135,15 +135,14 @@ public final class LevelHudRenderer implements HudRenderCallback {
         String levelText = isMaxLevel ? "MAX" : "Lv." + level;
         int playerNameWidth = textRenderer.getWidth(playerName);
         int levelTextWidth = textRenderer.getWidth(levelText);
-
+        int classExp = 10;
         // Calculate dynamic HUD dimensions
         int minHudWidth = BAR_WIDTH + 3;
         int requiredWidth = playerNameWidth + levelTextWidth + 20; // 20px spacing between name and level
         int hudWidth = Math.max(minHudWidth, requiredWidth);
-        int hudHeight = 50; // Height for all content
+        int hudHeight = 50 + classExp; // Height for all content
 
         int currentY = HUD_Y;
-
         // Background panel with border
         drawContext.fill(hudX - 3, currentY - 3, hudX + hudWidth, currentY + hudHeight, BACKGROUND_COLOR);
         drawBorder(drawContext, hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3);
@@ -161,6 +160,8 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // XP Bar background
         int barY = currentY;
         drawContext.fill(hudX, barY, hudX + BAR_WIDTH, barY + BAR_HEIGHT, XP_BAR_BG_COLOR);
+        // Class XP Bar Background
+        drawContext.fill(hudX, barY + classExp, hudX + BAR_WIDTH , barY + BAR_HEIGHT + classExp , XP_BAR_BG_COLOR);
 
         // XP Bar progress with glow effect
         int progressWidth;
@@ -192,6 +193,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         // XP Bar border
         drawBorder(drawContext, hudX, barY, BAR_WIDTH, BAR_HEIGHT);
+        drawBorder(drawContext, hudX, barY + classExp, BAR_WIDTH, BAR_HEIGHT);
         currentY += BAR_HEIGHT + 4;
 
         // XP Text and Benefits
@@ -202,18 +204,18 @@ public final class LevelHudRenderer implements HudRenderCallback {
             xpText = NumberUtil.formatNumber(currentXp) + "/" + NumberUtil.formatNumber(xpToNext);
         }
 
-        drawContext.drawTextWithShadow(textRenderer, xpText, hudX, currentY, TEXT_COLOR);
+        drawContext.drawTextWithShadow(textRenderer, xpText, hudX, currentY + classExp, TEXT_COLOR);
 
         // Benefits text on the right
         String benefitsText = "Stats Point: " + availableBenefits;
         int benefitsX = hudX + BAR_WIDTH - textRenderer.getWidth(benefitsText);
-        drawContext.drawTextWithShadow(textRenderer, benefitsText, benefitsX, currentY, LEVEL_COLOR);
+        drawContext.drawTextWithShadow(textRenderer, benefitsText, benefitsX, currentY + classExp, LEVEL_COLOR);
 
         // XP Percentage (below on left)
         if (!isMaxLevel) {
             currentY += textRenderer.fontHeight + 1;
             String percentText = String.format("%.1f%%", animatedXpProgress * 100);
-            drawContext.drawTextWithShadow(textRenderer, percentText, hudX, currentY, 0xFFAAAAAA);
+            drawContext.drawTextWithShadow(textRenderer, percentText, hudX, currentY + classExp, 0xFFAAAAAA);
         }
     }
 

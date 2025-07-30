@@ -6,18 +6,19 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 
 public class LevelSystem {
-    private short level;
-    private long experience;
-    private long experienceToNextLevel;
-    private short statPoints;
-    private final LivingEntity livingEntity;
-    private static final short MAX_LEVEL = ModConfig.maxLevel;
+    protected short level;
+    protected long experience;
+    protected long experienceToNextLevel;
+    protected short statPoints;
+    protected final LivingEntity livingEntity;
+    protected short maxLevel;
 
     public LevelSystem(LivingEntity livingEntity) {
         this.level = 1;
         this.experience = 0;
         this.statPoints = ModConfig.startStatpoints;
         this.livingEntity = livingEntity;
+        this.maxLevel = ModConfig.maxLevel;
         this.experienceToNextLevel = calculateXpForNextLevel(level);
     }
 
@@ -27,13 +28,13 @@ public class LevelSystem {
     }
 
     public void addExperience(long amount) {
-        if (level >= MAX_LEVEL) {
+        if (level >= maxLevel) {
             experience = Math.min(experience + amount, experienceToNextLevel);
             return;
         }
         experience += amount;
-        while (experience >= experienceToNextLevel && level < MAX_LEVEL) levelUp();
-        if (level >= MAX_LEVEL) experience = Math.min(experience, experienceToNextLevel);
+        while (experience >= experienceToNextLevel && level < maxLevel) levelUp();
+        if (level >= maxLevel) experience = Math.min(experience, experienceToNextLevel);
     }
 
     public void setExperience(int experience) {
@@ -41,15 +42,15 @@ public class LevelSystem {
     }
 
     private void levelUp() {
-        if (level >= MAX_LEVEL) return;
+        if (level >= maxLevel) return;
 
         experience -= experienceToNextLevel;
         level++;
         statPoints += getStatPointsForLevel(level);
-        if (level < MAX_LEVEL) updateNextLvl();
+        if (level < maxLevel) updateNextLvl();
     }
 
-    private short getStatPointsForLevel(short level) {
+    protected short getStatPointsForLevel(short level) {
         return (short) (level / 5 + 3);
     }
 
@@ -58,12 +59,13 @@ public class LevelSystem {
     }
 
     public boolean isMaxLevel() {
-        return level >= MAX_LEVEL;
+        return level >= maxLevel;
     }
 
     public short getMaxLevel() {
-        return MAX_LEVEL;
+        return maxLevel;
     }
+    public void setMaxLevel(short maxLevel) {this.maxLevel = maxLevel;}
 
     public int getLevel() {
         return level;
