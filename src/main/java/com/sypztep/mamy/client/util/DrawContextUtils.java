@@ -412,13 +412,6 @@ public final class DrawContextUtils {
         RenderSystem.disableBlend();
     }
 
-    /**
-     * Simple horizontal gradient - kept for backward compatibility but now uses efficient rendering
-     */
-    public static void renderSimpleHorizontalGradient(DrawContext context, int x, int y, int width, int height, int z, int centerColor, int edgeColor) {
-        renderHorizontalLineWithCenterGradient(context, x, y, width, height, z, centerColor, edgeColor);
-    }
-
     // ===== UTILITY METHODS =====
 
     /**
