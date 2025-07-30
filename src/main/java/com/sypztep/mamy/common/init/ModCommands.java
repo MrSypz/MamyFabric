@@ -1,9 +1,6 @@
 package com.sypztep.mamy.common.init;
 
-import com.sypztep.mamy.common.command.ExpCommand;
-import com.sypztep.mamy.common.command.LevelCommand;
-import com.sypztep.mamy.common.command.PassiveAbilityCommand;
-import com.sypztep.mamy.common.command.StatCommand;
+import com.sypztep.mamy.common.command.*;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 
@@ -16,6 +13,7 @@ public final class ModCommands {
                     .then(ExpCommand.register())
                     .then(StatCommand.register())
                     .then(PassiveAbilityCommand.register())
+                    .then(PlayerClassCommand.register())
             );
         });
     }

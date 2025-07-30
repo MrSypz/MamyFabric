@@ -1,7 +1,6 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -13,58 +12,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.util.Map;
+import java.util.*;
 
-public enum PlayerClass {
-    // Base class - no bonuses, balanced stats
-    NOVICE(
-            "Novice",
-            Formatting.GRAY,
-            Map.of(),
-            ResourceType.MANA,
-            100f,
-            "A beginning adventurer with no specialization"
-    ),
-
-    // Tier 1 - Warrior path (high health, melee focus)
-    WARRIOR(
-            "Warrior",
-            Formatting.RED,
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 60.0,  // 20 -> 80 health total
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.2 // +20% melee damage
-            ),
-            ResourceType.RAGE,
-            550,
-            "A fierce melee combatant who uses rage to fuel devastating attacks"
-    ),
-
-    MAGE(
-            "Mage",
-            Formatting.BLUE,
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, -10.0, // 20 -> 10 health (risky!)
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.4 // +40% magic damage
-            ),
-            ResourceType.MANA,
-            750,
-            "A master of arcane arts who trades durability for magical power"
-    ),
-
-    // Tier 1 - Ninja path (speed and crit focus)
-    NINJA(
-            "Ninja",
-            Formatting.DARK_PURPLE,
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 20.0,   // 20 -> 40 health
-                    EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.03, // +30% move speed
-                    ModEntityAttributes.CRIT_CHANCE, 0.15        // +15% crit chance
-            ),
-            ResourceType.RAGE,
-            450,
-            "A swift shadow warrior who strikes from the darkness"
-    );
-
+public class PlayerClass {
+    private final String id;           // e.g., "novice", "swordman", "knight"
+    private final int tier;            // 0, 1, 2, 3...
+    private final int branch;          // 1, 2, 3... (within same tier)
     private final String displayName;
     private final Formatting color;
     private final Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers;
@@ -72,29 +25,63 @@ public enum PlayerClass {
     private final float maxResource;
     private final String description;
 
-    PlayerClass(String displayName, Formatting color,
-                Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                ResourceType primaryResource, float maxResource, String description) {
+    // Class progression requirements
+    private final List<ClassRequirement> requirements;
+    private final List<PlayerClass> nextClasses; // Possible evolution paths
+
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
+                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
+                       ResourceType primaryResource, float maxResource, String description) {
+        this.id = id;
+        this.tier = tier;
+        this.branch = branch;
         this.displayName = displayName;
         this.color = color;
         this.attributeModifiers = attributeModifiers;
         this.primaryResource = primaryResource;
         this.maxResource = maxResource;
         this.description = description;
+        this.requirements = new ArrayList<>();
+        this.nextClasses = new ArrayList<>();
     }
 
-    /**
-     * Apply this class's attribute modifiers to an entity
-     */
+    public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
+        requirements.add(new ClassRequirement(previousClass, requiredLevel));
+        if (previousClass != null) {
+            previousClass.nextClasses.add(this);
+        }
+        return this;
+    }
+
+    public boolean canEvolveFrom(PlayerClass currentClass, int currentClassLevel) {
+        if (requirements.isEmpty()) return true; // Base class (Novice)
+
+        for (ClassRequirement req : requirements) {
+            if (req.previousClass == currentClass && currentClassLevel >= req.requiredLevel) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getClassCode() {
+        return tier + "-" + branch;
+    }
+
+    public boolean isHigherTierThan(PlayerClass other) {
+        return this.tier > other.tier;
+    }
+
+    public List<PlayerClass> getPossibleEvolutions() {
+        return new ArrayList<>(nextClasses);
+    }
+
     public void applyAttributeModifiers(LivingEntity entity) {
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
             if (attribute != null) {
-                // Remove any existing class modifier
                 Identifier modifierId = getClassModifierId();
                 attribute.removeModifier(modifierId);
-
-                // Apply new modifier
                 attribute.addTemporaryModifier(new EntityAttributeModifier(
                         modifierId,
                         entry.getValue(),
@@ -103,62 +90,93 @@ public enum PlayerClass {
             }
         }
 
-        // Force health update for players
-        if (entity instanceof PlayerEntity player) {
-            updatePlayerHealth(player);
-        }
+        if (entity instanceof PlayerEntity player) updatePlayerHealth(player);
     }
 
-    /**
-     * Remove this class's attribute modifiers from an entity
-     */
     public void removeAttributeModifiers(LivingEntity entity) {
         Identifier modifierId = getClassModifierId();
-
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
-            if (attribute != null) {
-                attribute.removeModifier(modifierId);
-            }
+            if (attribute != null) attribute.removeModifier(modifierId);
+
         }
     }
 
-    /**
-     * Safely update player health when max health changes
-     */
     private void updatePlayerHealth(PlayerEntity player) {
         float currentHealth = player.getHealth();
         float oldMaxHealth = player.getMaxHealth();
-
-        // Get new max health after attribute changes
         float newMaxHealth = (float) player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH);
 
-        if (newMaxHealth != oldMaxHealth) {
-            if (newMaxHealth < currentHealth) {
-                // If new max is lower, reduce current health proportionally
-                float healthRatio = Math.max(0.1f, newMaxHealth / oldMaxHealth); // Keep at least 10%
-                player.setHealth(currentHealth * healthRatio);
-            }
-            // If new max is higher, keep current health the same (player doesn't auto-heal)
+        if (newMaxHealth != oldMaxHealth && newMaxHealth < currentHealth) {
+            float healthRatio = Math.max(0.1f, newMaxHealth / oldMaxHealth);
+            player.setHealth(currentHealth * healthRatio);
         }
     }
 
     private Identifier getClassModifierId() {
-        return Mamy.id("class_modify_" + name().toLowerCase());
+        return Mamy.id("class_modify_" + id);
     }
 
-    // Getters
-    public String getDisplayName() { return displayName; }
-    public Formatting getColor() { return color; }
-    public ResourceType getPrimaryResource() { return primaryResource; }
-    public float getMaxResource() { return maxResource; }
-    public String getDescription() { return description; }
+    public String getId() {
+        return id;
+    }
+
+    public int getTier() {
+        return tier;
+    }
+
+    public int getBranch() {
+        return branch;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public Formatting getColor() {
+        return color;
+    }
+
+    public ResourceType getPrimaryResource() {
+        return primaryResource;
+    }
+
+    public float getMaxResource() {
+        return maxResource;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<ClassRequirement> getRequirements() {
+        return requirements;
+    }
 
     public Text getFormattedName() {
         return Text.literal(displayName).formatted(color);
     }
 
+    public Text getFormattedNameWithTier() {
+        return Text.literal("[" + getClassCode() + "] " + displayName).formatted(color);
+    }
+
     public Text getFormattedDescription() {
         return Text.literal(description).formatted(Formatting.GRAY);
+    }
+
+    /**
+     * Requirement for class evolution
+     */
+    public record ClassRequirement(PlayerClass previousClass, int requiredLevel) {
+
+        public Text getFormattedRequirement() {
+            if (previousClass == null) {
+                return Text.literal("Starting class").formatted(Formatting.GREEN);
+            }
+            return Text.literal("Requires: ").formatted(Formatting.GRAY)
+                    .append(previousClass.getFormattedName())
+                    .append(Text.literal(" Lv." + requiredLevel).formatted(Formatting.YELLOW));
+        }
     }
 }

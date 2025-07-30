@@ -1,0 +1,248 @@
+package com.sypztep.mamy.client.screen.hud;
+
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.PlayerClassManager;
+import com.sypztep.mamy.common.system.classes.ResourceType;
+import com.sypztep.mamy.common.util.NumberUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.MathHelper;
+
+@Environment(EnvType.CLIENT)
+public class ResourceBarHud {
+    // UI Constants
+    private static final int HUD_X = 20; // Left side of screen
+    private static final int HUD_Y_OFFSET = 60; // Offset from bottom
+    private static final int BAR_WIDTH = 120;
+    private static final int BAR_HEIGHT = 12;
+
+    // Colors
+    private static final int BACKGROUND_COLOR = 0x80000000; // Semi-transparent black
+    private static final int BORDER_COLOR = 0xFF333333;
+    private static final int TEXT_COLOR = 0xFFFFFFFF;
+
+    // Mana colors
+    private static final int MANA_BAR_BG_COLOR = 0xFF1a1a3d;
+    private static final int MANA_BAR_COLOR = 0xFF3366FF;
+    private static final int MANA_GLOW_COLOR = 0xFF66AAFF;
+
+    // Rage colors
+    private static final int RAGE_BAR_BG_COLOR = 0xFF3d1a1a;
+    private static final int RAGE_BAR_COLOR = 0xFFFF3333;
+    private static final int RAGE_GLOW_COLOR = 0xFFFF6666;
+
+    // Animation constants
+    private static final float RESOURCE_GLOW_DURATION = 1.0f; // 1 second glow
+    private static final float SLIDE_DURATION = 0.5f; // 0.5 second slide
+    private static final float AUTO_HIDE_DELAY = 15.0f; // Hide after 10 seconds
+
+    // Animation state
+    private float animatedResourceProgress = 0.0f;
+    private float resourceGainGlowTimer = 0.0f;
+    private float slideOffset = 1.0f; // 0 = fully visible, 1 = fully hidden
+    private float hideTimer = 0.0f;
+    private boolean shouldBeVisible = false;
+
+    // Previous values for change detection
+    private float lastResourceAmount = -1;
+    private ResourceType lastResourceType = null;
+
+    /**
+     * Render the resource bar HUD
+     */
+    public void render(DrawContext drawContext, MinecraftClient client, float deltaTime) {
+        if (client.player == null) return;
+
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.getNullable(client.player);
+        if (classComponent == null) return;
+
+        PlayerClassManager manager = classComponent.getClassManager();
+
+        // Get resource data
+        float currentResource = manager.getCurrentResource();
+        float maxResource = manager.getMaxResource();
+        ResourceType resourceType = manager.getResourceType();
+
+        // Check for resource changes to trigger visibility and glow
+        if (lastResourceAmount != currentResource || lastResourceType != resourceType) {
+            if (lastResourceAmount >= 0 && currentResource > lastResourceAmount) {
+                // Resource gained - trigger glow and show
+                resourceGainGlowTimer = RESOURCE_GLOW_DURATION;
+                shouldBeVisible = true;
+                hideTimer = AUTO_HIDE_DELAY;
+            } else if (currentResource < maxResource) {
+                // Resource used or depleted - show bar
+                shouldBeVisible = true;
+                hideTimer = AUTO_HIDE_DELAY;
+            }
+
+            lastResourceAmount = currentResource;
+            lastResourceType = resourceType;
+        }
+
+        // Don't render if fully hidden
+        if (slideOffset >= 1.0f && !shouldBeVisible) return;
+
+        // Update animations
+        updateAnimations(currentResource, maxResource, deltaTime);
+
+        // Calculate HUD position with slide animation
+        int screenHeight = client.getWindow().getScaledHeight();
+        int hudY = screenHeight - HUD_Y_OFFSET;
+        int slideDistance = (int) (slideOffset * (BAR_HEIGHT + 30)); // Slide down off screen
+        int actualHudY = hudY + slideDistance;
+
+        // Render the resource bar
+        renderResourceBar(drawContext, client, manager, HUD_X, actualHudY, resourceType);
+    }
+
+    /**
+     * Update all animations
+     */
+    private void updateAnimations(float currentResource, float maxResource, float deltaTime) {
+        // Calculate target progress
+        float targetProgress = maxResource > 0 ? currentResource / maxResource : 0.0f;
+
+        // Smooth progress animation
+        float lerpSpeed = 0.08f;
+        animatedResourceProgress = MathHelper.lerp(lerpSpeed, animatedResourceProgress, targetProgress);
+
+        // Resource gain glow timer countdown
+        if (resourceGainGlowTimer > 0) {
+            resourceGainGlowTimer -= deltaTime;
+            if (resourceGainGlowTimer < 0) resourceGainGlowTimer = 0;
+        }
+
+        // Handle auto-hide functionality
+        if (hideTimer > 0) {
+            hideTimer -= deltaTime;
+            if (hideTimer <= 0) shouldBeVisible = false;
+        }
+
+        // Calculate target slide offset
+        float targetSlideOffset = shouldBeVisible ? 0.0f : 1.0f;
+
+        // Smooth slide animation
+        float slideSpeed = 1.0f / SLIDE_DURATION;
+        if (slideOffset != targetSlideOffset) {
+            float direction = targetSlideOffset > slideOffset ? 1.0f : -1.0f;
+            slideOffset += direction * slideSpeed * deltaTime;
+
+            // Clamp to target
+            if (direction > 0 && slideOffset > targetSlideOffset) slideOffset = targetSlideOffset;
+            else if (direction < 0 && slideOffset < targetSlideOffset) slideOffset = targetSlideOffset;
+        }
+    }
+
+    /**
+     * Render the resource bar
+     */
+    private void renderResourceBar(DrawContext drawContext, MinecraftClient client, PlayerClassManager manager,
+                                   int hudX, int hudY, ResourceType resourceType) {
+        TextRenderer textRenderer = client.textRenderer;
+
+        // Get resource values
+        float currentResource = manager.getCurrentResource();
+        float maxResource = manager.getMaxResource();
+
+        // Calculate dimensions
+        int hudWidth = BAR_WIDTH + 6;
+        int hudHeight = BAR_HEIGHT + textRenderer.fontHeight + 8;
+
+        // Choose colors based on resource type
+        int barBgColor, barColor, glowColor;
+        if (resourceType == ResourceType.MANA) {
+            barBgColor = MANA_BAR_BG_COLOR;
+            barColor = MANA_BAR_COLOR;
+            glowColor = MANA_GLOW_COLOR;
+        } else {
+            barBgColor = RAGE_BAR_BG_COLOR;
+            barColor = RAGE_BAR_COLOR;
+            glowColor = RAGE_GLOW_COLOR;
+        }
+
+        // Background panel with border
+        drawContext.fill(hudX - 3, hudY - 3, hudX + hudWidth, hudY + hudHeight, BACKGROUND_COLOR);
+        drawBorder(drawContext, hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3);
+
+        // Resource type label
+        String resourceLabel = resourceType.getDisplayName();
+        int labelColor = (resourceType == ResourceType.MANA) ? MANA_BAR_COLOR : RAGE_BAR_COLOR;
+        drawContext.drawTextWithShadow(textRenderer, resourceLabel, hudX, hudY, labelColor);
+
+        int barY = hudY + textRenderer.fontHeight + 2;
+
+        // Resource bar background
+        drawContext.fill(hudX, barY, hudX + BAR_WIDTH, barY + BAR_HEIGHT, barBgColor);
+
+        // Resource bar progress with glow effect
+        int progressWidth = (int) (BAR_WIDTH * animatedResourceProgress);
+
+        if (progressWidth > 0) {
+            // Resource gain glow effect
+            if (resourceGainGlowTimer > 0) {
+                float glowStrength = resourceGainGlowTimer / RESOURCE_GLOW_DURATION;
+                float time = (RESOURCE_GLOW_DURATION - resourceGainGlowTimer) * 3.0f;
+                float pulse = (float) (0.5f + 0.5f * Math.sin(time * Math.PI));
+                float finalGlow = glowStrength * (0.7f + 0.3f * pulse);
+
+                int glowAlpha = (int) (finalGlow * 130);
+                int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
+
+                // Glow layers
+                drawContext.fill(hudX - 2, barY - 2, hudX + progressWidth + 2, barY + BAR_HEIGHT + 2, resourceGlowColor);
+                drawContext.fill(hudX - 1, barY - 1, hudX + progressWidth + 1, barY + BAR_HEIGHT + 1, resourceGlowColor);
+            }
+
+            // Main resource bar
+            drawContext.fill(hudX, barY, hudX + progressWidth, barY + BAR_HEIGHT, barColor);
+        }
+
+        // Resource bar border
+        drawBorder(drawContext, hudX, barY, BAR_WIDTH, BAR_HEIGHT);
+
+        // Resource text (current/max)
+        String resourceText = NumberUtil.formatNumber((long) currentResource) + "/" + NumberUtil.formatNumber((long) maxResource);
+        int textX = hudX + BAR_WIDTH - textRenderer.getWidth(resourceText);
+        int textY = barY + 2; // Center vertically in bar
+        drawContext.drawTextWithShadow(textRenderer, resourceText, textX, textY, TEXT_COLOR);
+
+        // Resource percentage (left side of bar)
+        String percentText = String.format("%.0f%%", animatedResourceProgress * 100);
+        drawContext.drawTextWithShadow(textRenderer, percentText, hudX + 2, textY, 0xFFAAAAAA);
+    }
+
+    /**
+     * Draw border around a rectangle
+     */
+    private void drawBorder(DrawContext drawContext, int x, int y, int width, int height) {
+        // Top
+        drawContext.fill(x, y, x + width, y + 1, BORDER_COLOR);
+        // Bottom
+        drawContext.fill(x, y + height - 1, x + width, y + height, BORDER_COLOR);
+        // Left
+        drawContext.fill(x, y, x + 1, y + height, BORDER_COLOR);
+        // Right
+        drawContext.fill(x + width - 1, y, x + width, y + height, BORDER_COLOR);
+    }
+
+    /**
+     * Force show the resource bar (for when skills are used, etc.)
+     */
+    public void forceShow() {
+        shouldBeVisible = true;
+        hideTimer = AUTO_HIDE_DELAY;
+    }
+
+    /**
+     * Force hide the resource bar
+     */
+    public void forceHide() {
+        shouldBeVisible = false;
+        hideTimer = 0;
+    }
+}

@@ -1,9 +1,8 @@
 package com.sypztep.mamy.common.event.living;
 
 import com.sypztep.mamy.common.component.living.DamageTrackerComponent;
-import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.util.stat.ExpUtil;
+import com.sypztep.mamy.common.util.ExpUtil;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -36,21 +35,16 @@ public class MobDeathExperienceEvent implements ServerLivingEntityEvents.AfterDe
 
             ServerPlayerEntity player = world.getServer().getPlayerManager().getPlayer(playerId);
             if (player == null) return;
-            LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.get(player);
-            if (levelComponent.getLevelSystem().isMaxLevel()) return;
 
             float damagePercentage = tracker.getDamagePercentage(player);
             if (damagePercentage <= 0) return;
 
-            int expReward = ExpUtil.calculateExpReward(player, entity, damagePercentage);
+            float percentage = damagePercentage * 100f;
+            String source = String.format("%.1f%% damage to %s", percentage, entityName);
 
-            if (expReward > 0) {
-                float percentage = damagePercentage * 100f;
-                String source = String.format("%.1f%% damage to %s", percentage, entityName);
-
-                ExpUtil.awardExperience(player, expReward, source);
-            }
+            ExpUtil.awardCombinedExperience(player, entity, damagePercentage, source);
         });
+
         tracker.clearDamage();
     }
 }
