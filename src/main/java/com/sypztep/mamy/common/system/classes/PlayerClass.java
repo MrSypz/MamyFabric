@@ -51,14 +51,6 @@ public class PlayerClass {
         this.nextClasses = new ArrayList<>();
     }
 
-    // Constructor for backward compatibility (assumes max level based on tier and not transcendent)
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
-                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, float maxResource, String description) {
-        this(id, tier, branch, displayName, color, attributeModifiers, primaryResource, maxResource, description,
-                tier == 0 ? 10 : 50, false); // Novice gets 10, others get 50
-    }
-
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
         requirements.add(new ClassRequirement(previousClass, requiredLevel));
         if (previousClass != null) {

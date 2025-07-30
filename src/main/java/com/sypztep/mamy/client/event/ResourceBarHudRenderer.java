@@ -28,11 +28,4 @@ public final class ResourceBarHudRenderer implements HudRenderCallback {
     public static void register() {
         HudRenderCallback.EVENT.register(new ResourceBarHudRenderer());
     }
-
-    /**
-     * Get the resource bar HUD instance (for external control)
-     */
-    public static ResourceBarHud getResourceBarHud() {
-        return resourceBarHud;
-    }
 }

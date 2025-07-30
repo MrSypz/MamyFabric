@@ -7,14 +7,12 @@ import net.minecraft.server.command.CommandManager;
 public final class ModCommands {
     public ModCommands() {}
     public static void init() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(CommandManager.literal("mamy")
-                    .then(LevelCommand.register())
-                    .then(ExpCommand.register())
-                    .then(StatCommand.register())
-                    .then(PassiveAbilityCommand.register())
-                    .then(PlayerClassCommand.register())
-            );
-        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(CommandManager.literal("mamy")
+                .then(LevelCommand.register())
+                .then(ExpCommand.register())
+                .then(StatCommand.register())
+                .then(PassiveAbilityCommand.register())
+                .then(PlayerClassCommand.register())
+        ));
     }
 }
