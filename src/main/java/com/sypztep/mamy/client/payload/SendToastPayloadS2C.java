@@ -36,9 +36,61 @@ public record SendToastPayloadS2C(String message, int toastTypeOrdinal) implemen
         send(player, message, ToastNotification.ToastType.EXPERIENCE);
     }
 
-    public static void sendLevelUp(ServerPlayerEntity player, int newLevel) {
-        String message = String.format("§l§6⚔ LEVEL GAINED ⚔§r\n§7You are now level §e§l%d§r§7!", newLevel);
+    public static void sendCombinedExperience(ServerPlayerEntity player, long mainExp, long classExp, String source) {
+        StringBuilder message = new StringBuilder("§l§6⚡ EXPERIENCE GAINED ⚡§r\n");
+
+        // Add main exp if any
+        if (mainExp > 0) {
+            message.append("§e+").append(NumberUtil.formatNumber(mainExp)).append(" EXP");
+        }
+
+        // Add class exp if any
+        if (classExp > 0) {
+            if (mainExp > 0) {
+                message.append(" §8| ");
+            }
+            message.append("§b+").append(NumberUtil.formatNumber(classExp)).append(" Class EXP");
+        }
+
+        // Add source if provided
+        if (source != null) {
+            message.append(" §8• §7").append(source);
+        }
+
+        send(player, message.toString(), ToastNotification.ToastType.EXPERIENCE);
+    }
+
+    public static void sendLevelUp(ServerPlayerEntity player, int levelGained) {
+        String message = levelGained > 1 ?
+                String.format("§l§6⚔ LEVELS GAINED ⚔§r\n§7You gained §e§l%d§r§7 levels!", levelGained) :
+                String.format("§l§6⚔ LEVEL GAINED ⚔§r\n§7You gained §e§l%d§r§7 level!", levelGained);
         send(player, message, ToastNotification.ToastType.LEVEL_UP);
+    }
+
+    public static void sendClassLevelUp(ServerPlayerEntity player, int levelGained, String className) {
+        String message = levelGained > 1 ?
+                String.format("§l§b⚔ CLASS LEVELS GAINED ⚔§r\n§7You gained §b§l%d§r§7 class levels! %s", levelGained, className) :
+                String.format("§l§b⚔ CLASS LEVEL GAINED ⚔§r\n§7You gained §b§l%d§r§7 class level! %s", levelGained , className);
+        send(player, message, ToastNotification.ToastType.LEVEL_UP);
+    }
+
+    public static void sendCombinedLevelUp(ServerPlayerEntity player, int mainLevels, int classLevels) {
+        StringBuilder message = new StringBuilder("§l§6⚔ LEVEL UP ⚔§r\n");
+
+        if (mainLevels > 0) {
+            message.append("§e+").append(mainLevels).append(" Level");
+            if (mainLevels > 1) message.append("s");
+        }
+
+        if (classLevels > 0) {
+            if (mainLevels > 0) {
+                message.append(" §8| ");
+            }
+            message.append("§b+").append(classLevels).append(" Class Level");
+            if (classLevels > 1) message.append("s");
+        }
+
+        send(player, message.toString(), ToastNotification.ToastType.LEVEL_UP);
     }
 
     public static void sendDeathPenalty(ServerPlayerEntity player, long expLost, String killerName) {
