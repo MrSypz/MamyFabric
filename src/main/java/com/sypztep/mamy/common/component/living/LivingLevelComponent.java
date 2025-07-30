@@ -108,6 +108,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     public void setLevel(int level) {
         performBatchUpdate(() -> {
             livingStats.getLevelSystem().setLevel((short) level);
+            livingStats.getLevelSystem().setExperience(0);
         });
     }
 
