@@ -10,8 +10,6 @@ public class SkillConfig {
     public final int maxHitCount;
     public final boolean bypassIframe;
     public final boolean endOnMaxHits;
-    public final int activationDelay;
-    public final int duration;
     public final long iframeTime; // New iframe setting
 
     private SkillConfig(Builder builder) {
@@ -21,8 +19,6 @@ public class SkillConfig {
         this.maxHitCount = builder.maxHitCount;
         this.bypassIframe = builder.bypassIframe;
         this.endOnMaxHits = builder.endOnMaxHits;
-        this.activationDelay = builder.activationDelay;
-        this.duration = builder.duration;
         this.iframeTime = builder.iframeTime;
     }
 
@@ -33,8 +29,6 @@ public class SkillConfig {
         private int maxHitCount = 1;
         private boolean bypassIframe = false;
         private boolean endOnMaxHits = true;
-        private int activationDelay = 0;
-        private int duration = 100;
         private long iframeTime = 10; // 0.5 seconds default
 
         public Builder damage(float damage, RegistryKey<DamageType> damageType) {
@@ -65,16 +59,6 @@ public class SkillConfig {
 
         public Builder endOnMaxHits(boolean end) {
             this.endOnMaxHits = end;
-            return this;
-        }
-
-        public Builder activationDelay(int delay) {
-            this.activationDelay = delay;
-            return this;
-        }
-
-        public Builder duration(int duration) {
-            this.duration = duration;
             return this;
         }
 

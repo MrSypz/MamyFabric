@@ -50,12 +50,9 @@ public class SkillHudOverlayRenderer {
                     hintX, hintY, 0xFFFFFF, true);
 
             context.drawText(MinecraftClient.getInstance().textRenderer,
-                    Text.literal("Shift + E/Q/R/F/C/X").formatted(Formatting.GRAY),
+                    Text.literal("Z/X/C/V").formatted(Formatting.GRAY),
                     hintX, hintY + 10, 0xFFFFFF, true);
 
-            context.drawText(MinecraftClient.getInstance().textRenderer,
-                    Text.literal("Ctrl + Shift + Z/X/C (Ultimate)").formatted(Formatting.GOLD),
-                    hintX, hintY + 20, 0xFFFFFF, true);
         }
     }
 }

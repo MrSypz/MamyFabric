@@ -23,10 +23,8 @@ public class BloodLustEntity extends BaseSkillEntity {
                 .damage(4F, ModDamageTypes.BLOODLUST)
                 .hitRange(3.0)
                 .maxHits(5) // Each enemy can only be hit once
-                .bypassIframe(false) // Respect iframe
                 .iframeTime(2) // 0.5 second iframe
-                .endOnMaxHits(false) // Continue flying even after hitting
-                .duration(100)
+                .endOnMaxHits(true) // Continue flying even after hitting
                 .build();
     }
 

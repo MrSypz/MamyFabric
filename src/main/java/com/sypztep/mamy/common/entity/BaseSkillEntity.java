@@ -12,7 +12,6 @@ import net.minecraft.world.World;
 import com.sypztep.mamy.common.system.skill.SkillConfig;
 import com.sypztep.mamy.common.system.skill.SkillHitTracker;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public abstract class BaseSkillEntity extends PersistentProjectileEntity {
@@ -56,7 +55,7 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
             --this.ticksUntilRemove;
         }
 
-        if (this.ticksUntilRemove <= 0) {
+        if (this.ticksUntilRemove <= 0 || skillConfig.endOnMaxHits) {
             onSkillEnd();
             this.discard();
         }
@@ -121,8 +120,5 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
     protected abstract void onSkillEnd();
 
     // Getters
-    public SkillConfig getConfig() { return skillConfig; }
-    public SkillHitTracker getHitTracker() { return hitTracker; }
     public Set<StatusEffectInstance> getEffects() { return effects; }
-    public int getTicksUntilRemove() { return ticksUntilRemove; }
 }

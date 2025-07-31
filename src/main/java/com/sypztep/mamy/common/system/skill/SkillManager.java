@@ -15,7 +15,6 @@ import java.util.Map;
 
 
 public class SkillManager {
-    // Track player skill cooldowns
     private static final Map<String, Map<String, Long>> PLAYER_COOLDOWNS = new HashMap<>();
 
     public static void useSkill(PlayerEntity player, String skillId) {

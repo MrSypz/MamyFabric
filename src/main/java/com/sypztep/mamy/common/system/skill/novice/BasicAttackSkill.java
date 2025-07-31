@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill.novice;
 
+import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.system.classes.ClassRegistry;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -14,7 +15,7 @@ public class BasicAttackSkill extends Skill {
 
     public BasicAttackSkill() {
         super("basic_attack", "Basic Attack", "A simple melee attack",
-                5f, 20, 1, ClassRegistry.NOVICE, 1);
+                5f, 20, 1, ModClasses.NOVICE, 1);
     }
 
     @Override
@@ -48,6 +49,6 @@ public class BasicAttackSkill extends Skill {
 
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {
-        return playerClass == ClassRegistry.NOVICE;
+        return playerClass == ModClasses.NOVICE;
     }
 }
