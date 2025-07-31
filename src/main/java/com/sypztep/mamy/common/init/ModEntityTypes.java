@@ -14,19 +14,30 @@ public class ModEntityTypes {
     public static EntityType<BloodLustEntity> BLOOD_LUST;
 
     public static void init() {
-        BLOOD_LUST = registerEntity("bloodlust", createEntityTypeSlash(BloodLustEntity::new));
+        BLOOD_LUST = registerEntity("bloodlust", createSlashEntity(BloodLustEntity::new));
     }
 
-    private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType<T> entityType) {
-        return Registry.register(Registries.ENTITY_TYPE, Mamy.id(name), entityType);
+    private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> builder) {
+        return Registry.register(Registries.ENTITY_TYPE, Mamy.id(name), builder.build());
     }
-    private static <T extends Entity> EntityType<T> createEntityType(EntityType.EntityFactory<T> factory) {
-        return FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.changing(0.5f, 0.5f)).trackRangeBlocks(126).trackedUpdateRate(20).build();
+
+    private static <T extends Entity> EntityType.Builder<T> createDefaultEntityType(EntityType.EntityFactory<T> factory) {
+        return EntityType.Builder.create(factory, SpawnGroup.MISC)
+                .dimensions(0.5f, 0.5f)
+                .maxTrackingRange(126)
+                .trackingTickInterval(20);
     }
-    private static <T extends Entity> EntityType<T> createNoHitbock(EntityType.EntityFactory<T> factory) {
-        return FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.changing(0.1f, 0.1f)).trackRangeBlocks(512).trackedUpdateRate(4).build();
+
+    private static <T extends Entity> EntityType.Builder<T> createNoHitbox(EntityType.EntityFactory<T> factory) {
+        return EntityType.Builder.create(factory, SpawnGroup.MISC)
+                .dimensions(0.1f, 0.1f)
+                .maxTrackingRange(512)
+                .trackingTickInterval(4);
     }
-    private static <T extends Entity> EntityType<T> createEntityTypeSlash(EntityType.EntityFactory<T> factory) {
-        return FabricEntityTypeBuilder.create(SpawnGroup.MISC, factory).dimensions(EntityDimensions.changing(5.0F, 0.2F)).build();
+
+    private static <T extends Entity> EntityType.Builder<T> createSlashEntity(EntityType.EntityFactory<T> factory) {
+        return EntityType.Builder.create(factory, SpawnGroup.MISC)
+                .dimensions(5.0f, 0.2f);
     }
+
 }
