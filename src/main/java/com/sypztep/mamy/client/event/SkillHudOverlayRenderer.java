@@ -3,7 +3,6 @@ package com.sypztep.mamy.client.event;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -21,12 +20,11 @@ public class SkillHudOverlayRenderer {
         if (client.player == null || client.options.hudHidden) return;
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
 
-        renderStanceAndSkillInfo(context, stanceComponent, classComponent);
+        renderStanceAndSkillInfo(context, stanceComponent);
     }
 
-    private static void renderStanceAndSkillInfo(DrawContext context, PlayerStanceComponent stanceComponent, PlayerClassComponent classComponent) {
+    private static void renderStanceAndSkillInfo(DrawContext context, PlayerStanceComponent stanceComponent) {
         int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
 

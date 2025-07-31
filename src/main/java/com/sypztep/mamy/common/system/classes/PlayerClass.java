@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -111,9 +112,8 @@ public class PlayerClass {
 
                 double effectValue = entry.getValue();
 
-                // For health, replace the base value instead of adding to it
                 if (entry.getKey().equals(EntityAttributes.GENERIC_MAX_HEALTH)) {
-                    double vanillaBase = 20.0; // Minecraft default health
+                    double vanillaBase = 20.0;
                     double classBase = effectValue;
                     effectValue = classBase - vanillaBase; // This will make total = classBase
                 }
