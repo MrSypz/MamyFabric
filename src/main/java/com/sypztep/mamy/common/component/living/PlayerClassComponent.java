@@ -62,6 +62,10 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         return result[0];
     }
 
+    public void addResource(float amount) {
+        performBatchUpdate(() -> classManager.addResource(amount));
+    }
+
     public void setCurrentResource(float amount) {
         performBatchUpdate(() -> classManager.setCurrentResource(amount));
     }
