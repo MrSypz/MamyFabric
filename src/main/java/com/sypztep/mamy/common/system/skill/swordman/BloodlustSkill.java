@@ -16,7 +16,7 @@ public class BloodlustSkill extends Skill {
 
     public BloodlustSkill() {
         super("bloodlust", "Bloodlust", "Launch a blood projectile that transfers your status effects",
-                30f, 60, 3, ModClasses.SWORDMAN, 10);
+                30f, 10, 3, ModClasses.SWORDMAN, 10);
     }
 
     @Override
