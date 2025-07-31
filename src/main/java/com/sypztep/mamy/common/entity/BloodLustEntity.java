@@ -16,15 +16,17 @@ public class BloodLustEntity extends BaseSkillEntity {
 
     public BloodLustEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world, createBloodLustConfig());
+        this.withManaRegen(2.0f)      // ฟื้นฟู 2 mana ต่อ hit
+                .withHealthRegen(0.5f);   // ฟื้นฟู 0.5 hp ต่อ hit
     }
 
     private static SkillConfig createBloodLustConfig() {
         return new SkillConfig.Builder()
-                .damage(4F, ModDamageTypes.BLOODLUST)
+                .damage(4F)
+                .damageType(ModDamageTypes.BLOODLUST)
                 .hitRange(3.0)
-                .maxHits(5) // Each enemy can only be hit once
+                .maxHitCount(5) // Each enemy can only be hit once
                 .iframeTime(2) // 0.5 second iframe
-                .endOnMaxHits(true) // Continue flying even after hitting
                 .build();
     }
 
@@ -60,21 +62,20 @@ public class BloodLustEntity extends BaseSkillEntity {
         }
     }
 
-    @Override
-    protected void onEntityHit(LivingEntity target) {
+//    @Override
+//    protected void onEntityHit(LivingEntity target) {
 //        var playerclass = ModEntityComponents.PLAYERCLASS.getNullable(this.getOwner());
 //        if (playerclass == null) return;
 //        playerclass.addResource(hitTracker.getHitCount(target) * 2);
 
 //        ((LivingEntity) this.getOwner()).heal(hitTracker.getHitCount(target) * 0.5f);
-    }
+//    }
 
     @Override
     protected void onSkillEnd() {
         if (getHitSound() != null) {
             getWorld().playSound(null, getX(), getY(), getZ(), getHitSound(), getSoundCategory(), 1.0F, 1.0F);
         }
-        // Cleanup
     }
 
     @Override

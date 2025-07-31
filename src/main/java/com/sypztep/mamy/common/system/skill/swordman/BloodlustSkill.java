@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill.swordman;
 
+import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.BloodLustEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.system.classes.ClassRegistry;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 public class BloodlustSkill extends Skill {
 
     public BloodlustSkill() {
-        super("bloodlust", "Bloodlust", "Launch a blood projectile that transfers your status effects",
-                30f, 10, 3, ModClasses.SWORDMAN, 10);
+        super(Mamy.id("bloodlust"), "Bloodlust", "Launch a blood projectile that transfers your status effects",
+                30f, 10, 3, ModClasses.SWORDMAN, 2);
     }
 
     @Override
@@ -63,10 +64,6 @@ public class BloodlustSkill extends Skill {
 
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {
-        return playerClass == ModClasses.SWORDMAN ||
-                playerClass == ModClasses.KNIGHT ||
-                playerClass == ModClasses.CRUSADER ||
-                playerClass == ModClasses.LORD_KNIGHT ||
-                playerClass == ModClasses.PALADIN;
+        return playerClass == ModClasses.SWORDMAN;
     }
 }

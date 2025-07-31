@@ -2,56 +2,180 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
+import com.sypztep.mamy.client.screen.SkillBindingScreen;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
+import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class ModKeyBindings {
 
+    // UI Keys
     public static KeyBinding OPEN_STAT_SCREEN;
-    public static KeyBinding OPEN_PASSIEV_SCREEN;
+    public static KeyBinding OPEN_PASSIVE_SCREEN;
     public static KeyBinding SWITCH_STANCE;
+    public static KeyBinding OPEN_SKILL_BINDING;
+
+    // Skill Slots (8 total)
+    public static KeyBinding SKILL_SLOT_1; // Z
+    public static KeyBinding SKILL_SLOT_2; // X
+    public static KeyBinding SKILL_SLOT_3; // C
+    public static KeyBinding SKILL_SLOT_4; // V
+    public static KeyBinding SKILL_SLOT_5; // Shift + Z
+    public static KeyBinding SKILL_SLOT_6; // Shift + X
+    public static KeyBinding SKILL_SLOT_7; // Shift + C
+    public static KeyBinding SKILL_SLOT_8; // Shift + V
 
     public static void register() {
+        // UI Keys
         OPEN_STAT_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_stat_screen", // Translation key
+                "key.mamy.open_stat_screen",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_K, // K key
-                "category.mamy.keys" // Category translation key
+                GLFW.GLFW_KEY_K,
+                "category.mamy.keys"
         ));
-        OPEN_PASSIEV_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_passive_screen", // Translation key
+
+        OPEN_PASSIVE_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.open_passive_screen",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_P, // K key
-                "category.mamy.keys" // Category translation key
+                GLFW.GLFW_KEY_P,
+                "category.mamy.keys"
         ));
+
         SWITCH_STANCE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.swotch_stance", // Translation key
+                "key.mamy.switch_stance",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_R, // K key
-                "category.mamy.combat" // Category translation key
+                GLFW.GLFW_KEY_R,
+                "category.mamy.combat"
         ));
+
+        OPEN_SKILL_BINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.open_skill_binding",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_G,
+                "category.mamy.keys"
+        ));
+
+
+        // Skill Slots (8 total)
+        SKILL_SLOT_1 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_1",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_Z,
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_2 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_2",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_X,
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_3 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_3",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_C,
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_4 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_4",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_V,
+                "category.mamy.skills"
+        ));
+
+        // Extra skill slots - unbound by default, let user set
+        SKILL_SLOT_5 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_5",
+                InputUtil.Type.KEYSYM,
+                InputUtil.UNKNOWN_KEY.getCode(), // Unbound
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_6 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_6",
+                InputUtil.Type.KEYSYM,
+                InputUtil.UNKNOWN_KEY.getCode(), // Unbound
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_7 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_7",
+                InputUtil.Type.KEYSYM,
+                InputUtil.UNKNOWN_KEY.getCode(), // Unbound
+                "category.mamy.skills"
+        ));
+
+        SKILL_SLOT_8 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.skill_slot_8",
+                InputUtil.Type.KEYSYM,
+                InputUtil.UNKNOWN_KEY.getCode(), // Unbound
+                "category.mamy.skills"
+        ));
+
 
         ClientTickEvents.END_CLIENT_TICK.register(ModKeyBindings::handleKeyInputs);
     }
 
     private static void handleKeyInputs(MinecraftClient client) {
-        if (OPEN_STAT_SCREEN.wasPressed()) {
-            if (client.player != null && client.currentScreen == null) {
-                client.setScreen(new PlayerInfoScreen(client));
-            }
+        if (client.player == null) return;
+
+        // UI Keys
+        if (OPEN_STAT_SCREEN.wasPressed() && client.currentScreen == null) {
+            client.setScreen(new PlayerInfoScreen(client));
         }
-        if (OPEN_PASSIEV_SCREEN.wasPressed()) {
-            if (client.player != null && client.currentScreen == null) {
-                client.setScreen(new PassiveAbilityScreen(client));
-            }
+
+        if (OPEN_PASSIVE_SCREEN.wasPressed() && client.currentScreen == null) {
+            client.setScreen(new PassiveAbilityScreen(client));
         }
+
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
+        }
+        if (OPEN_SKILL_BINDING.wasPressed()) {
+            client.setScreen(new SkillBindingScreen(client));
+        }
+
+        // Skill Keys (only in combat stance)
+        PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
+        if (!stanceComponent.isInCombatStance() || client.currentScreen != null) return;
+
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+
+        // Check all 8 skill slots
+        if (SKILL_SLOT_1.wasPressed()) {
+            useSkillSlot(classComponent, 0);
+        } else if (SKILL_SLOT_2.wasPressed()) {
+            useSkillSlot(classComponent, 1);
+        } else if (SKILL_SLOT_3.wasPressed()) {
+            useSkillSlot(classComponent, 2);
+        } else if (SKILL_SLOT_4.wasPressed()) {
+            useSkillSlot(classComponent, 3);
+        } else if (SKILL_SLOT_5.wasPressed()) {
+            useSkillSlot(classComponent, 4);
+        } else if (SKILL_SLOT_6.wasPressed()) {
+            useSkillSlot(classComponent, 5);
+        } else if (SKILL_SLOT_7.wasPressed()) {
+            useSkillSlot(classComponent, 6);
+        } else if (SKILL_SLOT_8.wasPressed()) {
+            useSkillSlot(classComponent, 7);
+        }
+    }
+
+    private static void useSkillSlot(PlayerClassComponent classComponent, int slot) {
+        Identifier skillId = classComponent.getClassManager().getBoundSkill(slot);
+        if (skillId != null) {
+            UseSkillPayloadC2S.send(skillId);
         }
     }
 }

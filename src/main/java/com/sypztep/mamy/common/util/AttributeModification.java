@@ -15,4 +15,9 @@ public record AttributeModification(RegistryEntry<EntityAttribute> attribute, Id
                                                  ToDoubleFunction<Double> effectFunction) {
         return new AttributeModification(attribute, modifierId, EntityAttributeModifier.Operation.ADD_VALUE, effectFunction);
     }
+    public static AttributeModification addMultiply(RegistryEntry<EntityAttribute> attribute,
+                                                 Identifier modifierId,
+                                                 ToDoubleFunction<Double> effectFunction) {
+        return new AttributeModification(attribute, modifierId, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE, effectFunction);
+    }
 }

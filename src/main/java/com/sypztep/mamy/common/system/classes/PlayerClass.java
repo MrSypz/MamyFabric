@@ -16,40 +16,42 @@ import net.minecraft.util.Identifier;
 import java.util.*;
 
 public class PlayerClass {
-    private final String id;           // e.g., "novice", "swordman", "knight"
-    private final int tier;            // 0, 1, 2, 3...
-    private final int branch;          // 1, 2, 3... (within same tier)
+    private final String id;
+    private final int tier;
+    private final int branch;
     private final String displayName;
     private final Formatting color;
     private final Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers;
     private final ResourceType primaryResource;
-    private final float maxResource;
     private final String description;
-    private final int maxLevel;        // NEW: Max level for this class
-    private final boolean isTranscendent; // NEW: Is this a transcendent class
+    private final int maxLevel;
+    private final boolean isTranscendent;
 
     // Class progression requirements
     private final List<ClassRequirement> requirements;
-    private final List<PlayerClass> nextClasses; // Possible evolution paths
+    private final List<PlayerClass> nextClasses;
 
-    // Constructor with transcendent support
     public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
                        Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, float maxResource, String description,
+                       ResourceType primaryResource, float resourceBonus, String description,
                        int maxLevel, boolean isTranscendent) {
         this.id = id;
         this.tier = tier;
         this.branch = branch;
         this.displayName = displayName;
         this.color = color;
-        this.attributeModifiers = attributeModifiers;
         this.primaryResource = primaryResource;
-        this.maxResource = maxResource;
         this.description = description;
         this.maxLevel = maxLevel;
         this.isTranscendent = isTranscendent;
         this.requirements = new ArrayList<>();
         this.nextClasses = new ArrayList<>();
+
+        // Add resource bonus to attribute modifiers if > 0
+        this.attributeModifiers = new HashMap<>(attributeModifiers);
+        if (resourceBonus > 0) {
+            this.attributeModifiers.put(ModEntityAttributes.RESOURCE, (double) resourceBonus);
+        }
     }
 
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
@@ -69,7 +71,7 @@ public class PlayerClass {
     }
 
     public boolean canEvolveFrom(PlayerClass currentClass, int currentClassLevel) {
-        if (requirements.isEmpty()) return true; // Base class (Novice)
+        if (requirements.isEmpty()) return true;
 
         for (ClassRequirement req : requirements) {
             if (req.previousClass == currentClass && currentClassLevel >= req.requiredLevel) {
@@ -96,11 +98,34 @@ public class PlayerClass {
         return new ArrayList<>(nextClasses);
     }
 
-    // NEW: Get transcendent evolutions only
     public List<PlayerClass> getTranscendentEvolutions() {
         return nextClasses.stream()
                 .filter(PlayerClass::isTranscendent)
                 .toList();
+    }
+
+    /**
+     * Get max resource from player's current RESOURCE attribute value
+     */
+    public float getMaxResource(PlayerEntity player) {
+        if (player == null) {
+            // Fallback: base + class bonus
+            double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
+            double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
+            return (float) (baseResource + classBonus);
+        }
+
+        // Get actual current value including INT bonuses
+        return (float) player.getAttributeValue(ModEntityAttributes.RESOURCE);
+    }
+
+    /**
+     * Get max resource without player context (for display/calculation)
+     */
+    public float getMaxResource() {
+        double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
+        double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
+        return (float) (baseResource + classBonus);
     }
 
     public void applyAttributeModifiers(LivingEntity entity) {
@@ -112,12 +137,14 @@ public class PlayerClass {
 
                 double effectValue = entry.getValue();
 
+                // Special handling for health
                 if (entry.getKey().equals(EntityAttributes.GENERIC_MAX_HEALTH)) {
                     double vanillaBase = 20.0;
                     double classBase = effectValue;
-                    effectValue = classBase - vanillaBase; // This will make total = classBase
+                    effectValue = classBase - vanillaBase;
                 }
 
+                // Use ADD_VALUE for all class bonuses (flat amounts)
                 attribute.addTemporaryModifier(new EntityAttributeModifier(
                         modifierId,
                         effectValue,
@@ -142,7 +169,6 @@ public class PlayerClass {
         float oldMaxHealth = player.getMaxHealth();
         float newMaxHealth = (float) player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH);
 
-        // Maintain health percentage when max health changes
         if (oldMaxHealth != newMaxHealth && oldMaxHealth > 0) {
             float healthPercentage = currentHealth / oldMaxHealth;
             player.setHealth(healthPercentage * newMaxHealth);
@@ -174,12 +200,11 @@ public class PlayerClass {
     public Formatting getColor() { return color; }
     public Map<RegistryEntry<EntityAttribute>, Double> getAttributeModifiers() { return attributeModifiers; }
     public ResourceType getPrimaryResource() { return primaryResource; }
-    public float getMaxResource() { return maxResource; }
     public String getDescription() { return description; }
     public List<ClassRequirement> getRequirements() { return requirements; }
     public List<PlayerClass> getNextClasses() { return nextClasses; }
-    public int getMaxLevel() { return maxLevel; } // NEW
-    public boolean isTranscendent() { return isTranscendent; } // NEW
+    public int getMaxLevel() { return maxLevel; }
+    public boolean isTranscendent() { return isTranscendent; }
 
     public record ClassRequirement(PlayerClass previousClass, int requiredLevel) {}
 }

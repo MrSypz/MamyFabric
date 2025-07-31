@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class PlayerClassManager {
     private static final int RESOURCE_REGEN_INTERVAL = 100; // 5 second 20 = 1 Sec
 
     // Future: Class skills
-//    private ClassSkillManager skillManager; // For future class skills
+    private ClassSkillManager skillManager; // For future class skills
 
     public PlayerClassManager(PlayerEntity player) {
         this.player = player;
@@ -35,7 +36,7 @@ public class PlayerClassManager {
         this.currentResource = currentClass.getMaxResource();
         this.hasTranscended = false;
         // Future: Initialize skill manager
-        // this.skillManager = new ClassSkillManager(player);
+         this.skillManager = new ClassSkillManager(player);
     }
 
     // ====================
@@ -83,6 +84,7 @@ public class PlayerClassManager {
 
         if (newLevel > oldLevel) {
             onClassLevelUp(newLevel);
+            skillManager.onLevelUp(currentClass.getId(), newLevel);
         }
     }
 
@@ -130,6 +132,9 @@ public class PlayerClassManager {
         // Reset stats when changing class (but keep class level)
         resetStatsForClassChange();
 
+        // Notify skill manager about class change
+        skillManager.onClassChange(newClass.getId(), getClassLevel());
+
         // Notify player
         if (player instanceof ServerPlayerEntity serverPlayer) {
             Text evolveMessage = Text.literal("Class evolved from ")
@@ -167,6 +172,8 @@ public class PlayerClassManager {
 
         // Reset all stats to base values (transcendence resets everything)
         resetAllStatsForTranscendence();
+        // Notify skill manager about transcendence
+        skillManager.onTranscendence();
 
         // Send transcendence message
         if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -230,6 +237,34 @@ public class PlayerClassManager {
     private void onClassLevelUp(int newLevel) {
         if (player instanceof ServerPlayerEntity serverPlayer)
             SendToastPayloadS2C.sendClassLevelUp(serverPlayer, newLevel, currentClass.getDisplayName());
+    }
+    // ====================
+    // SKILL SYSTEM DELEGATION - เพิ่มใหม่
+    // ====================
+
+    // Convenience methods - delegate to skill manager
+    public boolean learnSkill(Identifier skillId) {
+        return skillManager.learnSkill(skillId);
+    }
+
+    public boolean hasLearnedSkill(Identifier skillId) {
+        return skillManager.hasLearnedSkill(skillId);
+    }
+
+    public List<Identifier> getLearnedSkills() {
+        return skillManager.getLearnedSkills();
+    }
+
+    public boolean bindSkill(int slot, Identifier skillId) {
+        return skillManager.bindSkill(slot, skillId);
+    }
+
+    public Identifier getBoundSkill(int slot) {
+        return skillManager.getBoundSkill(slot);
+    }
+
+    public Identifier[] getAllBoundSkills() {
+        return skillManager.getAllBoundSkills();
     }
 
     // ====================
@@ -328,11 +363,9 @@ public class PlayerClassManager {
         nbt.putInt("ResourceRegenTick", resourceRegenTick);
 
         // Future: Save class skills
-        // if (skillManager != null) {
-        //     NbtCompound skillsTag = new NbtCompound();
-        //     skillManager.writeToNbt(skillsTag);
-        //     nbt.put("ClassSkills", skillsTag);
-        // }
+        NbtCompound skillsTag = new NbtCompound();
+        skillManager.writeToNbt(skillsTag);
+        nbt.put("ClassSkills", skillsTag);
     }
 
     public void readFromNbt(NbtCompound nbt) {
@@ -356,10 +389,9 @@ public class PlayerClassManager {
         // Ensure resource is within valid bounds
         currentResource = Math.min(currentResource, currentClass.getMaxResource());
 
-        // Future: Load class skills
-        // if (skillManager != null && nbt.contains("ClassSkills")) {
-        //     skillManager.readFromNbt(nbt.getCompound("ClassSkills"));
-        // }
+        if (nbt.contains("ClassSkills")) {
+            skillManager.readFromNbt(nbt.getCompound("ClassSkills"));
+        }
     }
 
     // ====================
@@ -386,7 +418,7 @@ public class PlayerClassManager {
     }
 
     // Future getter for class skills
-//    public ClassSkillManager getSkillManager() {
-//        return skillManager;
-//    }
+    public ClassSkillManager getSkillManager() {
+        return skillManager;
+    }
 }

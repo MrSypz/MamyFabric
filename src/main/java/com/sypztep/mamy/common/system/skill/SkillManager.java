@@ -9,15 +9,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class SkillManager {
-    private static final Map<String, Map<String, Long>> PLAYER_COOLDOWNS = new HashMap<>();
+    private static final Map<String, Map<Identifier, Long>> PLAYER_COOLDOWNS = new HashMap<>();
 
-    public static void useSkill(PlayerEntity player, String skillId) {
+    public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
 
         // Check if in combat stance
@@ -54,7 +54,7 @@ public class SkillManager {
             return;
         }
 
-        // Check resource cost - FIXED
+        // Check resource cost
         float resourceCost = skill.getResourceCost();
         float currentResource = classManager.getCurrentResource();
 
@@ -72,7 +72,7 @@ public class SkillManager {
             return;
         }
 
-        // Consume resource - FIXED
+        // Consume resource
         if (!classComponent.useResource(resourceCost)) {
             player.sendMessage(Text.literal("Failed to consume resource!")
                     .formatted(Formatting.RED), true);
@@ -87,23 +87,20 @@ public class SkillManager {
             setCooldown(player, skillId, skill.getCooldown());
 
             // Success message
-            player.sendMessage(Text.literal(String.format("Used: %s (-%s %.1f %s)",
+            player.sendMessage(Text.literal(String.format("Used: %s (-%s %.1f)",
                             skill.getName(),
                             classManager.getResourceType().getDisplayName(),
-                            resourceCost,
-                            classManager.getResourceType().getDisplayName()))
+                            resourceCost))
                     .formatted(Formatting.GREEN), true);
 
         } catch (Exception e) {
-            // If skill fails, refund resource
-//            classManager.addResource(resourceCost);
             player.sendMessage(Text.literal("Skill failed to execute!")
                     .formatted(Formatting.RED), true);
         }
     }
 
-    private static boolean isOnCooldown(PlayerEntity player, String skillId) {
-        Map<String, Long> playerCooldowns = PLAYER_COOLDOWNS.get(player.getUuidAsString());
+    private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
+        Map<Identifier, Long> playerCooldowns = PLAYER_COOLDOWNS.get(player.getUuidAsString());
         if (playerCooldowns == null) return false;
 
         Long cooldownEnd = playerCooldowns.get(skillId);
@@ -112,8 +109,8 @@ public class SkillManager {
         return player.getWorld().getTime() < cooldownEnd;
     }
 
-    private static long getRemainingCooldown(PlayerEntity player, String skillId) {
-        Map<String, Long> playerCooldowns = PLAYER_COOLDOWNS.get(player.getUuidAsString());
+    private static long getRemainingCooldown(PlayerEntity player, Identifier skillId) {
+        Map<Identifier, Long> playerCooldowns = PLAYER_COOLDOWNS.get(player.getUuidAsString());
         if (playerCooldowns == null) return 0;
 
         Long cooldownEnd = playerCooldowns.get(skillId);
@@ -122,7 +119,7 @@ public class SkillManager {
         return Math.max(0, cooldownEnd - player.getWorld().getTime());
     }
 
-    private static void setCooldown(PlayerEntity player, String skillId, int cooldownTicks) {
+    private static void setCooldown(PlayerEntity player, Identifier skillId, int cooldownTicks) {
         String playerId = player.getUuidAsString();
         PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>());
         PLAYER_COOLDOWNS.get(playerId).put(skillId, player.getWorld().getTime() + cooldownTicks);
@@ -131,16 +128,4 @@ public class SkillManager {
     public static void cleanupPlayer(String playerId) {
         PLAYER_COOLDOWNS.remove(playerId);
     }
-
-    // Get current resource info for debugging
-    public static String getResourceInfo(PlayerEntity player) {
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        PlayerClassManager classManager = classComponent.getClassManager();
-
-        return String.format("%s: %.1f/%.1f",
-                classManager.getResourceType().getDisplayName(),
-                classManager.getCurrentResource(),
-                classManager.getMaxResource());
-    }
 }
-

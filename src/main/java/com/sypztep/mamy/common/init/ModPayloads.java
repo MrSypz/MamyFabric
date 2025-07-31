@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.init;
 import com.sypztep.mamy.client.payload.AddEmitterParticlePayloadS2C;
 import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.payload.BindSkillPayloadC2S;
 import com.sypztep.mamy.common.payload.IncreaseStatsPayloadC2S;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
 import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
@@ -22,6 +23,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playC2S().register(IncreaseStatsPayloadC2S.ID, IncreaseStatsPayloadC2S.CODEC); // Client to Server
         PayloadTypeRegistry.playC2S().register(ToggleStancePayloadC2S.ID, ToggleStancePayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(UseSkillPayloadC2S.ID, UseSkillPayloadC2S.CODEC);
+        PayloadTypeRegistry.playC2S().register(BindSkillPayloadC2S.ID, BindSkillPayloadC2S.CODEC);
 
         registerPayloads();
     }
@@ -29,6 +31,7 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(IncreaseStatsPayloadC2S.ID, new IncreaseStatsPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ToggleStancePayloadC2S.ID, new ToggleStancePayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(UseSkillPayloadC2S.ID, new UseSkillPayloadC2S.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(BindSkillPayloadC2S.ID, new BindSkillPayloadC2S.Receiver());
     }
     public static void registerClientPayloads() {
         ClientPlayNetworking.registerGlobalReceiver(AddTextParticlesPayloadS2C.ID, new AddTextParticlesPayloadS2C.Receiver());

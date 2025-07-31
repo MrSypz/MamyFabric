@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill.novice;
 
+import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.system.classes.ClassRegistry;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
@@ -14,7 +15,7 @@ import net.minecraft.sound.SoundEvents;
 public class BasicAttackSkill extends Skill {
 
     public BasicAttackSkill() {
-        super("basic_attack", "Basic Attack", "A simple melee attack",
+        super(Mamy.id("basic_attack"), "Basic Attack", "A simple melee attack",
                 5f, 20, 1, ModClasses.NOVICE, 1);
     }
 

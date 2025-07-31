@@ -7,8 +7,12 @@ import com.sypztep.mamy.common.system.classes.PlayerClassManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingComponent {
     private final PlayerEntity player;
@@ -38,6 +42,7 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
 
     public void addClassExperience(long amount) {
         performBatchUpdate(() -> classManager.addClassExperience(amount));
+
     }
 
     public void setLevel(short level) {
@@ -61,13 +66,39 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         performBatchUpdate(() -> result[0] = classManager.useResource(amount));
         return result[0];
     }
-
     public void addResource(float amount) {
         performBatchUpdate(() -> classManager.addResource(amount));
     }
 
     public void setCurrentResource(float amount) {
         performBatchUpdate(() -> classManager.setCurrentResource(amount));
+    }
+
+    public boolean learnSkill(Identifier skillId) {
+        boolean[] result = {false};
+        performBatchUpdate(() -> result[0] = classManager.learnSkill(skillId));
+        return result[0];
+    }
+
+    public boolean bindSkill(int slot, Identifier skillId) {
+        boolean[] result = {false};
+        performBatchUpdate(() -> result[0] = classManager.bindSkill(slot, skillId));
+        return result[0];
+    }
+    // ====================
+    // INTERNAL METHODS (NO SYNC) - for batch operations
+    // ====================
+
+    public Identifier getBoundSkill(int slot) {
+        return classManager.getBoundSkill(slot);
+    }
+
+    public List<Identifier> getLearnedSkills() {
+        return classManager.getLearnedSkills();
+    }
+
+    public boolean hasLearnedSkill(Identifier skillId) {
+        return classManager.hasLearnedSkill(skillId);
     }
 
     // ====================

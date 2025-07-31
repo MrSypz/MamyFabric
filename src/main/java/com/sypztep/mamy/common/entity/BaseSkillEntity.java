@@ -11,6 +11,7 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
 import com.sypztep.mamy.common.system.skill.SkillConfig;
 import com.sypztep.mamy.common.system.skill.SkillHitTracker;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 
 import java.util.Set;
 
@@ -20,17 +21,36 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
     private final Set<StatusEffectInstance> effects = Sets.newHashSet();
     private int ticksUntilRemove = 5;
 
+    // Built-in regeneration settings
+    private float manaRegenPerHit = 0.0f;
+    private float healthRegenPerHit = 0.0f;
+    private boolean enableManaRegen = false;
+    private boolean enableHealthRegen = false;
+
     public BaseSkillEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, SkillConfig config) {
         super(entityType, world);
         this.skillConfig = config;
-        this.hitTracker = new SkillHitTracker(config.maxHitCount, config.bypassIframe, config.iframeTime);
+        this.hitTracker = new SkillHitTracker(config.maxHitCount, config.iframeTime);
     }
 
     public BaseSkillEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner, SkillConfig config) {
         super(entityType, owner, world, ItemStack.EMPTY, null);
         this.skillConfig = config;
-        this.hitTracker = new SkillHitTracker(config.maxHitCount, config.bypassIframe, config.iframeTime);
+        this.hitTracker = new SkillHitTracker(config.maxHitCount, config.iframeTime);
         this.setOwner(owner);
+    }
+
+    // Configuration methods for regeneration
+    public BaseSkillEntity withManaRegen(float manaPerHit) {
+        this.enableManaRegen = true;
+        this.manaRegenPerHit = manaPerHit;
+        return this;
+    }
+
+    public BaseSkillEntity withHealthRegen(float healthPerHit) {
+        this.enableHealthRegen = true;
+        this.healthRegenPerHit = healthPerHit;
+        return this;
     }
 
     public void addEffect(StatusEffectInstance effect) {
@@ -57,6 +77,7 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
 
         if (this.ticksUntilRemove <= 0) {
             onSkillEnd();
+            this.getHitTracker().reset();
             this.discard();
         }
 
@@ -95,8 +116,33 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
             // Record the hit
             hitTracker.recordHit(target, currentTime);
 
-            // Custom hit behavior
-            onEntityHit(target);
+            // Built-in regeneration system
+            handleRegeneration(target);
+
+            // Custom hit behavior (for subclasses to override if needed)
+            onSuccessfulHit(target);
+        }
+    }
+
+    /**
+     * Built-in regeneration system that handles mana and health regen
+     */
+    private void handleRegeneration(LivingEntity target) {
+        if (!(getOwner() instanceof LivingEntity caster)) return;
+
+        int hitCount = hitTracker.getHitCount(target);
+
+        // Mana regeneration
+        if (enableManaRegen && manaRegenPerHit > 0) {
+            var playerClass = ModEntityComponents.PLAYERCLASS.getNullable(caster);
+            if (playerClass != null) {
+                playerClass.addResource(hitCount * manaRegenPerHit);
+            }
+        }
+
+        // Health regeneration
+        if (enableHealthRegen && healthRegenPerHit > 0) {
+            caster.heal(hitCount * healthRegenPerHit);
         }
     }
 
@@ -112,13 +158,26 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
+        // Leave empty - all hit logic is handled in performAreaHitDetection
     }
 
+    // Abstract methods for subclasses
     protected abstract void onCustomTick();
     protected abstract void onSkillActivate();
-    protected abstract void onEntityHit(LivingEntity target);
     protected abstract void onSkillEnd();
+
+    /**
+     * Called after a successful hit (after damage, effects, and regen are applied)
+     * Override this for custom hit behavior
+     */
+    protected void onSuccessfulHit(LivingEntity target) {
+    }
 
     // Getters
     public Set<StatusEffectInstance> getEffects() { return effects; }
+    public SkillHitTracker getHitTracker() { return hitTracker; }
+    public boolean isManaRegenEnabled() { return enableManaRegen; }
+    public boolean isHealthRegenEnabled() { return enableHealthRegen; }
+    public float getManaRegenPerHit() { return manaRegenPerHit; }
+    public float getHealthRegenPerHit() { return healthRegenPerHit; }
 }

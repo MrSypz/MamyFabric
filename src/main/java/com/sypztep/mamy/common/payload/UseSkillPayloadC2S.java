@@ -8,18 +8,19 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.util.Identifier;
 
-public record UseSkillPayloadC2S(String skillId) implements CustomPayload {
+public record UseSkillPayloadC2S(Identifier skillId) implements CustomPayload {
     public static final Id<UseSkillPayloadC2S> ID = new Id<>(Mamy.id("use_skill"));
     public static final PacketCodec<PacketByteBuf, UseSkillPayloadC2S> CODEC =
-            PacketCodec.tuple(PacketCodecs.STRING, UseSkillPayloadC2S::skillId, UseSkillPayloadC2S::new);
+            PacketCodec.tuple(Identifier.PACKET_CODEC, UseSkillPayloadC2S::skillId, UseSkillPayloadC2S::new);
 
     @Override
     public Id<? extends CustomPayload> getId() {
         return ID;
     }
 
-    public static void send(String skillId) {
+    public static void send(Identifier skillId) {
         ClientPlayNetworking.send(new UseSkillPayloadC2S(skillId));
     }
 
