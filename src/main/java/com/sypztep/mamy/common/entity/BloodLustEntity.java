@@ -62,14 +62,18 @@ public class BloodLustEntity extends BaseSkillEntity {
 
     @Override
     protected void onEntityHit(LivingEntity target) {
-        // Play hit sound
-        if (getHitSound() != null) {
-            getWorld().playSound(null, getX(), getY(), getZ(), getHitSound(), getSoundCategory(), 1.0F, 1.0F);
-        }
+//        var playerclass = ModEntityComponents.PLAYERCLASS.getNullable(this.getOwner());
+//        if (playerclass == null) return;
+//        playerclass.addResource(hitTracker.getHitCount(target) * 2);
+
+//        ((LivingEntity) this.getOwner()).heal(hitTracker.getHitCount(target) * 0.5f);
     }
 
     @Override
     protected void onSkillEnd() {
+        if (getHitSound() != null) {
+            getWorld().playSound(null, getX(), getY(), getZ(), getHitSound(), getSoundCategory(), 1.0F, 1.0F);
+        }
         // Cleanup
     }
 

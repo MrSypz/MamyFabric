@@ -39,9 +39,7 @@ public class SkillHitTracker {
         // Check iframe if not bypassed
         if (!bypassIframe) {
             long timeSinceLastHit = currentTime - hitData.lastHitTime;
-            if (timeSinceLastHit < iframeTime) {
-                return false;
-            }
+            return timeSinceLastHit >= iframeTime;
         }
 
         return true;
