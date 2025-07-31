@@ -55,7 +55,7 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
             --this.ticksUntilRemove;
         }
 
-        if (this.ticksUntilRemove <= 0 || skillConfig.endOnMaxHits) {
+        if (this.ticksUntilRemove <= 0) {
             onSkillEnd();
             this.discard();
         }
