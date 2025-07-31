@@ -108,15 +108,13 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
 
     @Override
     protected SoundEvent getHitSound() {
-        return null; // Override in subclasses
+        return null;
     }
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
-        // Empty - allows projectile to pass through
     }
 
-    // Abstract methods for customization
     protected abstract void onCustomTick();
     protected abstract void onSkillActivate();
     protected abstract void onEntityHit(LivingEntity target);
