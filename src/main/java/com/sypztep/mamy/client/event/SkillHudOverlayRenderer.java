@@ -1,7 +1,9 @@
 package com.sypztep.mamy.client.event;
 
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -19,22 +21,41 @@ public class SkillHudOverlayRenderer {
         if (client.player == null || client.options.hudHidden) return;
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
 
-        renderStanceIndicator(context, stanceComponent.isInCombatStance());
+        renderStanceAndSkillInfo(context, stanceComponent, classComponent);
     }
 
-    private static void renderStanceIndicator(DrawContext context, boolean inCombatStance) {
+    private static void renderStanceAndSkillInfo(DrawContext context, PlayerStanceComponent stanceComponent, PlayerClassComponent classComponent) {
         int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        int x = screenWidth - 100;
-        int y = 10;
+        int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
 
-        Text stanceText = inCombatStance ?
-                Text.literal("COMBAT").formatted(Formatting.RED, Formatting.BOLD) :
-                Text.literal("NORMAL").formatted(Formatting.GRAY);
+        // Stance indicator (top right)
+        int stanceX = screenWidth - 120;
+        int stanceY = 10;
 
-        context.fill(x - 5, y - 2, x + 80 + stanceText.getString().length(), y + 12, 0x80000000);
+        Text stanceText = stanceComponent.isInCombatStance() ?
+                Text.literal("⚔ COMBAT").formatted(Formatting.RED, Formatting.BOLD) :
+                Text.literal("✋ NORMAL").formatted(Formatting.GRAY);
 
-        context.drawText(MinecraftClient.getInstance().textRenderer,
-                Text.literal("Stance: ").append(stanceText), x, y, 0xFFFFFF, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
+
+        // Skill hints (when in combat stance)
+        if (stanceComponent.isInCombatStance()) {
+            int hintX = 10;
+            int hintY = screenHeight - 80;
+
+            context.drawText(MinecraftClient.getInstance().textRenderer,
+                    Text.literal("Skills Available:").formatted(Formatting.YELLOW),
+                    hintX, hintY, 0xFFFFFF, true);
+
+            context.drawText(MinecraftClient.getInstance().textRenderer,
+                    Text.literal("Shift + E/Q/R/F/C/X").formatted(Formatting.GRAY),
+                    hintX, hintY + 10, 0xFFFFFF, true);
+
+            context.drawText(MinecraftClient.getInstance().textRenderer,
+                    Text.literal("Ctrl + Shift + Z/X/C (Ultimate)").formatted(Formatting.GOLD),
+                    hintX, hintY + 20, 0xFFFFFF, true);
+        }
     }
 }

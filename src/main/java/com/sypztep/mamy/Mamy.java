@@ -8,8 +8,10 @@ import com.sypztep.mamy.common.event.player.InitPlayerClassEvent;
 import com.sypztep.mamy.common.event.player.MarkDamageTrackerEvent;
 import com.sypztep.mamy.common.event.player.RestoreStatsModifyEvent;
 import com.sypztep.mamy.common.init.ModCommands;
+import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModPayloads;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
+import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
@@ -29,6 +31,9 @@ public class Mamy implements ModInitializer {
     public void onInitialize() {
         ModPayloads.init();
         ModCommands.init();
+        ModEntityTypes.init();
+
+        SkillRegistry.registerSkills();
 
         InitDamageTrackerEvent.register();
         ModifyLivingDamageEvent.register();
