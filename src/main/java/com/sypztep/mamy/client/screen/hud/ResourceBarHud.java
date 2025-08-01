@@ -67,8 +67,6 @@ public class ResourceBarHud {
         float maxResource = manager.getMaxResource();
         ResourceType resourceType = manager.getResourceType();
 
-        shouldBeVisible = ModEntityComponents.PLAYERSTANCE.get(client.player).isInCombatStance();
-
         // Check for resource changes to trigger visibility and glow
         if (lastResourceAmount != currentResource || lastResourceType != resourceType) {
             if (lastResourceAmount >= 0 && currentResource > lastResourceAmount) {
