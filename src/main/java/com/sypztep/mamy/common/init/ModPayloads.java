@@ -7,6 +7,8 @@ import com.sypztep.mamy.common.payload.BindSkillPayloadC2S;
 import com.sypztep.mamy.common.payload.IncreaseStatsPayloadC2S;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
 import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -33,9 +35,12 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(UseSkillPayloadC2S.ID, new UseSkillPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(BindSkillPayloadC2S.ID, new BindSkillPayloadC2S.Receiver());
     }
-    public static void registerClientPayloads() {
-        ClientPlayNetworking.registerGlobalReceiver(AddTextParticlesPayloadS2C.ID, new AddTextParticlesPayloadS2C.Receiver());
-        ClientPlayNetworking.registerGlobalReceiver(AddEmitterParticlePayloadS2C.ID, new AddEmitterParticlePayloadS2C.Receiver());
-        ClientPlayNetworking.registerGlobalReceiver(SendToastPayloadS2C.ID, new SendToastPayloadS2C.Receiver());
+    @Environment(EnvType.CLIENT)
+    public static class Client {
+        public static void registerClientPayloads() {
+            ClientPlayNetworking.registerGlobalReceiver(AddTextParticlesPayloadS2C.ID, new AddTextParticlesPayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(AddEmitterParticlePayloadS2C.ID, new AddEmitterParticlePayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(SendToastPayloadS2C.ID, new SendToastPayloadS2C.Receiver());
+        }
     }
 }
