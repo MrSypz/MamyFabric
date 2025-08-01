@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.system.skill.SkillManager;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
@@ -24,7 +25,7 @@ public class SkillHudOverlayRenderer {
 
     // Minecraft hotbar textures
     private static final Identifier HOTBAR_SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/hud/hotbar.png");
-    private static final Identifier HOTBAR_SELECTION_TEXTURE =  Identifier.ofVanilla("hud/hotbar_selection");
+    private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
 
     // Keybinding references for display
     private static final KeyBinding[] SKILL_KEYBINDINGS = new KeyBinding[8];
@@ -54,7 +55,7 @@ public class SkillHudOverlayRenderer {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
         if (stanceComponent.isInCombatStance())
             ResourceBarHudRenderer.resourceBarHud.forceShow();
-         else
+        else
             ResourceBarHudRenderer.resourceBarHud.forceHide();
 
         renderStanceIndicator(context, stanceComponent);
@@ -179,34 +180,38 @@ public class SkillHudOverlayRenderer {
     }
 
     private static void renderCooldownOverlay(DrawContext context, int x, int y, Skill skill, float partialTicks) {
-        // TODO: Implement cooldown visualization when cooldown system is available
-        // This would require tracking skill cooldowns in PlayerClassComponent
+        MinecraftClient client = MinecraftClient.getInstance();
 
-        /*
-        Example implementation:
+        if (client.player == null) return;
 
-        long remainingCooldown = skill.getRemainingCooldown();
+        float remainingCooldown = SkillManager.getRemainingCooldownSeconds(client.player, skill.getId());
+
+        int availableSpace = SKILL_SLOT_SIZE - 6;
         if (remainingCooldown > 0) {
-            float cooldownProgress = remainingCooldown / (float) skill.getCooldown();
-            int availableSpace = SKILL_SLOT_SIZE - 6;
+            float cooldownProgress = remainingCooldown / skill.getCooldown(1); // Level 1 for now
             int overlayHeight = (int) (availableSpace * cooldownProgress);
 
             // Draw semi-transparent cooldown overlay
             context.fill(x, y + availableSpace - overlayHeight,
-                        x + availableSpace, y + availableSpace,
-                        0x88222222);
+                    x + availableSpace, y + availableSpace,
+                    0x88222222);
 
-            // Draw cooldown text (seconds remaining)
-            if (remainingCooldown > 20) { // Only show if > 1 second
-                String cooldownText = String.valueOf((remainingCooldown + 19) / 20);
-                int textWidth = MinecraftClient.getInstance().textRenderer.getWidth(cooldownText);
-                context.drawText(MinecraftClient.getInstance().textRenderer,
-                               Text.literal(cooldownText),
-                               x + (availableSpace - textWidth) / 2,
-                               y + (availableSpace - 8) / 2,
-                               0xFFFFFFFF, true);
+            // Draw cooldown text with decimal precision
+            if (remainingCooldown > 0.1f) {
+                String cooldownText;
+                if (remainingCooldown >= 1.0f) {
+                    cooldownText = String.format("%.1f", remainingCooldown);
+                } else {
+                    cooldownText = String.format("%.1f", remainingCooldown);
+                }
+
+                int textWidth = client.textRenderer.getWidth(cooldownText);
+                context.drawText(client.textRenderer,
+                        Text.literal(cooldownText),
+                        x + (availableSpace - textWidth) / 2,
+                        y + (availableSpace - 8) / 2,
+                        0xFFFFFFFF, true);
             }
         }
-        */
     }
 }

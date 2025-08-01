@@ -20,7 +20,6 @@ public class SkillManager {
     public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
 
-        // Check if in combat stance
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(player);
         if (!stanceComponent.isInCombatStance()) {
             player.sendMessage(Text.literal("You must be in combat stance to use skills!")
@@ -39,22 +38,15 @@ public class SkillManager {
         PlayerClassManager classManager = classComponent.getClassManager();
         PlayerClass currentClass = classManager.getCurrentClass();
 
-        // Check if player can use this skill
         if (!skill.isAvailableForClass(currentClass)) {
             player.sendMessage(Text.literal("Your class (" + currentClass.getDisplayName() + ") cannot use this skill!")
                     .formatted(Formatting.RED), true);
             return;
         }
 
-        // Check cooldown
-        if (isOnCooldown(player, skillId)) {
-            long remainingCooldown = getRemainingCooldown(player, skillId);
-            player.sendMessage(Text.literal("Skill on cooldown: " + (remainingCooldown / 20) + "s")
-                    .formatted(Formatting.YELLOW), true);
-            return;
-        }
+        if (isOnCooldown(player, skillId)) return;
 
-        // Check resource cost
+
         float resourceCost = skill.getResourceCost();
         float currentResource = classManager.getCurrentResource();
 
@@ -65,34 +57,21 @@ public class SkillManager {
             return;
         }
 
-        // Check if skill can be used (additional conditions)
         if (!skill.canUse(player)) {
             player.sendMessage(Text.literal("Cannot use skill right now!")
                     .formatted(Formatting.RED), true);
             return;
         }
 
-        // Consume resource
         if (!classComponent.useResource(resourceCost)) {
             player.sendMessage(Text.literal("Failed to consume resource!")
                     .formatted(Formatting.RED), true);
             return;
         }
 
-        // Use the skill
         try {
-            skill.use(player, 1); // Level 1 for now
-
-            // Set cooldown
+            skill.use(player, 1);
             setCooldown(player, skillId, skill.getCooldown());
-
-            // Success message
-            player.sendMessage(Text.literal(String.format("Used: %s (-%s %.1f)",
-                            skill.getName(),
-                            classManager.getResourceType().getDisplayName(),
-                            resourceCost))
-                    .formatted(Formatting.GREEN), true);
-
         } catch (Exception e) {
             player.sendMessage(Text.literal("Skill failed to execute!")
                     .formatted(Formatting.RED), true);
@@ -119,9 +98,14 @@ public class SkillManager {
         return Math.max(0, cooldownEnd - player.getWorld().getTime());
     }
 
-    private static void setCooldown(PlayerEntity player, Identifier skillId, int cooldownTicks) {
+    public static float getRemainingCooldownSeconds(PlayerEntity player, Identifier skillId) {
+        return getRemainingCooldown(player, skillId) / 20.0f;
+    }
+
+    private static void setCooldown(PlayerEntity player, Identifier skillId, float cooldownSeconds) {
         String playerId = player.getUuidAsString();
         PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>());
+        long cooldownTicks = (long)(cooldownSeconds * 20);
         PLAYER_COOLDOWNS.get(playerId).put(skillId, player.getWorld().getTime() + cooldownTicks);
     }
 
