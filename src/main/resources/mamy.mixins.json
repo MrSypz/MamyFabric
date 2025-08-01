@@ -7,18 +7,19 @@
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
     "core.damage.DamageUtilMixin",
+    "core.fixprojectile.PersistentProjectileEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
     "core.registry.attribute.LivingEntityMixin",
     "vanilla.agility.projectileclip.PersistentProjectileEntityMixin",
     "vanilla.agility.projectileclip.TridentEntityMixin",
     "vanilla.dexterity.RangedWeaponItemMixin",
-    "vanilla.strength.ItemStackMixin",
     "vanilla.vitality.HungerManagerMixin",
     "vanilla.vitality.LivingEntityMixin"
   ],
   "client": [
     "feature.screenanimation.CameraMixin",
-    "feature.screenanimation.GameRendererMixin"
+    "feature.screenanimation.GameRendererMixin",
+    "vanilla.strength.client.ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
