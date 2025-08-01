@@ -42,13 +42,13 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
 
     public void addClassExperience(long amount) {
         performBatchUpdate(() -> classManager.addClassExperience(amount));
-
     }
 
     public void setLevel(short level) {
         performBatchUpdate(() -> {
             classManager.getClassLevelSystem().setLevel(level);
             classManager.getClassLevelSystem().setExperience(0);
+            classManager.getSkillManager().onLevelUp(classManager.getCurrentClass().getId(), level);
         });
     }
 
