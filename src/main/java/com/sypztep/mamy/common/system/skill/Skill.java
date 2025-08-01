@@ -15,10 +15,10 @@ public abstract class Skill {
     protected final int maxLevel;
     protected final PlayerClass requiredClass;
     protected final int requiredClassLevel;
-    protected final ItemStack icon; // NEW: Skill icon
+    protected final Identifier icon; // NEW: Skill icon
 
     public Skill(Identifier id, String name, String description, float resourceCost,
-                 int cooldown, int maxLevel, PlayerClass requiredClass, int requiredClassLevel, ItemStack icon) {
+                 int cooldown, int maxLevel, PlayerClass requiredClass, int requiredClassLevel, Identifier icon) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -27,7 +27,7 @@ public abstract class Skill {
         this.maxLevel = maxLevel;
         this.requiredClass = requiredClass;
         this.requiredClassLevel = requiredClassLevel;
-        this.icon = icon != null ? icon : new ItemStack(Items.PAPER); // Default icon
+        this.icon = icon; // Default icon
     }
 
     public Skill(Identifier id, String name, String description, float resourceCost,
@@ -60,5 +60,5 @@ public abstract class Skill {
     public int getMaxLevel() { return maxLevel; }
     public PlayerClass getRequiredClass() { return requiredClass; }
     public int getRequiredClassLevel() { return requiredClassLevel; }
-    public ItemStack getIcon() { return icon; }
+    public Identifier getIcon() { return icon; }
 }
