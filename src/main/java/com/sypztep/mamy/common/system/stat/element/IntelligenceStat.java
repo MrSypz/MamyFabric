@@ -39,13 +39,10 @@ public final class IntelligenceStat extends Stat {
                         getSecondaryId(),
                         baseValue -> MAGIC_RESISTANCE_SCALING * this.currentValue
                 ),
-                AttributeModification.addValue(
+                AttributeModification.addMultiply(
                         ModEntityAttributes.RESOURCE,
                         getSecondaryId(),
-                        baseValue -> {
-                            double intBonus = (this.currentValue - this.baseValue) * RESOURCE_SCALING;
-                            return baseValue * intBonus;
-                        }
+                        baseValue -> (this.currentValue - this.baseValue) * RESOURCE_SCALING
                 )
         );
         applyEffects(living, modifications);

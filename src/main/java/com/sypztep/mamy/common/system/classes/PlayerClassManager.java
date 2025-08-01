@@ -35,8 +35,7 @@ public class PlayerClassManager {
         this.currentClass = ClassRegistry.getDefaultClass(); // NOVICE
         this.currentResource = currentClass.getMaxResource();
         this.hasTranscended = false;
-        // Future: Initialize skill manager
-         this.skillManager = new ClassSkillManager(player);
+        this.skillManager = new ClassSkillManager(player);
     }
 
     // ====================
@@ -127,7 +126,7 @@ public class PlayerClassManager {
         currentClass.applyAttributeModifiers(player);
 
         // Reset resource to full for new class
-        currentResource = currentClass.getMaxResource();
+        currentResource = getMaxResource();
 
         // Reset stats when changing class (but keep class level)
         resetStatsForClassChange();
@@ -276,7 +275,7 @@ public class PlayerClassManager {
     }
 
     public float getMaxResource() {
-        return currentClass.getMaxResource();
+        return currentClass.getMaxResource(this.player);
     }
 
     public float getCurrentResource() {
@@ -337,7 +336,7 @@ public class PlayerClassManager {
     public void initialize() {
         if (currentClass != null) {
             currentClass.applyAttributeModifiers(player);
-            currentResource = Math.min(currentResource, currentClass.getMaxResource());
+            currentResource = Math.min(currentResource, getMaxResource());
         }
     }
 
@@ -387,7 +386,7 @@ public class PlayerClassManager {
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
 
         // Ensure resource is within valid bounds
-        currentResource = Math.min(currentResource, currentClass.getMaxResource());
+        currentResource = Math.min(currentResource, getMaxResource());
 
         if (nbt.contains("ClassSkills")) {
             skillManager.readFromNbt(nbt.getCompound("ClassSkills"));
