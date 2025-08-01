@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.core.fixprojectile;
 
-import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.entity.BaseSkillEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -43,6 +43,6 @@ public abstract class PersistentProjectileEntityMixin extends ProjectileEntity {
 
     @Unique
     private boolean isDisallowed() {
-        return getType() == ModEntityTypes.BLOOD_LUST;
+        return (Object) this instanceof BaseSkillEntity;
     }
 }
