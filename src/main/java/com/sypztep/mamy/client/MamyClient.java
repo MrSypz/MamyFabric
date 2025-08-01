@@ -16,7 +16,7 @@ public class MamyClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntityTypes.BLOOD_LUST, BloodLustEntityRenderer::new);
 
-        ModPayloads.registerClientPayloads();
+        ModPayloads.Client.registerClientPayloads();
         ModKeyBindings.register();
         LevelHudRenderer.register();
         ToastHudRenderer.register();
