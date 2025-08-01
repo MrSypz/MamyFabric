@@ -73,8 +73,13 @@ public class ClassSkillManager {
 
     public boolean bindSkill(int slot, Identifier skillId) {
         if (slot < 0 || slot >= 8) return false;
-        if (skillId != null && !hasLearnedSkill(skillId)) return false;
 
+        if (skillId == null) {
+            boundSkills[slot] = null; // ← Make sure this works!
+            return true;
+        }
+
+        if (!hasLearnedSkill(skillId)) return false;
         boundSkills[slot] = skillId;
         return true;
     }

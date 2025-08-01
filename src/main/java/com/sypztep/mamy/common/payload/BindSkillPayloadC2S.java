@@ -49,13 +49,19 @@ public record BindSkillPayloadC2S(int slot, String skillId) implements CustomPay
 
             // Handle unbinding (empty skillId)
             if (payload.skillId().isEmpty()) {
-                classComponent.getClassManager().getSkillManager().clearSkillSlot(payload.slot());
-                context.player().sendMessage(Text.literal("Unbound skill from slot " + (payload.slot() + 1))
-                        .formatted(Formatting.YELLOW), false);
+                boolean success = classComponent.bindSkill(payload.slot(), null);
+
+                if (success) {
+                    context.player().sendMessage(Text.literal("Unbound skill from slot " + (payload.slot() + 1))
+                            .formatted(Formatting.YELLOW), false);
+                } else {
+                    context.player().sendMessage(Text.literal("Failed to unbind skill!")
+                            .formatted(Formatting.RED), false);
+                }
                 return;
             }
 
-            // Parse skill ID
+            // Parse skill ID for binding
             Identifier skillId;
             try {
                 skillId = Identifier.of(payload.skillId());
