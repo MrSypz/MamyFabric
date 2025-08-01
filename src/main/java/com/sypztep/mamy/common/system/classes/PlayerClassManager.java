@@ -27,7 +27,7 @@ public class PlayerClassManager {
     private static final int RESOURCE_REGEN_INTERVAL = 100; // 5 second 20 = 1 Sec
 
     // Future: Class skills
-    private ClassSkillManager skillManager; // For future class skills
+    private final ClassSkillManager skillManager; // For future class skills
 
     public PlayerClassManager(PlayerEntity player) {
         this.player = player;
