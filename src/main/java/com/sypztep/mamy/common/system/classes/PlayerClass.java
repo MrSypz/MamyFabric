@@ -1,7 +1,9 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -22,6 +24,7 @@ public class PlayerClass {
     private final String displayName;
     private final Formatting color;
     private final Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers;
+    private final Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors; // NEW
     private final ResourceType primaryResource;
     private final String description;
     private final int maxLevel;
@@ -33,6 +36,7 @@ public class PlayerClass {
 
     public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
                        Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
+                       Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, // NEW PARAMETER
                        ResourceType primaryResource, float resourceBonus, String description,
                        int maxLevel, boolean isTranscendent) {
         this.id = id;
@@ -46,12 +50,20 @@ public class PlayerClass {
         this.isTranscendent = isTranscendent;
         this.requirements = new ArrayList<>();
         this.nextClasses = new ArrayList<>();
+        this.growthFactors = new HashMap<>(growthFactors);
 
         // Add resource bonus to attribute modifiers if > 0
         this.attributeModifiers = new HashMap<>(attributeModifiers);
         if (resourceBonus > 0) {
             this.attributeModifiers.put(ModEntityAttributes.RESOURCE, (double) resourceBonus);
         }
+    }
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
+                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
+                       ResourceType primaryResource, float resourceBonus, String description,
+                       int maxLevel, boolean isTranscendent) {
+        this(id, tier, branch, displayName, color, attributeModifiers,
+                new HashMap<>(), primaryResource, resourceBonus, description, maxLevel, isTranscendent);
     }
 
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
@@ -109,7 +121,6 @@ public class PlayerClass {
      */
     public float getMaxResource(PlayerEntity player) {
         if (player == null) {
-            // Fallback: base + class bonus
             double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
             double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
             return (float) (baseResource + classBonus);
@@ -129,19 +140,36 @@ public class PlayerClass {
     }
 
     public void applyAttributeModifiers(LivingEntity entity) {
+        // Get current class level
+        int classLevel = 1; // Default level
+        if (entity instanceof PlayerEntity player) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.getNullable(player);
+            if (classComponent != null) {
+                classLevel = classComponent.getClassManager().getClassLevel();
+            }
+        }
+
+        // Apply base attributes + growth
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
             if (attribute != null) {
                 Identifier modifierId = getClassModifierId();
                 attribute.removeModifier(modifierId);
 
-                double effectValue = entry.getValue();
+                double baseValue = entry.getValue();
+                double effectValue = baseValue;
+
+                // Apply growth if defined for this attribute
+                GrowthFactor growth = growthFactors.get(entry.getKey());
+                if (growth != null) {
+                    double growthBonus = growth.calculateGrowth(baseValue, classLevel - 1); // Level 1 = no growth
+                    effectValue += growthBonus;
+                }
 
                 // Special handling for health
                 if (entry.getKey().equals(EntityAttributes.GENERIC_MAX_HEALTH)) {
                     double vanillaBase = 20.0;
-                    double classBase = effectValue;
-                    effectValue = classBase - vanillaBase;
+                    effectValue = effectValue - vanillaBase;
                 }
 
                 // Use ADD_VALUE for all class bonuses (flat amounts)
@@ -155,6 +183,7 @@ public class PlayerClass {
 
         if (entity instanceof PlayerEntity player) updatePlayerHealth(player);
     }
+
 
     public void removeAttributeModifiers(LivingEntity entity) {
         Identifier modifierId = getClassModifierId();
@@ -173,6 +202,24 @@ public class PlayerClass {
             float healthPercentage = currentHealth / oldMaxHealth;
             player.setHealth(healthPercentage * newMaxHealth);
         }
+    }
+    public String getGrowthDescription(RegistryEntry<EntityAttribute> attribute) {
+        GrowthFactor growth = growthFactors.get(attribute);
+        if (growth == null) return "";
+
+        StringBuilder desc = new StringBuilder();
+        if (growth.flatPerLevel() > 0) {
+            desc.append(String.format("+%.1f per level", growth.flatPerLevel()));
+        }
+        if (growth.percentPerLevel() > 0) {
+            if (!desc.isEmpty()) desc.append(", ");
+            desc.append(String.format("+%.1f%% per level", growth.percentPerLevel() * 100));
+        }
+        return desc.toString();
+    }
+
+    public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {
+        return growthFactors;
     }
 
     private Identifier getClassModifierId() {

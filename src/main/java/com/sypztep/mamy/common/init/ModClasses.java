@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.init;
 
+import com.sypztep.mamy.common.system.classes.GrowthFactor;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -15,7 +16,8 @@ public class ModClasses {
     public static final PlayerClass NOVICE = register(new PlayerClass(
             "novice", 0, 1, "Novice", Formatting.GRAY,
             Map.of(),
-            ResourceType.MANA, 0f, // 0 = use attribute value directly
+            Map.of(),
+            ResourceType.MANA, 0f,
             "A beginning adventurer with no specialization",
             10, false
     ));
@@ -25,9 +27,16 @@ public class ModClasses {
             "swordman", 1, 1, "Swordman", Formatting.RED,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15,
+                    ModEntityAttributes.HEALTH_REGEN, 0.2
             ),
-            ResourceType.RAGE, 100f, // Bonus to base 200
+            Map.of(
+                    // Swordman growth: +10% max health, +5% max resource, +0.5 melee damage per level
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.10), // 10% per level
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.05), // 5% per level
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.5) // +0.5 per level
+            ),
+            ResourceType.RAGE, 100f,
             "A warrior who has chosen the path of the sword",
             50, false
     ).addRequirement(NOVICE, 10));
@@ -38,7 +47,13 @@ public class ModClasses {
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25
             ),
-            ResourceType.MANA, 200f, // Bonus to base 200
+            Map.of(
+                    // Mage growth: +5% max health, +8% max resource, +1% magic damage per level
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
+            ),
+            ResourceType.MANA, 200f,
             "A spellcaster who manipulates arcane energies",
             50, false
     ).addRequirement(NOVICE, 10));
@@ -50,7 +65,13 @@ public class ModClasses {
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.02,
                     ModEntityAttributes.CRIT_CHANCE, 0.10
             ),
-            ResourceType.MANA, 50f, // Bonus to base 200
+            Map.of(
+                    // Archer growth: +7% max health, +6% max resource, +0.3% crit chance per level
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.07), // 7% per level
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.06), // 6% per level
+                    ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.003) // +0.3% per level
+            ),
+            ResourceType.MANA, 50f,
             "A ranged combatant skilled with bow and arrow",
             50, false
     ).addRequirement(NOVICE, 10));
