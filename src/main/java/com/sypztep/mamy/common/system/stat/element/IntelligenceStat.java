@@ -5,8 +5,6 @@ import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.util.AttributeModification;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -41,7 +39,7 @@ public final class IntelligenceStat extends Stat {
                         getSecondaryId(),
                         baseValue -> MAGIC_RESISTANCE_SCALING * this.currentValue
                 ),
-                AttributeModification.addMultiply(
+                AttributeModification.addValue(
                         ModEntityAttributes.RESOURCE,
                         getSecondaryId(),
                         baseValue -> {
