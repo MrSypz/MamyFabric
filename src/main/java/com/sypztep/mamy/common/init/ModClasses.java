@@ -26,7 +26,6 @@ public class ModClasses {
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
                     ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15
-                    // ✅ ลบ RESOURCE ออก - ใช้ parameter แทน
             ),
             ResourceType.RAGE, 100f, // Bonus to base 200
             "A warrior who has chosen the path of the sword",
@@ -38,7 +37,6 @@ public class ModClasses {
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25
-                    // ✅ ลบ RESOURCE ออก
             ),
             ResourceType.MANA, 200f, // Bonus to base 200
             "A spellcaster who manipulates arcane energies",
@@ -51,7 +49,6 @@ public class ModClasses {
                     EntityAttributes.GENERIC_MAX_HEALTH, 30.0,
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.02,
                     ModEntityAttributes.CRIT_CHANCE, 0.10
-                    // ✅ ลบ RESOURCE ออก
             ),
             ResourceType.MANA, 50f, // Bonus to base 200
             "A ranged combatant skilled with bow and arrow",
