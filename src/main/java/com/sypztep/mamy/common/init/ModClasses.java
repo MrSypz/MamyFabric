@@ -28,7 +28,8 @@ public class ModClasses {
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
                     ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15,
-                    ModEntityAttributes.HEALTH_REGEN, 0.2
+                    ModEntityAttributes.HEALTH_REGEN, 0.2,
+                    ModEntityAttributes.RESOURCE_REGEN, 12.0 // 12 per regen
             ),
             Map.of(
                     // Swordman growth: +10% max health, +5% max resource, +0.5 melee damage per level
@@ -36,24 +37,27 @@ public class ModClasses {
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.05), // 5% per level
                     ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.5) // +0.5 per level
             ),
-            ResourceType.RAGE, 100f,
+            ResourceType.RAGE, 0f,
             "A warrior who has chosen the path of the sword",
             50, false
     ).addRequirement(NOVICE, 10));
 
+    // Mage growth: +5% max health, +8% max resource, +1% magic damage per level
     public static final PlayerClass MAGE = register(new PlayerClass(
             "mage", 1, 2, "Mage", Formatting.BLUE,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25,
+                    ModEntityAttributes.RESOURCE, 200.0,
+                    ModEntityAttributes.RESOURCE_REGEN, 20.0,
+                    ModEntityAttributes.RESOURCE_REGEN_RATE, 25.0
             ),
             Map.of(
-                    // Mage growth: +5% max health, +8% max resource, +1% magic damage per level
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
             ),
-            ResourceType.MANA, 200f,
+            ResourceType.MANA, 0,
             "A spellcaster who manipulates arcane energies",
             50, false
     ).addRequirement(NOVICE, 10));

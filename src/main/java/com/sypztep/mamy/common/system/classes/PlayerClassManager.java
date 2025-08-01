@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.system.stat.Stat;
@@ -9,9 +10,13 @@ import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
@@ -24,10 +29,15 @@ public class PlayerClassManager {
     // Resource system
     private float currentResource;
     private int resourceRegenTick = 0;
-    private static final int RESOURCE_REGEN_INTERVAL = 100; // 5 second 20 = 1 Sec
 
-    // Future: Class skills
-    private final ClassSkillManager skillManager; // For future class skills
+    // NEW: Idle detection for faster regen
+    private Vec3d lastPosition;
+    private float lastYaw, lastPitch;
+    private int idleTicks = 0;
+    private static final int IDLE_THRESHOLD = 100; // 5 seconds
+    private boolean isIdle = false;
+
+    private final ClassSkillManager skillManager;
 
     public PlayerClassManager(PlayerEntity player) {
         this.player = player;
@@ -36,6 +46,11 @@ public class PlayerClassManager {
         this.currentResource = currentClass.getMaxResource();
         this.hasTranscended = false;
         this.skillManager = new ClassSkillManager(player);
+
+        // Initialize idle tracking
+        this.lastPosition = player.getPos();
+        this.lastYaw = player.getYaw();
+        this.lastPitch = player.getPitch();
     }
 
     // ====================
@@ -311,21 +326,77 @@ public class PlayerClassManager {
      * Handle resource regeneration - called from component tick
      */
     public void tickResourceRegeneration() {
+        // Update idle detection
+        updateIdleDetection();
+
         resourceRegenTick++;
 
-        if (resourceRegenTick >= RESOURCE_REGEN_INTERVAL) {
+        // Get regen rate from attributes (in seconds)
+        double baseRegenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE);
+
+        // Apply idle bonus (faster regen when idle)
+        double effectiveRegenRateSeconds = isIdle ? baseRegenRateSeconds * 0.5 : baseRegenRateSeconds; // 50% faster when idle
+
+        // Convert to ticks
+        int regenIntervalTicks = (int)(effectiveRegenRateSeconds * 20);
+
+        if (resourceRegenTick >= regenIntervalTicks) {
             resourceRegenTick = 0;
 
             float maxResource = getMaxResource();
             if (currentResource < maxResource) {
-                float regenAmount = currentClass.getPrimaryResource().getBaseRegenRate();
-                float levelBonus = getClassLevel() * 0.5f; // Bonus regen based on level
+                double regenAmount = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN);
 
-                addResource(regenAmount + levelBonus);
+                addResource((float)(regenAmount));
+
+                // Debug message (remove in production)
+                if (player instanceof ServerPlayerEntity serverPlayer) {
+                    String idleText = isIdle ? " (Idle Bonus)" : "";
+                    serverPlayer.sendMessage(Text.literal(String.format("Regenerated %.1f %s%s",
+                            regenAmount,
+                            currentClass.getPrimaryResource().getDisplayName(),
+                            idleText)).formatted(Formatting.GREEN), true);
+                }
             }
         }
     }
+    /**
+     * Track player movement and actions to detect idle state
+     */
+    private void updateIdleDetection() {
+        Vec3d currentPos = player.getPos();
+        float currentYaw = player.getYaw();
+        float currentPitch = player.getPitch();
 
+        // Check if player moved or rotated
+        boolean hasMoved = !currentPos.equals(lastPosition);
+        boolean hasRotated = Math.abs(currentYaw - lastYaw) > 1.0f || Math.abs(currentPitch - lastPitch) > 1.0f;
+
+        if (hasMoved || hasRotated) {
+            // Player is active
+            idleTicks = 0;
+            isIdle = false;
+            player.sendMessage(Text.literal("Idle Exit - Resource regeneration rate back to normal!")
+                    .formatted(Formatting.RED), true);
+        } else {
+            // Player is still
+            idleTicks++;
+            if (idleTicks >= IDLE_THRESHOLD && !isIdle) {
+                isIdle = true;
+                // Notify player about idle bonus
+                if (player instanceof ServerPlayerEntity serverPlayer) {
+                    serverPlayer.sendMessage(Text.literal("Idle detected - Resource regeneration rate increased!")
+                            .formatted(Formatting.AQUA), true);
+                    serverPlayer.playSoundToPlayer(SoundEvent.of(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP.getId()),SoundCategory.NEUTRAL,1,1);
+                }
+            }
+        }
+
+        // Update tracking variables
+        lastPosition = currentPos;
+        lastYaw = currentYaw;
+        lastPitch = currentPitch;
+    }
     // ====================
     // LIFECYCLE
     // ====================
@@ -361,6 +432,9 @@ public class PlayerClassManager {
         nbt.putFloat("CurrentResource", currentResource);
         nbt.putInt("ResourceRegenTick", resourceRegenTick);
 
+        nbt.putInt("IdleTicks", idleTicks);
+        nbt.putBoolean("IsIdle", isIdle);
+
         // Future: Save class skills
         NbtCompound skillsTag = new NbtCompound();
         skillManager.writeToNbt(skillsTag);
@@ -384,6 +458,9 @@ public class PlayerClassManager {
         // Load resource state
         currentResource = nbt.getFloat("CurrentResource");
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
+
+        idleTicks = nbt.getInt("IdleTicks");
+        isIdle = nbt.getBoolean("IsIdle");
 
         // Ensure resource is within valid bounds
         currentResource = Math.min(currentResource, getMaxResource());

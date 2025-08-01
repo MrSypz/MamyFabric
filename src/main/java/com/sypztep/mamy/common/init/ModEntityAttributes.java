@@ -17,7 +17,9 @@ public final class ModEntityAttributes {
 
     public static final RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
 
-    public static final RegistryEntry<EntityAttribute> RESOURCE = register("reource", 200, 0.0, 1000000);
+    public static final RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000);
+    public static final RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000);
+    public static final RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000);
 
     public static final RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
     public static final RegistryEntry<EntityAttribute> EVASION = register("evasion", 0, 0.0, 2048.0D);
