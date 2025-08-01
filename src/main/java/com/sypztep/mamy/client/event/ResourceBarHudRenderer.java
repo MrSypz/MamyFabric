@@ -7,7 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 
 public final class ResourceBarHudRenderer implements HudRenderCallback {
-    private static final ResourceBarHud resourceBarHud = new ResourceBarHud();
+    public static final ResourceBarHud resourceBarHud = new ResourceBarHud();
 
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
