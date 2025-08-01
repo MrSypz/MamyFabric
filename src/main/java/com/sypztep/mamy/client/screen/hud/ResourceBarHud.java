@@ -15,9 +15,9 @@ import net.minecraft.util.math.MathHelper;
 @Environment(EnvType.CLIENT)
 public class ResourceBarHud {
     // UI Constants
-    private static final int HUD_X = 20; // Left side of screen
-    private static final int HUD_Y_OFFSET = 60; // Offset from bottom
-    private static final int BAR_WIDTH = 120;
+    private static final int HUD_X = 5; // Left side of screen
+    private static final int HUD_Y_OFFSET = 35 ; // Offset from bottom
+    private static final int BAR_WIDTH = 110;
     private static final int BAR_HEIGHT = 12;
 
     // Colors
