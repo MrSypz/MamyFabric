@@ -123,10 +123,6 @@ public class ClassLevelSystem extends LevelSystem {
         if (LivingEntityUtil.isPlayer(livingEntity)) {
             tag.putShort("ClassPoints", statPoints);
         }
-        // Store current class ID for proper restoration
-        if (currentClass != null) {
-            tag.putString("CurrentClassId", currentClass.getId());
-        }
     }
 
     @Override
@@ -135,12 +131,5 @@ public class ClassLevelSystem extends LevelSystem {
         this.experience = tag.getLong("ClassExperience");
         this.experienceToNextLevel = tag.getLong("ClassExperienceToNextLevel");
         if (LivingEntityUtil.isPlayer(livingEntity)) this.statPoints = tag.getShort("ClassPoints");
-
-
-            // This will be handled by PlayerClassManager during loading
-        // Restore class reference (will be set by PlayerClassManager)
-//        String classId = tag.getString("CurrentClassId");
-//        if (!classId.isEmpty()) {
-//        }
     }
 }
