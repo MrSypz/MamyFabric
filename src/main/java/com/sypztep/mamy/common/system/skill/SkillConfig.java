@@ -1,23 +1,19 @@
 package com.sypztep.mamy.common.system.skill;
 
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.entity.damage.DamageType;
 
-public class SkillConfig {
-    public final float damage;
-    public final RegistryKey<DamageType> damageType;
-    public final double hitRange;
-    public final int maxHitCount;
-    public final int iframeTime; // in ticks
-
-    public SkillConfig(float damage, RegistryKey<DamageType> damageType, double hitRange, int maxHitCount, int iframeTime) {
-        this.damage = damage;
-        this.damageType = damageType;
-        this.hitRange = hitRange;
-        this.maxHitCount = maxHitCount;
-        this.iframeTime = iframeTime;
-    }
+public record SkillConfig(
+        float damage,
+        RegistryKey<DamageType> damageType,
+        double hitRange,     // Simple expansion (if using simple mode)
+        double hitWidth,     // Custom X expansion
+        double hitHeight,    // Custom Y expansion
+        double hitDepth,     // Custom Z expansion
+        boolean useCustomBox, // Use custom dimensions instead of simple range
+        int maxHitCount,
+        int iframeTime
+) {
 
     public static Builder builder() {
         return new Builder();
@@ -26,9 +22,13 @@ public class SkillConfig {
     public static class Builder {
         private float damage = 0.0f;
         private RegistryKey<DamageType> damageType;
-        private double hitRange = 1.0;
+        private double hitRange = 1.0;      // Simple mode
+        private double hitWidth = 1.0;      // Custom mode
+        private double hitHeight = 1.0;
+        private double hitDepth = 1.0;
+        private boolean useCustomBox = false;
         private int maxHitCount = 1;
-        private int iframeTime = 10; // default 0.5 seconds
+        private int iframeTime = 10;
 
         public Builder damage(float damage) {
             this.damage = damage;
@@ -40,9 +40,25 @@ public class SkillConfig {
             return this;
         }
 
+        // Simple mode - expand equally in all directions
         public Builder hitRange(double hitRange) {
             this.hitRange = hitRange;
+            this.useCustomBox = false;
             return this;
+        }
+
+        // Custom mode - specify exact dimensions
+        public Builder customHitBox(double width, double height, double depth) {
+            this.hitWidth = width;
+            this.hitHeight = height;
+            this.hitDepth = depth;
+            this.useCustomBox = true;
+            return this;
+        }
+
+        // Convenience methods for common shapes
+        public Builder slashHitBox(double width, double height) {
+            return customHitBox(width, height, width); // Thin depth for slash
         }
 
         public Builder maxHitCount(int maxHitCount) {
@@ -56,7 +72,7 @@ public class SkillConfig {
         }
 
         public SkillConfig build() {
-            return new SkillConfig(damage, damageType, hitRange, maxHitCount, iframeTime);
+            return new SkillConfig(damage, damageType, hitRange, hitWidth, hitHeight, hitDepth, useCustomBox, maxHitCount, iframeTime);
         }
     }
 }

@@ -8,7 +8,7 @@ import com.sypztep.mamy.common.init.ModPayloads;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
-public class MamyClient implements ClientModInitializer {
+public class  MamyClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
@@ -23,5 +23,6 @@ public class MamyClient implements ClientModInitializer {
         ScreenEventHandler.register();
         ResourceBarHudRenderer.register();
         SkillHudOverlayRenderer.register();
+        SkillBoundingRenderer.register();
     }
 }

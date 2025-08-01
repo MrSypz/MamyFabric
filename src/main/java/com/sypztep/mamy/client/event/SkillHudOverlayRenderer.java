@@ -23,6 +23,10 @@ public class SkillHudOverlayRenderer {
     private static final int SKILL_SLOT_SPACING = 22;
     private static final int HOTBAR_MARGIN_BOTTOM = 30;
 
+    // Animation constants
+    private static final float FADE_DURATION = 0.5f; // 0.5 second fade in/out
+    private static final float AUTO_HIDE_DELAY = 8.0f; // Hide after 8 seconds of non-combat
+
     // Minecraft hotbar textures
     private static final Identifier HOTBAR_SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/hud/hotbar.png");
     private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
@@ -32,6 +36,12 @@ public class SkillHudOverlayRenderer {
     private static final String[] KEYBIND_DISPLAY_NAMES = {
             "Z", "X", "C", "V", "⇧Z", "⇧X", "⇧C", "⇧V"
     };
+
+    // Animation state
+    private static float fadeOffset = 1.0f; // 0 = fully visible, 1 = fully hidden
+    private static float hideTimer = 0.0f;
+    private static boolean shouldBeVisible = false;
+    private static boolean lastCombatStance = false;
 
     public static void register() {
         // Initialize keybinding references
@@ -53,15 +63,60 @@ public class SkillHudOverlayRenderer {
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        if (stanceComponent.isInCombatStance())
+
+        // Check for stance changes
+        boolean currentCombatStance = stanceComponent.isInCombatStance();
+        if (currentCombatStance != lastCombatStance) {
+            if (currentCombatStance) {
+                // Entering combat stance - show skill hotbar
+                shouldBeVisible = true;
+                hideTimer = 0.0f; // Reset hide timer
+            } else {
+                // Exiting combat stance - start hide timer
+                hideTimer = AUTO_HIDE_DELAY;
+            }
+            lastCombatStance = currentCombatStance;
+        }
+
+        // Force resource bar visibility based on combat stance
+        if (currentCombatStance)
             ResourceBarHudRenderer.resourceBarHud.forceShow();
         else
             ResourceBarHudRenderer.resourceBarHud.forceHide();
 
+        // Update animations
+        float deltaTime = tickCounter.getTickDelta(false) / 20.0f;
+        updateAnimations(deltaTime);
+
+        // Render stance indicator
         renderStanceIndicator(context, stanceComponent);
 
-        if (stanceComponent.isInCombatStance())
+        // Only render skill hotbar if it's at least partially visible
+        if (fadeOffset < 1.0f) {
             renderSkillHotbar(context, classComponent, tickCounter.getTickDelta(false));
+        }
+    }
+
+    private static void updateAnimations(float deltaTime) {
+        // Handle auto-hide functionality when not in combat
+        if (hideTimer > 0) {
+            hideTimer -= deltaTime;
+            if (hideTimer <= 0) shouldBeVisible = false;
+        }
+
+        // Calculate target fade offset
+        float targetFadeOffset = shouldBeVisible ? 0.0f : 1.0f;
+
+        // Smooth fade animation
+        float fadeSpeed = 1.0f / FADE_DURATION;
+        if (fadeOffset != targetFadeOffset) {
+            float direction = targetFadeOffset > fadeOffset ? 1.0f : -1.0f;
+            fadeOffset += direction * fadeSpeed * deltaTime;
+
+            // Clamp to target
+            if (direction > 0 && fadeOffset > targetFadeOffset) fadeOffset = targetFadeOffset;
+            else if (direction < 0 && fadeOffset < targetFadeOffset) fadeOffset = targetFadeOffset;
+        }
     }
 
     private static void renderStanceIndicator(DrawContext context, PlayerStanceComponent stanceComponent) {
@@ -73,7 +128,6 @@ public class SkillHudOverlayRenderer {
         // Stance indicator (top right)
         int stanceX = screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(stanceText) - XPaddle;
         int stanceY = 10;
-
 
         context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
     }
@@ -90,8 +144,13 @@ public class SkillHudOverlayRenderer {
         int hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM,
                 screenHeight - HOTBAR_MARGIN_BOTTOM - totalHotbarHeight);
 
-        // Position hotbar slots at the right edge of screen
-        int hotbarX = screenWidth - SKILL_SLOT_SIZE + 1;
+        // Position hotbar slots at the right edge of screen with fade animation
+        int baseHotbarX = screenWidth - SKILL_SLOT_SIZE + 1;
+        int fadeDistance = 50; // Distance to slide in from
+        int animatedHotbarX = baseHotbarX + (int) (fadeOffset * fadeDistance);
+
+        // Calculate overall alpha for fade effect
+        float alpha = 1.0f - fadeOffset;
 
         // Get bound skills
         Identifier[] boundSkills = classComponent.getClassManager().getAllBoundSkills();
@@ -100,21 +159,26 @@ public class SkillHudOverlayRenderer {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
+        // Apply global alpha for fade effect
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+
         // Render each skill slot vertically (only as many as fit on screen)
         int maxSlotsToShow = Math.min(8, (availableHeight - 20) / SKILL_SLOT_SPACING);
 
         for (int i = 0; i < maxSlotsToShow; i++) {
-            int slotY = hotbarStartY + (i * SKILL_SLOT_SPACING);
+            int slotY = hotbarStartY + (int) (i * SKILL_SLOT_SPACING * (1.0f - fadeOffset * 0.1f)); // Slight spacing animation
             // Make sure slot is visible on screen
             if (slotY + SKILL_SLOT_SIZE <= screenHeight - 10) {
-                renderSkillSlot(context, hotbarX, slotY, i, boundSkills[i], partialTicks);
+                renderSkillSlot(context, animatedHotbarX, slotY, i, boundSkills[i], partialTicks, alpha);
             }
         }
 
+        // Reset shader color
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }
 
-    private static void renderSkillSlot(DrawContext context, int x, int y, int slotIndex, Identifier skillId, float partialTicks) {
+    private static void renderSkillSlot(DrawContext context, int x, int y, int slotIndex, Identifier skillId, float partialTicks, float alpha) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         // Check if this keybinding is currently pressed
@@ -142,19 +206,27 @@ public class SkillHudOverlayRenderer {
         // Render keybinding text (to the left of slot, but make sure it doesn't go off screen)
         String keyText = KEYBIND_DISPLAY_NAMES[slotIndex];
         int keyTextColor = isPressed ? 0xFFFFFF00 : 0xFFAAAAAA;
+
+        // Apply alpha to keybinding text
+        int alphaValue = (int) (alpha * 255);
+        int finalKeyTextColor = (keyTextColor & 0x00FFFFFF) | (alphaValue << 24);
+
         int keyTextWidth = client.textRenderer.getWidth(keyText);
 
         // Position key text to the left of the slot, but keep it on screen
         int keyX = Math.max(4, x - keyTextWidth - 6); // Ensure minimum 4px from left edge
         int keyY = y + (SKILL_SLOT_SIZE - client.textRenderer.fontHeight) / 2;
 
-        context.drawText(client.textRenderer, Text.literal(keyText), keyX, keyY, keyTextColor, true);
+        context.drawText(client.textRenderer, Text.literal(keyText), keyX, keyY, finalKeyTextColor, true);
 
         // Render slot number (small, in corner)
         String slotNum = String.valueOf(slotIndex + 1);
+        int slotNumColor = 0xFF888888;
+        int finalSlotNumColor = (slotNumColor & 0x00FFFFFF) | (alphaValue << 24);
+
         context.drawText(client.textRenderer, Text.literal(slotNum),
                 x + SKILL_SLOT_SIZE - client.textRenderer.getWidth(slotNum) - 2,
-                y + 2, 0xFF888888, false);
+                y + 2, finalSlotNumColor, false);
     }
 
     private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill, float partialTicks) {

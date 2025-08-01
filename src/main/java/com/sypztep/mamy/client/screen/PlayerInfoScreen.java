@@ -206,8 +206,14 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderBackground(context, mouseX, mouseY, delta);
+    }
+
+    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         assert client != null;
+        this.renderBackground(context, mouseX, mouseY, delta);
         updateValues(client);
 
         verticalAnimation.update(delta);
@@ -225,9 +231,6 @@ public final class PlayerInfoScreen extends Screen {
 
         int xOffset = (int) (screenWidth * 0.67f); // 2/3 of the screen width
         int yOffset = (int) AnimationUtils.getPositionOffset(verticalAnimation.getProgress(), FINAL_Y_OFFSET, screenHeight);
-
-        int color = DrawContextUtils.applyAlpha(0xF0121212, fadeAnimation.getProgress());
-        DrawContextUtils.fillScreenHorizontalRatio(context,color,0,color);
         drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
 
         renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);

@@ -12,7 +12,7 @@ public class ModEntityTypes {
     public static EntityType<BloodLustEntity> BLOOD_LUST;
 
     public static void init() {
-        BLOOD_LUST = registerEntity("bloodlust", createSlashEntity(BloodLustEntity::new));
+        BLOOD_LUST = registerEntity("bloodlust", createNoHitbox(BloodLustEntity::new));
     }
 
     private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> builder) {
@@ -32,10 +32,4 @@ public class ModEntityTypes {
                 .maxTrackingRange(512)
                 .trackingTickInterval(4);
     }
-
-    private static <T extends Entity> EntityType.Builder<T> createSlashEntity(EntityType.EntityFactory<T> factory) {
-        return EntityType.Builder.create(factory, SpawnGroup.MISC)
-                .dimensions(5.0f, 0.2f);
-    }
-
 }

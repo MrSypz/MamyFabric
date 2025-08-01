@@ -12,28 +12,30 @@ public class BloodLustEntity extends BaseSkillEntity {
 
     public BloodLustEntity(World world, LivingEntity owner) {
         super(ModEntityTypes.BLOOD_LUST, world, owner, createBloodLustConfig());
+        this.withManaRegen(2.0f)
+                .withHealthRegen(0.5f);
     }
 
     public BloodLustEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world, createBloodLustConfig());
-        this.withManaRegen(2.0f)      // ฟื้นฟู 2 mana ต่อ hit
-                .withHealthRegen(0.5f);   // ฟื้นฟู 0.5 hp ต่อ hit
+        this.withManaRegen(2.0f)
+                .withHealthRegen(0.5f);
     }
 
     private static SkillConfig createBloodLustConfig() {
         return new SkillConfig.Builder()
                 .damage(4F)
                 .damageType(ModDamageTypes.BLOODLUST)
-                .hitRange(3.0)
-                .maxHitCount(5) // Each enemy can only be hit once
-                .iframeTime(2) // 0.5 second iframe
+                .slashHitBox(5,0.2f)
+                .maxHitCount(5)
+                .iframeTime(2)
                 .build();
     }
 
     @Override
     protected void onCustomTick() {
         // Blood trail particles
-        for (float x = -3.0F; x <= 3.0F; x = (float)((double)x + 0.1)) {
+        for (float x = -1.5F; x <= 1.5F; x = (float)((double)x + 0.1)) {
             this.getWorld().addParticle(
                     ModParticles.BLOOD_BUBBLE,
                     this.getX() + (double)x * Math.cos(this.getYaw()),
@@ -49,27 +51,18 @@ public class BloodLustEntity extends BaseSkillEntity {
     @Override
     protected void onSkillActivate() {
         // Blood explosion particles
-        for(int i = 0; i < 50; ++i) {
+        for(int i = 0; i < 30; ++i) {
             this.getWorld().addParticle(
                     ModParticles.BLOOD_BUBBLE_SPLATTER,
-                    this.getX() + this.random.nextGaussian() * 2.0 * Math.cos(this.getYaw()),
+                    this.getX() + this.random.nextGaussian() * 1.5 * Math.cos(this.getYaw()),
                     this.getY(),
-                    this.getZ() + this.random.nextGaussian() * 2.0 * Math.sin(this.getYaw()),
+                    this.getZ() + this.random.nextGaussian() * 1.5 * Math.sin(this.getYaw()),
                     this.random.nextGaussian() / 10.0,
                     this.random.nextFloat() / 2.0F,
                     this.random.nextGaussian() / 10.0
             );
         }
     }
-
-//    @Override
-//    protected void onEntityHit(LivingEntity target) {
-//        var playerclass = ModEntityComponents.PLAYERCLASS.getNullable(this.getOwner());
-//        if (playerclass == null) return;
-//        playerclass.addResource(hitTracker.getHitCount(target) * 2);
-
-//        ((LivingEntity) this.getOwner()).heal(hitTracker.getHitCount(target) * 0.5f);
-//    }
 
     @Override
     protected void onSkillEnd() {
