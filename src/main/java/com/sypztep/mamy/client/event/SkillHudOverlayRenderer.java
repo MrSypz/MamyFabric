@@ -199,11 +199,7 @@ public class SkillHudOverlayRenderer {
             // Draw cooldown text with decimal precision
             if (remainingCooldown > 0.1f) {
                 String cooldownText;
-                if (remainingCooldown >= 1.0f) {
-                    cooldownText = String.format("%.1f", remainingCooldown);
-                } else {
-                    cooldownText = String.format("%.1f", remainingCooldown);
-                }
+                cooldownText = String.format("%.1f", remainingCooldown);
 
                 int textWidth = client.textRenderer.getWidth(cooldownText);
                 context.drawText(client.textRenderer,

@@ -1,6 +1,5 @@
 package com.sypztep.mamy.client.event;
 
-import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
 import com.sypztep.mamy.client.screen.camera.SpiralCameraController;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -60,30 +59,8 @@ public final class ScreenEventHandler {
     }
 
     private static boolean shouldAnimateForScreen(Screen screen) {
-        return screen instanceof PlayerInfoScreen ||
-                screen instanceof PassiveAbilityScreen;
+        return screen instanceof PlayerInfoScreen;
         // Add more screen types here if needed:
         // || screen instanceof SomeOtherScreen;
-    }
-
-    /**
-     * Force stop camera animation (can be called from keybinding or other events)
-     */
-    public static void forceStopCameraAnimation() {
-        cameraController.stopSpiralAnimation();
-    }
-
-    /**
-     * Check if camera is currently animating
-     */
-    public static boolean isCameraAnimating() {
-        return cameraController.isAnimating();
-    }
-
-    /**
-     * Get camera animation state for debugging
-     */
-    public static String getCameraAnimationState() {
-        return cameraController.getAnimationState();
     }
 }

@@ -315,11 +315,7 @@ public class PlayerClassManager {
 
     public float getResourcePercentage() {
         float max = getMaxResource();
-        return max > 0 ? (currentResource / max) * 100f : 0f;
-    }
-
-    public float getCurrentResourcePercentage() {
-        return currentResource / getMaxResource();
+        return max > 0 ? (currentResource / max): 0f;
     }
 
     /**

@@ -24,7 +24,7 @@ public final class TextParticleProvider {
     private final Supplier<Boolean> configSupplier;
 
     public static class Builder {
-        private Text text;
+        private final Text text;
         private Color color = Color.WHITE;
         private float maxSize = -0.045f;
         private float yPos = 0f;

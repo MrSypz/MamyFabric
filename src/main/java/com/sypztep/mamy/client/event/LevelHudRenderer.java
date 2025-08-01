@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.event;
 
+import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -179,7 +180,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         // Background panel with border
         drawContext.fill(hudX - 3, currentY - 3, hudX + hudWidth, currentY + hudHeight, BACKGROUND_COLOR);
-        drawBorder(drawContext, hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3);
+        DrawContextUtils.drawBorder(drawContext, hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3, BORDER_COLOR);
 
         // Player name on the left
         drawContext.drawTextWithShadow(textRenderer, playerName, hudX, currentY, TEXT_COLOR);
@@ -208,7 +209,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
             drawContext.fill(hudX, mainBarY, hudX + progressWidth, mainBarY + BAR_HEIGHT, XP_BAR_COLOR);
         }
 
-        drawBorder(drawContext, hudX, mainBarY, BAR_WIDTH, BAR_HEIGHT);
+        DrawContextUtils.drawBorder(drawContext, hudX, mainBarY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
 
         // === CLASS XP BAR ===
         int classBarY = mainBarY + CLASS_BAR_OFFSET;
@@ -228,7 +229,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
             drawContext.fill(hudX, classBarY, hudX + classProgressWidth, classBarY + BAR_HEIGHT, CLASS_BAR_COLOR);
         }
 
-        drawBorder(drawContext, hudX, classBarY, BAR_WIDTH, BAR_HEIGHT);
+        DrawContextUtils.drawBorder(drawContext, hudX, classBarY, BAR_WIDTH, BAR_HEIGHT,BORDER_COLOR);
 
         currentY = classBarY + BAR_HEIGHT + 4;
 
@@ -270,13 +271,6 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // Glow layers
         drawContext.fill(x - 2, y - 2, x + width + 2, y + BAR_HEIGHT + 2, finalGlowColor);
         drawContext.fill(x - 1, y - 1, x + width + 1, y + BAR_HEIGHT + 1, finalGlowColor);
-    }
-
-    private void drawBorder(DrawContext drawContext, int x, int y, int width, int height) {
-        drawContext.fill(x, y, x + width, y + 1, BORDER_COLOR); // Top
-        drawContext.fill(x, y + height - 1, x + width, y + height, BORDER_COLOR); // Bottom
-        drawContext.fill(x, y, x + 1, y + height, BORDER_COLOR); // Left
-        drawContext.fill(x + width - 1, y, x + width, y + height, BORDER_COLOR); // Right
     }
 
     private int calculateHudX() {

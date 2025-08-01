@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen.hud;
 
+import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
@@ -75,7 +76,6 @@ public class ResourceBarHud {
                 shouldBeVisible = true;
                 hideTimer = AUTO_HIDE_DELAY;
             } else if (currentResource < maxResource) {
-                // Resource used or depleted - show bar
                 shouldBeVisible = true;
                 hideTimer = AUTO_HIDE_DELAY;
             }
@@ -88,7 +88,7 @@ public class ResourceBarHud {
         if (slideOffset >= 1.0f && !shouldBeVisible) return;
 
         // Update animations
-        updateAnimations(currentResource, maxResource, deltaTime);
+        updateAnimations(deltaTime,manager);
 
         // Calculate HUD position with slide animation
         int screenHeight = client.getWindow().getScaledHeight();
@@ -103,9 +103,8 @@ public class ResourceBarHud {
     /**
      * Update all animations
      */
-    private void updateAnimations(float currentResource, float maxResource, float deltaTime) {
-        // Calculate target progress
-        float targetProgress = maxResource > 0 ? currentResource / maxResource : 0.0f;
+    private void updateAnimations(float deltaTime, PlayerClassManager manager) {
+        float targetProgress = manager.getResourcePercentage();
 
         // Smooth progress animation
         float lerpSpeed = 0.08f;
@@ -167,7 +166,7 @@ public class ResourceBarHud {
 
         // Background panel with border
         drawContext.fill(hudX - 3, hudY - 3, hudX + hudWidth, hudY + hudHeight, BACKGROUND_COLOR);
-        drawBorder(drawContext, hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3);
+        DrawContextUtils.drawBorder(drawContext, hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3,BACKGROUND_COLOR);
 
         // Resource type label
         String resourceLabel = resourceType.getDisplayName();
@@ -203,7 +202,7 @@ public class ResourceBarHud {
         }
 
         // Resource bar border
-        drawBorder(drawContext, hudX, barY, BAR_WIDTH, BAR_HEIGHT);
+        DrawContextUtils.drawBorder(drawContext, hudX, barY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
 
         // Resource text (current/max)
         String resourceText = NumberUtil.formatNumber((long) currentResource) + "/" + NumberUtil.formatNumber((long) maxResource);
@@ -216,19 +215,6 @@ public class ResourceBarHud {
         drawContext.drawTextWithShadow(textRenderer, percentText, hudX + 2, textY, 0xFFAAAAAA);
     }
 
-    /**
-     * Draw border around a rectangle
-     */
-    private void drawBorder(DrawContext drawContext, int x, int y, int width, int height) {
-        // Top
-        drawContext.fill(x, y, x + width, y + 1, BORDER_COLOR);
-        // Bottom
-        drawContext.fill(x, y + height - 1, x + width, y + height, BORDER_COLOR);
-        // Left
-        drawContext.fill(x, y, x + 1, y + height, BORDER_COLOR);
-        // Right
-        drawContext.fill(x + width - 1, y, x + width, y + height, BORDER_COLOR);
-    }
 
     /**
      * Force show the resource bar (for when skills are used, etc.)

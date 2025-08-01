@@ -8,19 +8,30 @@ import net.minecraft.client.render.*;
 import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
+    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int z, int color) {
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+        VertexConsumer consumer = context.getVertexConsumers().getBuffer(RenderLayer.getGui());
 
-    public static void drawBorder(DrawContext context, int color, int thickness) {
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-        // Top border
-        context.fill(0, 0, width, thickness, color);
-        // Bottom border
-        context.fill(0, height - thickness, width, height, color);
-        // Left border
-        context.fill(0, 0, thickness, height, color);
-        // Right border
-        context.fill(width - thickness, 0, width, height, color);
+        // Top
+        consumer.vertex(matrix, x, y, z).color(color);
+        consumer.vertex(matrix, x + width, y, z).color(color);
+        // Right
+        consumer.vertex(matrix, x + width, y, z).color(color);
+        consumer.vertex(matrix, x + width, y + height, z).color(color);
+        // Bottom
+        consumer.vertex(matrix, x + width, y + height, z).color(color);
+        consumer.vertex(matrix, x, y + height, z).color(color);
+        // Left
+        consumer.vertex(matrix, x, y + height, z).color(color);
+        consumer.vertex(matrix, x, y, z).color(color);
+
+        context.draw(); // Flush
     }
+    //TODO: Replace mostly drawBorder to using this one to
+    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
+        drawBorder(context, x, y, width, height, 0, color);
+    }
+
 
     public static void renderVerticalLine(DrawContext context, int positionX, int positionY, int height, int thickness, int z, int color) {
         context.fill(positionX, positionY, positionX + thickness, positionY + height, z, color);
@@ -50,6 +61,7 @@ public final class DrawContextUtils {
         int height = context.getScaledWindowHeight();
         context.fill(0, 0, width, height, color);
     }
+
     /**
      * Fills the screen with three horizontal sections, each occupying
      * approximately one-third of the screen height.
@@ -65,8 +77,8 @@ public final class DrawContextUtils {
      * }
      * }</pre>
      *
-     * @param context    The drawing context providing screen dimensions and fill capabilities.
-     * @param topColor   The ARGB color for the top one-third section of the screen.
+     * @param context     The drawing context providing screen dimensions and fill capabilities.
+     * @param topColor    The ARGB color for the top one-third section of the screen.
      * @param middleColor The ARGB color for the middle one-third section of the screen.
      * @param bottomColor The ARGB color for the bottom one-third section of the screen.
      */
@@ -85,6 +97,7 @@ public final class DrawContextUtils {
         // Bottom section (1/3)
         context.fill(0, sectionHeight * 2, width, height, bottomColor);
     }
+
     /**
      * Fills the screen with three vertical sections, each occupying
      * approximately one-third of the screen width.
@@ -120,6 +133,7 @@ public final class DrawContextUtils {
         // Right section (1/3)
         context.fill(sectionWidth * 2, 0, width, height, rightColor);
     }
+
     /**
      * Fills the screen with a 3x3 grid of nine equal sections, each colored
      * according to the provided array of colors.
@@ -166,6 +180,7 @@ public final class DrawContextUtils {
             }
         }
     }
+
     /**
      * Fills the screen with sections based on custom ratios, either horizontally or vertically.
      *
@@ -193,15 +208,15 @@ public final class DrawContextUtils {
      *
      * @param context    The drawing context providing screen dimensions and fill capabilities.
      * @param ratios     An array of integers representing the proportional sizes of each section.
-     * For example, {@code {1, 2, 1}} means the sections will have sizes
-     * in a 1:2:1 proportion.
+     *                   For example, {@code {1, 2, 1}} means the sections will have sizes
+     *                   in a 1:2:1 proportion.
      * @param colors     An array of ARGB color integers, where each color corresponds
-     * to a ratio in the {@code ratios} array. The length of this array
-     * must match the length of the {@code ratios} array.
+     *                   to a ratio in the {@code ratios} array. The length of this array
+     *                   must match the length of the {@code ratios} array.
      * @param horizontal If {@code true}, the sections will be arranged horizontally;
-     * otherwise, they will be arranged vertically.
+     *                   otherwise, they will be arranged vertically.
      * @throws IllegalArgumentException If the {@code ratios} and {@code colors} arrays
-     * do not have the same length.
+     *                                  do not have the same length.
      */
     public static void fillScreenCustomRatio(DrawContext context, int[] ratios, int[] colors, boolean horizontal) {
         if (ratios.length != colors.length) {
