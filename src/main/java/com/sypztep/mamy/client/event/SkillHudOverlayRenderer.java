@@ -52,25 +52,27 @@ public class SkillHudOverlayRenderer {
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        if (stanceComponent.isInCombatStance()) ResourceBarHudRenderer.resourceBarHud.forceShow();
+        if (stanceComponent.isInCombatStance())
+            ResourceBarHudRenderer.resourceBarHud.forceShow();
+         else
+            ResourceBarHudRenderer.resourceBarHud.forceHide();
+
         renderStanceIndicator(context, stanceComponent);
 
-        // Only show skill hotbar in combat stance
-        if (stanceComponent.isInCombatStance()) {
+        if (stanceComponent.isInCombatStance())
             renderSkillHotbar(context, classComponent, tickCounter.getTickDelta(false));
-        }
     }
 
     private static void renderStanceIndicator(DrawContext context, PlayerStanceComponent stanceComponent) {
         int screenWidth = context.getScaledWindowWidth();
-
-        // Stance indicator (top right)
-        int stanceX = screenWidth - 120;
-        int stanceY = 10;
-
         Text stanceText = stanceComponent.isInCombatStance() ?
                 Text.literal("⚔ COMBAT").formatted(Formatting.RED, Formatting.BOLD) :
                 Text.literal("✋ NORMAL").formatted(Formatting.GRAY);
+        int XPaddle = 5;
+        // Stance indicator (top right)
+        int stanceX = screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(stanceText) - XPaddle;
+        int stanceY = 10;
+
 
         context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
     }
