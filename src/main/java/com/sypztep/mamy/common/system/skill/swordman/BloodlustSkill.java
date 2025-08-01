@@ -3,13 +3,11 @@ package com.sypztep.mamy.common.system.skill.swordman;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.BloodLustEntity;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.system.classes.ClassRegistry;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
 
 import java.util.ArrayList;
 
@@ -17,7 +15,7 @@ public class BloodlustSkill extends Skill {
 
     public BloodlustSkill() {
         super(Mamy.id("bloodlust"), "Bloodlust", "Launch a blood projectile that transfers your status effects",
-                30f, 10, 3, ModClasses.SWORDMAN, 2);
+                30f, 10, 3, ModClasses.SWORDMAN, 2,Mamy.id("skill/scythecooldown"));
     }
 
     @Override
