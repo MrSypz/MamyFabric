@@ -9,6 +9,7 @@ import com.sypztep.mamy.common.event.player.MarkDamageTrackerEvent;
 import com.sypztep.mamy.common.event.player.RestoreStatsModifyEvent;
 import com.sypztep.mamy.common.init.ModCommands;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModPayloads;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
@@ -32,6 +33,7 @@ public class Mamy implements ModInitializer {
         ModPayloads.init();
         ModCommands.init();
         ModEntityTypes.init();
+        ModParticles.init();
 
         SkillRegistry.registerSkills();
 

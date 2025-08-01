@@ -12,7 +12,7 @@ public class MamyClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ModParticles.init();
+        ModParticles.Client.init();
 
         EntityRendererRegistry.register(ModEntityTypes.BLOOD_LUST, BloodLustEntityRenderer::new);
 

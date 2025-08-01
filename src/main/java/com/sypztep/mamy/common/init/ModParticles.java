@@ -10,16 +10,23 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public class ModParticles {
-    public static SimpleParticleType BLOOD_BUBBLE = add("blood_bubble");
-    public static SimpleParticleType BLOOD_BUBBLE_SPLATTER = add("blood_bubble_splatter");
+    public static SimpleParticleType BLOOD_BUBBLE;
+    public static SimpleParticleType BLOOD_BUBBLE_SPLATTER;
 
-    public static void init(){
-        ParticleFactoryRegistry registry = ParticleFactoryRegistry.getInstance();
-        registry.register(BLOOD_BUBBLE, BloodBubbleParticle.Factory::new);
-        registry.register(BLOOD_BUBBLE_SPLATTER, BloodBubbleSplatterParticle.Factory::new);
+    public static class Client{
+        public static void init(){
+            ParticleFactoryRegistry registry = ParticleFactoryRegistry.getInstance();
+            registry.register(BLOOD_BUBBLE, BloodBubbleParticle.Factory::new);
+            registry.register(BLOOD_BUBBLE_SPLATTER, BloodBubbleSplatterParticle.Factory::new);
+        }
     }
 
-    private static SimpleParticleType add(String name) {
+    public static void init() {
+        BLOOD_BUBBLE = register("blood_bubble");
+        BLOOD_BUBBLE_SPLATTER = register("blood_bubble_splatter");
+    }
+
+    private static SimpleParticleType register(String name) {
         return Registry.register(Registries.PARTICLE_TYPE, Mamy.id(name), FabricParticleTypes.simple());
     }
 }
