@@ -1,7 +1,6 @@
 package com.sypztep.mamy.client.payload;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.client.util.TextParticleProvider;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -10,6 +9,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
+import sypztep.tyrannus.client.util.TextParticleProvider;
 
 public record AddTextParticlesPayloadS2C(int entityId, int selector) implements CustomPayload{
     public static final Id<AddTextParticlesPayloadS2C> ID = new Id<>(Mamy.id("add_text_particle"));

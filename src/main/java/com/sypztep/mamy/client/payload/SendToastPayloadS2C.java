@@ -3,7 +3,6 @@ package com.sypztep.mamy.client.payload;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.toast.ToastManager;
 import com.sypztep.mamy.client.toast.ToastNotification;
-import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -12,6 +11,7 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import sypztep.tyrannus.common.util.NumberUtil;
 
 public record SendToastPayloadS2C(String message, int toastTypeOrdinal) implements CustomPayload {
     public static final Id<SendToastPayloadS2C> ID = new Id<>(Mamy.id("show_toast"));

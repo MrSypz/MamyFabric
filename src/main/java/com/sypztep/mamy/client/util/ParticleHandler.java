@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import sypztep.tyrannus.client.util.TextParticleProvider;
 
 public final class ParticleHandler {
 

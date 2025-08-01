@@ -39,6 +39,10 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name = "My Library"
+        url = "https://jitpack.io"
+    }
 }
 
 dependencies {
@@ -59,6 +63,7 @@ dependencies {
     }
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
+    modImplementation include("com.github.MrSypz:Tyrannus:${tyrannus_version}")
 }
 
 processResources {

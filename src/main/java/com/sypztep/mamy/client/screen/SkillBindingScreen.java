@@ -1,8 +1,6 @@
 package com.sypztep.mamy.client.screen;
 
 import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
-import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
-import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -15,6 +13,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import sypztep.tyrannus.client.screen.widget.ScrollBehavior;
+import sypztep.tyrannus.client.util.DrawContextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

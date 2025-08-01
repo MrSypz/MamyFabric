@@ -3,9 +3,6 @@ package com.sypztep.mamy.client.screen;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.screen.widget.*;
 import com.sypztep.mamy.client.toast.ToastRenderer;
-import com.sypztep.mamy.client.util.AnimationUtils;
-import com.sypztep.mamy.client.util.CyclingTextIcon;
-import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -21,6 +18,12 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import sypztep.tyrannus.client.screen.widget.Animation;
+import sypztep.tyrannus.client.screen.widget.ListElement;
+import sypztep.tyrannus.client.screen.widget.ScrollableTextList;
+import sypztep.tyrannus.client.util.AnimationUtils;
+import sypztep.tyrannus.client.util.CyclingTextIcon;
+import sypztep.tyrannus.client.util.DrawContextUtils;
 
 import java.util.*;
 

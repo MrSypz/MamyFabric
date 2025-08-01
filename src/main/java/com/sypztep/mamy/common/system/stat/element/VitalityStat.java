@@ -3,13 +3,12 @@ package com.sypztep.mamy.common.system.stat.element;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.stat.Stat;
-import com.sypztep.mamy.common.util.AttributeModification;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.List;
 

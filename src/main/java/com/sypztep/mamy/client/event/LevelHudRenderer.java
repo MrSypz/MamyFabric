@@ -1,11 +1,9 @@
 package com.sypztep.mamy.client.event;
 
-import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
-import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -13,6 +11,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
+import sypztep.tyrannus.client.util.DrawContextUtils;
+import sypztep.tyrannus.common.util.NumberUtil;
 
 public final class LevelHudRenderer implements HudRenderCallback {
     // Position settings

@@ -1,7 +1,6 @@
 package com.sypztep.mamy.mixin.core.critevasion;
 
 import com.sypztep.mamy.client.util.ParticleHandler;
-import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.common.api.MissingAccessor;
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
@@ -17,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import sypztep.tyrannus.client.util.TextParticleProvider;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements MissingAccessor {

@@ -1,16 +1,11 @@
 package com.sypztep.mamy.client.screen;
 
-import com.sypztep.mamy.client.screen.widget.Animation;
-import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
 import com.sypztep.mamy.client.toast.ToastRenderer;
-import com.sypztep.mamy.client.util.AnimationUtils;
-import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
-import com.sypztep.mamy.common.util.AttributeModification;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -18,6 +13,11 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import sypztep.tyrannus.client.screen.widget.Animation;
+import sypztep.tyrannus.client.screen.widget.ScrollBehavior;
+import sypztep.tyrannus.client.util.AnimationUtils;
+import sypztep.tyrannus.client.util.DrawContextUtils;
+import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.ArrayList;
 import java.util.List;
