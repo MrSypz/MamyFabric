@@ -91,6 +91,7 @@ public final class PlayerInfoScreen extends Screen {
         values.put("hp", client.player.getHealth());
         values.put("maxhp", client.player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
         values.put("dp", client.player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
+        values.put("drec", client.player.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100f);
         values.put("eva", client.player.getAttributeValue(ModEntityAttributes.EVASION));
         values.put("mresis", client.player.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100f);
 
@@ -145,6 +146,7 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.health")));
         listElements.add(new ListElement(Text.translatable("mamy.info.max_health")));
         listElements.add(new ListElement(Text.translatable("mamy.info.defense")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.damage_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.evasion")));
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_resistance")));
 

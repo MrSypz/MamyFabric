@@ -62,6 +62,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "health", "Current Health: $hp");
         translator.add(key + "max_health", "Maximum Health: $maxhp");
         translator.add(key + "defense", "Armor Rating: $dp");
+        translator.add(key + "damage_reduction", "Damage Reduction: $drec%");
         translator.add(key + "evasion", "Evasion Rating: $eva");
         translator.add(key + "magic_resistance", "Magic Resistance: $mresis%");
 
