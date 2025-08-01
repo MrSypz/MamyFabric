@@ -1,5 +1,10 @@
 package com.sypztep.mamy.client.screen;
 
+import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
+import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
+import com.sypztep.mamy.client.util.DrawContextUtils;
+import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.BindSkillPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -7,41 +12,64 @@ import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SkillBindingScreen extends Screen {
-    private static final int BACKGROUND_WIDTH = 256;
-    private static final int BACKGROUND_HEIGHT = 200;
-    private static final int SKILL_SLOT_SIZE = 24;
-    private static final int SKILL_BUTTON_SIZE = 20;
+    // Base dimensions - will be adjusted for screen size
+    private static final int BASE_BACKGROUND_WIDTH = 360;
+    private static final int BASE_BACKGROUND_HEIGHT = 280;
+    private static final int SKILL_SLOT_SIZE = 28;
+    private static final int SKILL_BUTTON_SIZE = 24;
+
+    // Custom styling similar to PlayerInfoScreen
+    private static final int BACKGROUND_COLOR = 0xF0121212;
+    private static final int PANEL_COLOR = 0xFF1E1E1E;
+    private static final int SLOT_COLOR = 0xFF2A2A2A;
+    private static final int SELECTED_COLOR = 0xFF4CAF50;
+    private static final int BOUND_SLOT_COLOR = 0xFF3F51B5;
+    private static final int HOVER_COLOR = 0xFF616161;
 
     private final MinecraftClient client;
     private int backgroundX, backgroundY;
+    private int backgroundWidth, backgroundHeight; // Dynamic sizing
 
     // Skill data
     private List<Identifier> learnedSkills = new ArrayList<>();
     private Identifier[] boundSkills = new Identifier[8];
     private Identifier selectedSkill = null;
 
+    // Mouse tracking
+    private int hoveredSlot = -1;
+    private int hoveredSkill = -1;
+
+    // UI Components
+    private ScrollBehavior learnedSkillsScroll;
+    private List<SkillSlotButton> skillSlotButtons = new ArrayList<>();
+    private ActionWidgetButton closeButton;
+    private ActionWidgetButton clearAllButton;
+
     // Slot positions
-    private static final String[] SLOT_KEYS = {"Z", "X", "C", "V", "Shift+Z", "Shift+X", "Shift+C", "Shift+V"};
+    private static final String[] SLOT_KEYS = {"Z", "X", "C", "V", "⇧Z", "⇧X", "⇧C", "⇧V"};
 
     public SkillBindingScreen(MinecraftClient client) {
         super(Text.literal("Skill Binding"));
         this.client = client;
         loadSkillData();
+
+        // Initialize scroll behavior
+        learnedSkillsScroll = new ScrollBehavior();
     }
 
     private void loadSkillData() {
         if (client.player == null) return;
 
-        var classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
         learnedSkills = classComponent.getLearnedSkills();
         boundSkills = classComponent.getClassManager().getAllBoundSkills();
     }
@@ -50,223 +78,365 @@ public class SkillBindingScreen extends Screen {
     protected void init() {
         super.init();
 
-        backgroundX = (width - BACKGROUND_WIDTH) / 2;
-        backgroundY = (height - BACKGROUND_HEIGHT) / 2;
+        // Calculate responsive dimensions
+        backgroundWidth = Math.min(BASE_BACKGROUND_WIDTH, (int)(width * 0.9f)); // Max 90% of screen width
+        backgroundHeight = Math.min(BASE_BACKGROUND_HEIGHT, (int)(height * 0.9f)); // Max 90% of screen height
 
-        // Close button
-        addDrawableChild(ButtonWidget.builder(Text.literal("Close"), button -> close())
-                .dimensions(backgroundX + BACKGROUND_WIDTH - 50, backgroundY + BACKGROUND_HEIGHT - 25, 45, 20)
-                .build());
+        // Ensure minimum usable size
+        backgroundWidth = Math.max(backgroundWidth, 280);
+        backgroundHeight = Math.max(backgroundHeight, 220);
 
-        // Clear all button
-        addDrawableChild(ButtonWidget.builder(Text.literal("Clear All"), button -> clearAllSkills())
-                .dimensions(backgroundX + 5, backgroundY + BACKGROUND_HEIGHT - 25, 60, 20)
-                .build());
+        backgroundX = (width - backgroundWidth) / 2;
+        backgroundY = (height - backgroundHeight) / 2;
 
-        // Skill slot buttons (8 slots)
-        for (int i = 0; i < 8; i++) {
-            final int slot = i;
-            int x = backgroundX + 20 + (i % 4) * 30;
-            int y = backgroundY + 40 + (i / 4) * 30;
-
-            addDrawableChild(ButtonWidget.builder(Text.literal(""), button -> onSkillSlotClick(slot))
-                    .dimensions(x, y, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE)
-                    .build());
-        }
-
-        // Learned skills list (scrollable area)
-        int startY = backgroundY + 110;
-        for (int i = 0; i < learnedSkills.size(); i++) {
-            final Identifier skillId = learnedSkills.get(i);
-            int x = backgroundX + 10 + (i % 10) * 22;
-            int y = startY + (i / 10) * 22;
-
-            if (y < backgroundY + BACKGROUND_HEIGHT - 30) { // Only show if fits in screen
-                addDrawableChild(ButtonWidget.builder(Text.literal(""), button -> onLearnedSkillClick(skillId))
-                        .dimensions(x, y, SKILL_BUTTON_SIZE, SKILL_BUTTON_SIZE)
-                        .build());
-            }
-        }
+        // Initialize UI components
+        initializeButtons();
+        setupScrollBehavior();
     }
 
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(backgroundX, backgroundY, backgroundX + BACKGROUND_WIDTH, backgroundY + BACKGROUND_HEIGHT, 0x88000000);
-        context.drawBorder(backgroundX, backgroundY, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0xFFFFFFFF);
+    private void initializeButtons() {
+        skillSlotButtons.clear();
 
-        // Title
-        context.drawCenteredTextWithShadow(textRenderer, title, width / 2, backgroundY + 10, 0xFFFFFF);
+        // Get stats component for buttons (needed for ActionWidgetButton)
+        LivingLevelComponent statsComponent = ModEntityComponents.LIVINGLEVEL.get(client.player);
 
-        // Section headers
-        context.drawTextWithShadow(textRenderer, Text.literal("Skill Slots"), backgroundX + 10, backgroundY + 25, 0xFFFFFF);
-        context.drawTextWithShadow(textRenderer, Text.literal("Learned Skills"), backgroundX + 10, backgroundY + 95, 0xFFFFFF);
-
-        // Render skill slots
+        // Create skill slot buttons (8 slots in 2 rows)
         for (int i = 0; i < 8; i++) {
-            int x = backgroundX + 20 + (i % 4) * 30;
-            int y = backgroundY + 40 + (i / 4) * 30;
+            int col = i % 4;
+            int row = i / 4;
+            int slotX = backgroundX + 20 + col * (SKILL_SLOT_SIZE + 8);
+            int slotY = backgroundY + 55 + row * (SKILL_SLOT_SIZE + 16);
 
-            // Slot background
-            int color = (selectedSkill != null) ? 0xFF4CAF50 : 0xFF424242;
-            context.fill(x, y, x + SKILL_SLOT_SIZE, y + SKILL_SLOT_SIZE, color);
+            SkillSlotButton slotButton = new SkillSlotButton(
+                    slotX, slotY, SKILL_SLOT_SIZE, SKILL_SLOT_SIZE,
+                    Text.empty(), i, statsComponent, client
+            );
 
-            // Key label
-            String keyText = SLOT_KEYS[i];
-            context.drawTextWithShadow(textRenderer, Text.literal(keyText), x + 2, y - 10, 0xFFFFFF);
-
-            // Bound skill
-            if (boundSkills[i] != null) {
-                Skill skill = SkillRegistry.getSkill(boundSkills[i]);
-                if (skill != null) {
-                    String skillName = skill.getName().substring(0, Math.min(2, skill.getName().length()));
-                    context.drawCenteredTextWithShadow(textRenderer, Text.literal(skillName),
-                            x + SKILL_SLOT_SIZE / 2, y + 8, 0xFFFFFF);
-                }
-            }
+            skillSlotButtons.add(slotButton);
+            addDrawableChild(slotButton);
         }
 
-        // Render learned skills
-        int startY = backgroundY + 110;
-        for (int i = 0; i < learnedSkills.size(); i++) {
-            Identifier skillId = learnedSkills.get(i);
-            int x = backgroundX + 10 + (i % 10) * 22;
-            int y = startY + (i / 10) * 22;
-
-            if (y < backgroundY + BACKGROUND_HEIGHT - 30) {
-                // Skill background
-                int color = skillId.equals(selectedSkill) ? 0xFF2196F3 : 0xFF616161;
-                context.fill(x, y, x + SKILL_BUTTON_SIZE, y + SKILL_BUTTON_SIZE, color);
-
-                // Skill name (abbreviated)
-                Skill skill = SkillRegistry.getSkill(skillId);
-                if (skill != null) {
-                    String skillName = skill.getName().substring(0, Math.min(2, skill.getName().length()));
-                    context.drawCenteredTextWithShadow(textRenderer, Text.literal(skillName),
-                            x + SKILL_BUTTON_SIZE / 2, y + 6, 0xFFFFFF);
-                }
+        // Control buttons - adjust positioning based on actual background size
+        closeButton = new ControlButton(
+                backgroundX + backgroundWidth - 60, backgroundY + backgroundHeight - 30,
+                50, 20, Text.literal("Close"), statsComponent, client
+        ) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                close();
             }
-        }
+        };
+        addDrawableChild(closeButton);
 
-        // Instructions
-        String instruction = selectedSkill == null ?
-                "Select a skill, then click a slot to bind" :
-                "Click a slot to bind selected skill";
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(instruction),
-                width / 2, backgroundY + BACKGROUND_HEIGHT - 40, 0xFFFFFF);
-        super.render(context, mouseX, mouseY, delta);
+        clearAllButton = new ControlButton(
+                backgroundX + 10, backgroundY + backgroundHeight - 30,
+                60, 20, Text.literal("Clear All"), statsComponent, client
+        ) {
+            @Override
+            public void onClick(double mouseX, double mouseY) {
+                clearAllSkills();
+            }
+        };
+        addDrawableChild(clearAllButton);
+    }
 
-        // Render tooltips last (on top of everything)
-        renderTooltips(context, mouseX, mouseY);
+    private void setupScrollBehavior() {
+        // Set up scroll area for learned skills - adjust for dynamic height
+        int scrollX = backgroundX + 10;
+        int scrollY = backgroundY + 165;
+        int scrollWidth = backgroundWidth - 20;
+        int scrollHeight = Math.max(40, backgroundHeight - 220); // Adaptive height
+
+        learnedSkillsScroll.setBounds(scrollX, scrollY, scrollWidth, scrollHeight);
+
+        // Calculate content height based on number of skills
+        int cols = scrollWidth / (SKILL_BUTTON_SIZE + 4);
+        int rows = (learnedSkills.size() + cols - 1) / cols; // Ceiling division
+        int contentHeight = rows * (SKILL_BUTTON_SIZE + 4);
+        learnedSkillsScroll.setContentHeight(contentHeight);
     }
 
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
+        DrawContextUtils.drawRect(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight, PANEL_COLOR);
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+
+        // Header
+        drawHeader(context);
+
+        // Skill slots section
+        drawSkillSlotsSection(context);
+
+        // Learned skills section with scroll
+        drawLearnedSkillsSection(context, mouseX, mouseY, delta);
+
+        // Instructions
+        drawInstructions(context);
+
+        // Tooltips (render last, on top of everything)
+        renderTooltips(context, mouseX, mouseY);
+    }
+
+    private void drawHeader(DrawContext context) {
+        int headerY = backgroundY + 8;
+        context.drawCenteredTextWithShadow(textRenderer, title, backgroundX + backgroundWidth / 2, headerY, 0xFFFFFF);
+
+        // Decorative lines
+        int lineY = headerY + 12;
+        int lineStartX = backgroundX + 20;
+        int lineEndX = backgroundX + backgroundWidth - 20;
+        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, lineStartX, lineY,
+                lineEndX - lineStartX, 1, 1, 0xFFFFFFFF, 0x00FFFFFF);
+    }
+
+    private void drawSkillSlotsSection(DrawContext context) {
+        int sectionY = backgroundY + 35;
+        context.drawTextWithShadow(textRenderer, Text.literal("Skill Slots"), backgroundX + 10, sectionY, 0xFFFFFF);
+
+        // Update skill slot button states
+        for (int i = 0; i < skillSlotButtons.size(); i++) {
+            SkillSlotButton button = skillSlotButtons.get(i);
+            button.updateSkillState(boundSkills[i], selectedSkill);
+        }
+    }
+
+    private void drawLearnedSkillsSection(DrawContext context, int mouseX, int mouseY, float delta) {
+        int sectionY = backgroundY + 145;
+        context.drawTextWithShadow(textRenderer, Text.literal("Learned Skills"), backgroundX + 10, sectionY, 0xFFFFFF);
+
+        // Set up scrollable area - use dynamic dimensions
+        int scrollX = backgroundX + 10;
+        int scrollY = sectionY + 20;
+        int scrollWidth = backgroundWidth - 20;
+        int scrollHeight = Math.max(40, backgroundHeight - 220);
+
+        // Update scroll behavior
+        learnedSkillsScroll.update(context, mouseX, mouseY, delta);
+
+        // Enable scissor for clipping
+        context.enableScissor(scrollX, scrollY, scrollX + scrollWidth, scrollY + scrollHeight);
+
+        // Render learned skills with scroll offset
+        renderLearnedSkills(context, scrollX, scrollY, scrollWidth, mouseX, mouseY);
+
+        // Disable scissor
+        context.disableScissor();
+    }
+
+    private void renderLearnedSkills(DrawContext context, int startX, int startY, int width, int mouseX, int mouseY) {
+        hoveredSkill = -1;
+
+        int cols = width / (SKILL_BUTTON_SIZE + 4);
+        int scrollOffset = (int) learnedSkillsScroll.getScrollAmount();
+
+        for (int i = 0; i < learnedSkills.size(); i++) {
+            int col = i % cols;
+            int row = i / cols;
+            int skillX = startX + col * (SKILL_BUTTON_SIZE + 4);
+            int skillY = startY + row * (SKILL_BUTTON_SIZE + 4) - scrollOffset;
+
+            int visibleHeight = Math.max(40, backgroundHeight - 220);
+            if (skillY + SKILL_BUTTON_SIZE < startY || skillY > startY + visibleHeight) continue;
+
+            boolean isHovered = mouseX >= skillX && mouseX < skillX + SKILL_BUTTON_SIZE &&
+                    mouseY >= skillY && mouseY < skillY + SKILL_BUTTON_SIZE;
+
+            if (isHovered) hoveredSkill = i;
+
+            drawLearnedSkill(context, skillX, skillY, learnedSkills.get(i), isHovered);
+        }
+    }
+
+    private void drawLearnedSkill(DrawContext context, int x, int y, Identifier skillId, boolean isHovered) {
+        boolean isSelected = skillId.equals(selectedSkill);
+        boolean isAlreadyBound = Arrays.asList(boundSkills).contains(skillId);
+
+        // Skill background color
+        int skillColor = SLOT_COLOR;
+        if (isSelected) {
+            skillColor = SELECTED_COLOR;
+        } else if (isAlreadyBound) {
+            skillColor = 0xFF8E24AA; // Purple for already bound
+        } else if (isHovered) {
+            skillColor = HOVER_COLOR;
+        }
+
+        // Draw skill background
+        DrawContextUtils.drawRect(context, x, y, SKILL_BUTTON_SIZE, SKILL_BUTTON_SIZE, skillColor);
+        context.drawBorder(x, y, SKILL_BUTTON_SIZE, SKILL_BUTTON_SIZE, 0xFF444444);
+
+        // Draw skill content
+        drawSkillInSlot(context, x + 1, y + 1, skillId);
+
+        // Draw "bound" indicator if already bound
+        if (isAlreadyBound) {
+            context.drawText(textRenderer, Text.literal("✔"), x + SKILL_BUTTON_SIZE -8, y + 2, 0xFFFFFF00, false);
+        }
+    }
+
+    private void drawSkillInSlot(DrawContext context, int x, int y, Identifier skillId) {
+        drawSkillInSlot(context,x,y,6,skillId);
+    }
+    private void drawSkillInSlot(DrawContext context, int x, int y,int size, Identifier skillId) {
+        if (skillId == null) return;
+
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return;
+
+        int iconSize = SKILL_SLOT_SIZE - size;
+
+        if (skill.getIcon() != null) {
+            context.drawGuiTexture(skill.getIcon(), x, y, iconSize, iconSize);
+        } else {
+            drawSkillText(context, x, y, skill, iconSize);
+        }
+    }
+
+    private void drawSkillText(DrawContext context, int x, int y, Skill skill, int iconSize) {
+        String skillName = skill.getName();
+        String abbreviation = skillName.length() >= 2 ? skillName.substring(0, 2).toUpperCase() : skillName.toUpperCase();
+
+        int textWidth = textRenderer.getWidth(abbreviation);
+        int textX = x + (iconSize - textWidth) / 2;
+        int textY = y + (iconSize - textRenderer.fontHeight) / 2;
+
+        // Text background for readability
+        context.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + textRenderer.fontHeight + 1, 0x88000000);
+        context.drawText(textRenderer, Text.literal(abbreviation), textX, textY, 0xFFFFFFFF, false);
+    }
+
+    private void drawInstructions(DrawContext context) {
+        String instruction;
+        if (selectedSkill == null) {
+            instruction = "Select a skill, then click a slot to bind";
+        } else {
+            instruction = "Click a slot to bind selected skill • Right-click to unbind";
+        }
+
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal(instruction),
+                backgroundX + backgroundWidth / 2, backgroundY + backgroundHeight - 20, 0xFFAAAAAA);
     }
 
     private void renderTooltips(DrawContext context, int mouseX, int mouseY) {
-        // Skill slot tooltips
-        for (int i = 0; i < 8; i++) {
-            int x = backgroundX + 20 + (i % 4) * 30;
-            int y = backgroundY + 40 + (i / 4) * 30;
-
-            if (mouseX >= x && mouseX < x + SKILL_SLOT_SIZE && mouseY >= y && mouseY < y + SKILL_SLOT_SIZE) {
-                List<Text> tooltip = new ArrayList<>();
-                tooltip.add(Text.literal("Slot " + (i + 1) + " (" + SLOT_KEYS[i] + ")").formatted(Formatting.YELLOW));
-
-                if (boundSkills[i] != null) {
-                    Skill skill = SkillRegistry.getSkill(boundSkills[i]);
-                    if (skill != null) {
-                        tooltip.add(Text.literal(skill.getName()).formatted(Formatting.WHITE));
-                        tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.GRAY));
-                        tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.RED));
-                    }
-                } else {
-                    tooltip.add(Text.literal("Empty slot").formatted(Formatting.GRAY));
-                }
-
-                context.drawTooltip(textRenderer, tooltip, mouseX, mouseY);
-                break;
+        // Skill slot tooltips - handled by SkillSlotButton
+        for (SkillSlotButton button : skillSlotButtons) {
+            if (button.isMouseOver(mouseX, mouseY)) {
+                button.renderTooltip(context, mouseX, mouseY);
+                return;
             }
         }
 
         // Learned skill tooltips
-        int startY = backgroundY + 110;
-        for (int i = 0; i < learnedSkills.size(); i++) {
-            Identifier skillId = learnedSkills.get(i);
-            int x = backgroundX + 10 + (i % 10) * 22;
-            int y = startY + (i / 10) * 22;
+        if (hoveredSkill >= 0 && hoveredSkill < learnedSkills.size()) {
+            Identifier skillId = learnedSkills.get(hoveredSkill);
+            Skill skill = SkillRegistry.getSkill(skillId);
+            if (skill != null) {
+                List<Text> tooltip = new ArrayList<>();
+                tooltip.add(Text.literal(skill.getName()).formatted(Formatting.YELLOW));
+                tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.WHITE));
+                tooltip.add(Text.literal("Cost: " + skill.getResourceCost()).formatted(Formatting.BLUE));
+                tooltip.add(Text.literal("Cooldown: " + (skill.getCooldown() / 20) + "s").formatted(Formatting.AQUA));
 
-            if (y < backgroundY + BACKGROUND_HEIGHT - 30 &&
-                    mouseX >= x && mouseX < x + SKILL_BUTTON_SIZE && mouseY >= y && mouseY < y + SKILL_BUTTON_SIZE) {
-
-                Skill skill = SkillRegistry.getSkill(skillId);
-                if (skill != null) {
-                    List<Text> tooltip = new ArrayList<>();
-                    tooltip.add(Text.literal(skill.getName()).formatted(Formatting.YELLOW));
-                    tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.WHITE));
-                    tooltip.add(Text.literal("Cost: " + skill.getResourceCost()).formatted(Formatting.BLUE));
-                    tooltip.add(Text.literal("Cooldown: " + (skill.getCooldown() / 20) + "s").formatted(Formatting.AQUA));
-
-                    context.drawTooltip(textRenderer, tooltip, mouseX, mouseY);
+                if (Arrays.asList(boundSkills).contains(skillId)) {
+                    tooltip.add(Text.literal("Already bound").formatted(Formatting.GOLD));
                 }
-                break;
-            }
-        }
-    }
 
-    private void onSkillSlotClick(int slot) {
-        if (selectedSkill != null) {
-            // Bind selected skill to slot
-            BindSkillPayloadC2S.send(slot, selectedSkill);
-            boundSkills[slot] = selectedSkill;
-            selectedSkill = null;
-
-            if (client.player != null) {
-                client.player.sendMessage(Text.literal("Skill bound to slot " + (slot + 1))
-                        .formatted(Formatting.GREEN), false);
+                context.drawTooltip(textRenderer, tooltip, mouseX, mouseY);
             }
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Right-click to unbind skill slots
-        if (button == 1) { // Right click
-            for (int i = 0; i < 8; i++) {
-                int x = backgroundX + 20 + (i % 4) * 30;
-                int y = backgroundY + 40 + (i / 4) * 30;
+        // Handle learned skill clicks in scrollable area - use dynamic dimensions
+        int scrollX = backgroundX + 10;
+        int scrollY = backgroundY + 165;
+        int scrollWidth = backgroundWidth - 20;
+        int scrollHeight = Math.max(40, backgroundHeight - 220);
 
-                if (mouseX >= x && mouseX < x + SKILL_SLOT_SIZE && mouseY >= y && mouseY < y + SKILL_SLOT_SIZE) {
-                    if (boundSkills[i] != null) {
-                        BindSkillPayloadC2S.unbind(i);
-                        boundSkills[i] = null;
+        if (mouseX >= scrollX && mouseX < scrollX + scrollWidth &&
+                mouseY >= scrollY && mouseY < scrollY + scrollHeight) {
 
-                        if (client.player != null) {
-                            client.player.sendMessage(Text.literal("Unbound skill from slot " + (i + 1))
-                                    .formatted(Formatting.YELLOW), false);
-                        }
-                    }
+            int cols = scrollWidth / (SKILL_BUTTON_SIZE + 4);
+            int scrollOffset = (int) learnedSkillsScroll.getScrollAmount();
+
+            for (int i = 0; i < learnedSkills.size(); i++) {
+                int col = i % cols;
+                int row = i / cols;
+                int skillX = scrollX + col * (SKILL_BUTTON_SIZE + 4);
+                int skillY = scrollY + row * (SKILL_BUTTON_SIZE + 4) - scrollOffset;
+
+                if (skillY + SKILL_BUTTON_SIZE < scrollY || skillY > scrollY + scrollHeight) continue;
+
+                if (mouseX >= skillX && mouseX < skillX + SKILL_BUTTON_SIZE &&
+                        mouseY >= skillY && mouseY < skillY + SKILL_BUTTON_SIZE) {
+
+                    Identifier skillId = learnedSkills.get(i);
+                    selectedSkill = skillId.equals(selectedSkill) ? null : skillId;
                     return true;
                 }
             }
         }
 
+        if (learnedSkillsScroll.handleMouseClick(mouseX, mouseY, button)) {
+            return true;
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private void onLearnedSkillClick(Identifier skillId) {
-        selectedSkill = skillId.equals(selectedSkill) ? null : skillId;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (learnedSkillsScroll.handleScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) {
+            return true;
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
-    private void clearAllSkills() {
-        for (int i = 0; i < 8; i++) {
-            if (boundSkills[i] != null) {
-                BindSkillPayloadC2S.unbind(i);
+    private void bindSkill(int slot, Identifier skillId) {
+        if (skillId == null) return;
+
+        // Check if skill is already bound to another slot
+        for (int i = 0; i < boundSkills.length; i++) {
+            if (i != slot && skillId.equals(boundSkills[i])) {
+                // Unbind from previous slot first
                 boundSkills[i] = null;
+                BindSkillPayloadC2S.unbind(i);
+                break;
             }
         }
 
-        if (client.player != null) {
+        // Bind to new slot
+        boundSkills[slot] = skillId;
+        BindSkillPayloadC2S.send(slot, skillId);
+        selectedSkill = null; // Clear selection after binding
+    }
+
+    private void unbindSkill(int slot) {
+        if (boundSkills[slot] != null) {
+            boundSkills[slot] = null;
+            BindSkillPayloadC2S.unbind(slot);
+        }
+    }
+
+    private void clearAllSkills() {
+        boolean hadBoundSkills = false;
+        for (int i = 0; i < 8; i++) {
+            if (boundSkills[i] != null) {
+                boundSkills[i] = null;
+                BindSkillPayloadC2S.unbind(i);
+                hadBoundSkills = true;
+            }
+        }
+
+        // Only show message if there were actually skills to clear
+        if (hadBoundSkills && client.player != null) {
             client.player.sendMessage(Text.literal("Cleared all skill bindings")
                     .formatted(Formatting.YELLOW), false);
         }
@@ -275,5 +445,133 @@ public class SkillBindingScreen extends Screen {
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    // ============================================================================
+    // CUSTOM BUTTON CLASSES
+    // ============================================================================
+
+    private class SkillSlotButton extends ActionWidgetButton {
+        private final int slotIndex;
+        private Identifier boundSkill;
+        private Identifier previewSkill;
+        private boolean canBind;
+
+        public SkillSlotButton(int x, int y, int width, int height, Text message, int slotIndex,
+                               LivingLevelComponent stats, MinecraftClient client) {
+            super(x, y, width, height, message, stats, client);
+            this.slotIndex = slotIndex;
+        }
+
+        public void updateSkillState(Identifier boundSkill, Identifier selectedSkill) {
+            this.boundSkill = boundSkill;
+            this.previewSkill = selectedSkill;
+            this.canBind = selectedSkill != null && boundSkill == null;
+        }
+
+        @Override
+        protected void renderAdditionalOverlays(DrawContext context, int mouseX, int mouseY, float delta,
+                                                boolean isHovered, boolean isPressed) {
+            // Draw keybinding label
+            String keyText = SLOT_KEYS[slotIndex];
+            int keyColor = boundSkill != null ? 0xFFFFFFFF : 0xFFAAAAAA;
+            context.drawText(client.textRenderer, Text.literal(keyText),
+                    getX() + 2, getY() - 12, keyColor, false);
+
+            // Draw slot number
+            String slotNum = String.valueOf(slotIndex + 1);
+
+
+            // Draw skill content
+            if (boundSkill != null) {
+                drawSkillInSlot(context, getX() + 1, getY() + 1, 3, boundSkill);
+            } else if (canBind && isHovered && previewSkill != null) {
+                drawSkillInSlot(context, getX() + 1, getY() + 1,3, previewSkill);
+                context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x4400FF00);
+            }
+            context.drawText(client.textRenderer, Text.literal(slotNum),
+                    getX() + getWidth() - client.textRenderer.getWidth(slotNum) - 2,
+                    getY() + 2, 0xFF888888, true);
+        }
+
+        @Override
+        protected int getBackgroundColor() {
+            if (canBind && isHovered()) return SELECTED_COLOR;
+            if (boundSkill != null) return BOUND_SLOT_COLOR;
+            return SLOT_COLOR;
+        }
+
+        @Override
+        protected int getHoverBackgroundColor() {
+            if (canBind) return SELECTED_COLOR;
+            if (boundSkill != null) return BOUND_SLOT_COLOR;
+            return HOVER_COLOR;
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (!isMouseOver(mouseX, mouseY)) return false;
+
+            if (button == 1) { // Right click - unbind
+                if (boundSkill != null) {
+                    unbindSkill(slotIndex);
+                }
+                return true;
+            } else if (button == 0) { // Left click - bind
+                if (selectedSkill != null) {
+                    bindSkill(slotIndex, selectedSkill);
+                }
+                return true;
+            }
+
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
+            List<Text> tooltip = new ArrayList<>();
+            tooltip.add(Text.literal("Slot " + (slotIndex + 1) + " (" + SLOT_KEYS[slotIndex] + ")")
+                    .formatted(Formatting.YELLOW));
+
+            if (boundSkill != null) {
+                Skill skill = SkillRegistry.getSkill(boundSkill);
+                if (skill != null) {
+                    tooltip.add(Text.literal(skill.getName()).formatted(Formatting.WHITE));
+                    tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.GRAY));
+                    tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.RED));
+                }
+            } else {
+                tooltip.add(Text.literal("Empty slot").formatted(Formatting.GRAY));
+                if (selectedSkill != null) {
+                    tooltip.add(Text.literal("Click to bind selected skill").formatted(Formatting.GREEN));
+                }
+            }
+
+            context.drawTooltip(client.textRenderer, tooltip, mouseX, mouseY);
+        }
+    }
+
+    private static class ControlButton extends ActionWidgetButton {
+        public ControlButton(int x, int y, int width, int height, Text message,
+                             LivingLevelComponent stats, MinecraftClient client) {
+            super(x, y, width, height, message, stats, client);
+        }
+
+        @Override
+        protected int getBackgroundColor() {
+            return SLOT_COLOR;
+        }
+
+        @Override
+        protected int getHoverBackgroundColor() {
+            return HOVER_COLOR;
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+        }
     }
 }
