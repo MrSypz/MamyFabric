@@ -91,25 +91,6 @@ public class SkillManager {
                 .formatted(Formatting.GREEN), true);
     }
 
-    // Helper method to learn skills via commands or UI
-    public static boolean learnSkill(PlayerEntity player, Identifier skillId) {
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        PlayerClassManager classManager = classComponent.getClassManager();
-        ClassSkillManager skillManager = classManager.getSkillManager();
-
-        return skillManager.learnSkill(skillId, classManager);
-    }
-
-    // Helper method to upgrade skills
-    public static boolean upgradeSkill(PlayerEntity player, Identifier skillId) {
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        PlayerClassManager classManager = classComponent.getClassManager();
-        ClassSkillManager skillManager = classManager.getSkillManager();
-
-        return skillManager.upgradeSkill(skillId, classManager);
-    }
-    // Add this method to your SkillManager class:
-
     public static float getRemainingCooldownSeconds(PlayerEntity player, Identifier skillId) {
         String playerId = player.getUuidAsString();
         Map<Identifier, Long> playerCooldowns = PLAYER_COOLDOWNS.get(playerId);
@@ -126,11 +107,6 @@ public class SkillManager {
         }
 
         return (endTime - currentTime) / 1000.0f;
-    }
-
-    // Also add this helper method to check if a skill is on cooldown:
-    public static boolean isSkillOnCooldown(PlayerEntity player, Identifier skillId) {
-        return getRemainingCooldownSeconds(player, skillId) > 0;
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {

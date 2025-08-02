@@ -118,9 +118,6 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
     public int getSkillLevel(Identifier skillId) {
         return classManager.getSkillLevel(skillId);
     }
-    public boolean canUpgradeSkill(Identifier skillId) {
-        return classManager.getSkillManager().canUpgradeSkill(skillId);
-    }
 
     // ====================
     // LIFECYCLE

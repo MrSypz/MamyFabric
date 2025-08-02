@@ -145,7 +145,6 @@ public class SkillBindingScreen extends Screen {
     }
 
     private void setupScrollBehavior() {
-        // Set up scroll area for learned skills - adjust for dynamic height
         int scrollX = backgroundX + 10;
         int scrollY = backgroundY + 165;
         int scrollWidth = backgroundWidth - 20;
@@ -164,41 +163,8 @@ public class SkillBindingScreen extends Screen {
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
         DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
         DrawContextUtils.drawRect(context, backgroundX - 1, backgroundY - 1, backgroundWidth + 2, backgroundHeight + 2, PANEL_COLOR);
-        drawBorder(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight,0, 0xFF444444);
-//        drawBorder(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight, 0xFF444444);
+        context.drawBorder(backgroundX, backgroundY, backgroundWidth, backgroundHeight, 0xFF444444);
 
-    }
-    public void drawBorder(DrawContext context, int x, int y, int width, int height, int z, int color) {
-        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getGui());
-
-        // Top border
-        vertexConsumer.vertex(matrix4f, (float)x, (float)y, (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + 1), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + 1), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)y, (float)z).color(color);
-
-        // Bottom border
-        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height - 1), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height - 1), (float)z).color(color);
-
-        // Left border
-        vertexConsumer.vertex(matrix4f, (float)x, (float)y, (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + 1), (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + 1), (float)y, (float)z).color(color);
-
-        // Right border
-        vertexConsumer.vertex(matrix4f, (float)(x + width - 1), (float)y, (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width - 1), (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height), (float)z).color(color);
-        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)y, (float)z).color(color);
-        // tryDraw method
-        RenderSystem.disableDepthTest();
-        context.getVertexConsumers().draw();
-        RenderSystem.enableDepthTest();
     }
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {

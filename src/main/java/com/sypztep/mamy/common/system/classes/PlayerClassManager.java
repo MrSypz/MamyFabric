@@ -42,8 +42,8 @@ public class PlayerClassManager {
 
     public PlayerClassManager(PlayerEntity player) {
         this.player = player;
-        this.classLevelSystem = new ClassLevelSystem(player, currentClass);
         this.currentClass = ClassRegistry.getDefaultClass(); // NOVICE
+        this.classLevelSystem = new ClassLevelSystem(player, currentClass);
         this.currentResource = currentClass.getMaxResource();
         this.hasTranscended = false;
         this.skillManager = new ClassSkillManager(player);
@@ -147,7 +147,7 @@ public class PlayerClassManager {
         // Reset stats when changing class (but keep class level)
         resetStatsForClassChange();
 
-        // Notify skill manager about class change
+        // Notify skill manager about class change NOTE: Custom logic on the class
         skillManager.onClassChange(newClass.getId(), getClassLevel());
 
         // Notify player
@@ -387,15 +387,10 @@ public class PlayerClassManager {
             idleTicks = 0;
             isIdle = false;
         } else {
-            // Player is still
             idleTicks++;
-            if (idleTicks >= IDLE_THRESHOLD && !isIdle) {
+            if (idleTicks >= IDLE_THRESHOLD && !isIdle)
                 isIdle = true;
-                // Notify player about idle bonus
-                if (player instanceof ServerPlayerEntity serverPlayer) {
-                    serverPlayer.playSoundToPlayer(SoundEvent.of(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP.getId()),SoundCategory.NEUTRAL,1,1);
-                }
-            }
+
         }
 
         // Update tracking variables

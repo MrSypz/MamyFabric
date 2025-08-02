@@ -89,12 +89,10 @@ public class ClassLevelSystem extends LevelSystem {
     private long calculateXpForNextLevel(int level) {
         if (level < 1 || level >= getEffectiveMaxLevel()) return 0L;
 
-        // Use ModConfig exp map if level is within bounds, otherwise calculate
         if (level - 1 < ModConfig.EXP_MAP.length) {
             return ModConfig.EXP_MAP[level - 1];
         }
 
-        // Fallback calculation for levels beyond ModConfig
         return (long) (100 * Math.pow(1.1, level - 1));
     }
 
@@ -105,7 +103,6 @@ public class ClassLevelSystem extends LevelSystem {
 
     @Override
     public void setMaxLevel(short maxLevel) {
-        // Don't allow manual setting if we have a class
         if (currentClass == null) {
             this.maxLevel = maxLevel;
         }

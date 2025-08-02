@@ -5,7 +5,6 @@ import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -180,26 +179,6 @@ public class ClassSkillManager {
         return new HashSet<>(skillLevels.keySet());
     }
 
-    /**
-     * Check if a skill can be upgraded
-     */
-    public boolean canUpgradeSkill(Identifier skillId) {
-        if (!hasLearnedSkill(skillId)) return false;
-
-        Skill skill = SkillRegistry.getSkill(skillId);
-        if (skill == null) return false;
-
-        return getSkillLevel(skillId) < skill.getMaxSkillLevel();
-    }
-
-    /**
-     * Get the cost to upgrade a skill to the next level
-     */
-    public int getUpgradeCost(Identifier skillId) {
-        Skill skill = SkillRegistry.getSkill(skillId);
-        return skill != null ? skill.getUpgradeClassPointCost() : 0;
-    }
-
     // ====================
     // SKILL BINDING
     // ====================
@@ -231,33 +210,14 @@ public class ClassSkillManager {
     }
 
     // ====================
-    // UTILITY
-    // ====================
-
-    public int getLearnedSkillCount() {
-        return skillLevels.size();
-    }
-
-    public int getBoundSkillCount() {
-        return (int) Arrays.stream(boundSkills).filter(Objects::nonNull).count();
-    }
-
-    public boolean hasAnyBoundSkills() {
-        return getBoundSkillCount() > 0;
-    }
-
-    public List<Identifier> getUnboundSkills() {
-        List<Identifier> unbound = new ArrayList<>(skillLevels.keySet());
-        for (Identifier bound : boundSkills) {
-            unbound.remove(bound);
-        }
-        return unbound;
-    }
-
-    // ====================
     // CLASS CHANGE HANDLING
     // ====================
 
+    /**
+     * Custom logic to add the class skill
+     * @param newClassId
+     * @param level
+     */
     public void onClassChange(String newClassId, int level) {
         // No auto-learning on class change anymore
         // Players must manually learn skills with class points
