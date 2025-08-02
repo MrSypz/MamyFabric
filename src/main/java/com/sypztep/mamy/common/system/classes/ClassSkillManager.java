@@ -11,14 +11,11 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ClassSkillManager {
     private final PlayerEntity player;
-    private final List<Identifier> learnedSkills = new ArrayList<>();
+    private final Map<Identifier, Integer> skillLevels = new HashMap<>(); // Skill ID -> Level
     private final Identifier[] boundSkills = new Identifier[8]; // 8 skill slots
 
     public ClassSkillManager(PlayerEntity player) {
@@ -31,40 +28,140 @@ public class ClassSkillManager {
     // ====================
 
     private void initializeBasicSkills() {
-        // Auto-learn basic attack for all players
-        learnSkill(SkillRegistry.BASIC_ATTACK);
-
+        // Auto-learn basic attack for all players (free skill)
+        learnSkill(SkillRegistry.BASIC_ATTACK, true);
         // Bind basic attack to slot 0 (Z key)
         bindSkill(0, SkillRegistry.BASIC_ATTACK);
     }
 
     // ====================
-    // SKILL LEARNING
+    // SKILL LEARNING & UPGRADING
     // ====================
 
-    public boolean learnSkill(Identifier skillId) {
-        if (learnedSkills.contains(skillId)) return false;
+    /**
+     * Learn a skill at level 1 using class points
+     */
+    public boolean learnSkill(Identifier skillId, PlayerClassManager classManager) {
+        return learnSkill(skillId, false, classManager);
+    }
 
-        learnedSkills.add(skillId);
+    /**
+     * Learn a skill with option to make it free (for basic skills)
+     */
+    private boolean learnSkill(Identifier skillId, boolean free, PlayerClassManager classManager) {
+        if (hasLearnedSkill(skillId)) return false;
+
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return false;
+
+        if (!free) {
+            if (classManager == null) return false;
+
+            // Check if player's class can learn this skill
+            if (!skill.isAvailableForClass(classManager.getCurrentClass())) return false;
+
+            // Check if player has enough class points
+            int cost = skill.getBaseClassPointCost();
+            if (classManager.getClassStatPoints() < cost) return false;
+
+            // Spend class points
+            classManager.getClassLevelSystem().subtractStatPoints((short) cost);
+        }
+
+        skillLevels.put(skillId, 1);
+
+        if (player instanceof ServerPlayerEntity serverPlayer && !free) {
+            SendToastPayloadS2C.sendInfo(serverPlayer, "Learned: " + skill.getName());
+        }
+
         return true;
     }
 
-    public boolean hasLearnedSkill(Identifier skillId) {
-        return learnedSkills.contains(skillId);
-    }
-
-    public List<Identifier> getLearnedSkills() {
-        return new ArrayList<>(learnedSkills);
-    }
-
-    public void autoLearnClassSkills(String classId, int level) {
-        List<Skill> availableSkills = SkillRegistry.getSkillsForLevel(classId, level);
-
-        for (Skill skill : availableSkills) {
-            if (!hasLearnedSkill(skill.getId())) {
-                learnSkill(skill.getId());
-            }
+    /**
+     * Free learning method for basic skills
+     */
+    private boolean learnSkill(Identifier skillId, boolean free) {
+        if (hasLearnedSkill(skillId)) return false;
+        if (free) {
+            skillLevels.put(skillId, 1);
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Upgrade a skill to the next level using class points
+     */
+    public boolean upgradeSkill(Identifier skillId, PlayerClassManager classManager) {
+        if (!hasLearnedSkill(skillId)) return false;
+
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return false;
+
+        int currentLevel = getSkillLevel(skillId);
+        if (currentLevel >= skill.getMaxSkillLevel()) return false; // Already at max level
+
+        int cost = skill.getUpgradeClassPointCost();
+        if (classManager.getClassStatPoints() < cost) return false;
+
+        // Spend class points
+        classManager.getClassLevelSystem().subtractStatPoints((short) cost);
+        skillLevels.put(skillId, currentLevel + 1);
+
+        if (player instanceof ServerPlayerEntity serverPlayer) {
+            SendToastPayloadS2C.sendInfo(serverPlayer,
+                    "Upgraded " + skill.getName() + " to level " + (currentLevel + 1));
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if a skill is learned
+     */
+    public boolean hasLearnedSkill(Identifier skillId) {
+        return skillLevels.containsKey(skillId);
+    }
+
+    /**
+     * Get the level of a learned skill
+     */
+    public int getSkillLevel(Identifier skillId) {
+        return skillLevels.getOrDefault(skillId, 0);
+    }
+
+    /**
+     * Get all learned skills
+     */
+    public Set<Identifier> getLearnedSkills() {
+        return new HashSet<>(skillLevels.keySet());
+    }
+
+    /**
+     * Get all learned skills with their levels
+     */
+    public Map<Identifier, Integer> getSkillLevels() {
+        return new HashMap<>(skillLevels);
+    }
+
+    /**
+     * Check if a skill can be upgraded
+     */
+    public boolean canUpgradeSkill(Identifier skillId) {
+        if (!hasLearnedSkill(skillId)) return false;
+
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return false;
+
+        return getSkillLevel(skillId) < skill.getMaxSkillLevel();
+    }
+
+    /**
+     * Get the cost to upgrade a skill to the next level
+     */
+    public int getUpgradeCost(Identifier skillId) {
+        Skill skill = SkillRegistry.getSkill(skillId);
+        return skill != null ? skill.getUpgradeClassPointCost() : 0;
     }
 
     // ====================
@@ -75,7 +172,7 @@ public class ClassSkillManager {
         if (slot < 0 || slot >= 8) return false;
 
         if (skillId == null) {
-            boundSkills[slot] = null; // ← Make sure this works!
+            boundSkills[slot] = null;
             return true;
         }
 
@@ -106,7 +203,7 @@ public class ClassSkillManager {
     // ====================
 
     public int getLearnedSkillCount() {
-        return learnedSkills.size();
+        return skillLevels.size();
     }
 
     public int getBoundSkillCount() {
@@ -118,7 +215,7 @@ public class ClassSkillManager {
     }
 
     public List<Identifier> getUnboundSkills() {
-        List<Identifier> unbound = new ArrayList<>(learnedSkills);
+        List<Identifier> unbound = new ArrayList<>(skillLevels.keySet());
         for (Identifier bound : boundSkills) {
             unbound.remove(bound);
         }
@@ -130,24 +227,12 @@ public class ClassSkillManager {
     // ====================
 
     public void onClassChange(String newClassId, int level) {
-        autoLearnClassSkills(newClassId, level);
-    }
-
-    public void onLevelUp(String classId, int newLevel) {
-        List<Skill> newSkills = SkillRegistry.getSkillsUnlockedAtLevel(classId, newLevel);
-
-        for (Skill skill : newSkills) {
-            if (learnSkill(skill.getId())) {
-                if (player instanceof ServerPlayerEntity serverPlayer) {
-                    SendToastPayloadS2C.sendInfo(serverPlayer, "Learned new skill: " + skill.getName());
-                }
-            }
-        }
+        // No auto-learning on class change anymore
+        // Players must manually learn skills with class points
     }
 
     public void onTranscendence() {
         clearAllSkillSlots();
-
         // Re-bind basic attack
         bindSkill(0, SkillRegistry.BASIC_ATTACK);
     }
@@ -157,13 +242,14 @@ public class ClassSkillManager {
     // ====================
 
     public void writeToNbt(NbtCompound nbt) {
-        NbtList learnedSkillsNbt = new NbtList();
-        for (Identifier skillId : learnedSkills) {
-            learnedSkillsNbt.add(NbtString.of(skillId.toString()));
+        // Save skill levels
+        NbtCompound skillLevelsNbt = new NbtCompound();
+        for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet()) {
+            skillLevelsNbt.putInt(entry.getKey().toString(), entry.getValue());
         }
-        nbt.put("LearnedSkills", learnedSkillsNbt);
+        nbt.put("SkillLevels", skillLevelsNbt);
 
-        // Bound skills
+        // Save bound skills
         NbtList boundSkillsNbt = new NbtList();
         for (Identifier skillId : boundSkills) {
             if (skillId != null) {
@@ -176,40 +262,40 @@ public class ClassSkillManager {
     }
 
     public void readFromNbt(NbtCompound nbt) {
-        learnedSkills.clear();
-        Arrays.fill(boundSkills, null);
-
-        // Learned skills
-        if (nbt.contains("LearnedSkills")) {
-            NbtList learnedSkillsNbt = nbt.getList("LearnedSkills", NbtElement.STRING_TYPE);
-            for (int i = 0; i < learnedSkillsNbt.size(); i++) {
-                String skillIdStr = learnedSkillsNbt.getString(i);
+        // Read skill levels
+        skillLevels.clear();
+        if (nbt.contains("SkillLevels")) {
+            NbtCompound skillLevelsNbt = nbt.getCompound("SkillLevels");
+            for (String key : skillLevelsNbt.getKeys()) {
                 try {
-                    learnedSkills.add(Identifier.of(skillIdStr));
+                    Identifier skillId = Identifier.of(key);
+                    int level = skillLevelsNbt.getInt(key);
+                    skillLevels.put(skillId, level);
                 } catch (Exception e) {
-                    // Skip invalid skill IDs
+                    // Skip invalid entries
                 }
             }
         }
 
-        // Bound skills
+        // Read bound skills
+        Arrays.fill(boundSkills, null);
         if (nbt.contains("BoundSkills")) {
-            NbtList boundSkillsNbt = nbt.getList("BoundSkills", NbtElement.STRING_TYPE);
-            for (int i = 0; i < Math.min(boundSkillsNbt.size(), 8); i++) {
+            NbtList boundSkillsNbt = nbt.getList("BoundSkills", 8);
+            for (int i = 0; i < Math.min(boundSkillsNbt.size(), boundSkills.length); i++) {
                 String skillIdStr = boundSkillsNbt.getString(i);
                 if (!skillIdStr.isEmpty()) {
                     try {
                         boundSkills[i] = Identifier.of(skillIdStr);
                     } catch (Exception e) {
-                        // Skip invalid skill IDs
+                        // Skip invalid entries
                     }
                 }
             }
         }
 
-        // Ensure basic skills are always available
+        // Ensure basic attack is still learned
         if (!hasLearnedSkill(SkillRegistry.BASIC_ATTACK)) {
-            initializeBasicSkills();
+            learnSkill(SkillRegistry.BASIC_ATTACK, true);
         }
     }
 }

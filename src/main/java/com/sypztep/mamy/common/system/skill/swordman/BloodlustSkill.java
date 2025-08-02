@@ -12,12 +12,12 @@ public class BloodlustSkill extends Skill {
 
     public BloodlustSkill() {
         super(Mamy.id("bloodlust"), "Bloodlust", "Launch a blood projectile",
-                30f, 1, 3, ModClasses.SWORDMAN, 2,Mamy.id("skill/scythecooldown"));
+                30f, 1, ModClasses.SWORDMAN, 0,1,5,Mamy.id("skill/bloodlust"));
     }
 
     @Override
-    public boolean canUse(LivingEntity caster) {
-        return caster instanceof PlayerEntity && caster.getHealth() > 3.0f;
+    public boolean canUse(LivingEntity caster,int skillLevel) {
+        return caster instanceof PlayerEntity && caster.isAlive();
     }
 
     @Override

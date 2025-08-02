@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
@@ -10,9 +11,12 @@ import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 import sypztep.tyrannus.client.screen.widget.ScrollBehavior;
 import sypztep.tyrannus.client.util.DrawContextUtils;
 
@@ -39,7 +43,7 @@ public class SkillBindingScreen extends Screen {
     private int backgroundX, backgroundY;
     private int backgroundWidth, backgroundHeight; // Dynamic sizing
 
-    // Skill data
+    // Skill data - FIXED: Changed from List to ArrayList to handle Set conversion
     private List<Identifier> learnedSkills = new ArrayList<>();
     private Identifier[] boundSkills = new Identifier[8];
     private Identifier selectedSkill = null;
@@ -70,7 +74,8 @@ public class SkillBindingScreen extends Screen {
         if (client.player == null) return;
 
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        learnedSkills = classComponent.getLearnedSkills();
+        // FIXED: Convert Set to List
+        learnedSkills = new ArrayList<>(classComponent.getLearnedSkills());
         boundSkills = classComponent.getClassManager().getAllBoundSkills();
     }
 
@@ -79,8 +84,8 @@ public class SkillBindingScreen extends Screen {
         super.init();
 
         // Calculate responsive dimensions
-        backgroundWidth = Math.min(BASE_BACKGROUND_WIDTH, (int)(width * 0.9f)); // Max 90% of screen width
-        backgroundHeight = Math.min(BASE_BACKGROUND_HEIGHT, (int)(height * 0.9f)); // Max 90% of screen height
+        backgroundWidth = Math.min(BASE_BACKGROUND_WIDTH, (int)(width * 0.5f)); // Max 90% of screen width
+        backgroundHeight = Math.min(BASE_BACKGROUND_HEIGHT, (int)(height * 0.3f)); // Max 90% of screen height
 
         // Ensure minimum usable size
         backgroundWidth = Math.max(backgroundWidth, 280);
@@ -116,7 +121,6 @@ public class SkillBindingScreen extends Screen {
             addDrawableChild(slotButton);
         }
 
-        // Control buttons - adjust positioning based on actual background size
         closeButton = new ControlButton(
                 backgroundX + backgroundWidth - 60, backgroundY + backgroundHeight - 30,
                 50, 20, Text.literal("Close"), statsComponent, client
@@ -159,9 +163,43 @@ public class SkillBindingScreen extends Screen {
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
         DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
-        DrawContextUtils.drawRect(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight, PANEL_COLOR);
-    }
+        DrawContextUtils.drawRect(context, backgroundX - 1, backgroundY - 1, backgroundWidth + 2, backgroundHeight + 2, PANEL_COLOR);
+        drawBorder(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight,0, 0xFF444444);
+//        drawBorder(context, backgroundX, backgroundY, backgroundWidth, backgroundHeight, 0xFF444444);
 
+    }
+    public void drawBorder(DrawContext context, int x, int y, int width, int height, int z, int color) {
+        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+        VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getGui());
+
+        // Top border
+        vertexConsumer.vertex(matrix4f, (float)x, (float)y, (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + 1), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + 1), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)y, (float)z).color(color);
+
+        // Bottom border
+        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height - 1), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height - 1), (float)z).color(color);
+
+        // Left border
+        vertexConsumer.vertex(matrix4f, (float)x, (float)y, (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)x, (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + 1), (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + 1), (float)y, (float)z).color(color);
+
+        // Right border
+        vertexConsumer.vertex(matrix4f, (float)(x + width - 1), (float)y, (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width - 1), (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)(y + height), (float)z).color(color);
+        vertexConsumer.vertex(matrix4f, (float)(x + width), (float)y, (float)z).color(color);
+        // tryDraw method
+        RenderSystem.disableDepthTest();
+        context.getVertexConsumers().draw();
+        RenderSystem.enableDepthTest();
+    }
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
@@ -270,18 +308,31 @@ public class SkillBindingScreen extends Screen {
         DrawContextUtils.drawRect(context, x, y, SKILL_BUTTON_SIZE, SKILL_BUTTON_SIZE, skillColor);
         context.drawBorder(x, y, SKILL_BUTTON_SIZE, SKILL_BUTTON_SIZE, 0xFF444444);
 
-        // Draw skill content
+        // Draw skill content with level
         drawSkillInSlot(context, x + 1, y + 1, skillId);
+
+        // Draw skill level
+        if (client.player != null) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+            int skillLevel = classComponent.getSkillLevel(skillId);
+            if (skillLevel > 0) {
+                String levelText = String.valueOf(skillLevel);
+                context.drawText(textRenderer, Text.literal(levelText),
+                        x + SKILL_BUTTON_SIZE - textRenderer.getWidth(levelText) - 2,
+                        y + 2, 0xFFFFFF00, true);
+            }
+        }
 
         // Draw "bound" indicator if already bound
         if (isAlreadyBound) {
-            context.drawText(textRenderer, Text.literal("✔"), x + SKILL_BUTTON_SIZE -8, y + 2, 0xFFFFFF00, false);
+            context.drawText(textRenderer, Text.literal("✔"), x + 2, y + SKILL_BUTTON_SIZE - 10, 0xFF00FF00, false);
         }
     }
 
     private void drawSkillInSlot(DrawContext context, int x, int y, Identifier skillId) {
         drawSkillInSlot(context,x,y,6,skillId);
     }
+
     private void drawSkillInSlot(DrawContext context, int x, int y,int size, Identifier skillId) {
         if (skillId == null) return;
 
@@ -335,12 +386,29 @@ public class SkillBindingScreen extends Screen {
         if (hoveredSkill >= 0 && hoveredSkill < learnedSkills.size()) {
             Identifier skillId = learnedSkills.get(hoveredSkill);
             Skill skill = SkillRegistry.getSkill(skillId);
-            if (skill != null) {
+            if (skill != null && client.player != null) {
+                PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+                int skillLevel = classComponent.getSkillLevel(skillId);
+
                 List<Text> tooltip = new ArrayList<>();
-                tooltip.add(Text.literal(skill.getName()).formatted(Formatting.YELLOW));
-                tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.WHITE));
-                tooltip.add(Text.literal("Cost: " + skill.getResourceCost()).formatted(Formatting.BLUE));
-                tooltip.add(Text.literal("Cooldown: " + (skill.getCooldown() / 20) + "s").formatted(Formatting.AQUA));
+                tooltip.add(Text.literal(skill.getName() + " (Level " + skillLevel + "/" + skill.getMaxSkillLevel() + ")")
+                        .formatted(Formatting.YELLOW));
+                tooltip.add(Text.literal(skill.getDescription(skillLevel)).formatted(Formatting.WHITE));
+
+                // FIXED: Use skill level for cost and cooldown calculations
+                tooltip.add(Text.literal("Cost: " + String.format("%.1f", skill.getResourceCost(skillLevel)))
+                        .formatted(Formatting.BLUE));
+                tooltip.add(Text.literal("Cooldown: " + String.format("%.1f", skill.getCooldown(skillLevel)) + "s")
+                        .formatted(Formatting.AQUA));
+
+                // Show upgrade info if not max level
+                if (skillLevel < skill.getMaxSkillLevel()) {
+                    tooltip.add(Text.literal("Upgrade Cost: " + skill.getUpgradeClassPointCost() + " points")
+                            .formatted(Formatting.GOLD));
+                    tooltip.add(Text.literal("Next Level: " + String.format("%.1f", skill.getResourceCost(skillLevel + 1)) + " cost, " +
+                                    String.format("%.1f", skill.getCooldown(skillLevel + 1)) + "s cooldown")
+                            .formatted(Formatting.GREEN));
+                }
 
                 if (Arrays.asList(boundSkills).contains(skillId)) {
                     tooltip.add(Text.literal("Already bound").formatted(Formatting.GOLD));
@@ -481,14 +549,26 @@ public class SkillBindingScreen extends Screen {
             // Draw slot number
             String slotNum = String.valueOf(slotIndex + 1);
 
-
             // Draw skill content
             if (boundSkill != null) {
                 drawSkillInSlot(context, getX() + 1, getY() + 1, 3, boundSkill);
+
+                // Draw skill level
+                if (client.player != null) {
+                    PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+                    int skillLevel = classComponent.getSkillLevel(boundSkill);
+                    if (skillLevel > 0) {
+                        String levelText = String.valueOf(skillLevel);
+                        context.drawText(client.textRenderer, Text.literal(levelText),
+                                getX() + getWidth() - client.textRenderer.getWidth(levelText) - 2,
+                                getY() + getHeight() - 10, 0xFFFFFF00, true);
+                    }
+                }
             } else if (canBind && isHovered && previewSkill != null) {
-                drawSkillInSlot(context, getX() + 1, getY() + 1,3, previewSkill);
+                drawSkillInSlot(context, getX() + 1, getY() + 1, 3, previewSkill);
                 context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x4400FF00);
             }
+
             context.drawText(client.textRenderer, Text.literal(slotNum),
                     getX() + getWidth() - client.textRenderer.getWidth(slotNum) - 2,
                     getY() + 2, 0xFF888888, true);
@@ -538,9 +618,17 @@ public class SkillBindingScreen extends Screen {
 
             if (boundSkill != null) {
                 Skill skill = SkillRegistry.getSkill(boundSkill);
-                if (skill != null) {
-                    tooltip.add(Text.literal(skill.getName()).formatted(Formatting.WHITE));
-                    tooltip.add(Text.literal(skill.getDescription()).formatted(Formatting.GRAY));
+                if (skill != null && client.player != null) {
+                    PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
+                    int skillLevel = classComponent.getSkillLevel(boundSkill);
+
+                    tooltip.add(Text.literal(skill.getName() + " (Level " + skillLevel + ")")
+                            .formatted(Formatting.WHITE));
+                    tooltip.add(Text.literal(skill.getDescription(skillLevel)).formatted(Formatting.GRAY));
+                    tooltip.add(Text.literal("Cost: " + String.format("%.1f", skill.getResourceCost(skillLevel)))
+                            .formatted(Formatting.BLUE));
+                    tooltip.add(Text.literal("Cooldown: " + String.format("%.1f", skill.getCooldown(skillLevel)) + "s")
+                            .formatted(Formatting.AQUA));
                     tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.RED));
                 }
             } else {

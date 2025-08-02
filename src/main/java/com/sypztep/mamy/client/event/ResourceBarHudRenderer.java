@@ -13,7 +13,7 @@ public final class ResourceBarHudRenderer implements HudRenderCallback {
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        if (client.player == null || client.getDebugHud().shouldShowDebugHud() || client.currentScreen != null) {
+        if (client.player == null || client.currentScreen != null) {
             return;
         }
 

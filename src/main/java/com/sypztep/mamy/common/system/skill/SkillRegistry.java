@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.novice.BasicAttackSkill;
 import com.sypztep.mamy.common.system.skill.swordman.BloodlustSkill;
 import net.minecraft.util.Identifier;
@@ -56,11 +57,11 @@ public class SkillRegistry {
     }
 
     // ====================
-    // QUERY METHODS (เหมือน PassiveAbility)
+    // UPDATED QUERY METHODS
     // ====================
 
     /**
-     * Get skills for a specific class
+     * Get all skills available for a specific class
      */
     public static List<Skill> getSkillsForClass(String classId) {
         return SKILLS.values().stream()
@@ -70,47 +71,36 @@ public class SkillRegistry {
     }
 
     /**
-     * Get skills available at a specific level for a class
+     * Get all skills available for a specific class (by PlayerClass object)
      */
-    public static List<Skill> getSkillsForLevel(String classId, int level) {
-        return getSkillsForClass(classId).stream()
-                .filter(skill -> skill.getRequiredClassLevel() <= level)
+    public static List<Skill> getSkillsForClass(PlayerClass playerClass) {
+        return SKILLS.values().stream()
+                .filter(skill -> skill.isAvailableForClass(playerClass))
                 .toList();
     }
 
     /**
-     * Get skills that unlock at exactly this level
+     * Get skills that can be learned with the given class points
      */
-    public static List<Skill> getSkillsUnlockedAtLevel(String classId, int level) {
+    public static List<Skill> getAffordableSkills(String classId, int availableClassPoints) {
         return getSkillsForClass(classId).stream()
-                .filter(skill -> skill.getRequiredClassLevel() == level)
+                .filter(skill -> skill.getBaseClassPointCost() <= availableClassPoints)
                 .toList();
     }
 
     /**
-     * Get all unlockable skills for a class ordered by level
+     * Check if a skill exists and is valid
      */
-    public static List<Skill> getSkillsOrderedByLevel(String classId) {
+    public static boolean isValidSkill(Identifier skillId) {
+        return SKILLS.containsKey(skillId);
+    }
+
+    /**
+     * Get skills ordered by class point cost (cheaper first)
+     */
+    public static List<Skill> getSkillsOrderedByCost(String classId) {
         return getSkillsForClass(classId).stream()
-                .sorted(Comparator.comparingInt(Skill::getRequiredClassLevel))
+                .sorted(Comparator.comparingInt(Skill::getBaseClassPointCost))
                 .toList();
-    }
-
-    /**
-     * Check if any skills unlock at this level
-     */
-    public static boolean hasSkillsAtLevel(String classId, int level) {
-        return !getSkillsUnlockedAtLevel(classId, level).isEmpty();
-    }
-
-    /**
-     * Get next level that unlocks skills
-     */
-    public static int getNextSkillLevel(String classId, int currentLevel) {
-        return getSkillsForClass(classId).stream()
-                .mapToInt(Skill::getRequiredClassLevel)
-                .filter(level -> level > currentLevel)
-                .min()
-                .orElse(-1); // No more skills
     }
 }

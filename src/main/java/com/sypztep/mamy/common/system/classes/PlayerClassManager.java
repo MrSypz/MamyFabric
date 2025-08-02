@@ -19,6 +19,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
+import java.util.Set;
 
 public class PlayerClassManager {
     private final PlayerEntity player;
@@ -89,6 +90,7 @@ public class PlayerClassManager {
         return hasTranscended;
     }
 
+    // UPDATED: Removed auto skill learning
     public void addClassExperience(long amount) {
         if (amount <= 0) return;
 
@@ -98,7 +100,7 @@ public class PlayerClassManager {
 
         if (newLevel > oldLevel) {
             onClassLevelUp(newLevel);
-            skillManager.onLevelUp(currentClass.getId(), newLevel);
+            // REMOVED: skillManager.onLevelUp(currentClass.getId(), newLevel);
         }
     }
 
@@ -123,7 +125,6 @@ public class PlayerClassManager {
 
         if (newClass.isTranscendent() && newClass.canTranscendFrom(currentClass, getClassLevel()))
             return transcendToClass(newClass);
-
 
         // Normal evolution
         return normalEvolveToClass(newClass);
@@ -243,7 +244,7 @@ public class PlayerClassManager {
             Stat stat = levelComponent.getStatByType(statType);
             if (stat != null) {
                 stat.reset(player, classLevelSystem, false);
-                levelComponent.getLevelSystem().setStatPoints((short) (ModConfig.startStatpoints * 4)); // Trancendence start with 4 time point
+                levelComponent.getLevelSystem().setStatPoints((short) (ModConfig.startStatpoints * 4)); // Transcendence start with 4 time point
             }
         }
     }
@@ -252,21 +253,33 @@ public class PlayerClassManager {
         if (player instanceof ServerPlayerEntity serverPlayer)
             SendToastPayloadS2C.sendClassLevelUp(serverPlayer, newLevel, currentClass.getDisplayName());
     }
+
     // ====================
-    // SKILL SYSTEM DELEGATION - เพิ่มใหม่
+    // UPDATED SKILL SYSTEM DELEGATION
     // ====================
 
-    // Convenience methods - delegate to skill manager
+    // UPDATED: Now passes PlayerClassManager to use class points
     public boolean learnSkill(Identifier skillId) {
-        return skillManager.learnSkill(skillId);
+        return skillManager.learnSkill(skillId, this);
+    }
+
+    // NEW: For upgrading skills
+    public boolean upgradeSkill(Identifier skillId) {
+        return skillManager.upgradeSkill(skillId, this);
     }
 
     public boolean hasLearnedSkill(Identifier skillId) {
         return skillManager.hasLearnedSkill(skillId);
     }
 
-    public List<Identifier> getLearnedSkills() {
+    // UPDATED: Returns Set instead of List and uses getLearnedSkills()
+    public Set<Identifier> getLearnedSkills() {
         return skillManager.getLearnedSkills();
+    }
+
+    // NEW: Get skill level
+    public int getSkillLevel(Identifier skillId) {
+        return skillManager.getSkillLevel(skillId);
     }
 
     public boolean bindSkill(int slot, Identifier skillId) {
@@ -356,6 +369,7 @@ public class PlayerClassManager {
             }
         }
     }
+
     /**
      * Track player movement and actions to detect idle state
      */
@@ -372,8 +386,6 @@ public class PlayerClassManager {
             // Player is active
             idleTicks = 0;
             isIdle = false;
-            player.sendMessage(Text.literal("Idle Exit - Resource regeneration rate back to normal!")
-                    .formatted(Formatting.RED), true);
         } else {
             // Player is still
             idleTicks++;
@@ -381,8 +393,6 @@ public class PlayerClassManager {
                 isIdle = true;
                 // Notify player about idle bonus
                 if (player instanceof ServerPlayerEntity serverPlayer) {
-                    serverPlayer.sendMessage(Text.literal("Idle detected - Resource regeneration rate increased!")
-                            .formatted(Formatting.AQUA), true);
                     serverPlayer.playSoundToPlayer(SoundEvent.of(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP.getId()),SoundCategory.NEUTRAL,1,1);
                 }
             }
@@ -393,6 +403,7 @@ public class PlayerClassManager {
         lastYaw = currentYaw;
         lastPitch = currentPitch;
     }
+
     // ====================
     // LIFECYCLE
     // ====================
@@ -431,7 +442,7 @@ public class PlayerClassManager {
         nbt.putInt("IdleTicks", idleTicks);
         nbt.putBoolean("IsIdle", isIdle);
 
-        // Future: Save class skills
+        // Save class skills
         NbtCompound skillsTag = new NbtCompound();
         skillManager.writeToNbt(skillsTag);
         nbt.put("ClassSkills", skillsTag);

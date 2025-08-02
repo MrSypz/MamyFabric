@@ -3,6 +3,7 @@ package com.sypztep.mamy.client;
 import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
 import com.sypztep.mamy.client.screen.SkillBindingScreen;
+import com.sypztep.mamy.client.screen.SkillLearningScreen;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -23,6 +24,7 @@ public class ModKeyBindings {
     public static KeyBinding OPEN_PASSIVE_SCREEN;
     public static KeyBinding SWITCH_STANCE;
     public static KeyBinding OPEN_SKILL_BINDING;
+    public static KeyBinding OPEN_SKILL_LEARNING;
 
     // Skill Slots (8 total)
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -63,6 +65,13 @@ public class ModKeyBindings {
                 GLFW.GLFW_KEY_G,
                 "category.mamy.keys"
         ));
+        OPEN_SKILL_LEARNING = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.open_skill_learning",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_N, // K key
+                "category.mamy.keys"
+        ));
+
 
 
         // Skill Slots (8 total)
@@ -129,13 +138,13 @@ public class ModKeyBindings {
 
     private static void handleKeyInputs(MinecraftClient client) {
         if (client.player == null) return;
-
+        if (client.currentScreen != null) return;
         // UI Keys
-        if (OPEN_STAT_SCREEN.wasPressed() && client.currentScreen == null) {
+        if (OPEN_STAT_SCREEN.wasPressed()) {
             client.setScreen(new PlayerInfoScreen(client));
         }
 
-        if (OPEN_PASSIVE_SCREEN.wasPressed() && client.currentScreen == null) {
+        if (OPEN_PASSIVE_SCREEN.wasPressed()) {
             client.setScreen(new PassiveAbilityScreen(client));
         }
 
@@ -145,13 +154,15 @@ public class ModKeyBindings {
         if (OPEN_SKILL_BINDING.wasPressed()) {
             client.setScreen(new SkillBindingScreen(client));
         }
+        if (OPEN_SKILL_LEARNING.wasPressed()) {
+            client.setScreen(new SkillLearningScreen(client));
+        }
 
         // Skill Keys (only in combat stance)
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
-        if (!stanceComponent.isInCombatStance() || client.currentScreen != null) return;
-
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
 
+        if (!stanceComponent.isInCombatStance()) return;
         // Check all 8 skill slots
         if (SKILL_SLOT_1.wasPressed()) {
             useSkillSlot(classComponent, 0);
@@ -173,7 +184,7 @@ public class ModKeyBindings {
     }
 
     private static void useSkillSlot(PlayerClassComponent classComponent, int slot) {
-        Identifier skillId = classComponent.getClassManager().getBoundSkill(slot);
+        Identifier skillId = classComponent.getBoundSkill(slot);
         if (skillId != null) {
             UseSkillPayloadC2S.send(skillId);
         }

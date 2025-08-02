@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class PassiveAbilityScreen extends Screen {
+public final class PassiveAbilityScreen extends Screen {
     // Animation constants
     private static final float ANIMATION_DURATION = 0.8f;
     private static final float FINAL_Y_OFFSET = 30.0f;

@@ -11,8 +11,7 @@ import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingComponent {
     private final PlayerEntity player;
@@ -44,11 +43,11 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         performBatchUpdate(() -> classManager.addClassExperience(amount));
     }
 
+    // FIXED: Removed auto skill learning
     public void setLevel(short level) {
         performBatchUpdate(() -> {
             classManager.getClassLevelSystem().setLevel(level);
             classManager.getClassLevelSystem().setExperience(0);
-            classManager.getSkillManager().onLevelUp(classManager.getCurrentClass().getId(), level);
         });
     }
 
@@ -66,6 +65,7 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         performBatchUpdate(() -> result[0] = classManager.useResource(amount));
         return result[0];
     }
+
     public void addResource(float amount) {
         performBatchUpdate(() -> classManager.addResource(amount));
     }
@@ -80,11 +80,19 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         return result[0];
     }
 
+    // NEW: Upgrade skill method
+    public boolean upgradeSkill(Identifier skillId) {
+        boolean[] result = {false};
+        performBatchUpdate(() -> result[0] = classManager.upgradeSkill(skillId));
+        return result[0];
+    }
+
     public boolean bindSkill(int slot, Identifier skillId) {
         boolean[] result = {false};
         performBatchUpdate(() -> result[0] = classManager.bindSkill(slot, skillId));
         return result[0];
     }
+
     // ====================
     // INTERNAL METHODS (NO SYNC) - for batch operations
     // ====================
@@ -93,12 +101,17 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         return classManager.getBoundSkill(slot);
     }
 
-    public List<Identifier> getLearnedSkills() {
+    public Set<Identifier> getLearnedSkills() {
         return classManager.getLearnedSkills();
     }
 
     public boolean hasLearnedSkill(Identifier skillId) {
         return classManager.hasLearnedSkill(skillId);
+    }
+
+    // NEW: Get skill level for UI display
+    public int getSkillLevel(Identifier skillId) {
+        return classManager.getSkillLevel(skillId);
     }
 
     // ====================
