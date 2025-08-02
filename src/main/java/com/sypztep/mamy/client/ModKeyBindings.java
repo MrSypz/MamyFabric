@@ -139,7 +139,8 @@ public class ModKeyBindings {
     private static void handleKeyInputs(MinecraftClient client) {
         if (client.player == null) return;
         if (client.currentScreen != null) return;
-        // UI Keys
+
+        // UI Keys (these work regardless of stance)
         if (OPEN_STAT_SCREEN.wasPressed()) {
             client.setScreen(new PlayerInfoScreen(client));
         }
@@ -151,34 +152,44 @@ public class ModKeyBindings {
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
         }
+
         if (OPEN_SKILL_BINDING.wasPressed()) {
             client.setScreen(new SkillBindingScreen(client));
         }
+
         if (OPEN_SKILL_LEARNING.wasPressed()) {
             client.setScreen(new SkillLearningScreen(client));
         }
 
-        // Skill Keys (only in combat stance)
+        // Get components
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
 
-        if (!stanceComponent.isInCombatStance()) return;
-        // Check all 8 skill slots
-        if (SKILL_SLOT_1.wasPressed()) {
+        boolean inCombatStance = stanceComponent.isInCombatStance();
+
+        // Always check skill keys to consume the input, but only execute if in combat stance
+        if (SKILL_SLOT_1.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 0);
-        } else if (SKILL_SLOT_2.wasPressed()) {
+        }
+        if (SKILL_SLOT_2.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 1);
-        } else if (SKILL_SLOT_3.wasPressed()) {
+        }
+        if (SKILL_SLOT_3.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 2);
-        } else if (SKILL_SLOT_4.wasPressed()) {
+        }
+        if (SKILL_SLOT_4.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 3);
-        } else if (SKILL_SLOT_5.wasPressed()) {
+        }
+        if (SKILL_SLOT_5.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 4);
-        } else if (SKILL_SLOT_6.wasPressed()) {
+        }
+        if (SKILL_SLOT_6.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 5);
-        } else if (SKILL_SLOT_7.wasPressed()) {
+        }
+        if (SKILL_SLOT_7.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 6);
-        } else if (SKILL_SLOT_8.wasPressed()) {
+        }
+        if (SKILL_SLOT_8.wasPressed() && inCombatStance) {
             useSkillSlot(classComponent, 7);
         }
     }

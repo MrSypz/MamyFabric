@@ -2,7 +2,6 @@ package com.sypztep.mamy.common.system.skill.novice;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.system.classes.ClassRegistry;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import net.minecraft.entity.LivingEntity;

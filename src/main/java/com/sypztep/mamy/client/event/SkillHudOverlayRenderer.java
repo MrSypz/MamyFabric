@@ -68,12 +68,13 @@ public class SkillHudOverlayRenderer {
         boolean currentCombatStance = stanceComponent.isInCombatStance();
         if (currentCombatStance != lastCombatStance) {
             if (currentCombatStance) {
-                // Entering combat stance - show skill hotbar
+                // Entering combat stance - show skill hotbar immediately
                 shouldBeVisible = true;
                 hideTimer = 0.0f; // Reset hide timer
             } else {
-                // Exiting combat stance - start hide timer
-                hideTimer = AUTO_HIDE_DELAY;
+                // Exiting combat stance - hide immediately (no delay)
+                shouldBeVisible = false;
+                hideTimer = 0.0f;
             }
             lastCombatStance = currentCombatStance;
         }
@@ -93,21 +94,13 @@ public class SkillHudOverlayRenderer {
 
         // Only render skill hotbar if it's at least partially visible
         if (fadeOffset < 1.0f) {
-            renderSkillHotbar(context, classComponent, tickCounter.getTickDelta(false));
+            renderSkillHotbar(context, classComponent);
         }
     }
 
     private static void updateAnimations(float deltaTime) {
-        // Handle auto-hide functionality when not in combat
-        if (hideTimer > 0) {
-            hideTimer -= deltaTime;
-            if (hideTimer <= 0) shouldBeVisible = false;
-        }
-
-        // Calculate target fade offset
         float targetFadeOffset = shouldBeVisible ? 0.0f : 1.0f;
 
-        // Smooth fade animation
         float fadeSpeed = 1.0f / FADE_DURATION;
         if (fadeOffset != targetFadeOffset) {
             float direction = targetFadeOffset > fadeOffset ? 1.0f : -1.0f;
@@ -132,7 +125,7 @@ public class SkillHudOverlayRenderer {
         context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
     }
 
-    private static void renderSkillHotbar(DrawContext context, PlayerClassComponent classComponent, float partialTicks) {
+    private static void renderSkillHotbar(DrawContext context, PlayerClassComponent classComponent) {
         int screenWidth = context.getScaledWindowWidth();
         int screenHeight = context.getScaledWindowHeight();
 
@@ -169,7 +162,7 @@ public class SkillHudOverlayRenderer {
             int slotY = hotbarStartY + (int) (i * SKILL_SLOT_SPACING * (1.0f - fadeOffset * 0.1f)); // Slight spacing animation
             // Make sure slot is visible on screen
             if (slotY + SKILL_SLOT_SIZE <= screenHeight - 10) {
-                renderSkillSlot(context, animatedHotbarX, slotY, i, boundSkills[i], partialTicks, alpha);
+                renderSkillSlot(context, animatedHotbarX, slotY, i, boundSkills[i], alpha, classComponent);
             }
         }
 
@@ -178,7 +171,7 @@ public class SkillHudOverlayRenderer {
         RenderSystem.disableBlend();
     }
 
-    private static void renderSkillSlot(DrawContext context, int x, int y, int slotIndex, Identifier skillId, float partialTicks, float alpha) {
+    private static void renderSkillSlot(DrawContext context, int x, int y, int slotIndex, Identifier skillId, float alpha, PlayerClassComponent classComponent) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         // Check if this keybinding is currently pressed
@@ -196,10 +189,10 @@ public class SkillHudOverlayRenderer {
         if (skillId != null) {
             Skill skill = SkillRegistry.getSkill(skillId);
             if (skill != null) {
-                renderSkillIcon(context, x + 3, y + 3, skill, partialTicks);
+                renderSkillIcon(context, x + 3, y + 3, skill);
 
                 // Show cooldown overlay if applicable
-                renderCooldownOverlay(context, x + 3, y + 3, skill, partialTicks);
+                renderCooldownOverlay(context, x + 3, y + 3, skill, classComponent);
             }
         }
 
@@ -229,7 +222,7 @@ public class SkillHudOverlayRenderer {
                 y + 2, finalSlotNumColor, false);
     }
 
-    private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill, float partialTicks) {
+    private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         // Try to render skill icon first
@@ -251,16 +244,18 @@ public class SkillHudOverlayRenderer {
         }
     }
 
-    private static void renderCooldownOverlay(DrawContext context, int x, int y, Skill skill, float partialTicks) {
+    private static void renderCooldownOverlay(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (client.player == null) return;
 
+        // Pass currentTick to the cooldown method
         float remainingCooldown = SkillManager.getRemainingCooldownSeconds(client.player, skill.getId());
 
         int availableSpace = SKILL_SLOT_SIZE - 6;
+        int skillLevel = classComponent.getSkillLevel(skill.getId());
         if (remainingCooldown > 0) {
-            float cooldownProgress = remainingCooldown / skill.getCooldown(1); // Level 1 for now
+            float cooldownProgress = remainingCooldown / skill.getCooldown(skillLevel);
             int overlayHeight = (int) (availableSpace * cooldownProgress);
 
             // Draw semi-transparent cooldown overlay

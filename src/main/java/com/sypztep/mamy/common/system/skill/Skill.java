@@ -72,14 +72,4 @@ public abstract class Skill {
     public int getUpgradeClassPointCost() { return upgradeClassPointCost; }
     public int getMaxSkillLevel() { return maxSkillLevel; }
     public Identifier getIcon() { return icon; }
-
-    // Backward compatibility for existing methods
-//    @Deprecated
-//    public float getResourceCost() { return getResourceCost(1); }
-//    @Deprecated
-//    public float getCooldown() { return getCooldown(1); }
-//    @Deprecated
-//    public boolean canUse(LivingEntity caster) { return canUse(caster, 1); }
-//    @Deprecated
-//    public void use(LivingEntity caster, int level) { use(caster, level); }
 }

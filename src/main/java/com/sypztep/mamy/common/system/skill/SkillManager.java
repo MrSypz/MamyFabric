@@ -21,13 +21,6 @@ public class SkillManager {
     public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
 
-        PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(player);
-        if (!stanceComponent.isInCombatStance()) {
-            player.sendMessage(Text.literal("You must be in combat stance to use skills!")
-                    .formatted(Formatting.RED), true);
-            return;
-        }
-
         Skill skill = SkillRegistry.getSkill(skillId);
         if (skill == null) {
             player.sendMessage(Text.literal("Unknown skill: " + skillId)

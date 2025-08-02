@@ -17,6 +17,8 @@
     "vanilla.vitality.LivingEntityMixin"
   ],
   "client": [
+    "core.altfeature.KeyboardMixin",
+    "core.altfeature.MouseMixin",
     "feature.screenanimation.CameraMixin",
     "feature.screenanimation.GameRendererMixin",
     "vanilla.strength.client.ItemStackMixin"

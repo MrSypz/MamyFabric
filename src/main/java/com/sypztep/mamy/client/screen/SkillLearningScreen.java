@@ -31,7 +31,6 @@ public class SkillLearningScreen extends Screen {
     private static final int BACKGROUND_COLOR = 0xF0121212;
     private static final int PANEL_COLOR = 0xFF1E1E1E;
     private static final int LEARNED_COLOR = 0xFF4CAF50;
-    private static final int NOT_LEARNED_COLOR = 0xFF424242;
     private static final int CAN_LEARN_COLOR = 0xFFFFD700;  // Gold for learnable
     private static final int DOT_LEARNED_COLOR = 0xFF4CAF50;
     private static final int DOT_UNLEARNED_COLOR = 0xFF666666;

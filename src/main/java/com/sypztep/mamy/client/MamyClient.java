@@ -24,5 +24,7 @@ public class  MamyClient implements ClientModInitializer {
         ResourceBarHudRenderer.register();
         SkillHudOverlayRenderer.register();
         SkillBoundingRenderer.register();
+        OverlayMouseHandler.register();
+
     }
 }
