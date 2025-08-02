@@ -258,14 +258,14 @@ public class PlayerClassManager {
     // UPDATED SKILL SYSTEM DELEGATION
     // ====================
 
-    // UPDATED: Now passes PlayerClassManager to use class points
     public boolean learnSkill(Identifier skillId) {
         return skillManager.learnSkill(skillId, this);
     }
-
-    // NEW: For upgrading skills
     public boolean upgradeSkill(Identifier skillId) {
         return skillManager.upgradeSkill(skillId, this);
+    }
+    public boolean unlearnSkill(Identifier skillId) {
+        return skillManager.unlearnSkill(skillId, this);
     }
 
     public boolean hasLearnedSkill(Identifier skillId) {

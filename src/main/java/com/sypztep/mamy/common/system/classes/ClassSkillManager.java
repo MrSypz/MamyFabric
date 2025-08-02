@@ -77,6 +77,49 @@ public class ClassSkillManager {
         return true;
     }
 
+    public boolean unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
+        if (!hasLearnedSkill(skillId)) return false;
+
+        // Don't allow unlearning basic attack TODO : change to be default skill instead of hardcode
+        if (skillId.equals(SkillRegistry.BASIC_ATTACK)) return false;
+
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return false;
+
+        int currentLevel = getSkillLevel(skillId);
+        if (currentLevel <= 1) {
+            // Remove skill completely if at level 1
+            skillLevels.remove(skillId);
+
+            // Unbind from all slots
+            for (int i = 0; i < boundSkills.length; i++) {
+                if (skillId.equals(boundSkills[i])) {
+                    boundSkills[i] = null;
+                }
+            }
+
+            // Return the base learning cost
+            classManager.getClassLevelSystem().addStatPoints((short) skill.getBaseClassPointCost());
+        } else {
+            // Reduce skill level by 1
+            skillLevels.put(skillId, currentLevel - 1);
+
+            // Return the upgrade cost
+            classManager.getClassLevelSystem().addStatPoints((short) skill.getUpgradeClassPointCost());
+        }
+
+        if (player instanceof ServerPlayerEntity serverPlayer) {
+            if (currentLevel <= 1) {
+                SendToastPayloadS2C.sendInfo(serverPlayer, "Unlearned: " + skill.getName());
+            } else {
+                SendToastPayloadS2C.sendInfo(serverPlayer,
+                        skill.getName() + " downgraded to level " + (currentLevel - 1));
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Free learning method for basic skills
      */
@@ -138,13 +181,6 @@ public class ClassSkillManager {
     }
 
     /**
-     * Get all learned skills with their levels
-     */
-    public Map<Identifier, Integer> getSkillLevels() {
-        return new HashMap<>(skillLevels);
-    }
-
-    /**
      * Check if a skill can be upgraded
      */
     public boolean canUpgradeSkill(Identifier skillId) {
@@ -188,10 +224,6 @@ public class ClassSkillManager {
 
     public Identifier[] getAllBoundSkills() {
         return Arrays.copyOf(boundSkills, boundSkills.length);
-    }
-
-    public void clearSkillSlot(int slot) {
-        bindSkill(slot, null);
     }
 
     public void clearAllSkillSlots() {

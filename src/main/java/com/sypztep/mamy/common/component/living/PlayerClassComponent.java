@@ -86,6 +86,11 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
         performBatchUpdate(() -> result[0] = classManager.upgradeSkill(skillId));
         return result[0];
     }
+    public boolean unlearnSkill(Identifier skillId) {
+        boolean[] result = {false};
+        performBatchUpdate(() -> result[0] = classManager.unlearnSkill(skillId));
+        return result[0];
+    }
 
     public boolean bindSkill(int slot, Identifier skillId) {
         boolean[] result = {false};
@@ -112,6 +117,9 @@ public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingC
     // NEW: Get skill level for UI display
     public int getSkillLevel(Identifier skillId) {
         return classManager.getSkillLevel(skillId);
+    }
+    public boolean canUpgradeSkill(Identifier skillId) {
+        return classManager.getSkillManager().canUpgradeSkill(skillId);
     }
 
     // ====================

@@ -4,8 +4,7 @@ import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.LearnSkillPayloadC2S;
-import com.sypztep.mamy.common.payload.UpgradeSkillPayloadC2S;
+import com.sypztep.mamy.common.payload.SkillActionPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -356,18 +355,14 @@ public class SkillLearningScreen extends Screen {
 
             if (button == 0) { // Left click - Learn/Upgrade
                 if (canLearn) {
-                    LearnSkillPayloadC2S.send(skill.getId());
+                    SkillActionPayloadC2S.sendLearn(skill.getId());
                 } else if (canUpgrade) {
-                    UpgradeSkillPayloadC2S.send(skill.getId());
+                    SkillActionPayloadC2S.sendUpgrade(skill.getId());
                 }
                 return true;
             } else if (button == 1) { // Right click - Unlearn
                 if (isLearned) {
-                    // TODO: Add UnlearnSkillPayloadC2S.send(skill.getId());
-                    if (client.player != null) {
-                        client.player.sendMessage(Text.literal("Unlearning not implemented yet!")
-                                .formatted(Formatting.RED), false);
-                    }
+                    SkillActionPayloadC2S.sendUnlearn(skill.getId());
                 }
                 return true;
             }
