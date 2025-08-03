@@ -79,13 +79,15 @@ public class ClassSkillManager {
     public boolean unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
         if (!hasLearnedSkill(skillId)) return false;
 
-        // Don't allow unlearning basic attack TODO : change to be default skill instead of hardcode
-        if (skillId.equals(SkillRegistry.BASIC_ATTACK)) return false;
-
         Skill skill = SkillRegistry.getSkill(skillId);
+        int currentLevel = getSkillLevel(skillId);
+
         if (skill == null) return false;
 
-        int currentLevel = getSkillLevel(skillId);
+        if (skill.isDefaultSkill() && currentLevel <= 1) {
+            return false; // Can't unlearn default skills completely
+        }
+
         if (currentLevel <= 1) {
             // Remove skill completely if at level 1
             skillLevels.remove(skillId);

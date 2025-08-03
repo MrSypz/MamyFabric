@@ -14,11 +14,12 @@ public abstract class Skill {
     protected final int baseClassPointCost; // Cost to learn the skill
     protected final int upgradeClassPointCost; // Cost to upgrade per level
     protected final int maxSkillLevel; // Maximum skill level (upgradeable)
+    private final boolean isDefaultSkill;
     protected final Identifier icon;
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown, PlayerClass requiredClass, int baseClassPointCost,
-                 int upgradeClassPointCost, int maxSkillLevel, Identifier icon) {
+                 int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,14 +29,15 @@ public abstract class Skill {
         this.baseClassPointCost = baseClassPointCost;
         this.upgradeClassPointCost = upgradeClassPointCost;
         this.maxSkillLevel = maxSkillLevel;
+        this.isDefaultSkill = isDefaultSkill;
         this.icon = icon;
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown, PlayerClass requiredClass, int baseClassPointCost,
-                 int upgradeClassPointCost, int maxSkillLevel) {
+                 int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill) {
         this(id, name, description, baseResourceCost, baseCooldown, requiredClass,
-                baseClassPointCost, upgradeClassPointCost, maxSkillLevel, null);
+                baseClassPointCost, upgradeClassPointCost, maxSkillLevel, isDefaultSkill, null);
     }
 
     // Abstract methods
@@ -72,4 +74,5 @@ public abstract class Skill {
     public int getUpgradeClassPointCost() { return upgradeClassPointCost; }
     public int getMaxSkillLevel() { return maxSkillLevel; }
     public Identifier getIcon() { return icon; }
+    public boolean isDefaultSkill() { return isDefaultSkill; }
 }
