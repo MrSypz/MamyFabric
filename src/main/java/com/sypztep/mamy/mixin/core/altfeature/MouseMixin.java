@@ -1,6 +1,5 @@
 package com.sypztep.mamy.mixin.core.altfeature;
 
-import com.sypztep.mamy.client.event.HotbarIconOverlayRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -15,18 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MouseMixin {
     @Shadow @Final private MinecraftClient client;
 
-    @Shadow public abstract double getX();
-
-    @Shadow public abstract double getY();
-
     @Inject(method = "onMouseButton", at = @At("HEAD"), cancellable = true)
     private void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
         if (IconOverlayManager.isOverlayMode() && action == 1) { // GLFW_PRESS
-            double mouseX = this.getX();
-            double mouseY = this.getY();
-
             if (button == 0) {
-                if (IconOverlayManager.handleIconClick(mouseX, mouseY, client)) {
+                if (IconOverlayManager.handleIconClick(this.client)) {
                     ci.cancel();
                     return;
                 }
