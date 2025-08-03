@@ -13,20 +13,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 public class SkillHudOverlayRenderer {
     // Skill hotbar constants
     private static final int SKILL_SLOT_SIZE = 22;
     private static final int SKILL_SLOT_SPACING = 22;
     private static final int HOTBAR_MARGIN_BOTTOM = 30;
-    private static final int MIN_SKILL_SLOT_SPACING = 16; // Minimum spacing for small screens
-    private static final int MAX_SCROLL_OFFSET = 4; // Max slots to scroll
 
+    // Animation constants
     private static final float FADE_DURATION = 0.5f; // 0.5 second fade in/out
     private static final float AUTO_HIDE_DELAY = 8.0f; // Hide after 8 seconds of non-combat
 
@@ -45,12 +42,6 @@ public class SkillHudOverlayRenderer {
     private static float hideTimer = 0.0f;
     private static boolean shouldBeVisible = false;
     private static boolean lastCombatStance = false;
-
-
-    // NEW: Scrolling state
-    private static int scrollOffset = 0; // How many slots to offset
-    private static long lastScrollTime = 0; // Prevent rapid scrolling
-
 
     public static void register() {
         // Initialize keybinding references
@@ -134,55 +125,21 @@ public class SkillHudOverlayRenderer {
         context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
     }
 
-    // NEW: Handle page up/down scrolling
-    private static void handleScrollInput(MinecraftClient client) {
-        if (client.player == null || !shouldBeVisible) return;
-
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastScrollTime < 200) return; // 200ms cooldown
-
-        // Check for page up/down keys
-        boolean pageUp = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_PAGE_UP);
-        boolean pageDown = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_PAGE_DOWN);
-
-        if (pageUp && scrollOffset > 0) {
-            scrollOffset = Math.max(0, scrollOffset - 1);
-            lastScrollTime = currentTime;
-        } else if (pageDown && scrollOffset < MAX_SCROLL_OFFSET) {
-            scrollOffset = Math.min(MAX_SCROLL_OFFSET, scrollOffset + 1);
-            lastScrollTime = currentTime;
-        }
-    }
-
     private static void renderSkillHotbar(DrawContext context, PlayerClassComponent classComponent) {
         int screenWidth = context.getScaledWindowWidth();
         int screenHeight = context.getScaledWindowHeight();
 
-        // Calculate available space
+        // Calculate hotbar position - fit properly on screen
+        int totalHotbarHeight = 8 * SKILL_SLOT_SPACING;
         int availableHeight = screenHeight - HOTBAR_MARGIN_BOTTOM * 2;
-        int totalSlotsHeight = 8 * SKILL_SLOT_SPACING;
 
-        // Determine if we need compact mode or scrolling
-        boolean needsCompactMode = totalSlotsHeight > availableHeight;
-        int actualSpacing = needsCompactMode ?
-                Math.max(MIN_SKILL_SLOT_SPACING, (availableHeight - SKILL_SLOT_SIZE) / 7) :
-                SKILL_SLOT_SPACING;
-
-        // Calculate starting position
-        int hotbarStartY;
-        if (needsCompactMode) {
-            // Center the compact hotbar
-            int compactHeight = 7 * actualSpacing + SKILL_SLOT_SIZE;
-            hotbarStartY = (screenHeight - compactHeight) / 2;
-        } else {
-            // Use normal positioning
-            hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM,
-                    screenHeight - HOTBAR_MARGIN_BOTTOM - totalSlotsHeight);
-        }
+        // Ensure hotbar fits on screen
+        int hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM,
+                screenHeight - HOTBAR_MARGIN_BOTTOM - totalHotbarHeight);
 
         // Position hotbar slots at the right edge of screen with fade animation
         int baseHotbarX = screenWidth - SKILL_SLOT_SIZE + 1;
-        int fadeDistance = 50;
+        int fadeDistance = 50; // Distance to slide in from
         int animatedHotbarX = baseHotbarX + (int) (fadeOffset * fadeDistance);
 
         // Calculate overall alpha for fade effect
@@ -198,37 +155,12 @@ public class SkillHudOverlayRenderer {
         // Apply global alpha for fade effect
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
 
-        // NEW: Always render all 8 slots with scrolling support
-        for (int i = 0; i < 8; i++) {
-            // Calculate actual slot index with scroll offset
-            int actualSlotIndex = (i + scrollOffset) % 8;
+        // Render each skill slot vertically (only as many as fit on screen)
+        int maxSlotsToShow = 8;
 
-            int slotY = hotbarStartY + (int) (i * actualSpacing * (1.0f - fadeOffset * 0.1f));
-
-            // Only render if slot is within screen bounds
-            if (slotY >= 0 && slotY + SKILL_SLOT_SIZE <= screenHeight) {
-                renderSkillSlot(context, animatedHotbarX, slotY, actualSlotIndex,
-                        boundSkills[actualSlotIndex], alpha, classComponent);
-            }
-        }
-
-        // NEW: Render scroll indicators if scrolling is needed
-        if (needsCompactMode && scrollOffset > 0) {
-            // Up arrow indicator
-            String upArrow = "▲";
-            int arrowX = animatedHotbarX + SKILL_SLOT_SIZE + 5;
-            int arrowY = hotbarStartY - 15;
-            context.drawText(MinecraftClient.getInstance().textRenderer,
-                    Text.literal(upArrow), arrowX, arrowY, 0xFFFFFF00, true);
-        }
-
-        if (needsCompactMode && scrollOffset < MAX_SCROLL_OFFSET) {
-            // Down arrow indicator
-            String downArrow = "▼";
-            int arrowX = animatedHotbarX + SKILL_SLOT_SIZE + 5;
-            int arrowY = hotbarStartY + (7 * actualSpacing) + SKILL_SLOT_SIZE + 5;
-            context.drawText(MinecraftClient.getInstance().textRenderer,
-                    Text.literal(downArrow), arrowX, arrowY, 0xFFFFFF00, true);
+        for (int i = 0; i < maxSlotsToShow; i++) {
+            int slotY = hotbarStartY + (int) (i * SKILL_SLOT_SPACING * (1.0f - fadeOffset * 0.1f)); // Slight spacing animation
+            renderSkillSlot(context, animatedHotbarX, slotY, i, boundSkills[i], alpha, classComponent);
         }
 
         // Reset shader color
