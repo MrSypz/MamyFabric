@@ -2,6 +2,7 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.client.event.*;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
+import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModPayloads;
@@ -24,7 +25,9 @@ public class  MamyClient implements ClientModInitializer {
         ResourceBarHudRenderer.register();
         SkillHudOverlayRenderer.register();
         SkillBoundingRenderer.register();
-        OverlayMouseHandler.register();
+        HotbarIconOverlayRenderer.register();
+
+        IconOverlayManager.initialize(); // Only call once
 
     }
 }

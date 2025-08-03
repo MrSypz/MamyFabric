@@ -17,7 +17,7 @@ import sypztep.tyrannus.client.util.DrawContextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillLearningScreen extends Screen {
+public final class SkillLearningScreen extends Screen {
     // UI constants
     private static final int CONTENT_PADDING = 50;
     private static final int SUMMARY_HEIGHT = 35;

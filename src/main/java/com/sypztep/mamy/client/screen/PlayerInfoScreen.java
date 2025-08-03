@@ -43,7 +43,6 @@ public final class PlayerInfoScreen extends Screen {
     private List<IncreasePointButton> increaseButtons;
     private List<Text> texts;
     private final CyclingTextIcon cyclingTextIcon;
-    private SmoothProgressBar progessBar;  // Keep original spelling
     private final ScrollableTextList playerInfo;
 
     private final int buttonHeight = 16;
@@ -181,7 +180,6 @@ public final class PlayerInfoScreen extends Screen {
         super.init();
         this.verticalAnimation = new Animation(ANIMATION_DURATION); // Single play for vertical animation
         this.fadeAnimation = new Animation(ANIMATION_DURATION); // Single play for fade animation
-        this.progessBar = new SmoothProgressBar(ANIMATION_DURATION * 1.4f, false, 400, 2);
         increaseButtons = new ArrayList<>(); // Initialize the list to hold buttons
 
         int y = 50;
@@ -206,19 +204,12 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.renderBackground(context, mouseX, mouseY, delta);
-    }
-
-    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         assert client != null;
-        this.renderBackground(context, mouseX, mouseY, delta);
         updateValues(client);
-
+        DrawContextUtils.fillScreenVerticalRatio(context,0xFC141414,0,0xFC141414);
         verticalAnimation.update(delta);
         fadeAnimation.update(delta);
-        progessBar.update(delta);
 
         int screenWidth = this.width;
         int screenHeight = this.height;
@@ -346,7 +337,7 @@ public final class PlayerInfoScreen extends Screen {
     private void renderBenefitPoint(DrawContext context, int screenWidth, int screenHeight, float fadeProgress) {
         int remainingPoints = playerStats.getAvailableStatPoints();
         float scaleFactor = 2.5f;
-        int posX = (int) (screenWidth * 0.15f);
+        int posX = (int) (screenWidth * 0.50f);
         int posY = (int) (screenHeight * 0.75f);
         int adjustedX = (int) (posX / scaleFactor);
         int adjustedY = (int) (posY / scaleFactor);
@@ -356,9 +347,9 @@ public final class PlayerInfoScreen extends Screen {
         context.getMatrices().push();
         context.getMatrices().scale(scaleFactor, scaleFactor, 0.0f);
 
-        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY, 0xF17633, AnimationUtils.getAlpha(fadeProgress));
+        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY + 5 , 0xF17633, AnimationUtils.getAlpha(fadeProgress));
         context.getMatrices().pop();
-        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma),  posX, posY + 25, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
+        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma),  posX, posY + 35, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
     }
 
     private void renderBottomLeftSection(DrawContext context, int screenWidth, int screenHeight, float delta) {
@@ -369,10 +360,7 @@ public final class PlayerInfoScreen extends Screen {
         int scaledLabelX = (int) (labelX / 0.8f); // Adjust X position for scaling
         int scaledLabelY = (int) (labelY / 0.8f); // Adjust Y position for scaling
 
-        cyclingTextIcon.render(context, textRenderer, delta, scaledLabelX, scaledLabelY + 20, 0xFFFFFF);  // Lvl Progession
-
-        progessBar.setProgress(playerStats.getExperience(), playerStats.getExperienceToNextLevel()); // Updated to use new methods
-        progessBar.render(context, scaledLabelX, scaledLabelY + 40);
+        cyclingTextIcon.render(context, textRenderer, delta, scaledLabelX, scaledLabelY + 40, 0xFFFFFF);  // Lvl Progession
         context.getMatrices().pop();
     }
 

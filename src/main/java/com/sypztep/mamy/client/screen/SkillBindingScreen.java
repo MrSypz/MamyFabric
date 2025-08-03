@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SkillBindingScreen extends Screen {
+public final class SkillBindingScreen extends Screen {
     // UI constants - following PassiveAbilityScreen pattern
     private static final int CONTENT_PADDING = 50;
     private static final int SECTION_SPACING = 20;
