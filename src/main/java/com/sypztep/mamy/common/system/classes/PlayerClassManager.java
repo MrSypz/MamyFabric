@@ -484,11 +484,20 @@ public class PlayerClassManager {
     }
 
     public boolean isReadyForEvolution() {
-        return getClassLevel() >= 45 && !getAvailableEvolutions().isEmpty();
+        int requiredLevel = getEvolutionRequiredLevel();
+        return getClassLevel() >= requiredLevel && !getAvailableEvolutions().isEmpty();
     }
 
     public boolean isReadyForTranscendence() {
-        return getClassLevel() >= 45 && !getAvailableTranscendence().isEmpty();
+        int requiredLevel = getEvolutionRequiredLevel();
+        return getClassLevel() >= requiredLevel && !getAvailableTranscendence().isEmpty();
+    }
+
+    private int getEvolutionRequiredLevel() {
+        if (currentClass.getTier() == 0) { // Tier 0 = Novice
+            return currentClass.getMaxLevel();
+        }
+        return 45;
     }
 
     public float getClassProgressPercentage() {

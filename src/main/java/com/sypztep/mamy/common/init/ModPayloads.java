@@ -24,6 +24,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playC2S().register(UseSkillPayloadC2S.ID, UseSkillPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(BindSkillPayloadC2S.ID, BindSkillPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(SkillActionPayloadC2S.ID, SkillActionPayloadC2S.CODEC);
+        PayloadTypeRegistry.playC2S().register(ClassEvolutionPayloadC2S.ID, ClassEvolutionPayloadC2S.CODEC);
 
         registerPayloads();
     }
@@ -33,8 +34,8 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(ToggleStancePayloadC2S.ID, new ToggleStancePayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(UseSkillPayloadC2S.ID, new UseSkillPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(BindSkillPayloadC2S.ID, new BindSkillPayloadC2S.Receiver());
-
         ServerPlayNetworking.registerGlobalReceiver(SkillActionPayloadC2S.ID, new SkillActionPayloadC2S.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(ClassEvolutionPayloadC2S.ID, new ClassEvolutionPayloadC2S.Receiver());
     }
     @Environment(EnvType.CLIENT)
     public static class Client {

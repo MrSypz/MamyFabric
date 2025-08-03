@@ -1,9 +1,6 @@
 package com.sypztep.mamy.client;
 
-import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
-import com.sypztep.mamy.client.screen.PlayerInfoScreen;
-import com.sypztep.mamy.client.screen.SkillBindingScreen;
-import com.sypztep.mamy.client.screen.SkillLearningScreen;
+import com.sypztep.mamy.client.screen.ClassEvolutionScreen;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -21,6 +18,7 @@ public class ModKeyBindings {
 
     // UI Keys
     public static KeyBinding SWITCH_STANCE;
+    public static KeyBinding K;
 
     // Skill Slots (8 total)
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -37,6 +35,12 @@ public class ModKeyBindings {
                 "key.mamy.switch_stance",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
+                "category.mamy.combat"
+        ));
+        K = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.k",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_K,
                 "category.mamy.combat"
         ));
 
@@ -108,6 +112,9 @@ public class ModKeyBindings {
 
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
+        }
+        if (K.wasPressed()) {
+            client.setScreen(new ClassEvolutionScreen(client));
         }
 
         // Get components

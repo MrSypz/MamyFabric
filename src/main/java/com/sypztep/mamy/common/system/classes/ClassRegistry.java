@@ -31,15 +31,18 @@ public class ClassRegistry {
         return ModClasses.CLASSES.values().stream()
                 .filter(clazz -> clazz.canEvolveFrom(currentClass, classLevel))
                 .filter(clazz -> clazz != currentClass)
+                .filter(clazz -> clazz.getTier() > currentClass.getTier()) // ONLY HIGHER TIERS
+                .filter(clazz -> !clazz.isTranscendent()) // Exclude transcendent from normal evolutions
                 .toList();
     }
 
     public static List<PlayerClass> getAvailableTranscendence(PlayerClass currentClass, int classLevel) {
         return ModClasses.CLASSES.values().stream()
                 .filter(clazz -> clazz.canTranscendFrom(currentClass, classLevel))
+                .filter(clazz -> clazz.getTier() > currentClass.getTier()) // ONLY HIGHER TIERS
+                .filter(PlayerClass::isTranscendent) // Only transcendent classes
                 .toList();
     }
-
     public static PlayerClass getDefaultClass() {
         return ModClasses.NOVICE;
     }

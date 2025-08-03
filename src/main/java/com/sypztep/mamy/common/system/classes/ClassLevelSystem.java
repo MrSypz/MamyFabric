@@ -108,10 +108,6 @@ public class ClassLevelSystem extends LevelSystem {
         }
     }
 
-    public PlayerClass getCurrentClass() {
-        return currentClass;
-    }
-
     @Override
     public void writeToNbt(NbtCompound tag) {
         tag.putShort("ClassLevel", level);
