@@ -15,7 +15,7 @@ public class BasicAttackSkill extends Skill {
 
     public BasicAttackSkill() {
         super(Mamy.id("basic_attack"), "Basic Attack", "A simple melee attack",
-                5f, 2f, ModClasses.NOVICE, 0, 2, 5); // 0 cost to learn, 2 points per upgrade, max level 5
+                5f, 2f, ModClasses.NOVICE, 0, 2, 5,true); // 0 cost to learn, 2 points per upgrade, max level 5
     }
 
     @Override

@@ -12,7 +12,7 @@ public class BloodlustSkill extends Skill {
 
     public BloodlustSkill() {
         super(Mamy.id("bloodlust"), "Bloodlust", "Launch a blood projectile",
-                30f, 1, ModClasses.SWORDMAN, 0,1,5,Mamy.id("skill/bloodlust"));
+                30f, 1, ModClasses.SWORDMAN, 0,1,5,false,Mamy.id("skill/bloodlust"));
     }
 
     @Override
@@ -27,6 +27,9 @@ public class BloodlustSkill extends Skill {
         if (!player.getWorld().isClient) {
             BloodLustEntity bloodLust = new BloodLustEntity(player.getWorld(), player);
             bloodLust.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, 0.7F, 0.0F);
+            Mamy.LOGGER.info("Before: Bloodlust used " + bloodLust.getDamage());
+            bloodLust.setDamage(bloodLust.getDamage() + level * 2);
+            Mamy.LOGGER.info("After: Bloodlust used " + bloodLust.getDamage());
             player.getWorld().spawnEntity(bloodLust);
         }
     }
