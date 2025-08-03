@@ -288,8 +288,24 @@ public final class LevelHudRenderer implements HudRenderCallback {
             return 1.0f + p * p * p / 2.0f;
         }
     }
+    private static void toggleDetailedView() {
+        shouldBeVisible = !shouldBeVisible;
+    }
+
+//    private static final String LEVEL_GROUP_ID = "level_corner";
 
     public static void register() {
         HudRenderCallback.EVENT.register(new LevelHudRenderer());
+
+//        IconOverlayManager.registerIconGroup(LEVEL_GROUP_ID, IconOverlayManager.IconPosition.TOP_LEFT, false);
+//
+//        IconOverlayManager.addHudIcon(
+//                LEVEL_GROUP_ID,
+//                Mamy.id("textures/gui/icons/expand_arrow.png"),
+//                "Toggle Level Details",
+//                "Show/hide detailed level progression information",
+//                LevelHudRenderer::toggleDetailedView, // HUD action instead of screen
+//                12 // 12px arrow icon
+//        );
     }
 }
