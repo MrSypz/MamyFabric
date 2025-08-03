@@ -22,7 +22,7 @@ public class IconOverlayManager {
      * Icon positioning modes
      */
     public enum IconPosition {
-        HOTBAR_RIGHT,    // Original position - right of hotbar
+        HOTBAR_RIGHT,    // Right of hotbar
         TOP_LEFT,        // Top left corner
         TOP_RIGHT,       // Top right corner
         BOTTOM_LEFT,     // Bottom left corner
@@ -36,9 +36,9 @@ public class IconOverlayManager {
     public static class IconGroup {
         public final String groupId;
         public final IconPosition position;
-        public final int customX, customY; // For CUSTOM position
+        public final int customX, customY;
         public final List<IconEntry> icons;
-        public final boolean horizontal; // true = horizontal layout, false = vertical
+        public final boolean horizontal;
 
         public IconGroup(String groupId, IconPosition position, boolean horizontal) {
             this(groupId, position, 0, 0, horizontal);
@@ -55,73 +55,40 @@ public class IconOverlayManager {
     }
 
     /**
-     * Individual icon data
+     * Individual icon data - ONLY screens, no HUD actions
      */
     public static class IconEntry {
         public final Identifier texture;
         public final String header;
         public final String description;
-        public final Function<MinecraftClient, Screen> screenFactory; // For opening screens
-        public final Runnable action; // For HUD actions
-        public final int size; // Icon size in pixels
-        public final IconActionType actionType;
+        public final Function<MinecraftClient, Screen> screenFactory;
+        public final int size;
 
-        // Constructor for screen-opening icons
         public IconEntry(Identifier texture, String header, String description,
                          Function<MinecraftClient, Screen> screenFactory, int size) {
             this.texture = texture;
             this.header = header;
             this.description = description;
             this.screenFactory = screenFactory;
-            this.action = null;
             this.size = size;
-            this.actionType = IconActionType.OPEN_SCREEN;
         }
 
-        // Constructor for HUD action icons
-        public IconEntry(Identifier texture, String header, String description,
-                         Runnable action, int size) {
-            this.texture = texture;
-            this.header = header;
-            this.description = description;
-            this.screenFactory = null;
-            this.action = action;
-            this.size = size;
-            this.actionType = IconActionType.HUD_ACTION;
-        }
-
-        // Default 8px size for screens
+        // Default 8px size
         public IconEntry(Identifier texture, String header, String description,
                          Function<MinecraftClient, Screen> screenFactory) {
             this(texture, header, description, screenFactory, 8);
         }
-
-        // Default 8px size for HUD actions
-        public IconEntry(Identifier texture, String header, String description,
-                         Runnable action) {
-            this(texture, header, description, action, 8);
-        }
-    }
-
-    /**
-     * Type of action an icon performs
-     */
-    public enum IconActionType {
-        OPEN_SCREEN,    // Opens a screen (old behavior)
-        HUD_ACTION      // Executes a HUD action (new behavior)
     }
 
     private static final List<IconGroup> iconGroups = new ArrayList<>();
     private static boolean isOverlayMode = false;
     private static boolean wasLeftAltPressed = false;
-    private static int leftAltHeldTicks = 0;
-    private static final int HOLD_TICKS = 30; // 1.5 second at 30 TPS
     private static IconEntry hoveredIcon = null;
     private static int hoveredIconX = 0, hoveredIconY = 0;
 
     // Styling constants
-    private static final int ICON_SPACING = 6;
-    private static final int GROUP_MARGIN = 8;
+    private static final int ICON_SPACING = 12;
+    private static final int GROUP_MARGIN = 10;
     private static final int TOOLTIP_PADDING = 8;
     private static final int TOOLTIP_MARGIN = 6;
     private static final int GRADIENT_HEIGHT = 1;
@@ -153,7 +120,7 @@ public class IconOverlayManager {
     }
 
     /**
-     * Add icon that opens a screen to a group
+     * Add screen icon to a group
      */
     public static void addScreenIcon(String groupId, Identifier texture, String header, String description,
                                      Function<MinecraftClient, Screen> screenFactory) {
@@ -161,7 +128,7 @@ public class IconOverlayManager {
     }
 
     /**
-     * Add icon that opens a screen with custom size to a group
+     * Add screen icon with custom size to a group
      */
     public static void addScreenIcon(String groupId, Identifier texture, String header, String description,
                                      Function<MinecraftClient, Screen> screenFactory, int size) {
@@ -171,48 +138,6 @@ public class IconOverlayManager {
         }
     }
 
-    /**
-     * Add icon that performs a HUD action to a group
-     */
-    public static void addHudIcon(String groupId, Identifier texture, String header, String description,
-                                  Runnable action) {
-        addHudIcon(groupId, texture, header, description, action, 8);
-    }
-
-    /**
-     * Add icon that performs a HUD action with custom size to a group
-     */
-    public static void addHudIcon(String groupId, Identifier texture, String header, String description,
-                                  Runnable action, int size) {
-        IconGroup group = findGroup(groupId);
-        if (group != null) {
-            group.icons.add(new IconEntry(texture, header, description, action, size));
-        }
-    }
-
-    /**
-     * Legacy method - add icon to a group (defaults to screen)
-     * @deprecated Use addScreenIcon() or addHudIcon() for clarity
-     */
-    @Deprecated
-    public static void addIcon(String groupId, Identifier texture, String header, String description,
-                               Function<MinecraftClient, Screen> screenFactory) {
-        addScreenIcon(groupId, texture, header, description, screenFactory, 8);
-    }
-
-    /**
-     * Legacy method - add icon with custom size to a group (defaults to screen)
-     * @deprecated Use addScreenIcon() or addHudIcon() for clarity
-     */
-    @Deprecated
-    public static void addIcon(String groupId, Identifier texture, String header, String description,
-                               Function<MinecraftClient, Screen> screenFactory, int size) {
-        addScreenIcon(groupId, texture, header, description, screenFactory, size);
-    }
-
-    /**
-     * Find icon group by ID
-     */
     private static IconGroup findGroup(String groupId) {
         return iconGroups.stream()
                 .filter(group -> group.groupId.equals(groupId))
@@ -238,23 +163,9 @@ public class IconOverlayManager {
     private static void updateOverlayState(MinecraftClient client) {
         boolean isLeftAltPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT);
 
-        if (isLeftAltPressed) {
-            if (!wasLeftAltPressed) {
-                leftAltHeldTicks = 0;
-            } else {
-                leftAltHeldTicks++;
-                if (leftAltHeldTicks == HOLD_TICKS) {
-                    toggleOverlayMode(client); // enter overlay
-                }
-            }
-        } else if (wasLeftAltPressed) {
-            if (isOverlayMode && leftAltHeldTicks < HOLD_TICKS) {
-                toggleOverlayMode(client); // exit overlay on tap
-            }
-
-            leftAltHeldTicks = 0;
+        if (isLeftAltPressed && !wasLeftAltPressed) {
+            toggleOverlayMode(client);
         }
-
         wasLeftAltPressed = isLeftAltPressed;
     }
 
@@ -358,7 +269,7 @@ public class IconOverlayManager {
     private static int calculateGroupWidth(IconGroup group) {
         if (group.horizontal && !group.icons.isEmpty()) {
             IconEntry lastIcon = group.icons.getLast();
-            return (group.icons.size() - 1) * (ICON_SPACING) + lastIcon.size;
+            return (group.icons.size() - 1) * (8 + ICON_SPACING) + lastIcon.size;
         }
         return group.icons.isEmpty() ? 0 : group.icons.getFirst().size;
     }
@@ -374,7 +285,6 @@ public class IconOverlayManager {
     private static void renderIcon(DrawContext context, int x, int y, IconEntry icon, boolean isHovered) {
         if (isOverlayMode && isHovered)
             RenderSystem.setShaderColor(2.0f, 2.0f, 2.0f, 1.0f);
-
         context.drawGuiTexture(icon.texture, x, y, icon.size, icon.size);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
@@ -396,16 +306,13 @@ public class IconOverlayManager {
         int tooltipWidth = Math.max(headerWidth, descriptionWidth) + TOOLTIP_PADDING * 2;
         int tooltipHeight = textRenderer.fontHeight * 2 + TOOLTIP_PADDING * 2 + GRADIENT_HEIGHT + 2;
 
-        // Position tooltip above the icon
         int tooltipX = iconX - tooltipWidth / 2 + icon.size / 2;
         int tooltipY = iconY - tooltipHeight - TOOLTIP_MARGIN;
 
-        // Keep tooltip on screen
         int screenWidth = context.getScaledWindowWidth();
         tooltipX = Math.max(5, Math.min(tooltipX, screenWidth - tooltipWidth - 5));
         tooltipY = Math.max(5, tooltipY);
 
-        // Render tooltip
         renderTooltipBackground(context, tooltipX, tooltipY, tooltipWidth, tooltipHeight);
 
         DrawContextUtils.renderHorizontalLineWithCenterGradient(
@@ -432,52 +339,23 @@ public class IconOverlayManager {
         context.drawBorder(x + 1, y + 1, width - 2, height - 2, 0x40FFD700);
     }
 
-    /**
-     * Handle icon clicks
-     */
-    public static boolean handleIconClick(double mouseX, double mouseY, MinecraftClient client) {
+    public static boolean handleIconClick(MinecraftClient client) {
         if (!isOverlayMode) return false;
 
         if (hoveredIcon != null) {
-            // Always disable overlay mode first
             isOverlayMode = false;
-
-            // Execute the appropriate action
-            switch (hoveredIcon.actionType) {
-                case OPEN_SCREEN:
-                    if (hoveredIcon.screenFactory != null) {
-                        Screen screen = hoveredIcon.screenFactory.apply(client);
-                        client.setScreen(screen);
-                    }
-                    break;
-
-                case HUD_ACTION:
-                    if (hoveredIcon.action != null) {
-                        hoveredIcon.action.run();
-                        // Re-lock cursor for HUD actions since no screen opens
-                        if (client.currentScreen == null) {
-                            client.mouse.lockCursor();
-                        }
-                    }
-                    break;
-            }
-
+            Screen screen = hoveredIcon.screenFactory.apply(client);
+            client.setScreen(screen);
             return true;
         }
 
         return false;
     }
 
-    /**
-     * Check if overlay mode is active
-     */
     public static boolean isOverlayMode() {
         return isOverlayMode;
     }
 
-    /**
-     * Clear all registered icon groups
-     */
     public static void clearAll() {
         iconGroups.clear();
     }
