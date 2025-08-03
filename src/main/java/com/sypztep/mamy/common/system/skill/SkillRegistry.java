@@ -2,7 +2,7 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
-import com.sypztep.mamy.common.system.skill.novice.BasicAttackSkill;
+import com.sypztep.mamy.common.system.skill.novice.FirstAidSkill;
 import com.sypztep.mamy.common.system.skill.swordman.BloodlustSkill;
 import net.minecraft.util.Identifier;
 
@@ -12,7 +12,7 @@ public class SkillRegistry {
     private static final Map<Identifier, Skill> SKILLS = new HashMap<>();
 
     // Static skill IDs
-    public static final Identifier BASIC_ATTACK = Mamy.id("basic_attack");
+    public static final Identifier FIRSTAID = Mamy.id("first_aid");
     public static final Identifier BLOODLUST = Mamy.id("bloodlust");
     public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
     public static final Identifier FIREBALL = Mamy.id("fireball");
@@ -24,8 +24,8 @@ public class SkillRegistry {
     public static final Identifier DIVINE_JUDGMENT = Mamy.id("divine_judgment");
 
     public static void registerSkills() {
-        register(new BasicAttackSkill());
-        register(new BloodlustSkill());
+        register(new FirstAidSkill(FIRSTAID));
+        register(new BloodlustSkill(BLOODLUST));
         // register(new ShieldBashSkill());
         // register(new FireballSkill());
         // register(new HealingLightSkill());
