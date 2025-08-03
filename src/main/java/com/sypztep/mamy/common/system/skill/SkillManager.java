@@ -1,7 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
-import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.ClassSkillManager;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
@@ -17,6 +16,9 @@ import java.util.Map;
 
 public class SkillManager {
     private static final Map<String, Map<Identifier, Long>> PLAYER_COOLDOWNS = new HashMap<>();
+
+    // Minecraft runs at 20 ticks per second
+    private static final int TICKS_PER_SECOND = 20;
 
     public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
@@ -90,16 +92,17 @@ public class SkillManager {
 
         if (playerCooldowns == null) return 0.0f;
 
-        Long endTime = playerCooldowns.get(skillId);
-        if (endTime == null) return 0.0f;
+        Long endTick = playerCooldowns.get(skillId);
+        if (endTick == null) return 0.0f;
 
-        long currentTime = System.currentTimeMillis();
-        if (currentTime >= endTime) {
+        long currentTick = player.getWorld().getTime();
+        if (currentTick >= endTick) {
             playerCooldowns.remove(skillId);
             return 0.0f;
         }
 
-        return (endTime - currentTime) / 1000.0f;
+        // Convert remaining ticks to seconds
+        return (float)(endTick - currentTick) / TICKS_PER_SECOND;
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
@@ -108,25 +111,30 @@ public class SkillManager {
 
         if (playerCooldowns == null) return false;
 
-        Long endTime = playerCooldowns.get(skillId);
-        if (endTime == null) return false;
+        Long endTick = playerCooldowns.get(skillId);
+        if (endTick == null) return false;
 
-        long currentTime = System.currentTimeMillis();
-        if (currentTime >= endTime) {
+        long currentTick = player.getWorld().getTime();
+        if (currentTick >= endTick) {
             playerCooldowns.remove(skillId);
             return false;
         }
 
-        long remainingMs = endTime - currentTime;
+        // Convert remaining ticks to seconds for display
+        float remainingSeconds = (float)(endTick - currentTick) / TICKS_PER_SECOND;
         player.sendMessage(Text.literal(String.format("Skill on cooldown for %.1f seconds",
-                remainingMs / 1000.0f)).formatted(Formatting.YELLOW), true);
+                remainingSeconds)).formatted(Formatting.YELLOW), true);
         return true;
     }
 
     private static void setCooldown(PlayerEntity player, Identifier skillId, float cooldownSeconds) {
         String playerId = player.getUuidAsString();
+        long currentTick = player.getWorld().getTime();
+
+        long cooldownTicks = Math.round(cooldownSeconds * TICKS_PER_SECOND);
+
         PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>())
-                .put(skillId, System.currentTimeMillis() + (long)(cooldownSeconds * 1000));
+                .put(skillId, currentTick + cooldownTicks);
     }
 
     public static void cleanupPlayer(String playerId) {
