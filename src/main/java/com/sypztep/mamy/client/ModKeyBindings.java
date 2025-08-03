@@ -20,11 +20,7 @@ import org.lwjgl.glfw.GLFW;
 public class ModKeyBindings {
 
     // UI Keys
-    public static KeyBinding OPEN_STAT_SCREEN;
-    public static KeyBinding OPEN_PASSIVE_SCREEN;
     public static KeyBinding SWITCH_STANCE;
-    public static KeyBinding OPEN_SKILL_BINDING;
-    public static KeyBinding OPEN_SKILL_LEARNING;
 
     // Skill Slots (8 total)
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -37,42 +33,12 @@ public class ModKeyBindings {
     public static KeyBinding SKILL_SLOT_8; // Shift + V
 
     public static void register() {
-        // UI Keys
-        OPEN_STAT_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_stat_screen",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_K,
-                "category.mamy.keys"
-        ));
-
-        OPEN_PASSIVE_SCREEN = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_passive_screen",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_P,
-                "category.mamy.keys"
-        ));
-
         SWITCH_STANCE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mamy.switch_stance",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 "category.mamy.combat"
         ));
-
-        OPEN_SKILL_BINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_skill_binding",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_G,
-                "category.mamy.keys"
-        ));
-        OPEN_SKILL_LEARNING = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.open_skill_learning",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_N, // K key
-                "category.mamy.keys"
-        ));
-
-
 
         // Skill Slots (8 total)
         SKILL_SLOT_1 = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -140,25 +106,8 @@ public class ModKeyBindings {
         if (client.player == null) return;
         if (client.currentScreen != null) return;
 
-        // UI Keys (these work regardless of stance)
-        if (OPEN_STAT_SCREEN.wasPressed()) {
-            client.setScreen(new PlayerInfoScreen(client));
-        }
-
-        if (OPEN_PASSIVE_SCREEN.wasPressed()) {
-            client.setScreen(new PassiveAbilityScreen(client));
-        }
-
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
-        }
-
-        if (OPEN_SKILL_BINDING.wasPressed()) {
-            client.setScreen(new SkillBindingScreen(client));
-        }
-
-        if (OPEN_SKILL_LEARNING.wasPressed()) {
-            client.setScreen(new SkillLearningScreen(client));
         }
 
         // Get components
@@ -196,8 +145,6 @@ public class ModKeyBindings {
 
     private static void useSkillSlot(PlayerClassComponent classComponent, int slot) {
         Identifier skillId = classComponent.getBoundSkill(slot);
-        if (skillId != null) {
-            UseSkillPayloadC2S.send(skillId);
-        }
+        if (skillId != null) UseSkillPayloadC2S.send(skillId);
     }
 }
