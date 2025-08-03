@@ -1,6 +1,7 @@
 package com.sypztep.mamy.mixin.core.fixprojectile;
 
 import com.sypztep.mamy.common.entity.BaseSkillEntity;
+import com.sypztep.mamy.common.init.ModEntityTypes;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
