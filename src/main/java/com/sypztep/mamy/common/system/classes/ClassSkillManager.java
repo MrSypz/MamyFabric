@@ -28,9 +28,8 @@ public class ClassSkillManager {
 
     private void initializeBasicSkills() {
         // Auto-learn basic attack for all players (free skill)
-        learnSkill(SkillRegistry.BASIC_ATTACK, true);
-        // Bind basic attack to slot 0 (Z key)
-        bindSkill(0, SkillRegistry.BASIC_ATTACK);
+        learnSkill(SkillRegistry.FIRSTAID, true);
+//        bindSkill(0, SkillRegistry.FIRSTAID);
     }
 
     // ====================
@@ -228,7 +227,7 @@ public class ClassSkillManager {
     public void onTranscendence() {
         clearAllSkillSlots();
         // Re-bind basic attack
-        bindSkill(0, SkillRegistry.BASIC_ATTACK);
+        bindSkill(0, SkillRegistry.FIRSTAID);
     }
 
     // ====================
@@ -288,8 +287,8 @@ public class ClassSkillManager {
         }
 
         // Ensure basic attack is still learned
-        if (!hasLearnedSkill(SkillRegistry.BASIC_ATTACK)) {
-            learnSkill(SkillRegistry.BASIC_ATTACK, true);
+        if (!hasLearnedSkill(SkillRegistry.FIRSTAID)) {
+            learnSkill(SkillRegistry.FIRSTAID, true);
         }
     }
 }
