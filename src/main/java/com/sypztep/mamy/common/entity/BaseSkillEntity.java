@@ -9,11 +9,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import com.sypztep.mamy.common.system.skill.SkillConfig;
+import com.sypztep.mamy.common.system.skill.config.SkillConfig;
 import com.sypztep.mamy.common.system.skill.SkillHitTracker;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -23,7 +23,6 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
     private final Set<StatusEffectInstance> effects = Sets.newHashSet();
     private int ticksUntilRemove = 5;
 
-    // Simplified regeneration settings - just use the values directly
     private float manaRegenPerHit = 0.0f;
     private float healthRegenPerHit = 0.0f;
 
@@ -33,8 +32,8 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
         this.hitTracker = new SkillHitTracker(config.maxHitCount(), config.iframeTime());
     }
 
-    public BaseSkillEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner, SkillConfig config) {
-        super(entityType, owner, world, ItemStack.EMPTY, null);
+    public BaseSkillEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world, LivingEntity owner, SkillConfig config, @Nullable ItemStack shotFrom) {
+        super(entityType, owner, world, ItemStack.EMPTY, shotFrom);
         this.skillConfig = config;
         this.hitTracker = new SkillHitTracker(config.maxHitCount(), config.iframeTime());
         this.setOwner(owner);
@@ -100,7 +99,6 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
                     skillConfig.hitDepth()
             );
         } else {
-            // Simple range expansion (old behavior)
             hitDetectionBox = entityBox.expand(skillConfig.hitRange());
         }
 
@@ -197,7 +195,6 @@ public abstract class BaseSkillEntity extends PersistentProjectileEntity {
     protected void onSuccessfulHit(LivingEntity target) {
     }
 
-    // Simplified getters - removed boolean methods
     public Set<StatusEffectInstance> getEffects() { return effects; }
     public SkillHitTracker getHitTracker() { return hitTracker; }
     public float getManaRegenPerHit() { return manaRegenPerHit; }

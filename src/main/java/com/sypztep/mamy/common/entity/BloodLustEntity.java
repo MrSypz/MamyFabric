@@ -6,25 +6,25 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 import com.sypztep.mamy.common.init.*;
-import com.sypztep.mamy.common.system.skill.SkillConfig;
+import com.sypztep.mamy.common.system.skill.config.SkillConfig;
 
 public class BloodLustEntity extends BaseSkillEntity {
 
-    public BloodLustEntity(World world, LivingEntity owner) {
-        super(ModEntityTypes.BLOOD_LUST, world, owner, createBloodLustConfig());
+    public BloodLustEntity(World world, LivingEntity owner, SkillConfig config) {
+        super(ModEntityTypes.BLOOD_LUST, world, owner, config,null);
         this.withManaRegen(2.0f)
                 .withHealthRegen(0.5f);
     }
 
     public BloodLustEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
-        super(entityType, world, createBloodLustConfig());
+        super(entityType, world, createDefaultBloodLustConfig());
         this.withManaRegen(2.0f)
                 .withHealthRegen(0.5f);
     }
 
-    private static SkillConfig createBloodLustConfig() {
+    private static SkillConfig createDefaultBloodLustConfig() {
         return new SkillConfig.Builder()
-                .damage(4F)
+                .damage(4F) // Default base damage
                 .damageType(ModDamageTypes.BLOODLUST)
                 .slashHitBox(5,0.2f)
                 .maxHitCount(5)
@@ -34,7 +34,6 @@ public class BloodLustEntity extends BaseSkillEntity {
 
     @Override
     protected void onCustomTick() {
-        // Blood trail particles
         for (float x = -1.5F; x <= 1.5F; x = (float)((double)x + 0.1)) {
             this.getWorld().addParticle(
                     ModParticles.BLOOD_BUBBLE,
@@ -50,7 +49,6 @@ public class BloodLustEntity extends BaseSkillEntity {
 
     @Override
     protected void onSkillActivate() {
-        // Blood explosion particles
         for(int i = 0; i < 30; ++i) {
             this.getWorld().addParticle(
                     ModParticles.BLOOD_BUBBLE_SPLATTER,
