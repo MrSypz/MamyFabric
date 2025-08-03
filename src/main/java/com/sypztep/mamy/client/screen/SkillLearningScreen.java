@@ -271,52 +271,14 @@ public final class SkillLearningScreen extends Screen {
 
         public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
             boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            int skillLevel = isLearned ? classComponent.getSkillLevel(skill.getId()) : 0;
+            int skillLevel = isLearned ? classComponent.getSkillLevel(skill.getId()) : 1;
 
-            List<Text> tooltip = new ArrayList<>();
-
-            // Skill name with level
-            if (isLearned) {
-                tooltip.add(Text.literal(skill.getName() + " (Level " + skillLevel + "/" + skill.getMaxSkillLevel() + ")")
-                        .formatted(Formatting.YELLOW));
-            } else {
-                tooltip.add(Text.literal(skill.getName() + " (Not Learned)")
-                        .formatted(Formatting.GRAY));
-            }
-
-            // Description
-            String description = isLearned ? skill.getDescription(skillLevel) : skill.getDescription(1);
-            tooltip.add(Text.literal(description).formatted(Formatting.WHITE));
-
-            // Cost and stats
-            if (isLearned) {
-                tooltip.add(Text.literal("Resource Cost: " + String.format("%.1f", skill.getResourceCost(skillLevel)))
-                        .formatted(Formatting.BLUE));
-                tooltip.add(Text.literal("Cooldown: " + String.format("%.1f", skill.getCooldown(skillLevel)) + "s")
-                        .formatted(Formatting.AQUA));
-
-                int availablePoints = classComponent.getClassManager().getClassStatPoints();
-                boolean canUpgrade = skillLevel < skill.getMaxSkillLevel() &&
-                        availablePoints >= skill.getUpgradeClassPointCost();
-
-                if (canUpgrade) {
-                    tooltip.add(Text.literal("Upgrade Cost: " + skill.getUpgradeClassPointCost() + " points")
-                            .formatted(Formatting.GOLD));
-                    tooltip.add(Text.literal("Next Level: " +
-                                    String.format("%.1f", skill.getResourceCost(skillLevel + 1)) + " cost, " +
-                                    String.format("%.1f", skill.getCooldown(skillLevel + 1)) + "s cooldown")
-                            .formatted(Formatting.GREEN));
-                }
-
-                tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.RED));
-            } else {
-                tooltip.add(Text.literal("Learn Cost: " + skill.getBaseClassPointCost() + " points")
-                        .formatted(Formatting.GOLD));
-                tooltip.add(Text.literal("Base Resource Cost: " + String.format("%.1f", skill.getResourceCost(1)))
-                        .formatted(Formatting.BLUE));
-                tooltip.add(Text.literal("Base Cooldown: " + String.format("%.1f", skill.getCooldown(1)) + "s")
-                        .formatted(Formatting.AQUA));
-            }
+            List<Text> tooltip = skill.generateTooltip(
+                    client.player,
+                    skillLevel,
+                    isLearned,
+                    Skill.TooltipContext.LEARNING_SCREEN
+            );
 
             context.drawTooltip(client.textRenderer, tooltip, mouseX, mouseY);
         }

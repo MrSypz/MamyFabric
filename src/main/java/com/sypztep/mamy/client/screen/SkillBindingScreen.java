@@ -367,7 +367,7 @@ public final class SkillBindingScreen extends Screen {
     }
 
     private void renderTooltips(DrawContext context, int mouseX, int mouseY) {
-        // Skill slot tooltips - handled by SkillSlotButton
+        // Skill slot tooltips
         for (SkillSlotButton button : skillSlotButtons) {
             if (button.isMouseOver(mouseX, mouseY)) {
                 button.renderTooltip(context, mouseX, mouseY);
@@ -383,24 +383,12 @@ public final class SkillBindingScreen extends Screen {
                 PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
                 int skillLevel = classComponent.getSkillLevel(skillId);
 
-                List<Text> tooltip = new ArrayList<>();
-                tooltip.add(Text.literal(skill.getName() + " (Level " + skillLevel + "/" + skill.getMaxSkillLevel() + ")")
-                        .formatted(Formatting.YELLOW));
-                tooltip.add(Text.literal(skill.getDescription(skillLevel)).formatted(Formatting.WHITE));
-
-                tooltip.add(Text.literal("Cost: " + String.format("%.1f", skill.getResourceCost(skillLevel)))
-                        .formatted(Formatting.BLUE));
-                tooltip.add(Text.literal("Cooldown: " + String.format("%.1f", skill.getCooldown(skillLevel)) + "s")
-                        .formatted(Formatting.AQUA));
-
-                // Show upgrade info if not max level
-                if (skillLevel < skill.getMaxSkillLevel()) {
-                    tooltip.add(Text.literal("Upgrade Cost: " + skill.getUpgradeClassPointCost() + " points")
-                            .formatted(Formatting.GOLD));
-                    tooltip.add(Text.literal("Next Level: " + String.format("%.1f", skill.getResourceCost(skillLevel + 1)) + " cost, " +
-                                    String.format("%.1f", skill.getCooldown(skillLevel + 1)) + "s cooldown")
-                            .formatted(Formatting.GREEN));
-                }
+                List<Text> tooltip = skill.generateTooltip(
+                        client.player,
+                        skillLevel,
+                        true,
+                        Skill.TooltipContext.BINDING_SCREEN
+                );
 
                 if (Arrays.asList(boundSkills).contains(skillId)) {
                     tooltip.add(Text.literal("Already bound").formatted(Formatting.GOLD));
@@ -618,14 +606,18 @@ public final class SkillBindingScreen extends Screen {
                     PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
                     int skillLevel = classComponent.getSkillLevel(boundSkill);
 
-                    tooltip.add(Text.literal(skill.getName() + " (Level " + skillLevel + ")")
-                            .formatted(Formatting.WHITE));
-                    tooltip.add(Text.literal(skill.getDescription(skillLevel)).formatted(Formatting.GRAY));
-                    tooltip.add(Text.literal("Cost: " + String.format("%.1f", skill.getResourceCost(skillLevel)))
-                            .formatted(Formatting.BLUE));
-                    tooltip.add(Text.literal("Cooldown: " + String.format("%.1f", skill.getCooldown(skillLevel)) + "s")
-                            .formatted(Formatting.AQUA));
-                    tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.RED));
+                    // Add skill-generated tooltip
+                    List<Text> skillTooltip = skill.generateTooltip(
+                            client.player,
+                            skillLevel,
+                            true,
+                            Skill.TooltipContext.BINDING_SLOT
+                    );
+
+                    // Skip the first line (skill name) since we have slot info
+                    for (int i = 1; i < skillTooltip.size(); i++) {
+                        tooltip.add(skillTooltip.get(i));
+                    }
                 }
             } else {
                 tooltip.add(Text.literal("Empty slot").formatted(Formatting.GRAY));
