@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill;
+package com.sypztep.mamy.common.system.skill.config;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.entity.damage.DamageType;
