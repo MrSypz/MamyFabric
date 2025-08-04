@@ -1,10 +1,27 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
-import com.sypztep.mamy.common.system.passive.abilities.*;
+import com.sypztep.mamy.common.system.passive.abilities.Intelligence.ArcanePowerAbility;
+import com.sypztep.mamy.common.system.passive.abilities.Intelligence.ManaShieldAbility;
+import com.sypztep.mamy.common.system.passive.abilities.Intelligence.SpellEchoAbility;
 import com.sypztep.mamy.common.system.passive.abilities.agility.DodgeMasterAbility;
 import com.sypztep.mamy.common.system.passive.abilities.agility.SwiftFeetAbility;
 import com.sypztep.mamy.common.system.passive.abilities.agility.WindWalkerAbility;
+import com.sypztep.mamy.common.system.passive.abilities.dexterity.HeadhunterAbility;
+import com.sypztep.mamy.common.system.passive.abilities.dexterity.PrecisionStrikesAbility;
+import com.sypztep.mamy.common.system.passive.abilities.dexterity.SteadyAimAbility;
+import com.sypztep.mamy.common.system.passive.abilities.luck.CriticalExpertAbility;
+import com.sypztep.mamy.common.system.passive.abilities.luck.FortuneFavorAbility;
+import com.sypztep.mamy.common.system.passive.abilities.luck.LuckyStrikesAbility;
+import com.sypztep.mamy.common.system.passive.abilities.mixes.CombatVeteranAbility;
+import com.sypztep.mamy.common.system.passive.abilities.mixes.ElementalImmunityAbility;
+import com.sypztep.mamy.common.system.passive.abilities.mixes.LegendaryWarriorAbility;
+import com.sypztep.mamy.common.system.passive.abilities.strength.BerserkerAbility;
+import com.sypztep.mamy.common.system.passive.abilities.strength.HeavyHitterAbility;
+import com.sypztep.mamy.common.system.passive.abilities.strength.WeaponMasterAbility;
+import com.sypztep.mamy.common.system.passive.abilities.vitality.IronSkinAbility;
+import com.sypztep.mamy.common.system.passive.abilities.vitality.LastStandAbility;
+import com.sypztep.mamy.common.system.passive.abilities.vitality.RegenerationAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 
 import java.util.*;

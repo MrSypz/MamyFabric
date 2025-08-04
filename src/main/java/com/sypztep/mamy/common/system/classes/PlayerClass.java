@@ -37,7 +37,7 @@ public class PlayerClass {
     public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
                        Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
                        Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, // NEW PARAMETER
-                       ResourceType primaryResource, float resourceBonus, String description,
+                       ResourceType primaryResource, String description,
                        int maxLevel, boolean isTranscendent) {
         this.id = id;
         this.tier = tier;
@@ -54,16 +54,13 @@ public class PlayerClass {
 
         // Add resource bonus to attribute modifiers if > 0
         this.attributeModifiers = new HashMap<>(attributeModifiers);
-        if (resourceBonus > 0) {
-            this.attributeModifiers.put(ModEntityAttributes.RESOURCE, (double) resourceBonus);
-        }
     }
     public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
                        Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, float resourceBonus, String description,
+                       ResourceType primaryResource, String description,
                        int maxLevel, boolean isTranscendent) {
         this(id, tier, branch, displayName, color, attributeModifiers,
-                new HashMap<>(), primaryResource, resourceBonus, description, maxLevel, isTranscendent);
+                new HashMap<>(), primaryResource, description, maxLevel, isTranscendent);
     }
 
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
@@ -120,12 +117,7 @@ public class PlayerClass {
      * Get max resource from player's current RESOURCE attribute value
      */
     public float getMaxResource(PlayerEntity player) {
-        if (player == null) {
-            double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
-            double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
-            return (float) (baseResource + classBonus);
-        }
-
+        if (player == null) getMaxResource();
         // Get actual current value including INT bonuses
         return (float) player.getAttributeValue(ModEntityAttributes.RESOURCE);
     }

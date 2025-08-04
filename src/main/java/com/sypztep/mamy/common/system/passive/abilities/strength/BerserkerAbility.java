@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.strength;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -12,35 +12,35 @@ import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.Map;
 
-public class WeaponMasterAbility extends PassiveAbility {
-    public WeaponMasterAbility() {
-        super("weapon_master", Map.of(StatTypes.STRENGTH, 45));
+public class BerserkerAbility extends PassiveAbility {
+    public BerserkerAbility() {
+        super("berserker", Map.of(StatTypes.STRENGTH, 30));
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                Mamy.id("weapon_master_damage"),
-                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.30 // +30% attack damage
+                EntityAttributes.GENERIC_ATTACK_SPEED,
+                Mamy.id("berserker_speed"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 1.0 // +1.0 attack speed
         ));
 
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.MELEE_ATTACK_DAMAGE,
-                Mamy.id("weapon_master_melee"),
+                ModEntityAttributes.CRIT_DAMAGE,
+                Mamy.id("berserker_crit_damage"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.20 // +20% melee damage
+                baseValue -> 0.25 // +25% crit damage
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Weapon Master").formatted(Formatting.GOLD);
+        return Text.literal("Berserker").formatted(Formatting.DARK_RED);
     }
 
     @Override
     public Text getDescription() {
-        return Text.literal("Mastery over all weapons. +30% Attack Damage, +20% Melee Damage");
+        return Text.literal("Unleash your inner fury. +1.0 Attack Speed, +25% Crit Damage");
     }
 }

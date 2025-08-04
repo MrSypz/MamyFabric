@@ -1,39 +1,38 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.Intelligence;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.Map;
 
-public class LastStandAbility extends PassiveAbility {
-    public LastStandAbility() {
-        super("last_stand", Map.of(StatTypes.VITALITY, 40));
+public class ArcanePowerAbility extends PassiveAbility {
+    public ArcanePowerAbility() {
+        super("arcane_power", Map.of(StatTypes.INTELLIGENCE, 15));
     }
 
     @Override
     protected void initializeEffects() {
-        // This would need special handling in damage events
         addAttributeEffect(new AttributeModification(
-                EntityAttributes.GENERIC_MAX_HEALTH,
-                Mamy.id("last_stand_health"),
+                ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
+                Mamy.id("arcane_power_magic"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 10.0 // +10 max health
+                baseValue -> 0.20 // +20% magic damage
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Last Stand").formatted(Formatting.DARK_RED);
+        return Text.literal("Arcane Power").formatted(Formatting.BLUE);
     }
 
     @Override
     public Text getDescription() {
-        return Text.literal("When near death, gain massive damage resistance. +10 Max Health");
+        return Text.literal("Channel raw magical energy. +20% Magic Damage");
     }
 }

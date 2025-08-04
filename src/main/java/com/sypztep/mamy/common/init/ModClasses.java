@@ -17,7 +17,7 @@ public class ModClasses {
             "novice", 0, 1, "Novice", Formatting.GRAY,
             Map.of(),
             Map.of(),
-            ResourceType.MANA, 0f,
+            ResourceType.MANA,
             "A beginning adventurer with no specialization",
             10, false
     ));
@@ -37,7 +37,7 @@ public class ModClasses {
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.05), // 5% per level
                     ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.5) // +0.5 per level
             ),
-            ResourceType.RAGE, 0f,
+            ResourceType.RAGE,
             "A warrior who has chosen the path of the sword",
             50, false
     ).addRequirement(NOVICE, 10));
@@ -49,15 +49,14 @@ public class ModClasses {
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25,
                     ModEntityAttributes.RESOURCE, 200.0,
-                    ModEntityAttributes.RESOURCE_REGEN, 20.0,
-                    ModEntityAttributes.RESOURCE_REGEN_RATE, 25.0
+                    ModEntityAttributes.RESOURCE_REGEN, 20.0
             ),
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
             ),
-            ResourceType.MANA, 0,
+            ResourceType.MANA,
             "A spellcaster who manipulates arcane energies",
             50, false
     ).addRequirement(NOVICE, 10));
@@ -75,10 +74,28 @@ public class ModClasses {
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.06), // 6% per level
                     ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.003) // +0.3% per level
             ),
-            ResourceType.MANA, 50f,
+            ResourceType.MANA,
             "A ranged combatant skilled with bow and arrow",
             50, false
     ).addRequirement(NOVICE, 10));
+
+    public static final PlayerClass ACOLYTE = register(new PlayerClass(
+            "acolyte", 1, 4, "Acolyte", Formatting.GOLD,
+            Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, 18.0,
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.15,
+                    ModEntityAttributes.RESOURCE, 300.0,
+                    ModEntityAttributes.RESOURCE_REGEN, 35.0
+            ),
+            Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
+            ),
+            ResourceType.MANA,
+            "",
+            50,false
+    ).addRequirement(NOVICE,10));
 
 //    // ===== TIER 2 (Second Job - Swordman Path) =====
 //    public static final PlayerClass KNIGHT = register(new PlayerClass(

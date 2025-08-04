@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.system.skill.swordman;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.BloodLustEntity;
 import com.sypztep.mamy.common.init.ModClasses;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import net.minecraft.entity.LivingEntity;
@@ -24,9 +25,9 @@ public class BloodlustSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         // Base damage + scaling with skill level
-        data.baseDamage = 4.0f + (skillLevel * 2.0f);
+        data.baseDamage = 4.0f + (skillLevel * 2.0f) + (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
         data.damageType = DamageType.PHYSICAL;
-        data.maxHits = Math.min(5 + skillLevel, 10);
+        data.maxHits = 5;
 
         // Add life steal effect
         data.healthPerHit = 0.5f;
@@ -44,7 +45,7 @@ public class BloodlustSkill extends Skill {
         if (!(caster instanceof PlayerEntity player)) return;
 
         if (!player.getWorld().isClient) {
-            SkillConfig config = createBloodlustConfig(level);
+            SkillConfig config = createBloodlustConfig(level, caster);
 
             BloodLustEntity bloodLust = new BloodLustEntity(player.getWorld(), player, config);
             bloodLust.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, 0.7F, 0.0F);
@@ -52,18 +53,27 @@ public class BloodlustSkill extends Skill {
         }
     }
 
-    private SkillConfig createBloodlustConfig(int skillLevel) {
-        float totalDamage = 4.0f + (skillLevel * 2.0f);
+    private SkillConfig createBloodlustConfig(int skillLevel, LivingEntity caster) {
+        float totalDamage = 4.0f + (skillLevel * 2.0f) + (float) caster.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
         int maxHitCount = Math.min(5 + skillLevel, 10);
-        float slashRange = 5.0f + (skillLevel * 0.5f);
 
         return new SkillConfig.Builder()
                 .damage(totalDamage)
                 .damageType(ModDamageTypes.BLOODLUST)
-                .slashHitBox(slashRange, 0.2f)
+                .slashHitBox(5, 0.2f)
                 .maxHitCount(maxHitCount)
                 .iframeTime(2)
                 .build();
+    }
+
+    @Override
+    public float getResourceCost(int skillLevel) {
+        return this.baseResourceCost * (1.0f + 0.2f * (skillLevel - 1));
+    }
+
+    @Override
+    public float getCooldown(int skillLevel) {
+        return this.baseCooldown * (1.0f + 0.4f * (skillLevel - 1));
     }
 
     @Override

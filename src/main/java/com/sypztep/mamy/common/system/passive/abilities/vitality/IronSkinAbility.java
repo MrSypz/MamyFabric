@@ -1,38 +1,38 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.vitality;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.Map;
 
-public class ArcanePowerAbility extends PassiveAbility {
-    public ArcanePowerAbility() {
-        super("arcane_power", Map.of(StatTypes.INTELLIGENCE, 15));
+public class IronSkinAbility extends PassiveAbility {
+    public IronSkinAbility() {
+        super("iron_skin", Map.of(StatTypes.VITALITY, 8));
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
-                Mamy.id("arcane_power_magic"),
+                EntityAttributes.GENERIC_ARMOR,
+                Mamy.id("iron_skin_armor"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.20 // +20% magic damage
+                baseValue -> 2.0 // +2 armor
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Arcane Power").formatted(Formatting.BLUE);
+        return Text.literal("Iron Skin").formatted(Formatting.GRAY);
     }
 
     @Override
     public Text getDescription() {
-        return Text.literal("Channel raw magical energy. +20% Magic Damage");
+        return Text.literal("Your skin hardens like iron, deflecting blows. +2 Armor");
     }
 }

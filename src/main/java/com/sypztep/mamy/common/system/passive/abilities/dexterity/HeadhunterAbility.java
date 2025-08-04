@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.dexterity;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -11,28 +11,30 @@ import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.Map;
 
-public class RegenerationAbility extends PassiveAbility {
-    public RegenerationAbility() {
-        super("regeneration", Map.of(StatTypes.VITALITY, 20));
+public class HeadhunterAbility extends PassiveAbility {
+    public HeadhunterAbility() {
+        super("headhunter", Map.of(StatTypes.DEXTERITY, 20));
     }
 
     @Override
     protected void initializeEffects() {
+        // We'll handle the headshot multiplier through events/mixins
+        // But we can add some accuracy bonus
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.HEALTH_REGEN,
-                Mamy.id("regeneration_regen"),
+                ModEntityAttributes.ACCURACY,
+                Mamy.id("headhunter_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 1.0 // +1 health regen per second
+                baseValue -> 5.0 // +5 accuracy for precision
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Regeneration").formatted(Formatting.GREEN);
+        return Text.literal("Headhunter").formatted(Formatting.RED);
     }
 
     @Override
     public Text getDescription() {
-        return Text.literal("Your wounds close rapidly. +1 Health Regeneration per second");
+        return Text.literal("Precision shots to the head deal 10x damage. +5 Accuracy");
     }
 }

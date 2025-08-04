@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.luck;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;

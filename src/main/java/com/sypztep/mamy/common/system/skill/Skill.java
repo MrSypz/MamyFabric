@@ -122,7 +122,7 @@ public abstract class Skill {
 
         // Add hits if > 1
         if (maxHits > 1) {
-            text.append(Text.literal(", " + maxHits + " hits").formatted(Formatting.GRAY));
+            text.append(Text.literal(", " + maxHits + " hits").formatted(Formatting.YELLOW));
         }
 
         return text;
@@ -229,7 +229,7 @@ public abstract class Skill {
     public static class SecondaryDamage {
         public float baseDamage = 0;
         public float damagePercentage = 0;
-        public DamageType damageType = DamageType.PHYSICAL;
+        public DamageType damageType;
         public int maxHits = 1;
 
         public SecondaryDamage(DamageType damageType, float baseDamage, float damagePercentage, int maxHits) {
@@ -266,10 +266,6 @@ public abstract class Skill {
     public abstract boolean canUse(LivingEntity caster, int skillLevel);
     public abstract void use(LivingEntity caster, int skillLevel);
     public abstract boolean isAvailableForClass(PlayerClass playerClass);
-
-    // ============================================================================
-    // EXISTING METHODS (unchanged)
-    // ============================================================================
 
     public float getResourceCost(int skillLevel) {
         return Math.max(1.0f, baseResourceCost - (skillLevel - 1) * 0.5f);

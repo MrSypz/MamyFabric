@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities;
+package com.sypztep.mamy.common.system.passive.abilities.dexterity;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -11,35 +11,35 @@ import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.Map;
 
-public class PrecisionStrikesAbility extends PassiveAbility {
-    public PrecisionStrikesAbility() {
-        super("precision_strikes", Map.of(StatTypes.DEXTERITY, 10));
+public class SteadyAimAbility extends PassiveAbility {
+    public SteadyAimAbility() {
+        super("steady_aim", Map.of(StatTypes.DEXTERITY, 35));
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.CRIT_CHANCE,
-                Mamy.id("precision_strikes_crit"),
+                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
+                Mamy.id("steady_aim_projectile"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.05 // +5% crit chance
+                baseValue -> 0.25 // +25% projectile damage
         ));
 
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.ACCURACY,
-                Mamy.id("precision_strikes_accuracy"),
+                Mamy.id("steady_aim_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 3.0 // +3 accuracy
+                baseValue -> 8.0 // +8 accuracy
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Precision Strikes").formatted(Formatting.YELLOW);
+        return Text.literal("Steady Aim").formatted(Formatting.GOLD);
     }
 
     @Override
     public Text getDescription() {
-        return Text.literal("Your strikes find their mark with deadly precision. +5% Crit Chance, +3 Accuracy");
+        return Text.literal("Perfect control over ranged weapons. +25% Projectile Damage, +8 Accuracy");
     }
 }
