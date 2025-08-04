@@ -26,7 +26,6 @@ public final class LivingEntityUtil {
         float baseHitRate = 0.67f; // 67% base hit rate
         float hitRate = baseHitRate + ((aAccuracy - dEvasion) * 0.0025f);
 
-        // Clamp hit rate between reasonable bounds (e.g., 5% to 95%)
         hitRate = MathHelper.clamp(hitRate, 0,1);
 
         return roll(attacker) < hitRate;
