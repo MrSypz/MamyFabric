@@ -12,8 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class QuickReflexPassive extends PassiveAbility {
-    public QuickReflexPassive() {
-        super("quick_reflex", Map.of(StatTypes.AGILITY, 20));
+
+    public QuickReflexPassive(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
 
     @Override
