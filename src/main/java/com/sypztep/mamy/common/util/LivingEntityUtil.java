@@ -10,7 +10,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 
 public final class LivingEntityUtil {
-
+    private static final float BASE_HIT_RATE = 0.67f, POINT_EFICENT = 0.0025f;
     public static boolean isHitable(LivingEntity target, DamageSource source) {
         return !target.isInvulnerable() && !target.isInvulnerableTo(source) && target.hurtTime == 0;
     }
@@ -23,8 +23,7 @@ public final class LivingEntityUtil {
         int aAccuracy = (int) attacker.getAttributeValue(ModEntityAttributes.ACCURACY);
         int dEvasion = (int) defender.getAttributeValue(ModEntityAttributes.EVASION);
 
-        float baseHitRate = 0.67f; // 67% base hit rate
-        float hitRate = baseHitRate + ((aAccuracy - dEvasion) * 0.0025f);
+        float hitRate = BASE_HIT_RATE + ((aAccuracy - dEvasion) * POINT_EFICENT);
 
         hitRate = MathHelper.clamp(hitRate, 0,1);
 
