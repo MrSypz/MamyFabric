@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.agility.projectileclip;
+package com.sypztep.mamy.mixin.vanilla.stats.agility.projectileclip;
 
 import com.sypztep.mamy.common.api.MissingAccessor;
 import net.minecraft.entity.EntityType;

@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.dexterity;
+package com.sypztep.mamy.mixin.vanilla.stats.dexterity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.vitality;
+package com.sypztep.mamy.mixin.vanilla.stats.vitality;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.Entity;

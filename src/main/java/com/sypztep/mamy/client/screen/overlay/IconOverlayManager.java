@@ -161,7 +161,7 @@ public class IconOverlayManager {
     }
 
     private static void updateOverlayState(MinecraftClient client) {
-        boolean isLeftAltPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT);
+        boolean isLeftAltPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_RIGHT_ALT);
 
         if (isLeftAltPressed && !wasLeftAltPressed) {
             toggleOverlayMode(client);

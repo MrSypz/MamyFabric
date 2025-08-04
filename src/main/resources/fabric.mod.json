@@ -39,7 +39,8 @@
       "mamy:livinglevel",
       "mamy:dmgtracker",
       "mamy:playerclass",
-      "mamy:playerstance"
+      "mamy:playerstance",
+      "mamy:headshot"
     ]
   }
 }

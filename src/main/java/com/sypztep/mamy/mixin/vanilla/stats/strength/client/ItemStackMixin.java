@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.strength.client;
+package com.sypztep.mamy.mixin.vanilla.stats.strength.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;

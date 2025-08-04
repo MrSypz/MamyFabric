@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.vitality;
+package com.sypztep.mamy.mixin.vanilla.stats.vitality;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.sypztep.mamy.common.init.ModEntityAttributes;

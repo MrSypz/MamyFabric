@@ -18,8 +18,6 @@ public class HeadhunterAbility extends PassiveAbility {
 
     @Override
     protected void initializeEffects() {
-        // We'll handle the headshot multiplier through events/mixins
-        // But we can add some accuracy bonus
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.ACCURACY,
                 Mamy.id("headhunter_accuracy"),
@@ -35,6 +33,6 @@ public class HeadhunterAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Precision shots to the head deal 10x damage. +5 Accuracy");
+        return Text.literal("Precision shots to the head deal 5x target max health. +5 Accuracy");
     }
 }
