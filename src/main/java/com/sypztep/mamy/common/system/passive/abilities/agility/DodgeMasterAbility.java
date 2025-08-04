@@ -22,7 +22,7 @@ public class DodgeMasterAbility extends PassiveAbility {
                 ModEntityAttributes.EVASION,
                 Mamy.id("dodge_master_evasion"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 10.0 // +10 evasion
+                baseValue -> 120.0 // +30% evasion
         ));
     }
 
