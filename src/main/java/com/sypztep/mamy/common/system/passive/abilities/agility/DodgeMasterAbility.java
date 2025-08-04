@@ -12,8 +12,8 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class DodgeMasterAbility extends PassiveAbility {
-    public DodgeMasterAbility() {
-        super("dodge_master", Map.of(StatTypes.AGILITY, 15));
+    public DodgeMasterAbility(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
 
     @Override

@@ -4,9 +4,7 @@ import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.abilities.Intelligence.ArcanePowerAbility;
 import com.sypztep.mamy.common.system.passive.abilities.Intelligence.ManaShieldAbility;
 import com.sypztep.mamy.common.system.passive.abilities.Intelligence.SpellEchoAbility;
-import com.sypztep.mamy.common.system.passive.abilities.agility.DodgeMasterAbility;
-import com.sypztep.mamy.common.system.passive.abilities.agility.SwiftFeetAbility;
-import com.sypztep.mamy.common.system.passive.abilities.agility.WindWalkerAbility;
+import com.sypztep.mamy.common.system.passive.abilities.agility.*;
 import com.sypztep.mamy.common.system.passive.abilities.dexterity.HeadhunterAbility;
 import com.sypztep.mamy.common.system.passive.abilities.dexterity.PrecisionStrikesAbility;
 import com.sypztep.mamy.common.system.passive.abilities.dexterity.SteadyAimAbility;
@@ -30,9 +28,11 @@ public final class ModPassiveAbilities {
     private static final Map<String, PassiveAbility> ABILITIES = new LinkedHashMap<>();
 
     // === AGILITY ABILITIES ===
-    public static final PassiveAbility SWIFT_FEET = register(new SwiftFeetAbility());
-    public static final PassiveAbility DODGE_MASTER = register(new DodgeMasterAbility());
-    public static final PassiveAbility WIND_WALKER = register(new WindWalkerAbility());
+    public static final PassiveAbility SWIFT_FEET = register(new SwiftFeetAbility("swift_feet",Map.of(StatTypes.AGILITY, 5)));
+    public static final PassiveAbility DODGE_MASTER = register(new DodgeMasterAbility("dodge_master",Map.of(StatTypes.AGILITY, 15)));
+    public static final PassiveAbility QUICK_REFLEX = register(new QuickReflexPassive("quick_reflex",Map.of(StatTypes.AGILITY, 20)));
+    public static final PassiveAbility WIND_WALKER = register(new WindWalkerAbility("wind_walker",Map.of(StatTypes.AGILITY, 30)));
+    public static final PassiveAbility SHADOW_STEP = register(new ShadowStepPassiveAbility("shadow_step",Map.of(StatTypes.AGILITY, 50)));
 
     // === DEXTERITY ABILITIES ===
     public static final PassiveAbility HEADHUNTER = register(new HeadhunterAbility());

@@ -13,8 +13,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class WindWalkerAbility extends PassiveAbility {
-    public WindWalkerAbility() {
-        super("wind_walker", Map.of(StatTypes.AGILITY, 30));
+
+    public WindWalkerAbility(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
 
     @Override

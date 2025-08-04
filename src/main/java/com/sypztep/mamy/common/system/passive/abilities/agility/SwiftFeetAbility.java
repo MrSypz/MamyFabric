@@ -14,8 +14,8 @@ import java.util.Map;
 // === AGILITY ABILITIES ===
 
 public class SwiftFeetAbility extends PassiveAbility {
-    public SwiftFeetAbility() {
-        super("swift_feet", Map.of(StatTypes.AGILITY, 5));
+    public SwiftFeetAbility(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
 
     @Override

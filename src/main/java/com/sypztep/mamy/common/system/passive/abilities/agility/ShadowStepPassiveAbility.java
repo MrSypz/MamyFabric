@@ -6,13 +6,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.Map;
-// === SHADOW STEP ABILITIES ===
-// Stats Level Required: AGILITY: 50
-// Passive Description: No longer have footstep sound
 
 public class ShadowStepPassiveAbility extends PassiveAbility {
-    public ShadowStepPassiveAbility() {
-        super("shadow_step", Map.of(StatTypes.AGILITY, 50));
+
+    public ShadowStepPassiveAbility(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
 
     @Override

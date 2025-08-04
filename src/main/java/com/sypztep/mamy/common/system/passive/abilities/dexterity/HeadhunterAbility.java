@@ -33,6 +33,6 @@ public class HeadhunterAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Precision shots to the head deal 5x target max health. +5 Accuracy");
+        return Text.literal("Precision shots to the head, Explode ande deal 5x target max health and bleeding to deadnn. +5 Accuracy");
     }
 }
