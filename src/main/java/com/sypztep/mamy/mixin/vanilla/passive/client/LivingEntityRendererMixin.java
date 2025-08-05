@@ -12,6 +12,9 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.entity.mob.SlimeEntity;
+import net.minecraft.entity.passive.SquidEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,8 +43,16 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
                 .orElse(false);
 
         if (this.model instanceof SinglePartEntityModel<?> singlePartEntityModel) {
-            Optional<ModelPart> optionalHeadPart = singlePartEntityModel.getChild("head");
-            optionalHeadPart.ifPresent(head -> head.visible = !isHeadExploding);
+            String partName = null;
+
+            if (livingEntity instanceof SquidEntity || livingEntity instanceof GhastEntity) {
+                partName = "body";
+            } else {
+                partName = "head";
+            }
+
+            Optional<ModelPart> optionalPart = singlePartEntityModel.getChild(partName);
+            optionalPart.ifPresent(part -> part.visible = !isHeadExploding);
         }
     }
 }
