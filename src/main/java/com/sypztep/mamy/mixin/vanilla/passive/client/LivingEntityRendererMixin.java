@@ -43,13 +43,12 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
                 .orElse(false);
 
         if (this.model instanceof SinglePartEntityModel<?> singlePartEntityModel) {
-            String partName = null;
+            String partName;
 
-            if (livingEntity instanceof SquidEntity || livingEntity instanceof GhastEntity) {
+            if (livingEntity instanceof SquidEntity || livingEntity instanceof GhastEntity)
                 partName = "body";
-            } else {
+            else
                 partName = "head";
-            }
 
             Optional<ModelPart> optionalPart = singlePartEntityModel.getChild(partName);
             optionalPart.ifPresent(part -> part.visible = !isHeadExploding);

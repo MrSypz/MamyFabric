@@ -3,12 +3,12 @@ package com.sypztep.mamy.mixin.vanilla.passive;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
+import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.GhastEntity;
-import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.entity.passive.SquidEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -42,11 +42,11 @@ public abstract class ProjectileEntityMixin extends Entity {
         if (!(hit instanceof LivingEntity livingTarget) || !(owner instanceof PlayerEntity shooter))return;
         if (!PassiveAbilityManager.isActive(shooter, ModPassiveAbilities.HEADHUNTER)) return;
         if (hit.getType().toString().contains("ender_dragon_part")) return;
-        if (hit instanceof SlimeEntity) return;
+        if (hit.getType().isIn(ModTags.EntityTypes.CANNOT_HEADSHOT)) return;
 
         float radius = 0.5F;
         if (hit instanceof GhastEntity)
-            radius = 7;
+            radius = 4.5f;
         else if (hit instanceof SquidEntity)
             radius = 1.5f;
         double y = this.getPos().getY();

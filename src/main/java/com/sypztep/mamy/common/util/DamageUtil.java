@@ -3,7 +3,7 @@ package com.sypztep.mamy.common.util;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.init.ModCustomParticles;
-import com.sypztep.mamy.common.init.ModDamageTags;
+import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -71,7 +71,7 @@ public final class DamageUtil {
         }),
 
         PROJECTILE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModDamageTags.PROJECTILE_DAMAGE)) {
+            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
                 float projectileBonus = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE);
                 float extra = projectileBonus + specialAttack(attacker);
                 debugLog("Projectile Damage: +%.1f (%.1f projectile, %.1f special)", extra, projectileBonus, specialAttack(attacker));
@@ -81,7 +81,7 @@ public final class DamageUtil {
         }),
 
         MELEE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModDamageTags.MELEE_DAMAGE)) {
+            if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
                 float meleeBonus = (float) attacker.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
                 float extra = meleeBonus + specialAttack(attacker);
                 debugLog("Melee Damage: +%.1f (%.1f melee, %.1f special)", extra, meleeBonus, specialAttack(attacker));

@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.client.provider.ModDamageTypeTagProvider;
+import com.sypztep.mamy.client.provider.ModEntityTypeTagProvider;
 import com.sypztep.mamy.client.provider.ModLanguageProvider;
 import com.sypztep.mamy.client.provider.ModMobDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
@@ -15,5 +16,6 @@ public class MamyDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(ModLanguageProvider::new);
         pack.addProvider(ModMobDataGenerator::new);
         pack.addProvider(ModDamageTypeTagProvider::new);
+        pack.addProvider(ModEntityTypeTagProvider::new);
     }
 }

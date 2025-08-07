@@ -1,6 +1,6 @@
 package com.sypztep.mamy.client.provider;
 
-import com.sypztep.mamy.common.init.ModDamageTags;
+import com.sypztep.mamy.common.init.ModTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.entity.damage.DamageType;
@@ -22,7 +22,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// PHYSICAL DAMAGE - Non-magical physical forces
 		// ==========================================
-		getOrCreateTagBuilder(ModDamageTags.PHYSICAL_DAMAGE)
+		getOrCreateTagBuilder(ModTags.DamageTags.PHYSICAL_DAMAGE)
 				.add(DamageTypes.MOB_ATTACK)           // Melee attacks from mobs
 				.add(DamageTypes.PLAYER_ATTACK)        // Melee attacks from players
 				.add(DamageTypes.FALLING_BLOCK)        // Falling blocks (sand, gravel, etc.)
@@ -44,7 +44,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// MELEE DAMAGE - Close combat attacks
 		// ==========================================
-		getOrCreateTagBuilder(ModDamageTags.MELEE_DAMAGE)
+		getOrCreateTagBuilder(ModTags.DamageTags.MELEE_DAMAGE)
 				.add(DamageTypes.MOB_ATTACK)          // Melee from mobs
 				.add(DamageTypes.PLAYER_ATTACK)       // Melee from players
 				.add(DamageTypes.STING);              // Bee stings (close range)
@@ -52,7 +52,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// MAGIC DAMAGE - Magical/supernatural forces
 		// ==========================================
-		getOrCreateTagBuilder(ModDamageTags.MAGIC_DAMAGE)
+		getOrCreateTagBuilder(ModTags.DamageTags.MAGIC_DAMAGE)
 				.add(DamageTypes.MAGIC)               // Direct magic damage
 				.add(DamageTypes.INDIRECT_MAGIC)      // Indirect magic (potions, etc.)
 				.add(DamageTypes.WITHER_SKULL)        // Wither skull projectiles
@@ -65,7 +65,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// FIRE DAMAGE - Heat and flame based
 		// ==========================================
-		getOrCreateTagBuilder(ModDamageTags.FIRE_DAMAGE)
+		getOrCreateTagBuilder(ModTags.DamageTags.FIRE_DAMAGE)
 				.add(DamageTypes.IN_FIRE)             // Standing in fire
 				.add(DamageTypes.LAVA)                // Lava damage
 				.add(DamageTypes.ON_FIRE)             // Being on fire
@@ -78,7 +78,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// PROJECTILE DAMAGE - Ranged attacks
 		// ==========================================
-		getOrCreateTagBuilder(ModDamageTags.PROJECTILE_DAMAGE)
+		getOrCreateTagBuilder(ModTags.DamageTags.PROJECTILE_DAMAGE)
 				.add(DamageTypes.ARROW)               // Bow/crossbow arrows
 				.add(DamageTypes.TRIDENT)             // Thrown tridents
 				.add(DamageTypes.MOB_PROJECTILE)      // Projectiles from mobs
