@@ -10,7 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class ExpUtil {
+public final class ExpUtil {
 
     public static int calculateExpReward(PlayerEntity player, LivingEntity target, float damagePercentage) {
         EntityType<?> entityType = target.getType();
