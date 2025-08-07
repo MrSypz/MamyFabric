@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.stat.Stat;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -28,7 +29,8 @@ public final class VitalityStat extends Stat {
                 living,
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 getPrimaryId(),
-                baseValue -> baseValue * (MAX_HEALTH_SCALING * this.currentValue)
+                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
+                baseValue -> MAX_HEALTH_SCALING * this.currentValue
         );
     }
 
