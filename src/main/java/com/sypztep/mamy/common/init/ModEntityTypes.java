@@ -8,7 +8,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class ModEntityTypes {
+public final class ModEntityTypes {
     public static EntityType<BloodLustEntity> BLOOD_LUST;
 
     public static void init() {

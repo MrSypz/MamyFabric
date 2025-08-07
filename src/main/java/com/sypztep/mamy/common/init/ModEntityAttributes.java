@@ -9,34 +9,31 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 import java.util.ArrayList;
 
-public final class ModEntityAttributes {
-    public ModEntityAttributes() {
-    }
+public interface ModEntityAttributes {
+    ArrayList<RegistryEntry<EntityAttribute>> ENTRIES = new ArrayList<>();
 
-    public static final ArrayList<RegistryEntry<EntityAttribute>> ENTRIES = new ArrayList<>();
+    RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
 
-    public static final RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
+    RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000);
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000);
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000);
 
-    public static final RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000);
-    public static final RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000);
-    public static final RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000);
+    RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
+    RegistryEntry<EntityAttribute> EVASION = register("evasion", 0, 0.0, 2048.0D);
 
-    public static final RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
-    public static final RegistryEntry<EntityAttribute> EVASION = register("evasion", 0, 0.0, 2048.0D);
+    RegistryEntry<EntityAttribute> CRIT_DAMAGE = register("crit_damage",1, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> CRIT_CHANCE = register("crit_chance",0.0, 0.0, 2.0D);
+    RegistryEntry<EntityAttribute> BACK_ATTACK = register("back_attack", 0.2, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> SPECIAL_ATTACK = register("special_attack", 0.0, 0.0, 10.24D);
 
-    public static final RegistryEntry<EntityAttribute> CRIT_DAMAGE = register("crit_damage",1, 0.0, 10.24D);
-    public static final RegistryEntry<EntityAttribute> CRIT_CHANCE = register("crit_chance",0.0, 0.0, 2.0D);
-    public static final RegistryEntry<EntityAttribute> BACK_ATTACK = register("back_attack", 0.2, 0.0, 10.24D);
-    public static final RegistryEntry<EntityAttribute> SPECIAL_ATTACK = register("special_attack", 0.0, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE = register("melee_attack_damage", 0, 0.0, 2048D);
+    RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE = register("magic_attack_damage", 0, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE = register("projectile_attack_damage",0, 0.0, 10.24D);
 
-    public static final RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE = register("melee_attack_damage", 0, 0.0, 2048D);
-    public static final RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE = register("magic_attack_damage", 0, 0.0, 10.24D);
-    public static final RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE = register("projectile_attack_damage",0, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> MAGIC_RESISTANCE = register("magic_resistance", 0, -10.0D, 0.75D);
+    RegistryEntry<EntityAttribute> DAMAGE_REDUCTION = register("damage_reduction", 0.05, 0.0D, 0.8D);
 
-    public static final RegistryEntry<EntityAttribute> MAGIC_RESISTANCE = register("magic_resistance", 0, -10.0D, 0.75D);
-    public static final RegistryEntry<EntityAttribute> DAMAGE_REDUCTION = register("damage_reduction", 0.05, 0.0D, 0.8D);
-
-    public static final RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
+    RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
 
     private static RegistryEntry<EntityAttribute> register(String id, double fallback,double min, double max) {
         RegistryEntry<EntityAttribute> entry = Registry.registerReference(Registries.ATTRIBUTE, Mamy.id(id), new ClampedEntityAttribute("attribute.name." + id, fallback, min, max).setTracked(true));

@@ -40,13 +40,13 @@ public final class PassiveAbilityScreen extends Screen {
     private final PassiveAbilityManager abilityManager;
 
     // UI state
-    private List<PassiveAbility> displayedAbilities;
+    private final List<PassiveAbility> displayedAbilities;
     private PassiveAbility selectedAbility;
-    private List<Integer> itemHeights; // Store calculated heights for each item
+    private final List<Integer> itemHeights; // Store calculated heights for each item
 
     // Scroll behaviors
-    private ScrollBehavior listScrollBehavior;
-    private ScrollBehavior detailsScrollBehavior;
+    private final ScrollBehavior listScrollBehavior;
+    private final ScrollBehavior detailsScrollBehavior;
 
     // Animations
     private Animation fadeAnimation;

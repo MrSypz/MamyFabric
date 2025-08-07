@@ -9,7 +9,7 @@ import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class ModParticles {
+public final class ModParticles {
     public static SimpleParticleType BLOOD_BUBBLE;
     public static SimpleParticleType BLOOD_BUBBLE_SPLATTER;
 

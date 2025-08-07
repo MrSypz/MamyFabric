@@ -9,11 +9,11 @@ import net.minecraft.util.Formatting;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModClasses {
-    public static final Map<String, PlayerClass> CLASSES = new HashMap<>();
+public interface ModClasses {
+    Map<String, PlayerClass> CLASSES = new HashMap<>();
 
     // ===== TIER 0 (Starting) =====
-    public static final PlayerClass NOVICE = register(new PlayerClass(
+    PlayerClass NOVICE = register(new PlayerClass(
             "novice", 0, 1, "Novice", Formatting.GRAY,
             Map.of(),
             Map.of(),
@@ -23,7 +23,7 @@ public class ModClasses {
     ));
 
     // ===== TIER 1 (First Job) =====
-    public static final PlayerClass SWORDMAN = register(new PlayerClass(
+    PlayerClass SWORDMAN = register(new PlayerClass(
             "swordman", 1, 1, "Swordman", Formatting.RED,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
@@ -43,7 +43,7 @@ public class ModClasses {
     ).addRequirement(NOVICE, 10));
 
     // Mage growth: +5% max health, +8% max resource, +1% magic damage per level
-    public static final PlayerClass MAGE = register(new PlayerClass(
+    PlayerClass MAGE = register(new PlayerClass(
             "mage", 1, 2, "Mage", Formatting.BLUE,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
@@ -61,7 +61,7 @@ public class ModClasses {
             50, false
     ).addRequirement(NOVICE, 10));
 
-    public static final PlayerClass ARCHER = register(new PlayerClass(
+    PlayerClass ARCHER = register(new PlayerClass(
             "archer", 1, 3, "Archer", Formatting.GREEN,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 30.0,
@@ -79,7 +79,7 @@ public class ModClasses {
             50, false
     ).addRequirement(NOVICE, 10));
 
-    public static final PlayerClass ACOLYTE = register(new PlayerClass(
+    PlayerClass ACOLYTE = register(new PlayerClass(
             "acolyte", 1, 4, "Acolyte", Formatting.GOLD,
             Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 18.0,
