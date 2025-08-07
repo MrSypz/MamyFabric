@@ -36,11 +36,6 @@ public class WindWalkerAbility extends PassiveAbility {
     }
 
     @Override
-    protected void onApply(PlayerEntity player) {
-        // Could add custom effects like no fall damage, etc.
-    }
-
-    @Override
     public Text getDisplayName() {
         return Text.literal("Wind Walker").formatted(Formatting.AQUA);
     }

@@ -6,7 +6,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
-public class HeadShotEntityComponent implements AutoSyncedComponent {
+public final class HeadShotEntityComponent implements AutoSyncedComponent {
     private final LivingEntity living;
     private boolean headShot;
 

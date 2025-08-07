@@ -73,9 +73,6 @@ public abstract class PassiveAbility {
                 attributeInstance.addPersistentModifier(modifier);
             }
         }
-
-        // Call custom application logic
-        onApply(player);
     }
 
     /**
@@ -91,23 +88,6 @@ public abstract class PassiveAbility {
                 }
             }
         }
-
-        // Call custom removal logic
-        onRemove(player);
-    }
-
-    /**
-     * Override for custom application logic (non-attribute effects)
-     */
-    protected void onApply(PlayerEntity player) {
-        // Default: do nothing
-    }
-
-    /**
-     * Override for custom removal logic
-     */
-    protected void onRemove(PlayerEntity player) {
-        // Default: do nothing
     }
 
     /**

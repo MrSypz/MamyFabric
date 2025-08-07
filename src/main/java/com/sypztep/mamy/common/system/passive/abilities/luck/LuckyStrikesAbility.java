@@ -35,11 +35,6 @@ public class LuckyStrikesAbility extends PassiveAbility {
     }
 
     @Override
-    protected void  onApply(PlayerEntity player) {
-        // Could add chance for double hits or other lucky effects
-    }
-
-    @Override
     public Text getDisplayName() {
         return Text.literal("Lucky Strikes").formatted(Formatting.LIGHT_PURPLE);
     }

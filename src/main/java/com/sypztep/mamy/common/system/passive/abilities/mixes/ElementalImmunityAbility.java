@@ -31,12 +31,6 @@ public class ElementalImmunityAbility extends PassiveAbility {
     }
 
     @Override
-    protected void onApply(PlayerEntity player) {
-        // Fire immunity would be handled through damage events
-        // Could add other immunities here
-    }
-
-    @Override
     public Text getDisplayName() {
         return Text.literal("Elemental Immunity").formatted(Formatting.LIGHT_PURPLE);
     }

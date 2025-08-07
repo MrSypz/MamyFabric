@@ -1,6 +1,5 @@
 package com.sypztep.mamy.mixin.vanilla.passive;
 
-import com.sypztep.mamy.common.component.living.HeadShotEntityComponent;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;

@@ -13,7 +13,7 @@ import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
 import java.util.Set;
 
-public class PlayerClassComponent implements AutoSyncedComponent, CommonTickingComponent {
+public final class PlayerClassComponent implements AutoSyncedComponent, CommonTickingComponent {
     private final PlayerEntity player;
     private final PlayerClassManager classManager;
 
