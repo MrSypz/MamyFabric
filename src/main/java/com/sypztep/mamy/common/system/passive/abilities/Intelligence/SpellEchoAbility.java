@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities.Intelligence;
+package com.sypztep.mamy.common.system.passive.abilities.intelligence;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -25,11 +25,6 @@ public class SpellEchoAbility extends PassiveAbility {
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
                 baseValue -> 0.35 // +35% magic damage
         ));
-    }
-
-    @Override
-    protected void onApply(PlayerEntity player) {
-        // Could add spell echo effects through events
     }
 
     @Override

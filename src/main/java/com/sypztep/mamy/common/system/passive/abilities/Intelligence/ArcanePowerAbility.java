@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities.Intelligence;
+package com.sypztep.mamy.common.system.passive.abilities.intelligence;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
