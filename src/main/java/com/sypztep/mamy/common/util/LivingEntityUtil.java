@@ -20,14 +20,19 @@ public final class LivingEntityUtil {
     }
 
     public static boolean hitCheck(LivingEntity attacker, LivingEntity defender) {
+        float hitRate = hitRate(attacker, defender);
+
+        hitRate = MathHelper.clamp(hitRate, 0,1);
+
+        return roll(attacker) < hitRate;
+    }
+    public static float hitRate(LivingEntity attacker, LivingEntity defender) {
         int aAccuracy = (int) attacker.getAttributeValue(ModEntityAttributes.ACCURACY);
         int dEvasion = (int) defender.getAttributeValue(ModEntityAttributes.EVASION);
 
         float hitRate = BASE_HIT_RATE + ((aAccuracy - dEvasion) * POINT_EFICENT);
 
-        hitRate = MathHelper.clamp(hitRate, 0,1);
-
-        return roll(attacker) < hitRate;
+        return MathHelper.clamp(hitRate, 0,1) * 100;
     }
 
     public static void playCriticalSound(Entity target) {

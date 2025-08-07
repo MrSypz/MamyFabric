@@ -19,6 +19,8 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("mamy.text.back", "Back Attack");
         translate.add("mamy.text.air", "Air Attack");
 
+        translate.add("mamy.hitchance", "Hit Chance: %f%%");
+
         playerInfo(translate);
         generateConfigTranslations(translate);
         generateAttributeTranslations(translate);

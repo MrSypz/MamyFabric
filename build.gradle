@@ -72,6 +72,9 @@ dependencies {
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
     modImplementation include("com.github.MrSypz:Tyrannus:${tyrannus_version}")
+
+    modImplementation "maven.modrinth:jade:${project.jade_version}"
+
 }
 
 processResources {

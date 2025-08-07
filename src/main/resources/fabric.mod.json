@@ -18,6 +18,9 @@
     "client": [
       "com.sypztep.mamy.client.MamyClient"
     ],
+    "jade": [
+      "com.sypztep.mamy.common.compat.JadePlugin"
+    ],
     "main": [
       "com.sypztep.mamy.Mamy"
     ],
