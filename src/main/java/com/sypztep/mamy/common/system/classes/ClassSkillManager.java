@@ -123,13 +123,9 @@ public class ClassSkillManager {
     /**
      * Free learning method for basic skills
      */
-    private boolean learnSkill(Identifier skillId, boolean free) {
-        if (hasLearnedSkill(skillId)) return false;
-        if (free) {
-            skillLevels.put(skillId, 1);
-            return true;
-        }
-        return false;
+    private void learnSkill(Identifier skillId, boolean free) {
+        if (hasLearnedSkill(skillId)) return;
+        if (free) skillLevels.put(skillId, 1);
     }
 
     /**
