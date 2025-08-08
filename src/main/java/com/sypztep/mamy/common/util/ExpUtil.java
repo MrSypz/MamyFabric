@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.util;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
@@ -7,10 +8,43 @@ import com.sypztep.mamy.common.data.MobExpEntry;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class ExpUtil {
+    public static void applyDeathPenalty(ServerPlayerEntity player, DamageSource damageSource) {
+        LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.get(player);
+
+        if (levelComponent.getLevelSystem().isMaxLevel()) return;
+
+        long expToNextLevel = levelComponent.getExperienceToNextLevel();
+        long penaltyAmount = Math.round(expToNextLevel * ModConfig.deathPenaltyPercentage);
+
+        if (penaltyAmount <= 0) return;
+
+        long currentExp = levelComponent.getExperience();
+        long newExp = Math.max(0, currentExp - penaltyAmount);
+
+        levelComponent.getLevelSystem().setExperience(newExp);
+
+        String killerName = getKillerName(damageSource);
+        SendToastPayloadS2C.sendDeathPenalty(player, penaltyAmount, killerName);
+
+    }
+    private static String getKillerName(DamageSource damageSource) {
+        if (damageSource.getAttacker() instanceof LivingEntity attacker) {
+            if (attacker.hasCustomName()) return attacker.getCustomName().getString();
+            return attacker.getType().getName().getString();
+        }
+
+        if (damageSource.getSource() instanceof LivingEntity source) {
+            if (source.hasCustomName()) return source.getCustomName().getString();
+            return source.getType().getName().getString();
+        }
+
+        return damageSource.getName();
+    }
 
     public static int calculateExpReward(PlayerEntity player, LivingEntity target, float damagePercentage) {
         EntityType<?> entityType = target.getType();
@@ -162,7 +196,6 @@ public final class ExpUtil {
         int levelDiff = targetLevel - playerLevel;
 
         return switch (levelDiff) {
-            case 16 -> 0.40f;
             case 15 -> 1.15f;
             case 14 -> 1.20f;
             case 13 -> 1.25f;
@@ -176,22 +209,20 @@ public final class ExpUtil {
             case 5 -> 1.15f;
             case 4 -> 1.10f;
             case 3 -> 1.05f;
-            case 2 -> 1.00f;
-            case 1 -> 0.95f;
-            case 0 -> 0.90f;
-            case -1 -> 0.85f;
-            case -2 -> 0.80f;
-            case -3 -> 0.75f;
-            case -4 -> 0.70f;
-            case -5 -> 0.65f;
-            case -6 -> 0.60f;
-            case -7 -> 0.55f;
-            case -8 -> 0.50f;
-            case -9 -> 0.45f;
-            case -10 -> 0.40f;
-            default -> levelDiff > 16 ? 0.30f : 0.35f; // Very high or very low level difference
+            case 2, 1, 0, -1, -2, -3, -4, -5 -> 1.00f;
+            case -6, -7, -8, -9, -10 -> 0.95f;
+            case -11, -12, -13, -14, -15 -> 0.90f;
+            case -16, -17, -18, -19, -20 -> 0.85f;
+            case -21, -22, -23, -24, -25 -> 0.60f;
+            case -26, -27, -28, -29, -30, -31 -> 0.35f;
+            default -> {
+                if (levelDiff > 16) yield 0.40f;
+                if (levelDiff < -31) yield 0.10f;
+                yield 1.00f; // Safety fallback
+            }
         };
     }
+
     // player are not have exp by default but for safty
     public static boolean shouldReceiveExperience(PlayerEntity player, LivingEntity target) {
         if (target instanceof PlayerEntity) return false;
