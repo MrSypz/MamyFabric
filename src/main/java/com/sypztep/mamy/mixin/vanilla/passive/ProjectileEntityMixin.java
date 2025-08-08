@@ -7,6 +7,7 @@ import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.passive.SquidEntity;
@@ -31,34 +32,28 @@ public abstract class ProjectileEntityMixin extends Entity {
         super(type, world);
     }
 
-    @Inject(
-            method = {"onEntityHit"},
-            at = {@At("HEAD")}
-    )
+    @Inject(method = {"onEntityHit"}, at = {@At("HEAD")})
     protected void onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci) {
         Entity hit = entityHitResult.getEntity();
         Entity owner = this.getOwner();
 
-        if (!(hit instanceof LivingEntity livingTarget) || !(owner instanceof PlayerEntity shooter))return;
+        if (!(hit instanceof LivingEntity livingTarget) || !(owner instanceof PlayerEntity shooter)) return;
         if (!PassiveAbilityManager.isActive(shooter, ModPassiveAbilities.HEADHUNTER)) return;
-        if (hit.getType().toString().contains("ender_dragon_part")) return;
+        if (!livingTarget.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) return;
         if (hit.getType().isIn(ModTags.EntityTypes.CANNOT_HEADSHOT)) return;
+        if (hit.getType().toString().contains("ender_dragon_part")) return;
 
-        float radius = 0.5F;
-        if (hit instanceof GhastEntity)
-            radius = 4.5f;
-        else if (hit instanceof SquidEntity)
-            radius = 1.5f;
+        float radius = 0.45F;
+        if (hit instanceof GhastEntity) radius = 4.5f;
+        else if (hit instanceof SquidEntity) radius = 1.5f;
         double y = this.getPos().getY();
         double eyeY = hit.getEyeY();
 
+        if (livingTarget.getHealth() >= livingTarget.getMaxHealth() * 0.6f) return;
         if (y >= eyeY - radius && y <= eyeY + radius) {
             ModEntityComponents.HEADSHOT.maybeGet(livingTarget).ifPresent(component -> {
-                component.setHeadShot(true);
-                livingTarget.damage(
-                        this.getDamageSources().create(ModDamageTypes.HEADSHOT),
-                        livingTarget.getMaxHealth() * 5
-                );
+                livingTarget.damage(this.getDamageSources().create(ModDamageTypes.HEADSHOT), livingTarget.getHealth() * 0.95f); // 5% hp left
+                component.setHeadShot(true); // then mark headshot
             });
         }
     }

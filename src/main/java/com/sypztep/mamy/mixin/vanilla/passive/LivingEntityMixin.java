@@ -24,6 +24,8 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Shadow public abstract boolean addStatusEffect(StatusEffectInstance effect);
 
+    @Shadow public abstract boolean isAlive();
+
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -53,6 +55,18 @@ public abstract class LivingEntityMixin extends Entity {
             this.playSound(ModSoundEvents.ENTITY_GENERIC_BLOODHIT, 5.0F, 1.0F);
             this.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER,600,4,false,true,false));
             onceDo = true;
+        }else if (onceDo && this.isAlive()) {
+            for (int i = 0; i < 16; ++i) {
+                this.getWorld().addParticle(
+                        ModParticles.BLOOD_BUBBLE_SPLATTER,
+                        this.getX() ,
+                        this.getEyeY() + this.random.nextGaussian() * 0.2,
+                        this.getZ() ,
+                        this.random.nextGaussian() * 0.1,     // motionX
+                        this.random.nextGaussian() * 1.7, // motionY (upward splash)
+                        this.random.nextGaussian() * 0.1      // motionZ
+                );
+            }
         }
     }
 }
