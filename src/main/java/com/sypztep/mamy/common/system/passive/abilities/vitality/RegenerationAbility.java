@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class RegenerationAbility extends PassiveAbility {
-    public RegenerationAbility() {
-        super("regeneration", Map.of(StatTypes.VITALITY, 20));
-    }
+    public RegenerationAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

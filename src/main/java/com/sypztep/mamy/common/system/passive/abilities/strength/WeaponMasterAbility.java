@@ -13,9 +13,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class WeaponMasterAbility extends PassiveAbility {
-    public WeaponMasterAbility() {
-        super("weapon_master", Map.of(StatTypes.STRENGTH, 45));
-    }
+    public WeaponMasterAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class SteadyAimAbility extends PassiveAbility {
-    public SteadyAimAbility() {
-        super("steady_aim", Map.of(StatTypes.DEXTERITY, 35));
-    }
+    public SteadyAimAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

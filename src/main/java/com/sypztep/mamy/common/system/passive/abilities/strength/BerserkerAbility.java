@@ -13,9 +13,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class BerserkerAbility extends PassiveAbility {
-    public BerserkerAbility() {
-        super("berserker", Map.of(StatTypes.STRENGTH, 30));
-    }
+    public BerserkerAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

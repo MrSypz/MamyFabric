@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class HeavyHitterAbility extends PassiveAbility {
-    public HeavyHitterAbility() {
-        super("heavy_hitter", Map.of(StatTypes.STRENGTH, 12));
-    }
+    public HeavyHitterAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {
@@ -22,7 +22,7 @@ public class HeavyHitterAbility extends PassiveAbility {
                 ModEntityAttributes.MELEE_ATTACK_DAMAGE,
                 Mamy.id("heavy_hitter_melee"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.15 // +15% melee damage
+                baseValue -> 1.5 // +150% melee damage
         ));
     }
 
@@ -33,6 +33,6 @@ public class HeavyHitterAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Your strikes pack devastating force. +15% Melee Damage");
+        return Text.literal("Your strikes pack devastating force. +150% Melee Damage");
     }
 }

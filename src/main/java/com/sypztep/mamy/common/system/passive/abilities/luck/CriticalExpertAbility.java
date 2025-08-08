@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class CriticalExpertAbility extends PassiveAbility {
-    public CriticalExpertAbility() {
-        super("critical_expert", Map.of(StatTypes.LUCK, 25));
-    }
+    public CriticalExpertAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

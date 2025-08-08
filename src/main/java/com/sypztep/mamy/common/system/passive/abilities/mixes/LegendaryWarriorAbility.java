@@ -13,16 +13,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class LegendaryWarriorAbility extends PassiveAbility {
-    public LegendaryWarriorAbility() {
-        super("legendary_warrior", Map.of(
-                StatTypes.STRENGTH, 50,
-                StatTypes.AGILITY, 40,
-                StatTypes.VITALITY, 45,
-                StatTypes.DEXTERITY, 35,
-                StatTypes.INTELLIGENCE, 30,
-                StatTypes.LUCK, 40
-        ));
-    }
+    public LegendaryWarriorAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

@@ -53,7 +53,7 @@ public class ModMobDataGenerator implements DataProvider {
                 createMobExpFile(writer, EntityType.RABBIT, MobExpEntry.withLevelStats(1, 1, 2)),
                 createMobExpFile(writer, EntityType.SALMON, MobExpEntry.withLevelStats(1, 1, 2)),
                 createMobExpFile(writer, EntityType.SHEEP, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpEntry(writer, EntityType.SKELETON_HORSE, 1500, 1200, 25, 20, 50, 30, 15, 100, 10), // Rare spawn, higher level
+                createMobExpEntry(writer, EntityType.SKELETON_HORSE, 1500, 1200, 25, 20, 50, 30, 15, 100, 10),
                 createMobExpFile(writer, EntityType.SNIFFER, MobExpEntry.withLevelStats(3, 2, 8)),
                 createMobExpFile(writer, EntityType.SNOW_GOLEM, MobExpEntry.withLevelStats(1, 1, 2)),
                 createMobExpFile(writer, EntityType.STRIDER, MobExpEntry.withLevelStats(2, 1, 4)),
@@ -69,66 +69,67 @@ public class ModMobDataGenerator implements DataProvider {
                 createMobExpFile(writer, EntityType.DOLPHIN, MobExpEntry.withLevelStats(1, 1, 10)),
                 createMobExpFile(writer, EntityType.FOX, MobExpEntry.withLevelStats(1, 1, 9)),
                 createMobExpFile(writer, EntityType.GOAT, MobExpEntry.withLevelStats(1, 1, 12)),
-                createMobExpFile(writer, EntityType.IRON_GOLEM, MobExpEntry.overworldTank(5000, 7500, 25)), // Village defender, tough
+                createMobExpEntry(writer, EntityType.IRON_GOLEM, 5000, 7500, 25, 33, 15, 45, 25, 120, 28), // Village defender
                 createMobExpFile(writer, EntityType.LLAMA, MobExpEntry.withLevelStats(1, 1, 10)),
                 createMobExpFile(writer, EntityType.PANDA, MobExpEntry.withLevelStats(1, 1, 14)),
                 createMobExpFile(writer, EntityType.POLAR_BEAR, MobExpEntry.withLevelStats(1, 1, 15)),
                 createMobExpFile(writer, EntityType.TRADER_LLAMA, MobExpEntry.withLevelStats(1, 1, 10)),
                 createMobExpFile(writer, EntityType.WOLF, MobExpEntry.withLevelStats(1, 1, 12)),
-                createMobExpFile(writer, EntityType.ZOMBIFIED_PIGLIN, MobExpEntry.withLevelStats(950, 850, 18)), // Nether mob in overworld
+                createMobExpFile(writer, EntityType.ZOMBIFIED_PIGLIN, MobExpEntry.withLevelStats(950, 850, 18)),
 
-                // === OVERWORLD HOSTILE MOBS (Level 10-30) - Main progression ===
-                createMobExpFile(writer, EntityType.ZOMBIE, MobExpEntry.overworldMob(850, 550,10)), // Level 10
-                createMobExpFile(writer, EntityType.ZOMBIE_VILLAGER, MobExpEntry.overworldMob(850, 550,10)), // Level 10
-                createMobExpFile(writer, EntityType.SKELETON, MobExpEntry.overworldArcher(1200, 980,10)), // Level 10
-                createMobExpFile(writer, EntityType.SPIDER, MobExpEntry.overworldMob(1700, 1250,10)), // Level 10
-                createMobExpFile(writer, EntityType.CREEPER, MobExpEntry.overworldMob(2100, 2300,10)), // Level 10
-                createMobExpFile(writer, EntityType.SLIME, MobExpEntry.overworldMob(480, 330,10)), // Level 10
-                createMobExpFile(writer, EntityType.SILVERFISH, MobExpEntry.overworldMob(550, 480,10)), // Level 10
+                // === OVERWORLD HOSTILE MOBS (Level 10-65) - Main progression ===
+                // Basic overworld (Level 10-15)
+                createMobExpEntry(writer, EntityType.ZOMBIE, 850, 550, 10, 10, 32, 10, 10, 64, 10),
+                createMobExpEntry(writer, EntityType.ZOMBIE_VILLAGER, 850, 550, 10, 10, 32, 10, 10, 64, 10),
+                createMobExpEntry(writer, EntityType.SKELETON, 1200, 980, 12, 12, 40, 12, 12, 80, 27), // Archer
+                createMobExpEntry(writer, EntityType.SPIDER, 1700, 1250, 11, 11, 35, 11, 11, 70, 11),
+                createMobExpEntry(writer, EntityType.CREEPER, 2100, 2300, 13, 15, 30, 15, 13, 65, 13),
+                createMobExpEntry(writer, EntityType.SLIME, 480, 330, 10, 8, 25, 8, 8, 60, 8),
+                createMobExpEntry(writer, EntityType.SILVERFISH, 550, 480, 10, 8, 45, 8, 8, 55, 8),
 
-                // Mid-tier overworld (Level 15-25)
-                createMobExpFile(writer, EntityType.CAVE_SPIDER, MobExpEntry.overworldArcher(2850, 1800,15)), // Level 15 - confined spawning
-                createMobExpFile(writer, EntityType.DROWNED, MobExpEntry.overworldMob(1500, 1250,15)), // Level 15
-                createMobExpFile(writer, EntityType.HUSK, MobExpEntry.overworldMob(2100, 1500,18)), // Level 18 - desert only
-                createMobExpFile(writer, EntityType.STRAY, MobExpEntry.overworldArcher(3000, 1800,20)), // Level 20 - cold biomes only
-                createMobExpFile(writer, EntityType.PHANTOM, MobExpEntry.overworldMob(3500, 2000,22)), // Level 22 - insomnia spawn
-                createMobExpFile(writer, EntityType.WITCH, MobExpEntry.overworldMage(4500, 8500,25)), // Level 25 - rare spawn, dangerous
+                // Mid-tier overworld (Level 15-30)
+                createMobExpEntry(writer, EntityType.CAVE_SPIDER, 2850, 1800, 18, 18, 50, 18, 18, 90, 33), // Archer spider
+                createMobExpEntry(writer, EntityType.DROWNED, 1500, 1250, 16, 16, 35, 16, 16, 75, 16),
+                createMobExpEntry(writer, EntityType.HUSK, 2100, 1500, 20, 20, 30, 22, 20, 70, 20),
+                createMobExpEntry(writer, EntityType.STRAY, 3000, 1800, 22, 22, 45, 22, 22, 95, 37), // Cold archer
+                createMobExpEntry(writer, EntityType.PHANTOM, 3500, 2000, 25, 25, 55, 25, 25, 85, 25),
+                createMobExpEntry(writer, EntityType.WITCH, 4500, 8500, 28, 26, 45, 28, 40, 75, 40), // Mage
 
-                // High-tier overworld (Level 25-35)
-                createMobExpFile(writer, EntityType.PILLAGER, MobExpEntry.overworldArcher(4000, 2500,25)), // Level 25
-                createMobExpFile(writer, EntityType.GUARDIAN, MobExpEntry.overworldMage(7850, 12000,28)), // Level 28 - ocean monument
-                createMobExpFile(writer, EntityType.RAVAGER, MobExpEntry.overworldTank(8000, 5000,30)), // Level 30 - raid only
-                createMobExpFile(writer, EntityType.VEX, MobExpEntry.overworldMob(17500, 15250,32)), // Level 32 - evoker summon
-                createMobExpFile(writer, EntityType.VINDICATOR, MobExpEntry.overworldWarrior(45850, 28785,35)), // Level 35 - woodland mansion/raid
+                // High-tier overworld (Level 30-45)
+                createMobExpEntry(writer, EntityType.PILLAGER, 4000, 2500, 32, 32, 50, 32, 32, 100, 47), // Archer
+                createMobExpEntry(writer, EntityType.GUARDIAN, 7850, 12000, 35, 35, 40, 35, 45, 85, 45), // Ocean mage
+                createMobExpEntry(writer, EntityType.RAVAGER, 8000, 5000, 38, 46, 20, 58, 38, 120, 41), // Tank
+                createMobExpEntry(writer, EntityType.VEX, 17500, 15250, 40, 40, 60, 40, 40, 95, 40),
+                createMobExpEntry(writer, EntityType.VINDICATOR, 45850, 28785, 42, 47, 30, 50, 42, 105, 47), // Warrior
 
-                // Elite overworld (Level 35-45)
-                createMobExpFile(writer, EntityType.EVOKER, MobExpEntry.overworldMage(60752, 40794,40)), // Level 40 - woodland mansion/raid
-                createMobExpFile(writer, EntityType.ILLUSIONER, MobExpEntry.overworldMage(55750, 35218,38)), // Level 38 - unused mob, very rare
-                createMobExpFile(writer, EntityType.BOGGED, MobExpEntry.overworldArcher(28795, 16785,35)), // Level 35 - trial chambers
-                createMobExpFile(writer, EntityType.BREEZE, MobExpEntry.overworldMage(50175, 30148,38)), // Level 38 - trial chambers
-                createMobExpFile(writer, EntityType.ELDER_GUARDIAN, MobExpEntry.overworldTank(185000, 85000, 45)), // Level 45 - boss, very rare
+                // Elite overworld (Level 45-65)
+                createMobExpEntry(writer, EntityType.EVOKER, 60752, 40794, 50, 48, 50, 50, 62, 90, 62), // Elite mage
+                createMobExpEntry(writer, EntityType.ILLUSIONER, 55750, 35218, 48, 46, 48, 48, 60, 88, 60), // Rare mage
+                createMobExpEntry(writer, EntityType.BOGGED, 28795, 16785, 45, 45, 55, 45, 45, 110, 60), // Trial archer
+                createMobExpEntry(writer, EntityType.BREEZE, 50175, 30148, 52, 52, 65, 52, 72, 95, 72), // Trial mage
+                createMobExpEntry(writer, EntityType.ELDER_GUARDIAN, 185000, 85000, 58, 68, 60, 78, 68, 175, 68), // Ocean boss
 
-                // Special rare spawns (High level for rarity compensation)
-                createMobExpFile(writer, EntityType.ENDERMITE, MobExpEntry.overworldMob(19000, 17000,35)), // Level 35 - ender pearl teleport spawn
-                createMobExpFile(writer, EntityType.ENDERMAN, MobExpEntry.endMob(120000, 65850,50)), // Level 50 in overworld - requires 80+ DEX
+                // Special rare spawns (High level for rarity)
+                createMobExpEntry(writer, EntityType.ENDERMITE, 19000, 17000, 45, 45, 70, 45, 45, 105, 45), // Rare spawn
+                createMobExpEntry(writer, EntityType.ENDERMAN, 120000, 65850, 65, 75, 112, 115, 75, 176, 75), // Overworld enderman
 
                 // === DEEP DARK/ANCIENT CITY MOBS (Level 95+) ===
-                createMobExpFile(writer, EntityType.WARDEN, MobExpEntry.netherBoss(258850, 185575, 100)), // Level 100 - ultimate challenge
+                createMobExpEntry(writer, EntityType.WARDEN, 258850, 185575, 110, 135, 95, 210, 135, 250, 135), // Ultimate challenge
 
-                // === NETHER MOBS (Level 66-80) - Mid-game progression ===
-                createMobExpFile(writer, EntityType.PIGLIN, MobExpEntry.netherMob(45850, 28718,66)), // Level 66
-                createMobExpFile(writer, EntityType.HOGLIN, MobExpEntry.netherMob(50715, 32258,68)), // Level 68
-                createMobExpFile(writer, EntityType.MAGMA_CUBE, MobExpEntry.netherMob(8518, 6580,66)), // Level 66
-                createMobExpFile(writer, EntityType.ZOGLIN, MobExpEntry.netherMob(55775, 35122,70)), // Level 70
-                createMobExpFile(writer, EntityType.PIGLIN_BRUTE, MobExpEntry.netherWarrior(60347, 40785,72)), // Level 72
-                createMobExpFile(writer, EntityType.BLAZE, MobExpEntry.netherMage(70985, 45578,75)), // Level 75
-                createMobExpFile(writer, EntityType.WITHER_SKELETON, MobExpEntry.netherWarrior(75153, 48128,78)), // Level 78
-                createMobExpFile(writer, EntityType.GHAST, MobExpEntry.netherMage(80175, 50152,80)), // Level 80
-                createMobExpFile(writer, EntityType.WITHER, MobExpEntry.netherBoss(801200, 685400,95)), // Level 95 - boss
+                // === NETHER MOBS (Level 66-95) - Mid-game progression ===
+                createMobExpEntry(writer, EntityType.PIGLIN, 45850, 28718, 68, 73, 82, 73, 73, 120, 73),
+                createMobExpEntry(writer, EntityType.HOGLIN, 50715, 32258, 70, 75, 75, 75, 70, 115, 70),
+                createMobExpEntry(writer, EntityType.MAGMA_CUBE, 8518, 6580, 66, 66, 70, 71, 71, 110, 66),
+                createMobExpEntry(writer, EntityType.ZOGLIN, 55775, 35122, 72, 77, 78, 77, 72, 125, 72),
+                createMobExpEntry(writer, EntityType.PIGLIN_BRUTE, 60347, 40785, 75, 85, 75, 87, 75, 130, 85), // Warrior
+                createMobExpEntry(writer, EntityType.BLAZE, 70985, 45578, 78, 78, 90, 81, 98, 100, 98), // Mage
+                createMobExpEntry(writer, EntityType.WITHER_SKELETON, 75153, 48128, 82, 92, 75, 94, 82, 130, 92), // Warrior
+                createMobExpEntry(writer, EntityType.GHAST, 80175, 50152, 85, 85, 90, 88, 105, 100, 105), // Flying mage
+                createMobExpEntry(writer, EntityType.WITHER, 801200, 685400, 88, 113, 95, 203, 113, 150, 113), // Nether boss
 
-                // === END MOBS (Level 81-115) - End game ===
-                createMobExpFile(writer, EntityType.SHULKER, MobExpEntry.endTank(185000, 120995,90)), // Level 90
-                createMobExpFile(writer, EntityType.ENDER_DRAGON, MobExpEntry.endBoss(900000, 700000,115)) // Level 115 - final boss
+                // === END MOBS (Level 95-135) - End game ===
+                createMobExpEntry(writer, EntityType.SHULKER, 185000, 120995, 105, 120, 100, 135, 110, 200, 115), // End tank
+                createMobExpEntry(writer, EntityType.ENDER_DRAGON, 900000, 700000, 135, 165, 120, 270, 165, 220, 160) // Final boss
         };
 
         return CompletableFuture.allOf(futures);

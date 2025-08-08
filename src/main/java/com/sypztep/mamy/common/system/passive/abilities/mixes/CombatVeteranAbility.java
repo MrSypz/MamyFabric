@@ -13,13 +13,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class CombatVeteranAbility extends PassiveAbility {
-    public CombatVeteranAbility() {
-        super("combat_veteran", Map.of(
-                StatTypes.STRENGTH, 25,
-                StatTypes.AGILITY, 20,
-                StatTypes.VITALITY, 20
-        ));
-    }
+    public CombatVeteranAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

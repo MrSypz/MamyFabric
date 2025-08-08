@@ -5,7 +5,6 @@ import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import sypztep.tyrannus.common.util.AttributeModification;
@@ -13,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class LuckyStrikesAbility extends PassiveAbility {
-    public LuckyStrikesAbility() {
-        super("lucky_strikes", Map.of(StatTypes.LUCK, 40));
-    }
+    public LuckyStrikesAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

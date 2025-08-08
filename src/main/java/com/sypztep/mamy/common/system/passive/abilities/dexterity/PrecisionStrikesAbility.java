@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class PrecisionStrikesAbility extends PassiveAbility {
-    public PrecisionStrikesAbility() {
-        super("precision_strikes", Map.of(StatTypes.DEXTERITY, 10));
-    }
+    public PrecisionStrikesAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class ArcanePowerAbility extends PassiveAbility {
-    public ArcanePowerAbility() {
-        super("arcane_power", Map.of(StatTypes.INTELLIGENCE, 15));
-    }
+    public ArcanePowerAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

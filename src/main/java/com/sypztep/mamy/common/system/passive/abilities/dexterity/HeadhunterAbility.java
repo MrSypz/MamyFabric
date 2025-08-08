@@ -12,9 +12,12 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class HeadhunterAbility extends PassiveAbility {
-    public HeadhunterAbility() {
-        super("headhunter", Map.of(StatTypes.DEXTERITY, 20));
+    public HeadhunterAbility(String id, Map<StatTypes, Integer> requirements) {
+        super(id, requirements);
     }
+//    public HeadhunterAbility() {
+//        super("headhunter", Map.of(StatTypes.DEXTERITY, 20));
+//    }
 
     @Override
     protected void initializeEffects() {

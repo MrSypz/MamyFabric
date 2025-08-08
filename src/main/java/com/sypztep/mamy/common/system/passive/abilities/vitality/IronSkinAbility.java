@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class IronSkinAbility extends PassiveAbility {
-    public IronSkinAbility() {
-        super("iron_skin", Map.of(StatTypes.VITALITY, 8));
-    }
+    public IronSkinAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

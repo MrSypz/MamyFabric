@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class ManaShieldAbility extends PassiveAbility {
-    public ManaShieldAbility() {
-        super("mana_shield", Map.of(StatTypes.INTELLIGENCE, 25));
-    }
+    public ManaShieldAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

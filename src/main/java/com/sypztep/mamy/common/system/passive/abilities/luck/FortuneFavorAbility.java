@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class FortuneFavorAbility extends PassiveAbility {
-    public FortuneFavorAbility() {
-        super("fortune_favor", Map.of(StatTypes.LUCK, 10));
-    }
+    public FortuneFavorAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

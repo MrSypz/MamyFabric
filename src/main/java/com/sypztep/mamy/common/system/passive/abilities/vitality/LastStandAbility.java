@@ -12,9 +12,9 @@ import sypztep.tyrannus.common.util.AttributeModification;
 import java.util.Map;
 
 public class LastStandAbility extends PassiveAbility {
-    public LastStandAbility() {
-        super("last_stand", Map.of(StatTypes.VITALITY, 40));
-    }
+    public LastStandAbility(String id, Map<StatTypes, Integer> requirements) {
+    super(id, requirements);
+}
 
     @Override
     protected void initializeEffects() {

@@ -7,20 +7,17 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-public class ShadowStepPassiveAbility extends PassiveAbility {
-
-    public ShadowStepPassiveAbility(String id, Map<StatTypes, Integer> requirements) {
+public class ShadowStepAbility extends PassiveAbility {
+    public ShadowStepAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
-    protected void initializeEffects() {
-
-    }
+    protected void initializeEffects() { }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Shadow Step").formatted(Formatting.GREEN);
+        return Text.literal("Shadow Step").formatted(Formatting.DARK_GRAY);
     }
 
     @Override
