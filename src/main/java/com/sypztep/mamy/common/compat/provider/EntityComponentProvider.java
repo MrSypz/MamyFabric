@@ -20,7 +20,7 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
         PlayerEntity attacker = entityAccessor.getPlayer();
 
         if (target instanceof LivingEntity defender && attacker != null)
-            iTooltip.add(Text.translatable("mamy.hitchance", String.format("%.2f", LivingEntityUtil.hitRate(attacker, defender))));
+            iTooltip.add(Text.translatable("mamy.hitchance", String.format("%.2f", LivingEntityUtil.hitRate(attacker, defender) * 100)));
     }
 
     @Override
