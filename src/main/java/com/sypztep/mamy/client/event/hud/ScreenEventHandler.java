@@ -1,5 +1,6 @@
-package com.sypztep.mamy.client.event;
+package com.sypztep.mamy.client.event.hud;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
 import com.sypztep.mamy.client.screen.camera.SpiralCameraController;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -15,6 +16,7 @@ public final class ScreenEventHandler {
     }
     public ScreenEventHandler() {}
     private static void onClientTick(MinecraftClient client) {
+        if (!ModConfig.shouldAnimationScreen) return;
         Screen currentScreen = client.currentScreen;
 
         if (currentScreen != lastScreen) {

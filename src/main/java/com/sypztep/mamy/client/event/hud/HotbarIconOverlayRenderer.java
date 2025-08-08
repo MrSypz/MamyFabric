@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.event;
+package com.sypztep.mamy.client.event.hud;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.screen.PassiveAbilityScreen;

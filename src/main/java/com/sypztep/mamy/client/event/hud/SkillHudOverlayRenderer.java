@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.event;
+package com.sypztep.mamy.client.event.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.sypztep.mamy.client.ModKeyBindings;
