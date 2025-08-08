@@ -32,7 +32,7 @@ public final class LivingEntityUtil {
 
         float hitRate = BASE_HIT_RATE + ((aAccuracy - dEvasion) * POINT_EFICENT);
 
-        return MathHelper.clamp(hitRate, 0,1) * 100;
+        return MathHelper.clamp(hitRate, 0,1);
     }
 
     public static void playCriticalSound(Entity target) {
@@ -45,5 +45,13 @@ public final class LivingEntityUtil {
 
     public static float roll(LivingEntity attacker) {
         return attacker.getRandom().nextFloat();
+    }
+
+    public static boolean isKilledByMonster(DamageSource damageSource) {
+        if (damageSource.getAttacker() instanceof LivingEntity attacker) return !(attacker instanceof PlayerEntity);
+
+        if (damageSource.getSource() instanceof LivingEntity source) return !(source instanceof PlayerEntity);
+
+        return false;
     }
 }
