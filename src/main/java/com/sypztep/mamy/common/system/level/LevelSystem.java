@@ -37,7 +37,7 @@ public class LevelSystem {
         if (level >= maxLevel) experience = Math.min(experience, experienceToNextLevel);
     }
 
-    public void setExperience(int experience) {
+    public void setExperience(long experience) {
         this.experience = experience;
     }
 
