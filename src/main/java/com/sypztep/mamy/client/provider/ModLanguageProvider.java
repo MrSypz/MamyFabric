@@ -20,6 +20,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("mamy.text.air", "Air Attack");
 
         translate.add("mamy.hitchance", "Hit Chance: %f%%");
+        translate.add("config.jade.plugin_mamy.stats_config","Stats Config");
 
         playerInfo(translate);
         generateConfigTranslations(translate);
