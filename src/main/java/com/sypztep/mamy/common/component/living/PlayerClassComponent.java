@@ -74,22 +74,16 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
         performBatchUpdate(() -> classManager.setCurrentResource(amount));
     }
 
-    public boolean learnSkill(Identifier skillId) {
-        boolean[] result = {false};
-        performBatchUpdate(() -> result[0] = classManager.learnSkill(skillId));
-        return result[0];
+    public void learnSkill(Identifier skillId) {
+        performBatchUpdate(() -> classManager.learnSkill(skillId));
     }
 
     // NEW: Upgrade skill method
-    public boolean upgradeSkill(Identifier skillId) {
-        boolean[] result = {false};
-        performBatchUpdate(() -> result[0] = classManager.upgradeSkill(skillId));
-        return result[0];
+    public void upgradeSkill(Identifier skillId) {
+        performBatchUpdate(() ->  classManager.upgradeSkill(skillId));
     }
-    public boolean unlearnSkill(Identifier skillId) {
-        boolean[] result = {false};
-        performBatchUpdate(() -> result[0] = classManager.unlearnSkill(skillId));
-        return result[0];
+    public void unlearnSkill(Identifier skillId) {
+        performBatchUpdate(() -> classManager.unlearnSkill(skillId));
     }
 
     public boolean bindSkill(int slot, Identifier skillId) {
