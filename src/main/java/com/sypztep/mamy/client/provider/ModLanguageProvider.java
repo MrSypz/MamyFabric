@@ -26,7 +26,6 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         generateConfigTranslations(translate);
         generateAttributeTranslations(translate);
     }
-
     private void playerInfo(TranslationBuilder translator) {
         String key = "mamy.info.";
         translator.add("mamy.gui.player_info.header", "Player Stats");
@@ -40,6 +39,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "header_defense", "DEFENSIVE STATS");
         translator.add(key + "header_recovery", "REGENERATION");
         translator.add(key + "header_attributes", "STATS");
+        translator.add(key + "header_classbonus", "BONUS STATS");
 
         // ==========================================
         // COMBAT POWER STATS
@@ -84,6 +84,13 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "intelligence", "Intelligence: $int");
         translator.add(key + "dexterity", "Dexterity: $dex");
         translator.add(key + "luck", "Luck: $luk");
+
+        translator.add(key + "classbonus." + "strength", "Strength: $cstr");
+        translator.add(key + "classbonus." + "agility", "Agility: $cagi");
+        translator.add(key + "classbonus." + "vitality", "Vitality: $cvit");
+        translator.add(key + "classbonus." + "intelligence", "Intelligence: $cint");
+        translator.add(key + "classbonus." + "dexterity", "Dexterity: $cdex");
+        translator.add(key + "classbonus." + "luck", "Luck: $cluk");
     }
     private void generateConfigTranslations(TranslationBuilder translator) {
         String base = "text.autoconfig.mamy";
@@ -163,15 +170,21 @@ public class ModLanguageProvider extends FabricLanguageProvider {
 
     private void generateAttributeTranslations(TranslationBuilder translator) {
         translator.add("attribute.name.health_regen", "Health Regeneration");
+        translator.add("attribute.name.resource", "Resource");
+        translator.add("attribute.name.resource_regen", "Resource Regeneration");
+        translator.add("attribute.name.resource_regen_rate", "Resource Regeneration Rate");
         translator.add("attribute.name.accuracy", "Accuracy");
         translator.add("attribute.name.evasion", "Evasion");
         translator.add("attribute.name.crit_damage", "Critical Damage");
         translator.add("attribute.name.crit_chance", "Critical Chance");
         translator.add("attribute.name.back_attack", "Back Attack Damage");
+        translator.add("attribute.name.special_attack", "Special Attack Damage");
         translator.add("attribute.name.melee_attack_damage", "Melee Attack Damage");
         translator.add("attribute.name.magic_attack_damage", "Magic Attack Damage");
         translator.add("attribute.name.projectile_attack_damage", "Projectile Attack Damage");
         translator.add("attribute.name.magic_resistance", "Magic Resistance");
+        translator.add("attribute.name.damage_reduction", "Damage Reduction");
+        translator.add("attribute.name.heal_effective", "Heal Effectiveness");
         translator.add("attribute.name.physical_resistance", "Physical Resistance");
     }
 }
