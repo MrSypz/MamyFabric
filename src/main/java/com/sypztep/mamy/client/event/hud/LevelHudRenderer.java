@@ -41,13 +41,13 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
     // Animation state
     private static float animatedXpProgress = 0.0f;
-    private static float animatedClassProgress = 0.0f; // ⭐ เพิ่มใหม่
+    private static float animatedClassProgress = 0.0f;
     private static long lastXp = 0;
-    private static long lastClassXp = 0; // ⭐ เพิ่มใหม่
+    private static long lastClassXp = 0;
     private static int lastLevel = 1;
-    private static int lastClassLevel = 1; // ⭐ เพิ่มใหม่
+    private static int lastClassLevel = 1;
     private static float xpGainGlowTimer = 0.0f;
-    private static float classGainGlowTimer = 0.0f; // ⭐ เพิ่มใหม่
+    private static float classGainGlowTimer = 0.0f;
 
     // Slide animation state
     private static float slideOffset = 0.0f;
@@ -288,24 +288,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
             return 1.0f + p * p * p / 2.0f;
         }
     }
-    private static void toggleDetailedView() {
-        shouldBeVisible = !shouldBeVisible;
-    }
-
-//    private static final String LEVEL_GROUP_ID = "level_corner";
-
     public static void register() {
         HudRenderCallback.EVENT.register(new LevelHudRenderer());
-
-//        IconOverlayManager.registerIconGroup(LEVEL_GROUP_ID, IconOverlayManager.IconPosition.TOP_LEFT, false);
-//
-//        IconOverlayManager.addHudIcon(
-//                LEVEL_GROUP_ID,
-//                Mamy.id("textures/gui/icons/expand_arrow.png"),
-//                "Toggle Level Details",
-//                "Show/hide detailed level progression information",
-//                LevelHudRenderer::toggleDetailedView, // HUD action instead of screen
-//                12 // 12px arrow icon
-//        );
     }
 }
