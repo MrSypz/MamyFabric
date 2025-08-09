@@ -21,8 +21,8 @@ public interface ModPassiveAbilities {
     PassiveAbility SHADOW_STEP = register(new ShadowStepAbility("shadow_step",Map.of(StatTypes.AGILITY, 50)));
 
     // === DEXTERITY ABILITIES ===
-    PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.AGILITY, 20)));
     PassiveAbility PRECISION_STRIKES = register(new PrecisionStrikesAbility("precision_strikes", Map.of(StatTypes.DEXTERITY, 10)));
+    PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.AGILITY, 20)));
     PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 35)));
 
     // === VITALITY ABILITIES ===
@@ -84,15 +84,6 @@ public interface ModPassiveAbilities {
     }
 
     /**
-     * Get abilities by stat requirement
-     */
-    static List<PassiveAbility> getAbilitiesForStat(StatTypes statType) {
-        return ABILITIES.values().stream()
-                .filter(ability -> ability.getRequirements().containsKey(statType))
-                .toList();
-    }
-
-    /**
      * Get abilities ordered by unlock level (lowest requirements first)
      */
     static List<PassiveAbility> getAbilitiesOrderedByLevel() {
@@ -104,4 +95,21 @@ public interface ModPassiveAbilities {
                 })
                 .toList();
     }
+
+    static List<PassiveAbility> getAbilitiesGroupedByStatThenLevel() {
+        return ABILITIES.values().stream()
+                .sorted(Comparator
+                        // Sort/group by the first stat in requirements map (or null-safe)
+                        .comparing((PassiveAbility a) -> a.getRequirements().keySet().stream()
+                                .findFirst()
+                                .map(Enum::ordinal) // StatTypes enum order
+                                .orElse(Integer.MAX_VALUE))
+                        // Then by required level (lowest first)
+                        .thenComparing(a -> a.getRequirements().values().stream()
+                                .mapToInt(Integer::intValue)
+                                .max().orElse(0))
+                )
+                .toList();
+    }
+
 }
