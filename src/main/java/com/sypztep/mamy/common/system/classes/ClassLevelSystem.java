@@ -26,16 +26,19 @@ public class ClassLevelSystem extends LevelSystem {
                 updateNextLvl();
                 if (experience > experienceToNextLevel) experience = experienceToNextLevel;
             }
-
+            resetBasic();
             this.maxLevel = newMaxLevel;
         }
     }
-
     public void resetForTranscendence() {
-        this.level = 1;
-        this.experience = 0;
+        resetBasic();
         this.statPoints = 0;
         updateNextLvl();
+    }
+    //Reset class Level without reset class point
+    public void resetBasic() {
+        this.level = 1;
+        this.experience = 0;
     }
 
     @Override
