@@ -11,6 +11,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import sypztep.tyrannus.common.util.AttributeModification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class VitalityStat extends Stat {
@@ -30,7 +31,7 @@ public final class VitalityStat extends Stat {
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 getPrimaryId(),
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> MAX_HEALTH_SCALING * this.currentValue
+                baseValue -> MAX_HEALTH_SCALING * this.getEffective()
         );
     }
 
@@ -40,12 +41,12 @@ public final class VitalityStat extends Stat {
                 AttributeModification.addValue(
                         ModEntityAttributes.HEALTH_REGEN,
                         getSecondaryId(),
-                        baseValue -> (HEALTH_REGEN_SCALING * this.currentValue)
+                        baseValue -> (HEALTH_REGEN_SCALING * this.getEffective())
                 ),
                 AttributeModification.addValue(
                         ModEntityAttributes.HEAL_EFFECTIVE,
                         getSecondaryId(),
-                        baseValue -> (HEALTH_EFFECTIVE_SCALING * this.currentValue)
+                        baseValue -> (HEALTH_EFFECTIVE_SCALING * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
@@ -53,59 +54,67 @@ public final class VitalityStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int futureValue = getValue() + additionalPoints;
+        int currentPlayerStat = getValue();
+        int currentClassBonus = getClassBonus();
+        int currentTotal = getEffective();
 
-        double currentMaxHealth = calculateMaxHealthBonus(getValue(), getBaseValue()) * 100;
-        double futureMaxHealth = calculateMaxHealthBonus(futureValue, getBaseValue()) * 100;
+        int futurePlayerStat = currentPlayerStat + additionalPoints;
+        int futureTotal = futurePlayerStat + currentClassBonus;
+
+        double currentMaxHealth = currentTotal * MAX_HEALTH_SCALING * 100;
+        double futureMaxHealth = futureTotal * MAX_HEALTH_SCALING * 100;
         double maxHealthIncrease = futureMaxHealth - currentMaxHealth;
 
-        double currentHealthRegen = calculateHealthRegenBonus(getValue(), getBaseValue()) * 100;
-        double futureHealthRegen = calculateHealthRegenBonus(futureValue, getBaseValue()) * 100;
+        double currentHealthRegen = currentTotal * HEALTH_REGEN_SCALING * 100;
+        double futureHealthRegen = futureTotal * HEALTH_REGEN_SCALING * 100;
         double healthRegenIncrease = futureHealthRegen - currentHealthRegen;
 
-        double currentHealEffective = calculateHealEffectiveBonus(getValue(), getBaseValue()) * 100;
-        double futureHealEffective = calculateHealEffectiveBonus(futureValue, getBaseValue()) * 100;
+        double currentHealEffective = currentTotal * HEALTH_EFFECTIVE_SCALING * 100;
+        double futureHealEffective = futureTotal * HEALTH_EFFECTIVE_SCALING * 100;
         double healEffectiveIncrease = futureHealEffective - currentHealEffective;
 
-        return List.of(
-                Text.literal("VITALITY").formatted(Formatting.WHITE, Formatting.BOLD)
-                        .append(Text.literal(" " + getValue()).formatted(Formatting.GRAY))
-                        .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(String.valueOf(futureValue)).formatted(Formatting.WHITE)),
+        List<Text> description = new ArrayList<>();
 
-                Text.literal("Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(getIncreasePerPoint() * additionalPoints + " Stat Points").formatted(Formatting.YELLOW)),
+        if (currentClassBonus > 0) {
+            description.add(Text.literal("VITALITY").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentPlayerStat).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentTotal)).formatted(Formatting.GREEN))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futurePlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+            description.add(Text.literal("  Player: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(currentPlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | Class Bonus: ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW)));
+        } else {
+            description.add(Text.literal("VITALITY").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentTotal).formatted(Formatting.WHITE))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+        }
 
-                Text.literal(""),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Max Health: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", maxHealthIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMaxHealth, futureMaxHealth)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal("Primary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Max Health: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", maxHealthIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMaxHealth, futureMaxHealth)).formatted(Formatting.DARK_GRAY)),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Health Regen: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", healthRegenIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentHealthRegen, futureHealthRegen)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Heal Effective: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", healEffectiveIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentHealEffective, futureHealEffective)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal(""),
-
-                Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Health Regen: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", healthRegenIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentHealthRegen, futureHealthRegen)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Heal Effective: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", healEffectiveIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentHealEffective, futureHealEffective)).formatted(Formatting.DARK_GRAY))
-        );
-    }
-
-    public static double calculateMaxHealthBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * MAX_HEALTH_SCALING;
-    }
-
-    public static double calculateHealthRegenBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * HEALTH_REGEN_SCALING;
-    }
-
-    public static double calculateHealEffectiveBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * HEALTH_EFFECTIVE_SCALING;
+        return description;
     }
 
     @Override

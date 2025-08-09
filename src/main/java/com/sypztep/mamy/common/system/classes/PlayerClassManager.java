@@ -10,9 +10,6 @@ import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -109,7 +106,8 @@ public class PlayerClassManager {
     }
 
     public List<PlayerClass> getAvailableEvolutions() {
-        return ClassRegistry.getAvailableEvolutions(currentClass, getClassLevel());
+//        return ClassRegistry.getAvailableEvolutions(currentClass, getClassLevel());
+        return ClassRegistry.getAvailableEvolutions(currentClass, 10);
     }
 
     public List<PlayerClass> getAvailableTranscendence() {
@@ -118,6 +116,22 @@ public class PlayerClassManager {
 
     public boolean canTranscend() {
         return !getAvailableTranscendence().isEmpty();
+    }
+    @Deprecated
+    private void applyJobBonusesToStats(PlayerEntity player) {
+        LivingLevelComponent statsComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
+        if (statsComponent == null) return;
+        statsComponent.performBatchUpdate(()-> {
+            if (currentClass != null) {
+                statsComponent.getStatByType(StatTypes.STRENGTH).setClassBonus(currentClass.getJobBonuses().str());
+                statsComponent.getStatByType(StatTypes.AGILITY).setClassBonus(currentClass.getJobBonuses().agi());
+                statsComponent.getStatByType(StatTypes.VITALITY).setClassBonus(currentClass.getJobBonuses().vit());
+                statsComponent.getStatByType(StatTypes.INTELLIGENCE).setClassBonus(currentClass.getJobBonuses().intel());
+                statsComponent.getStatByType(StatTypes.DEXTERITY).setClassBonus(currentClass.getJobBonuses().dex());
+                statsComponent.getStatByType(StatTypes.LUCK).setClassBonus(currentClass.getJobBonuses().luk());
+                statsComponent.refreshAllStatEffectsInternal();
+            }
+        });
     }
 
     public boolean evolveToClass(PlayerClass newClass) {
@@ -140,6 +154,7 @@ public class PlayerClassManager {
 
         // Apply new class attributes
         currentClass.applyAttributeModifiers(player);
+//        this.applyJobBonusesToStats(player);
 
         // Reset resource to full for new class
         currentResource = getMaxResource();
@@ -258,14 +273,14 @@ public class PlayerClassManager {
     // UPDATED SKILL SYSTEM DELEGATION
     // ====================
 
-    public boolean learnSkill(Identifier skillId) {
-        return skillManager.learnSkill(skillId, this);
+    public void learnSkill(Identifier skillId) {
+        skillManager.learnSkill(skillId, this);
     }
-    public boolean upgradeSkill(Identifier skillId) {
-        return skillManager.upgradeSkill(skillId, this);
+    public void upgradeSkill(Identifier skillId) {
+        skillManager.upgradeSkill(skillId, this);
     }
-    public boolean unlearnSkill(Identifier skillId) {
-        return skillManager.unlearnSkill(skillId, this);
+    public void unlearnSkill(Identifier skillId) {
+        skillManager.unlearnSkill(skillId, this);
     }
 
     public boolean hasLearnedSkill(Identifier skillId) {
@@ -409,6 +424,7 @@ public class PlayerClassManager {
     public void initialize() {
         if (currentClass != null) {
             currentClass.applyAttributeModifiers(player);
+//            this.applyJobBonusesToStats(player);
             currentResource = Math.min(currentResource, getMaxResource());
         }
     }

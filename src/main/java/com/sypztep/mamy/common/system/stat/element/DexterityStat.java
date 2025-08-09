@@ -10,6 +10,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import sypztep.tyrannus.common.util.AttributeModification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class DexterityStat extends Stat {
@@ -25,7 +26,7 @@ public final class DexterityStat extends Stat {
         applyEffect(living,
                 ModEntityAttributes.ACCURACY,
                 getPrimaryId(),
-                baseValue -> (double)(currentValue - this.baseValue)
+                baseValue -> this.getEffective()
         );
     }
 
@@ -35,12 +36,12 @@ public final class DexterityStat extends Stat {
                 AttributeModification.addValue(
                         ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
                         getSecondaryId(),
-                        baseValue -> (PROJECTILE_DAMAGE_SCALING * this.currentValue)
+                        baseValue -> (PROJECTILE_DAMAGE_SCALING * this.getEffective())
                 ),
                 AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
+                        baseValue -> (ATTACK_SPEED_SCALING * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
@@ -48,59 +49,67 @@ public final class DexterityStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int futureValue = getValue() + additionalPoints;
+        int currentPlayerStat = getValue();
+        int currentClassBonus = getClassBonus();
+        int currentTotal = getEffective();
 
-        int currentAccuracy = Math.max(0, calculateAccuracyBonus(getValue(), getBaseValue()));
-        int futureAccuracy = Math.max(0, calculateAccuracyBonus(futureValue, getBaseValue()));
+        int futurePlayerStat = currentPlayerStat + additionalPoints;
+        int futureTotal = futurePlayerStat + currentClassBonus;
+
+        int currentAccuracy = Math.max(0, currentTotal);
+        int futureAccuracy = Math.max(0, futureTotal);
         int accuracyIncrease = futureAccuracy - currentAccuracy;
 
-        double currentProjectileDamage = Math.max(0, calculateProjectileDamageBonus(getValue(), getBaseValue()) * 100);
-        double futureProjectileDamage = Math.max(0, calculateProjectileDamageBonus(futureValue, getBaseValue()) * 100);
+        double currentProjectileDamage = Math.max(0, currentTotal * PROJECTILE_DAMAGE_SCALING * 100);
+        double futureProjectileDamage = Math.max(0, futureTotal * PROJECTILE_DAMAGE_SCALING * 100);
         double projectileDamageIncrease = futureProjectileDamage - currentProjectileDamage;
 
-        double currentAttackSpeed = Math.max(0, calculateAttackSpeedBonus(getValue(), getBaseValue()) * 100);
-        double futureAttackSpeed = Math.max(0, calculateAttackSpeedBonus(futureValue, getBaseValue()) * 100);
+        double currentAttackSpeed = Math.max(0, currentTotal * ATTACK_SPEED_SCALING * 100);
+        double futureAttackSpeed = Math.max(0, futureTotal * ATTACK_SPEED_SCALING * 100);
         double attackSpeedIncrease = futureAttackSpeed - currentAttackSpeed;
 
-        return List.of(
-                Text.literal("DEXTERITY").formatted(Formatting.WHITE, Formatting.BOLD)
-                        .append(Text.literal(" " + getValue()).formatted(Formatting.GRAY))
-                        .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(String.valueOf(futureValue)).formatted(Formatting.WHITE)),
+        List<Text> description = new ArrayList<>();
 
-                Text.literal("Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(getIncreasePerPoint() * additionalPoints + " Stat Points").formatted(Formatting.YELLOW)),
+        if (currentClassBonus > 0) {
+            description.add(Text.literal("DEXTERITY").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentPlayerStat).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentTotal)).formatted(Formatting.GREEN))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futurePlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+            description.add(Text.literal("  Player: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(currentPlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | Class Bonus: ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW)));
+        } else {
+            description.add(Text.literal("DEXTERITY").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentTotal).formatted(Formatting.WHITE))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+        }
 
-                Text.literal(""),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Accuracy: ").formatted(Formatting.GRAY)
+                .append(Text.literal("+" + accuracyIncrease).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%d → %d)", currentAccuracy, futureAccuracy)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal("Primary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Accuracy: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + accuracyIncrease).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%d → %d)", currentAccuracy, futureAccuracy)).formatted(Formatting.DARK_GRAY)),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Projectile Damage: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", projectileDamageIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentProjectileDamage, futureProjectileDamage)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal(""),
-
-                Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Projectile Damage: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", projectileDamageIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentProjectileDamage, futureProjectileDamage)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY))
-        );
-    }
-
-    public static int calculateAccuracyBonus(int currentValue, int baseValue) {
-        return currentValue - baseValue;
-    }
-
-    public static double calculateProjectileDamageBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * PROJECTILE_DAMAGE_SCALING;
-    }
-
-    public static double calculateAttackSpeedBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * ATTACK_SPEED_SCALING;
+        return description;
     }
 
     @Override

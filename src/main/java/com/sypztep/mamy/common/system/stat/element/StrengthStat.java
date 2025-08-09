@@ -10,6 +10,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import sypztep.tyrannus.common.util.AttributeModification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class StrengthStat extends Stat {
@@ -26,7 +27,7 @@ public final class StrengthStat extends Stat {
         applyEffect(living,
                 ModEntityAttributes.MELEE_ATTACK_DAMAGE,
                 getPrimaryId(),
-                baseValue -> (MELEE_DAMAGE_SCALING * this.currentValue)
+                baseValue -> (MELEE_DAMAGE_SCALING * this.getEffective())
         );
     }
 
@@ -36,7 +37,7 @@ public final class StrengthStat extends Stat {
                 AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
+                        baseValue -> (ATTACK_SPEED_SCALING * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
@@ -44,41 +45,60 @@ public final class StrengthStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int futureValue = getValue() + additionalPoints;
+        int currentPlayerStat = getValue();
+        int currentClassBonus = getClassBonus();
+        int currentTotal = getEffective();
 
-        double currentMeleeDamage = Math.max(0, calculateMeleeDamageBonus(getValue(), getBaseValue()));
-        double futureMeleeDamage = Math.max(0, calculateMeleeDamageBonus(futureValue, getBaseValue()));
+        int futurePlayerStat = currentPlayerStat + additionalPoints;
+        int futureTotal = futurePlayerStat + currentClassBonus;
+
+        double currentMeleeDamage = Math.max(0, currentTotal * MELEE_DAMAGE_SCALING * 100);
+        double futureMeleeDamage = Math.max(0, futureTotal * MELEE_DAMAGE_SCALING * 100);
         double meleeDamageIncrease = futureMeleeDamage - currentMeleeDamage;
 
-
-        double currentAttackSpeed = Math.max(0, calculateAttackSpeedBonus(getValue(), getBaseValue()) * 100);
-        double futureAttackSpeed = Math.max(0, calculateAttackSpeedBonus(futureValue, getBaseValue()) * 100);
+        double currentAttackSpeed = Math.max(0, currentTotal * ATTACK_SPEED_SCALING * 100);
+        double futureAttackSpeed = Math.max(0, futureTotal * ATTACK_SPEED_SCALING * 100);
         double attackSpeedIncrease = futureAttackSpeed - currentAttackSpeed;
 
-        return List.of(
-                Text.literal("STRENGTH").formatted(Formatting.WHITE, Formatting.BOLD)
-                        .append(Text.literal(" " + getValue()).formatted(Formatting.GRAY))
-                        .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(String.valueOf(futureValue)).formatted(Formatting.WHITE)),
+        List<Text> description = new ArrayList<>();
 
-                Text.literal("Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(getIncreasePerPoint() * additionalPoints + " Stat Points").formatted(Formatting.YELLOW)),
+        if (currentClassBonus > 0) {
+            description.add(Text.literal("STRENGTH").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentPlayerStat).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentTotal)).formatted(Formatting.GREEN))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futurePlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+            description.add(Text.literal("  Player: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(currentPlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | Class Bonus: ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW)));
+        } else {
+            description.add(Text.literal("STRENGTH").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentTotal).formatted(Formatting.WHITE))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+        }
 
-                Text.literal(""),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Melee Damage: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", meleeDamageIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMeleeDamage, futureMeleeDamage)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal("Primary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Melee Damage: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", meleeDamageIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMeleeDamage, futureMeleeDamage)).formatted(Formatting.DARK_GRAY)),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal(""),
-
-                Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-
-                Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY))
-        );
+        return description;
     }
 
     public static double calculateMeleeDamageBonus(int currentValue, int baseValue) {

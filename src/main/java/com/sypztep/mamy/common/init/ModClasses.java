@@ -12,90 +12,114 @@ import java.util.Map;
 public interface ModClasses {
     Map<String, PlayerClass> CLASSES = new HashMap<>();
 
-    // ===== TIER 0 (Starting) =====
-    PlayerClass NOVICE = register(new PlayerClass(
-            "novice", 0, 1, "Novice", Formatting.GRAY,
-            Map.of(),
-            Map.of(),
-            ResourceType.MANA,
-            "A beginning adventurer with no specialization",
-            10, false
-    ));
+    // ===== TIER 0 (Starting Class) =====
+    PlayerClass NOVICE = register(PlayerClass
+            .create("novice", 0, 0, "Novice", Formatting.GRAY, ResourceType.MANA,
+                    "A beginning adventurer with no specialized skills")
+            .maxLevel(10)
+            .build());
 
-    // ===== TIER 1 (First Job) =====
-    PlayerClass SWORDMAN = register(new PlayerClass(
-            "swordman", 1, 1, "Swordman", Formatting.RED,
-            Map.of(
+    // ===== TIER 1 (First Job Classes) =====
+    PlayerClass SWORDMAN = register(PlayerClass
+            .create("swordman", 1, 1, "Swordman", Formatting.RED, ResourceType.RAGE,
+                    "A warrior who has chosen the path of the sword")
+            .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15,
-                    ModEntityAttributes.HEALTH_REGEN, 0.2,
-                    ModEntityAttributes.RESOURCE_REGEN, 12.0 // 12 per regen
-            ),
-            Map.of(
-                    // Swordman growth: +10% max health, +5% max resource, +0.5 melee damage per level
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.10), // 10% per level
-                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.05), // 5% per level
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.5) // +0.5 per level
-            ),
-            ResourceType.RAGE,
-            "A warrior who has chosen the path of the sword",
-            50, false
-    ).addRequirement(NOVICE, 10));
+                    EntityAttributes.GENERIC_ARMOR, 2.0,
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.10
+            ))
+            .growthFactors(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.12),
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.04),
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.8),
+                    EntityAttributes.GENERIC_ARMOR, GrowthFactor.flat(0.1)
+            ))
+            .resource(150)
+            .jobBonuses((short)7, (short)2, (short)4, (short)0, (short)3, (short)2)
+            .build()
+            .addRequirement(NOVICE, 10));
 
-    // Mage growth: +5% max health, +8% max resource, +1% magic damage per level
-    PlayerClass MAGE = register(new PlayerClass(
-            "mage", 1, 2, "Mage", Formatting.BLUE,
-            Map.of(
+    PlayerClass MAGE = register(PlayerClass
+            .create("mage", 1, 2, "Mage", Formatting.BLUE, ResourceType.MANA,
+                    "A spellcaster who manipulates arcane energies")
+            .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25,
-                    ModEntityAttributes.RESOURCE, 200.0,
-                    ModEntityAttributes.RESOURCE_REGEN, 20.0
-            ),
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
-                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
-            ),
-            ResourceType.MANA,
-            "A spellcaster who manipulates arcane energies",
-            50, false
-    ).addRequirement(NOVICE, 10));
+                    ModEntityAttributes.RESOURCE_REGEN, 35.0
+            ))
+            .growthFactors(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05),
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.10),
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.03),
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(2.0)
+            ))
+            .resource(300)
+            .jobBonuses((short)0, (short)4, (short)0, (short)8, (short)3, (short)3)
+            .build()
+            .addRequirement(NOVICE, 10));
 
-    PlayerClass ARCHER = register(new PlayerClass(
-            "archer", 1, 3, "Archer", Formatting.GREEN,
-            Map.of(
+    PlayerClass ARCHER = register(PlayerClass
+            .create("archer", 1, 3, "Archer", Formatting.GREEN, ResourceType.MANA,
+                    "A ranged combatant skilled with bow and arrow")
+            .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 30.0,
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.02,
+                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE, 0.15,
                     ModEntityAttributes.CRIT_CHANCE, 0.10
-            ),
-            Map.of(
-                    // Archer growth: +7% max health, +6% max resource, +0.3% crit chance per level
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.07), // 7% per level
-                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.06), // 6% per level
-                    ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.003) // +0.3% per level
-            ),
-            ResourceType.MANA,
-            "A ranged combatant skilled with bow and arrow",
-            50, false
-    ).addRequirement(NOVICE, 10));
+            ))
+            .growthFactors(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.07),
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.06),
+                    ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.005),
+                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE, GrowthFactor.percent(0.02),
+                    EntityAttributes.GENERIC_MOVEMENT_SPEED, GrowthFactor.flat(0.001)
+            ))
+            .resource(200)
+            .jobBonuses((short)3, (short)3, (short)1, (short)2, (short)7, (short)2)
+            .build()
+            .addRequirement(NOVICE, 10));
 
-    PlayerClass ACOLYTE = register(new PlayerClass(
-            "acolyte", 1, 4, "Acolyte", Formatting.GOLD,
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 18.0,
+    PlayerClass ACOLYTE = register(PlayerClass
+            .create("acolyte", 1, 4, "Acolyte", Formatting.GOLD, ResourceType.MANA,
+                    "A holy servant dedicated to helping others")
+            .attributes(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, 35.0,
                     ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.15,
-                    ModEntityAttributes.RESOURCE, 300.0,
-                    ModEntityAttributes.RESOURCE_REGEN, 35.0
-            ),
-            Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05), // 5% per level
-                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08), // 8% per level
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.01) // 1% per level
-            ),
-            ResourceType.MANA,
-            "",
-            50,false
-    ).addRequirement(NOVICE,10));
+                    ModEntityAttributes.RESOURCE_REGEN, 25.0,
+                    ModEntityAttributes.HEAL_EFFECTIVE, 0.20
+            ))
+            .growthFactors(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.08),
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08),
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.02),
+                    ModEntityAttributes.HEAL_EFFECTIVE, GrowthFactor.flat(0.01)
+            ))
+            .resource(250)
+            .jobBonuses((short)3, (short)2, (short)3, (short)3, (short)3, (short)4)
+            .build()
+            .addRequirement(NOVICE, 10));
+
+    PlayerClass THIEF = register(PlayerClass
+            .create("thief", 1, 5, "Thief", Formatting.DARK_GRAY, ResourceType.RAGE,
+                    "A nimble rogue who strikes from the shadows")
+            .attributes(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, 28.0,
+                    EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.03,
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.12,
+                    ModEntityAttributes.CRIT_CHANCE, 0.15,
+                    ModEntityAttributes.BACK_ATTACK, 0.30
+            ))
+            .growthFactors(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.06),
+                    ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.05),
+                    ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.007),
+                    EntityAttributes.GENERIC_MOVEMENT_SPEED, GrowthFactor.flat(0.0015),
+                    ModEntityAttributes.BACK_ATTACK, GrowthFactor.flat(0.01)
+            ))
+            .resource(180)
+            .jobBonuses((short)4, (short)4, (short)2, (short)1, (short)4, (short)3)
+            .build()
+            .addRequirement(NOVICE, 10));
 
 //    // ===== TIER 2 (Second Job - Swordman Path) =====
 //    public static final PlayerClass KNIGHT = register(new PlayerClass(

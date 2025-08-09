@@ -113,6 +113,13 @@ public final class PlayerInfoScreen extends Screen {
         values.put("dex", playerStats.getStatValue(StatTypes.DEXTERITY));
         values.put("luk", playerStats.getStatValue(StatTypes.LUCK));
 
+        values.put("cstr", playerStats.getStatByType(StatTypes.STRENGTH).getClassBonus());
+        values.put("cagi", playerStats.getStatByType(StatTypes.AGILITY).getClassBonus());
+        values.put("cvit", playerStats.getStatByType(StatTypes.VITALITY).getClassBonus());
+        values.put("cint", playerStats.getStatByType(StatTypes.INTELLIGENCE).getClassBonus());
+        values.put("cdex", playerStats.getStatByType(StatTypes.DEXTERITY).getClassBonus());
+        values.put("cluk", playerStats.getStatByType(StatTypes.LUCK).getClassBonus());
+
         return values;
     }
     private List<ListElement> createListItems() {
@@ -172,6 +179,14 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.dexterity")));
         listElements.add(new ListElement(Text.translatable("mamy.info.luck")));
 
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_classbonus"),
+                Identifier.ofVanilla("icon/accessibility")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.strength")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.agility")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.vitality")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.intelligence")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.dexterity")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.luck")));
         return listElements;
     }
 

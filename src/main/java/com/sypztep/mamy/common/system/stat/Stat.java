@@ -21,22 +21,30 @@ public abstract class Stat {
     protected short currentValue  ;
     protected short increasePerPoint;
     protected short totalPointsUsed; // Track total points used
+    protected short classBonus;
 
     public Stat(short baseValue) {
         this.baseValue = baseValue;
         this.currentValue = baseValue;
         this.increasePerPoint = 1;
         this.totalPointsUsed = 0;
+        this.classBonus = 0;
     }
 
     public void readFromNbt(NbtCompound tag,LivingEntity living) {
         this.currentValue = tag.getShort("CurrentValue");
-        if (LivingEntityUtil.isPlayer(living)) this.totalPointsUsed = tag.getShort("TotalPointsUsed"); // Read total points used from NBT
+        if (LivingEntityUtil.isPlayer(living)) {
+            this.totalPointsUsed = tag.getShort("TotalPointsUsed"); // Read total points used from NBT
+            this.classBonus = tag.getShort("ClassBonus"); //Class bonus
+        }
     }
 
     public void writeToNbt(NbtCompound tag,LivingEntity living) {
         tag.putShort("CurrentValue", this.currentValue);
-        if (LivingEntityUtil.isPlayer(living)) tag.putShort("TotalPointsUsed", this.totalPointsUsed); // Write total points used to NBT
+        if (LivingEntityUtil.isPlayer(living)) {
+            tag.putShort("TotalPointsUsed", this.totalPointsUsed); // Write total points used to NBT
+            tag.putShort("ClassBonus", this.classBonus);
+        }
     }
 
     public short getBaseValue() {
@@ -45,6 +53,14 @@ public abstract class Stat {
 
     public short getValue() {
         return currentValue;
+    }
+
+    public short getClassBonus() {
+        return classBonus;
+    }
+
+    public short getEffective() {
+        return (short) (currentValue + classBonus); // Total effective stat (Current + Class Bonus)
     }
 
     public short getIncreasePerPoint() {
@@ -64,6 +80,10 @@ public abstract class Stat {
     }
     public void add(short points) {
         this.currentValue += points;
+    }
+
+    public void setClassBonus(short classBonus) {
+        this.classBonus = classBonus;
     }
 
     public abstract void applyPrimaryEffect(LivingEntity player);

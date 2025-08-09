@@ -9,6 +9,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import sypztep.tyrannus.common.util.AttributeModification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class IntelligenceStat extends Stat {
@@ -27,7 +28,7 @@ public final class IntelligenceStat extends Stat {
                 living,
                 ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
                 getPrimaryId(),
-                baseValue -> MAGIC_DAMAGE_SCALING * this.currentValue
+                baseValue -> MAGIC_DAMAGE_SCALING * this.getEffective()
         );
     }
 
@@ -37,12 +38,12 @@ public final class IntelligenceStat extends Stat {
                 AttributeModification.addValue(
                         ModEntityAttributes.MAGIC_RESISTANCE,
                         getSecondaryId(),
-                        baseValue -> MAGIC_RESISTANCE_SCALING * this.currentValue
+                        baseValue -> MAGIC_RESISTANCE_SCALING * this.getEffective()
                 ),
                 AttributeModification.addMultiply(
                         ModEntityAttributes.RESOURCE,
                         getSecondaryId(),
-                        baseValue -> (this.currentValue - this.baseValue) * RESOURCE_SCALING
+                        baseValue -> this.getEffective() * RESOURCE_SCALING
                 )
         );
         applyEffects(living, modifications);
@@ -50,48 +51,69 @@ public final class IntelligenceStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int futureValue = getValue() + additionalPoints;
+        int currentPlayerStat = getValue();
+        int currentClassBonus = getClassBonus();
+        int currentTotal = getEffective();
 
-        double currentMagicDamage = calculateMagicDamageBonus(getValue(), getBaseValue()) * 100;
-        double futureMagicDamage = calculateMagicDamageBonus(futureValue, getBaseValue()) * 100;
+        int futurePlayerStat = currentPlayerStat + additionalPoints;
+        int futureTotal = futurePlayerStat + currentClassBonus;
+
+        double currentMagicDamage = currentTotal * MAGIC_DAMAGE_SCALING * 100;
+        double futureMagicDamage = futureTotal * MAGIC_DAMAGE_SCALING * 100;
         double magicDamageIncrease = futureMagicDamage - currentMagicDamage;
 
-        double currentMagicRes = calculateMagicResistanceBonus(getValue(), getBaseValue()) * 100;
-        double futureMagicRes = calculateMagicResistanceBonus(futureValue, getBaseValue()) * 100;
+        double currentMagicRes = currentTotal * MAGIC_RESISTANCE_SCALING * 100;
+        double futureMagicRes = futureTotal * MAGIC_RESISTANCE_SCALING * 100;
         double magicResIncrease = futureMagicRes - currentMagicRes;
 
-        double currentResourceBonus = calculateResourceBonus(getValue(), getBaseValue()) * 100;
-        double futureResourceBonus = calculateResourceBonus(futureValue, getBaseValue()) * 100;
+        double currentResourceBonus = currentTotal * RESOURCE_SCALING * 100;
+        double futureResourceBonus = futureTotal * RESOURCE_SCALING * 100;
         double resourceIncrease = futureResourceBonus - currentResourceBonus;
 
-        return List.of(
-                Text.literal("INTELLIGENCE").formatted(Formatting.WHITE, Formatting.BOLD)
-                        .append(Text.literal(" " + getValue()).formatted(Formatting.GRAY))
-                        .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(String.valueOf(futureValue)).formatted(Formatting.WHITE)),
+        List<Text> description = new ArrayList<>();
 
-                Text.literal("Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(getIncreasePerPoint() * additionalPoints + " Stat Points").formatted(Formatting.YELLOW)),
+        if (currentClassBonus > 0) {
+            description.add(Text.literal("INTELLIGENCE").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentPlayerStat).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentTotal)).formatted(Formatting.GREEN))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futurePlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+            description.add(Text.literal("  Player: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(currentPlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | Class Bonus: ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW)));
+        } else {
+            description.add(Text.literal("INTELLIGENCE").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentTotal).formatted(Formatting.WHITE))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+        }
 
-                Text.literal(""),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Magic Damage: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", magicDamageIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicDamage, futureMagicDamage)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal("Primary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Magic Damage: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", magicDamageIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicDamage, futureMagicDamage)).formatted(Formatting.DARK_GRAY)),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Magic Resistance: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", magicResIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicRes, futureMagicRes)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Max Resource: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", resourceIncrease)).formatted(Formatting.AQUA))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentResourceBonus, futureResourceBonus)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal(""),
-
-                Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Magic Resistance: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", magicResIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicRes, futureMagicRes)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Max Resource: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", resourceIncrease)).formatted(Formatting.AQUA))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentResourceBonus, futureResourceBonus)).formatted(Formatting.DARK_GRAY))
-        );
+        return description;
     }
+
 
     public static double calculateMagicDamageBonus(int currentValue, int baseValue) {
         return (currentValue - baseValue) * MAGIC_DAMAGE_SCALING;

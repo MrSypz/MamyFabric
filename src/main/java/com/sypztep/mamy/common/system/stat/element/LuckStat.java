@@ -10,6 +10,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import sypztep.tyrannus.common.util.AttributeModification;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class LuckStat extends Stat {
@@ -26,7 +27,7 @@ public final class LuckStat extends Stat {
         applyEffect(living,
                 ModEntityAttributes.CRIT_CHANCE,
                 getPrimaryId(),
-                baseValue -> (CRIT_CHANCE_SCALING * this.currentValue)
+                baseValue -> (CRIT_CHANCE_SCALING * this.getEffective())
         );
     }
 
@@ -36,18 +37,17 @@ public final class LuckStat extends Stat {
                 AttributeModification.addValue(
                         ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
                         getSecondaryId(),
-                        baseValue -> (MAGIC_DAMAGE_SCALING * this.currentValue)
+                        baseValue -> (MAGIC_DAMAGE_SCALING * this.getEffective())
                 ),
                 AttributeModification.addValue(
                         EntityAttributes.GENERIC_ATTACK_SPEED,
                         getSecondaryId(),
-                        baseValue -> (ATTACK_SPEED_SCALING * this.currentValue)
+                        baseValue -> (ATTACK_SPEED_SCALING * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
 
-        // Special bonus effects
-        int statPoints = currentValue - baseValue;
+        int statPoints = getEffective();
         if (statPoints > 0) {
             int accuracyBonus = statPoints / 3;
             if (accuracyBonus > 0) {
@@ -71,83 +71,81 @@ public final class LuckStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int futureValue = getValue() + additionalPoints;
+        int currentPlayerStat = getValue();
+        int currentClassBonus = getClassBonus();
+        int currentTotal = getEffective();
 
-        double currentCritChance = calculateCritChanceBonus(getValue(), getBaseValue()) * 100;
-        double futureCritChance = calculateCritChanceBonus(futureValue, getBaseValue()) * 100;
+        int futurePlayerStat = currentPlayerStat + additionalPoints;
+        int futureTotal = futurePlayerStat + currentClassBonus;
+
+        double currentCritChance = currentTotal * CRIT_CHANCE_SCALING * 100;
+        double futureCritChance = futureTotal * CRIT_CHANCE_SCALING * 100;
         double critChanceIncrease = futureCritChance - currentCritChance;
 
-        double currentMagicDamage = calculateMagicDamageBonus(getValue(), getBaseValue()) * 100;
-        double futureMagicDamage = calculateMagicDamageBonus(futureValue, getBaseValue()) * 100;
+        double currentMagicDamage = currentTotal * MAGIC_DAMAGE_SCALING * 100;
+        double futureMagicDamage = futureTotal * MAGIC_DAMAGE_SCALING * 100;
         double magicDamageIncrease = futureMagicDamage - currentMagicDamage;
 
-        double currentAttackSpeed = calculateAttackSpeedBonus(getValue(), getBaseValue()) * 100;
-        double futureAttackSpeed = calculateAttackSpeedBonus(futureValue, getBaseValue()) * 100;
+        double currentAttackSpeed = currentTotal * ATTACK_SPEED_SCALING * 100;
+        double futureAttackSpeed = futureTotal * ATTACK_SPEED_SCALING * 100;
         double attackSpeedIncrease = futureAttackSpeed - currentAttackSpeed;
 
-        int currentAccuracy = calculateAccuracyBonus(getValue(), getBaseValue());
-        int futureAccuracy = calculateAccuracyBonus(futureValue, getBaseValue());
+        int currentAccuracy = Math.max(0, currentTotal / 3);
+        int futureAccuracy = Math.max(0, futureTotal / 3);
         int accuracyIncrease = futureAccuracy - currentAccuracy;
 
-        int currentEvasion = calculateEvasionBonus(getValue(), getBaseValue());
-        int futureEvasion = calculateEvasionBonus(futureValue, getBaseValue());
+        int currentEvasion = Math.max(0, currentTotal / 5);
+        int futureEvasion = Math.max(0, futureTotal / 5);
         int evasionIncrease = futureEvasion - currentEvasion;
 
-        return List.of(
-                Text.literal("LUCK").formatted(Formatting.WHITE, Formatting.BOLD)
-                        .append(Text.literal(" " + getValue()).formatted(Formatting.GRAY))
-                        .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(String.valueOf(futureValue)).formatted(Formatting.WHITE)),
+        List<Text> description = new ArrayList<>();
 
-                Text.literal("Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(getIncreasePerPoint() * additionalPoints + " Stat Points").formatted(Formatting.YELLOW)),
+        if (currentClassBonus > 0) {
+            description.add(Text.literal("LUCK").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentPlayerStat).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentTotal)).formatted(Formatting.GREEN))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futurePlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" + ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" = ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+            description.add(Text.literal("  Player: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(currentPlayerStat)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | Class Bonus: ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(currentClassBonus)).formatted(Formatting.YELLOW)));
+        } else {
+            description.add(Text.literal("LUCK").formatted(Formatting.WHITE, Formatting.BOLD)
+                    .append(Text.literal(" " + currentTotal).formatted(Formatting.WHITE))
+                    .append(Text.literal(" → ").formatted(Formatting.DARK_GRAY))
+                    .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
+        }
 
-                Text.literal(""),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Critical Chance: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.2f%%", critChanceIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.2f%% → %.2f%%)", currentCritChance, futureCritChance)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal("Primary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Critical Chance: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.2f%%", critChanceIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.2f%% → %.2f%%)", currentCritChance, futureCritChance)).formatted(Formatting.DARK_GRAY)),
+        description.add(Text.literal(""));
+        description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
+        description.add(Text.literal("  Magic Damage: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", magicDamageIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicDamage, futureMagicDamage)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Accuracy: ").formatted(Formatting.GRAY)
+                .append(Text.literal("+" + accuracyIncrease).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%d → %d)", currentAccuracy, futureAccuracy)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Evasion: ").formatted(Formatting.GRAY)
+                .append(Text.literal("+" + evasionIncrease).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%d → %d)", currentEvasion, futureEvasion)).formatted(Formatting.DARK_GRAY)));
 
-                Text.literal(""),
-
-                Text.literal("Secondary Effects").formatted(Formatting.GOLD),
-                Text.literal("  Magic Damage: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", magicDamageIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMagicDamage, futureMagicDamage)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Accuracy: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + accuracyIncrease).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%d → %d)", currentAccuracy, futureAccuracy)).formatted(Formatting.DARK_GRAY)),
-
-                Text.literal("  Evasion: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + evasionIncrease).formatted(Formatting.GREEN))
-                        .append(Text.literal(String.format(" (%d → %d)", currentEvasion, futureEvasion)).formatted(Formatting.DARK_GRAY))
-        );
-    }
-
-    public static double calculateCritChanceBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * CRIT_CHANCE_SCALING;
-    }
-
-    public static double calculateMagicDamageBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * MAGIC_DAMAGE_SCALING;
-    }
-
-    public static double calculateAttackSpeedBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * ATTACK_SPEED_SCALING;
-    }
-
-    public static int calculateAccuracyBonus(int currentValue, int baseValue) {
-        return Math.max(0, (currentValue - baseValue) / 3);
-    }
-
-    public static int calculateEvasionBonus(int currentValue, int baseValue) {
-        return Math.max(0, (currentValue - baseValue) / 5);
+        return description;
     }
 
     @Override
