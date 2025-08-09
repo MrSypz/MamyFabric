@@ -22,7 +22,7 @@ public class IronSkinAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_ARMOR,
                 Mamy.id("iron_skin_armor"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 2.0 // +2 armor
+                baseValue -> 8.0 // +2 armor
         ));
     }
 
@@ -33,6 +33,6 @@ public class IronSkinAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Your skin hardens like iron, deflecting blows. +2 Armor");
+        return Text.literal("Your skin hardens like iron, deflecting blows. +8 Armor");
     }
 }

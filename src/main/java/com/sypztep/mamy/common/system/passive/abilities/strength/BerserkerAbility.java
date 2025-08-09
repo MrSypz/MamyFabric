@@ -30,7 +30,7 @@ public class BerserkerAbility extends PassiveAbility {
                 ModEntityAttributes.CRIT_DAMAGE,
                 Mamy.id("berserker_crit_damage"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.25 // +25% crit damage
+                baseValue -> 0.1 // +10% crit damage
         ));
     }
 
@@ -41,6 +41,6 @@ public class BerserkerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Unleash your inner fury. +1.0 Attack Speed, +25% Crit Damage");
+        return Text.literal("Unleash your inner fury. +1.0 Attack Speed, +10% Crit Damage");
     }
 }

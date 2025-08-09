@@ -19,10 +19,10 @@ public class FortuneFavorAbility extends PassiveAbility {
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.CRIT_CHANCE,
-                Mamy.id("fortune_favor_crit"),
+                ModEntityAttributes.SPECIAL_ATTACK,
+                Mamy.id("fortune_favor_special_damage"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.08 // +8% crit chance
+                baseValue -> 0.15 // +15% special damage
         ));
     }
 
@@ -33,6 +33,6 @@ public class FortuneFavorAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Luck smiles upon you. +8% Critical Hit Chance");
+        return Text.literal("Fortune’s blessing sharpens your strikes, letting you deal +15% Special Damage.");
     }
 }
