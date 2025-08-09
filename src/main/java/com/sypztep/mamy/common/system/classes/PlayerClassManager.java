@@ -117,7 +117,7 @@ public class PlayerClassManager {
     public boolean canTranscend() {
         return !getAvailableTranscendence().isEmpty();
     }
-    @Deprecated
+
     private void applyJobBonusesToStats(PlayerEntity player) {
         LivingLevelComponent statsComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
         if (statsComponent == null) return;
@@ -154,7 +154,7 @@ public class PlayerClassManager {
 
         // Apply new class attributes
         currentClass.applyAttributeModifiers(player);
-//        this.applyJobBonusesToStats(player);
+        this.applyJobBonusesToStats(player);
 
         // Reset resource to full for new class
         currentResource = getMaxResource();
@@ -228,13 +228,13 @@ public class PlayerClassManager {
         classLevelSystem.updateForClass(currentClass);
         currentClass.applyAttributeModifiers(player);
         currentResource = currentClass.getMaxResource();
+        applyJobBonusesToStats(player);
     }
 
     // Reset stats when changing class (not transcending)
     private void resetStatsForClassChange() {
         LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
         if (levelComponent == null) return;
-
         // Return stat points and reset stats (but don't reset main level stats)
         for (StatTypes statType : StatTypes.values()) {
             Stat stat = levelComponent.getStatByType(statType);
@@ -509,11 +509,14 @@ public class PlayerClassManager {
         return getClassLevel() >= requiredLevel && !getAvailableTranscendence().isEmpty();
     }
 
-    private int getEvolutionRequiredLevel() {
+    public int getEvolutionRequiredLevel() {
         if (currentClass.getTier() == 0) { // Tier 0 = Novice
             return currentClass.getMaxLevel();
         }
         return 45;
+    }
+    public boolean reachCap() {
+        return currentClass.getTier() != 0;
     }
 
     public float getClassProgressPercentage() {
