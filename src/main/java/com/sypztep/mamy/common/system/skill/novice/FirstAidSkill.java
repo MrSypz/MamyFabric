@@ -5,7 +5,6 @@ import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
@@ -18,7 +17,7 @@ public class FirstAidSkill extends Skill {
 
     public FirstAidSkill(Identifier identifier) {
         super(identifier, "First Aid", "Heal yourself and nearby allies",
-                10f, 3f, ModClasses.NOVICE, 0, 2, 5, true, Mamy.id("skill/first_aid"));
+                10f, 3f, ModClasses.NOVICE, 0, 1, 5, true, Mamy.id("skill/first_aid"));
     }
 
     @Override
@@ -45,7 +44,7 @@ public class FirstAidSkill extends Skill {
 
         // Calculate healing based on player's magic attack damage attribute
         double magicAttackDamage = player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE);
-        double healingPercentage = (30 + (skillLevel * 10)) / 100.0;
+        double healingPercentage = (30 + (skillLevel * 10)) * 0.01;
         float baseHealing = 2.0f + (skillLevel * 1.5f);
         float totalHealing = (float)(magicAttackDamage * healingPercentage) + baseHealing;
 
