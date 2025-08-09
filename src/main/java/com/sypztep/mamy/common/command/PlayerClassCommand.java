@@ -61,18 +61,6 @@ public class PlayerClassCommand {
                         )
                 )
 
-                // /playerclass evolve <className> [player] - Evolution/Transcendence
-                .then(CommandManager.literal("evolve")
-                        .requires(source -> source.hasPermissionLevel(2))
-                        .then(CommandManager.argument("className", StringArgumentType.word())
-                                .suggests(PlayerClassCommand::suggestClassNames)
-                                .executes(PlayerClassCommand::evolveSelfClass)
-                                .then(CommandManager.argument("player", EntityArgumentType.players())
-                                        .executes(PlayerClassCommand::evolvePlayerClass)
-                                )
-                        )
-                )
-
                 // /playerclass transcend <className> [player] - Force transcendence
                 .then(CommandManager.literal("transcend")
                         .requires(source -> source.hasPermissionLevel(2))
@@ -279,23 +267,6 @@ public class PlayerClassCommand {
 
         for (ServerPlayerEntity player : players) {
             setClass(context.getSource(), player, className);
-        }
-        return players.size();
-    }
-
-    // === EVOLVE CLASS ===
-    private static int evolveSelfClass(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
-        String className = StringArgumentType.getString(context, "className");
-        return evolveClass(context.getSource(), player, className);
-    }
-
-    private static int evolvePlayerClass(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "player");
-        String className = StringArgumentType.getString(context, "className");
-
-        for (ServerPlayerEntity player : players) {
-            evolveClass(context.getSource(), player, className);
         }
         return players.size();
     }
@@ -587,43 +558,13 @@ public class PlayerClassCommand {
 
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
 
-        classComponent.performBatchUpdate(() -> {
-            classComponent.getClassManager().setClass(targetClass);
-        });
+        classComponent.performBatchUpdate(() -> classComponent.getClassManager().setClass(targetClass));
 
         Text message = Text.literal(String.format("§6Set %s's class to ", player.getName().getString()))
                 .append(targetClass.getFormattedName());
 
         source.sendFeedback(() -> message, true);
         return 1;
-    }
-
-    private static int evolveClass(ServerCommandSource source, ServerPlayerEntity player, String className) {
-        PlayerClass targetClass = ClassRegistry.getClass(className);
-        if (targetClass == null) {
-            source.sendError(Text.literal(String.format("§cUnknown class: %s", className)));
-            return 0;
-        }
-
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        PlayerClassManager manager = classComponent.getClassManager();
-
-        if (!manager.canEvolveTo(targetClass)) {
-            source.sendError(Text.literal(String.format("§c%s cannot evolve to %s at current level (%d)",
-                    player.getName().getString(), targetClass.getDisplayName(), manager.getClassLevel())));
-            return 0;
-        }
-
-        boolean success = classComponent.evolveToClass(className);
-        if (success) {
-            Text message = Text.literal(String.format("§6%s successfully evolved to ", player.getName().getString()))
-                    .append(targetClass.getFormattedName()).append(Text.literal("!"));
-            source.sendFeedback(() -> message, true);
-        } else {
-            source.sendError(Text.literal("§cEvolution failed!"));
-        }
-
-        return success ? 1 : 0;
     }
 
     private static int transcendClass(ServerCommandSource source, ServerPlayerEntity player, String className) {
