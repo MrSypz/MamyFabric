@@ -39,28 +39,28 @@ public class ClassSkillManager {
     /**
      * Learn a skill at level 1 using class points
      */
-    public boolean learnSkill(Identifier skillId, PlayerClassManager classManager) {
-        return learnSkill(skillId, false, classManager);
+    public void learnSkill(Identifier skillId, PlayerClassManager classManager) {
+        learnSkill(skillId, false, classManager);
     }
 
     /**
      * Learn a skill with option to make it free (for basic skills)
      */
-    private boolean learnSkill(Identifier skillId, boolean free, PlayerClassManager classManager) {
-        if (hasLearnedSkill(skillId)) return false;
+    private void learnSkill(Identifier skillId, boolean free, PlayerClassManager classManager) {
+        if (hasLearnedSkill(skillId)) return;
 
         Skill skill = SkillRegistry.getSkill(skillId);
-        if (skill == null) return false;
+        if (skill == null) return;
 
         if (!free) {
-            if (classManager == null) return false;
+            if (classManager == null) return;
 
             // Check if player's class can learn this skill
-            if (!skill.isAvailableForClass(classManager.getCurrentClass())) return false;
+            if (!skill.isAvailableForClass(classManager.getCurrentClass())) return;
 
             // Check if player has enough class points
             int cost = skill.getBaseClassPointCost();
-            if (classManager.getClassStatPoints() < cost) return false;
+            if (classManager.getClassStatPoints() < cost) return;
 
             // Spend class points
             classManager.getClassLevelSystem().subtractStatPoints((short) cost);
@@ -72,19 +72,18 @@ public class ClassSkillManager {
             SendToastPayloadS2C.sendInfo(serverPlayer, "Learned: " + skill.getName());
         }
 
-        return true;
     }
 
-    public boolean unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
-        if (!hasLearnedSkill(skillId)) return false;
+    public void unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
+        if (!hasLearnedSkill(skillId)) return;
 
         Skill skill = SkillRegistry.getSkill(skillId);
         int currentLevel = getSkillLevel(skillId);
 
-        if (skill == null) return false;
+        if (skill == null) return;
 
         if (skill.isDefaultSkill() && currentLevel <= 1) {
-            return false; // Can't unlearn default skills completely
+            return; // Can't unlearn default skills completely
         }
 
         if (currentLevel <= 1) {
@@ -117,7 +116,6 @@ public class ClassSkillManager {
             }
         }
 
-        return true;
     }
 
     /**
@@ -131,17 +129,17 @@ public class ClassSkillManager {
     /**
      * Upgrade a skill to the next level using class points
      */
-    public boolean upgradeSkill(Identifier skillId, PlayerClassManager classManager) {
-        if (!hasLearnedSkill(skillId)) return false;
+    public void upgradeSkill(Identifier skillId, PlayerClassManager classManager) {
+        if (!hasLearnedSkill(skillId)) return;
 
         Skill skill = SkillRegistry.getSkill(skillId);
-        if (skill == null) return false;
+        if (skill == null) return;
 
         int currentLevel = getSkillLevel(skillId);
-        if (currentLevel >= skill.getMaxSkillLevel()) return false; // Already at max level
+        if (currentLevel >= skill.getMaxSkillLevel()) return; // Already at max level
 
         int cost = skill.getUpgradeClassPointCost();
-        if (classManager.getClassStatPoints() < cost) return false;
+        if (classManager.getClassStatPoints() < cost) return;
 
         // Spend class points
         classManager.getClassLevelSystem().subtractStatPoints((short) cost);
@@ -152,7 +150,6 @@ public class ClassSkillManager {
                     "Upgraded " + skill.getName() + " to level " + (currentLevel + 1));
         }
 
-        return true;
     }
 
     /**
