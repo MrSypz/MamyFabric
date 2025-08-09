@@ -1,13 +1,13 @@
 package com.sypztep.mamy.client.toast;
 
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.common.util.TextUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class ToastRenderer {
@@ -136,7 +136,7 @@ public final class ToastRenderer {
         String text = message.getString();
         int availableWidth = MAX_TOAST_WIDTH - (TOAST_PADDING * 2);
 
-        List<String> lines = wrapText(textRenderer, text, availableWidth);
+        List<String> lines = TextUtil.wrapText(textRenderer, text, availableWidth);
 
         int contentWidth = lines.stream().mapToInt(textRenderer::getWidth).max().orElse(0);
 
@@ -146,43 +146,6 @@ public final class ToastRenderer {
         int totalHeight = contentHeight + (TOAST_PADDING * 2) + PROGRESS_BAR_HEIGHT;
 
         return new ToastDimensions(totalWidth, totalHeight, contentWidth, contentHeight, lines);
-    }
-
-    /**
-     * Wrap text to fit within specified width - handles explicit line breaks
-     */
-    private static List<String> wrapText(TextRenderer textRenderer, String text, int maxWidth) {
-        List<String> lines = new ArrayList<>();
-
-        String[] explicitLines = text.split("\\n"); // for spacing
-
-        for (String line : explicitLines) {
-            String[] words = line.split(" ");
-
-            if (words.length == 0) {
-                lines.add("");
-                continue;
-            }
-
-            StringBuilder currentLine = new StringBuilder();
-
-            for (String word : words) {
-                String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-
-                if (textRenderer.getWidth(testLine) <= maxWidth) currentLine = new StringBuilder(testLine);
-                else {
-                    if (!currentLine.isEmpty()) {
-                        lines.add(currentLine.toString());
-                        currentLine = new StringBuilder(word);
-                    } else lines.add(word);
-                }
-            }
-
-            if (!currentLine.isEmpty()) lines.add(currentLine.toString());
-
-        }
-
-        return lines;
     }
 
     public record ToastDimensions(int width, int height, int contentWidth, int contentHeight, List<String> lines) {    }

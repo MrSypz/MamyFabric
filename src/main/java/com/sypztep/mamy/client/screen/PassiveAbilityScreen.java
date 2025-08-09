@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
+import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -57,7 +58,7 @@ public final class PassiveAbilityScreen extends Screen {
         assert client.player != null;
         this.playerStats = ModEntityComponents.LIVINGLEVEL.get(client.player);
         this.abilityManager = playerStats.getPassiveAbilityManager();
-        this.displayedAbilities = ModPassiveAbilities.getAbilitiesOrderedByLevel();
+        this.displayedAbilities = ModPassiveAbilities.getAbilitiesGroupedByStatThenLevel();
         this.itemHeights = new ArrayList<>();
 
         // Initialize scroll behaviors
@@ -97,7 +98,7 @@ public final class PassiveAbilityScreen extends Screen {
             // Calculate height needed for requirements text
             String reqSummary = getRequirementSummary(ability);
             if (!reqSummary.isEmpty()) {
-                List<String> reqLines = wrapText(reqSummary, textWidth);
+                List<String> reqLines = TextUtil.wrapText(textRenderer, reqSummary, textWidth);
                 // Add height for requirement lines (beyond the first line that fits in MIN_ITEM_HEIGHT)
                 if (reqLines.size() > 1) {
                     height += (reqLines.size() - 1) * (textRenderer.fontHeight + 2);
@@ -145,7 +146,7 @@ public final class PassiveAbilityScreen extends Screen {
         totalHeight += textRenderer.fontHeight;
 
         // Description height
-        List<String> descLines = wrapText(selectedAbility.getDescription().getString(), maxWidth);
+        List<String> descLines = TextUtil.wrapText(textRenderer, selectedAbility.getDescription().getString(), maxWidth);
         totalHeight += descLines.size() * (textRenderer.fontHeight + 2) + 10;
         int magicNumber = 14; // it all screen pad
         // Requirements list
@@ -153,7 +154,7 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Effects description
         String effectDesc = getEffectDescription(selectedAbility);
-        List<String> effectLines = wrapText(effectDesc, maxWidth);
+        List<String> effectLines = TextUtil.wrapText(textRenderer, effectDesc, maxWidth);
         totalHeight += effectLines.size() * (textRenderer.fontHeight + 2);
 
         // Add some extra padding
@@ -273,7 +274,7 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
-        drawBorder(context, x, y, width, height, 0xFF444444);
+        context.drawBorder(x, y, width, height, 0xFF444444);
 
         if (abilityManager == null) return;
 
@@ -320,11 +321,9 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Background for item
         int itemBg = 0xFF1A1A1A;
-        if (isSelected) {
-            itemBg = 0xFF2A4A2A;
-        } else if (isHovered) {
-            itemBg = 0xFF2A2A2A;
-        }
+        if (isSelected) itemBg = 0xFF2A4A2A;
+         else if (isHovered) itemBg = 0xFF2A2A2A;
+
 
         context.fill(x, y, x + width, y + height, itemBg);
 
@@ -360,7 +359,7 @@ public final class PassiveAbilityScreen extends Screen {
         // Requirements summary (wrapped for long text)
         String reqSummary = getRequirementSummary(ability);
         if (!reqSummary.isEmpty()) {
-            List<String> reqLines = wrapText(reqSummary, width - ITEM_PADDING * 2);
+            List<String> reqLines = TextUtil.wrapText(textRenderer, reqSummary, width - ITEM_PADDING * 2);
             for (String line : reqLines) {
                 AnimationUtils.drawFadeText(context, textRenderer,
                         Text.literal(line).formatted(Formatting.DARK_GRAY),
@@ -379,7 +378,7 @@ public final class PassiveAbilityScreen extends Screen {
                                              int mouseX, int mouseY, float delta) {
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
-        drawBorder(context, x, y, width, height, 0xFF444444);
+        context.drawBorder(x, y, width, height, 0xFF444444);
 
         if (selectedAbility == null) {
             AnimationUtils.drawFadeCenteredText(context, textRenderer,
@@ -424,7 +423,7 @@ public final class PassiveAbilityScreen extends Screen {
         currentY += textRenderer.fontHeight + 10;
 
         // Description
-        List<String> descLines = wrapText(selectedAbility.getDescription().getString(), maxWidth);
+        List<String> descLines = TextUtil.wrapText(textRenderer, selectedAbility.getDescription().getString(), maxWidth);
         for (String line : descLines) {
             AnimationUtils.drawFadeText(context, textRenderer, Text.literal(line).formatted(Formatting.GRAY),
                     textX, currentY, 0xAAAAAA, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
@@ -461,7 +460,7 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Show effect description
         String effectDesc = getEffectDescription(selectedAbility);
-        List<String> effectLines = wrapText(effectDesc, maxWidth);
+        List<String> effectLines = TextUtil.wrapText(textRenderer, effectDesc, maxWidth);
         for (String line : effectLines) {
             AnimationUtils.drawFadeText(context, textRenderer, Text.literal(line).formatted(Formatting.AQUA),
                     textX, currentY, 0x55FFFF, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
@@ -472,42 +471,9 @@ public final class PassiveAbilityScreen extends Screen {
         detailsScrollBehavior.disableScissor(context);
     }
 
-    private void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        context.fill(x, y, x + width, y + 1, color); // Top
-        context.fill(x, y + height - 1, x + width, y + height, color); // Bottom
-        context.fill(x, y, x + 1, y + height, color); // Left
-        context.fill(x + width - 1, y, x + width, y + height, color); // Right
-    }
-
     private void renderToastsOverScreen(DrawContext context, float delta) {
         float deltaTime = delta / 20.0f;
         ToastRenderer.renderToasts(context, this.width, deltaTime);
-    }
-
-    private List<String> wrapText(String text, int maxWidth) {
-        List<String> lines = new ArrayList<>();
-        String[] words = text.split(" ");
-        StringBuilder currentLine = new StringBuilder();
-
-        for (String word : words) {
-            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-            if (textRenderer.getWidth(testLine) <= maxWidth) {
-                currentLine = new StringBuilder(testLine);
-            } else {
-                if (!currentLine.isEmpty()) {
-                    lines.add(currentLine.toString());
-                    currentLine = new StringBuilder(word);
-                } else {
-                    lines.add(word);
-                }
-            }
-        }
-
-        if (!currentLine.isEmpty()) {
-            lines.add(currentLine.toString());
-        }
-
-        return lines;
     }
 
     private String getRequirementSummary(PassiveAbility ability) {
@@ -535,14 +501,6 @@ public final class PassiveAbilityScreen extends Screen {
 
         return desc.toString();
     }
-    @Deprecated
-    private int getCanUnlockCount() {
-        if (abilityManager == null) return 0;
-
-        int count = 0;
-        for (PassiveAbility ability : displayedAbilities) if (!abilityManager.isUnlocked(ability) && ability.meetsRequirements(client.player)) count++;
-        return count;
-    }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -559,27 +517,24 @@ public final class PassiveAbilityScreen extends Screen {
         if (button != 0) return super.mouseClicked(mouseX, mouseY, button); // Left click only
 
         int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
-        int contentX = CONTENT_PADDING;
         int contentY = yOffset + CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int listWidth = (contentWidth - SECTION_SPACING) / 2; // Updated for 2:2 layout
         int contentHeight = height - contentY - 20;
 
         // Use the same bounds as hover detection
-        int listX = contentX;
-        int listY = contentY;
-        int itemAreaX = listX + 5;
+        int itemAreaX = CONTENT_PADDING + 5;
         int itemAreaWidth = listWidth - 30; // This makes the right bound listX + listWidth - 25
 
         // Check if clicking in the same area as hover detection
         if (mouseX >= itemAreaX && mouseX <= itemAreaX + itemAreaWidth &&
-                mouseY >= listY && mouseY <= listY + contentHeight) {
+                mouseY >= contentY && mouseY <= contentY + contentHeight) {
 
             int scrollOffset = listScrollBehavior.getScrollOffset();
 
             // Calculate the same way as in hover detection with dynamic heights
             int adjustedMouseY = (int) mouseY;
-            int currentY = listY + 10 - scrollOffset; // Same as hover calculation
+            int currentY = contentY + 10 - scrollOffset; // Same as hover calculation
 
             // Find which item was clicked by iterating through items like hover does
             for (int i = 0; i < displayedAbilities.size(); i++) {
@@ -588,7 +543,7 @@ public final class PassiveAbilityScreen extends Screen {
                 int actualItemHeight = itemHeight - 2; // Same as hover detection
 
                 if (adjustedMouseY >= itemY && adjustedMouseY <= itemY + actualItemHeight) {
-                    if (itemY + actualItemHeight >= listY && itemY <= listY + contentHeight) {
+                    if (itemY + actualItemHeight >= contentY && itemY <= contentY + contentHeight) {
                         selectedAbility = displayedAbilities.get(i);
                         listScrollBehavior.scrollToItem(i, itemHeight);
                         return true;

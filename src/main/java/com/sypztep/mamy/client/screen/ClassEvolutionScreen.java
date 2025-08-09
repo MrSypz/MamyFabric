@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ClassEvolutionPayloadC2S;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
+import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,14 +33,14 @@ public final class ClassEvolutionScreen extends Screen {
     private final PlayerClassManager classManager;
 
     // UI state
-    private List<PlayerClass> displayedClasses;
+    private final List<PlayerClass> displayedClasses;
     private PlayerClass selectedClass;
-    private List<Integer> itemHeights; // Store calculated heights for each item
+    private final List<Integer> itemHeights; // Store calculated heights for each item
     private PlayerClass clickedOnceClass = null; // For double-click confirmation
 
     // Scroll behaviors
-    private ScrollBehavior listScrollBehavior;
-    private ScrollBehavior detailsScrollBehavior;
+    private final ScrollBehavior listScrollBehavior;
+    private final ScrollBehavior detailsScrollBehavior;
 
     public ClassEvolutionScreen(MinecraftClient client) {
         super(Text.literal("Class Evolution"));
@@ -93,7 +94,7 @@ public final class ClassEvolutionScreen extends Screen {
             // Calculate height needed for description text
             String description = clazz.getDescription();
             if (description != null && !description.isEmpty()) {
-                List<String> descLines = wrapText(description, textWidth);
+                List<String> descLines = TextUtil.wrapText(textRenderer, description, textWidth);
                 // Add height for description lines (beyond the first line that fits in MIN_ITEM_HEIGHT)
                 if (descLines.size() > 1) {
                     height += (descLines.size() - 1) * (textRenderer.fontHeight + 2);
@@ -140,7 +141,7 @@ public final class ClassEvolutionScreen extends Screen {
         totalHeight += textRenderer.fontHeight;
 
         // Description height
-        List<String> descLines = wrapText(selectedClass.getDescription(), maxWidth);
+        List<String> descLines = TextUtil.wrapText(textRenderer, selectedClass.getDescription(), maxWidth);
         totalHeight += descLines.size() * (textRenderer.fontHeight + 2) + 10;
         int magicNumber = 14; // it all screen pad
 
@@ -342,7 +343,7 @@ public final class ClassEvolutionScreen extends Screen {
         // Description (wrapped for long text)
         String description = clazz.getDescription();
         if (description != null && !description.isEmpty()) {
-            String shortLine = warpLine(description, width - ITEM_PADDING * 2, textRenderer);
+            String shortLine = TextUtil.warpLine(description, width - ITEM_PADDING * 2, textRenderer);
 
             context.drawTextWithShadow(textRenderer,
                     Text.literal(shortLine).formatted(Formatting.GRAY),
@@ -388,7 +389,7 @@ public final class ClassEvolutionScreen extends Screen {
         Formatting titleColor = selectedClass.isTranscendent() ? Formatting.GOLD : Formatting.GREEN;
 
         String titleString = selectedClass.getFormattedName().getString() + statusSuffix;
-        List<String> titleLines = wrapText(titleString, maxWidth);
+        List<String> titleLines = TextUtil.wrapText(textRenderer, titleString, maxWidth);
         for (String line : titleLines) {
             Text titleText = Text.literal(line).formatted(titleColor, Formatting.BOLD);
             context.drawTextWithShadow(textRenderer, titleText, textX, currentY,
@@ -411,7 +412,7 @@ public final class ClassEvolutionScreen extends Screen {
             statusText += " (TRANSCENDENT)";
         }
 
-        List<String> statusLines = wrapText(statusText, maxWidth);
+        List<String> statusLines = TextUtil.wrapText(textRenderer, statusText, maxWidth);
         for (String line : statusLines) {
             context.drawTextWithShadow(textRenderer, Text.literal(line), textX, currentY, 0xFFFFFF);
             currentY += textRenderer.fontHeight + 2;
@@ -421,7 +422,7 @@ public final class ClassEvolutionScreen extends Screen {
         // Description
         String description = selectedClass.getDescription();
         if (description != null && !description.isEmpty()) {
-            List<String> descLines = wrapText(description, maxWidth);
+            List<String> descLines = TextUtil.wrapText(textRenderer, description, maxWidth);
             for (String line : descLines) {
                 context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(Formatting.GRAY),
                         textX, currentY, 0xAAAAAA);
@@ -447,7 +448,7 @@ public final class ClassEvolutionScreen extends Screen {
                 Formatting reqColor = meets ? Formatting.GREEN : Formatting.RED;
                 String reqText = String.format("  %s Level %d", requiredClass.getDisplayName(), requiredLevel);
 
-                List<String> reqLines = wrapText(reqText, maxWidth);
+                List<String> reqLines = TextUtil.wrapText(textRenderer, reqText, maxWidth);
                 for (String line : reqLines) {
                     context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(reqColor),
                             textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF);
@@ -500,65 +501,14 @@ public final class ClassEvolutionScreen extends Screen {
         // Warning for transcendence - wrapped
         if (selectedClass.isTranscendent()) {
             String warningText = "⚠ WARNING: Transcendence will reset your level to 1!";
-            List<String> warningLines = wrapText(warningText, maxWidth);
+            List<String> warningLines = TextUtil.wrapText(textRenderer, warningText, maxWidth);
             for (String line : warningLines) {
                 context.drawTextWithShadow(textRenderer,
                         Text.literal(line).formatted(Formatting.RED, Formatting.BOLD),
                         textX, currentY, 0xFFFF6B6B);
                 currentY += textRenderer.fontHeight + 2;
             }
-            currentY += 8;
         }
-
-        // Double-click instruction - wrapped
-        if (ready) {
-            String instructionText = requiresDoubleClick ? "Click button twice to confirm evolution" : "Click again to confirm";
-            List<String> instructionLines = wrapText(instructionText, maxWidth);
-            for (String line : instructionLines) {
-                context.drawTextWithShadow(textRenderer,
-                        Text.literal(line).formatted(Formatting.YELLOW),
-                        textX, currentY, 0xFFFFD700);
-                currentY += textRenderer.fontHeight + 2;
-            }
-            currentY += 3;
-        }
-
-        // Apply button (only if ready)
-        if (ready) {
-            String buttonText;
-            if (requiresDoubleClick) {
-                buttonText = selectedClass.isTranscendent() ? "CLICK TO TRANSCEND" : "CLICK TO EVOLVE";
-            } else {
-                buttonText = selectedClass.isTranscendent() ? "CONFIRM TRANSCEND" : "CONFIRM EVOLVE";
-            }
-
-            int buttonWidth = textRenderer.getWidth(buttonText) + 20;
-            int buttonHeight = 20;
-
-            boolean buttonHovered = mouseX >= textX && mouseX <= textX + buttonWidth &&
-                    mouseY >= currentY && mouseY <= currentY + buttonHeight;
-
-            int buttonColor;
-            int textColor;
-            if (!requiresDoubleClick) {
-                // Second click - use bright colors
-                buttonColor = buttonHovered ? (selectedClass.isTranscendent() ? 0xFFFFD700 : 0xFF4CAF50) :
-                        (selectedClass.isTranscendent() ? 0xFFB8860B : 0xFF2E7D32);
-                textColor = 0xFFFFFFFF;
-            } else {
-                // First click - use muted colors
-                buttonColor = buttonHovered ? 0xFF555555 : 0xFF2C2C2C;
-                textColor = buttonHovered ? 0xFFFFFFFF : 0xAAAAAA;
-            }
-
-            context.fill(textX, currentY, textX + buttonWidth, currentY + buttonHeight, buttonColor);
-            context.drawBorder(textX, currentY, buttonWidth, buttonHeight, 0xFF777777);
-
-            int textWidth = textRenderer.getWidth(buttonText);
-            context.drawTextWithShadow(textRenderer, Text.literal(buttonText),
-                    textX + buttonWidth / 2 - textWidth / 2, currentY + 6, textColor);
-        }
-
         // Disable scissor
         detailsScrollBehavior.disableScissor(context);
     }
@@ -568,31 +518,6 @@ public final class ClassEvolutionScreen extends Screen {
         ToastRenderer.renderToasts(context, this.width, deltaTime);
     }
 
-    private List<String> wrapText(String text, int maxWidth) {
-        List<String> lines = new ArrayList<>();
-        String[] words = text.split(" ");
-        StringBuilder currentLine = new StringBuilder();
-
-        for (String word : words) {
-            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-            if (textRenderer.getWidth(testLine) <= maxWidth) {
-                currentLine = new StringBuilder(testLine);
-            } else {
-                if (!currentLine.isEmpty()) {
-                    lines.add(currentLine.toString());
-                    currentLine = new StringBuilder(word);
-                } else {
-                    lines.add(word);
-                }
-            }
-        }
-
-        if (!currentLine.isEmpty()) {
-            lines.add(currentLine.toString());
-        }
-
-        return lines;
-    }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -672,19 +597,7 @@ public final class ClassEvolutionScreen extends Screen {
     }
 
     private String warpLine(String text, int maxWidth, TextRenderer renderer) {
-        if (renderer.getWidth(text) <= maxWidth) {
-            return text;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (char c : text.toCharArray()) {
-            if (renderer.getWidth(sb.toString() + c + "...") > maxWidth) {
-                sb.append("...");
-                break;
-            }
-            sb.append(c);
-        }
-        return sb.toString();
+        return TextUtil.warpLine(text, maxWidth, renderer);
     }
 
     @Override
