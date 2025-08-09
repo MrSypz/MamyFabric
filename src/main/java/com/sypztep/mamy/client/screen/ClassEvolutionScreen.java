@@ -1,8 +1,6 @@
 package com.sypztep.mamy.client.screen;
 
 import com.sypztep.mamy.client.toast.ToastRenderer;
-import com.sypztep.mamy.common.component.living.LivingLevelComponent;
-import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ClassEvolutionPayloadC2S;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
@@ -10,24 +8,19 @@ import com.sypztep.mamy.common.system.classes.PlayerClassManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import sypztep.tyrannus.client.screen.widget.Animation;
 import sypztep.tyrannus.client.screen.widget.ScrollBehavior;
-import sypztep.tyrannus.client.util.AnimationUtils;
-import sypztep.tyrannus.client.util.DrawContextUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public final class ClassEvolutionScreen extends Screen {
-    // Animation constants
-    private static final float ANIMATION_DURATION = 0.8f;
-    private static final float FINAL_Y_OFFSET = 30.0f;
-
     // UI constants
     private static final int CONTENT_PADDING = 50;
     private static final int SECTION_SPACING = 10;
@@ -36,8 +29,6 @@ public final class ClassEvolutionScreen extends Screen {
     private static final int ITEM_PADDING = 8;
 
     // Component data
-    private final LivingLevelComponent playerStats;
-    private final PlayerClassComponent classComponent;
     private final PlayerClassManager classManager;
 
     // UI state
@@ -50,22 +41,22 @@ public final class ClassEvolutionScreen extends Screen {
     private ScrollBehavior listScrollBehavior;
     private ScrollBehavior detailsScrollBehavior;
 
-    // Animations
-    private Animation fadeAnimation;
-    private Animation slideAnimation;
-
     public ClassEvolutionScreen(MinecraftClient client) {
         super(Text.literal("Class Evolution"));
         assert client.player != null;
-        this.playerStats = ModEntityComponents.LIVINGLEVEL.get(client.player);
-        this.classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        this.classManager = classComponent.getClassManager();
+        this.classManager = ModEntityComponents.PLAYERCLASS.get(client.player).getClassManager();
 
         // Load available evolutions and transcendences
         this.displayedClasses = new ArrayList<>();
         this.displayedClasses.addAll(classManager.getAvailableEvolutions());
         this.displayedClasses.addAll(classManager.getAvailableTranscendence());
         this.itemHeights = new ArrayList<>();
+
+        this.displayedClasses.sort(
+                Comparator.comparingInt(PlayerClass::getBranch)
+                        .thenComparingInt(PlayerClass::getTier)
+                        .thenComparing(pc -> pc.isTranscendent() ? 1 : 0)
+        );
 
         // Initialize scroll behaviors
         this.listScrollBehavior = new ScrollBehavior()
@@ -82,8 +73,6 @@ public final class ClassEvolutionScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.fadeAnimation = new Animation(ANIMATION_DURATION);
-        this.slideAnimation = new Animation(ANIMATION_DURATION);
 
         // Calculate item heights and update scroll bounds
         calculateItemHeights();
@@ -118,8 +107,7 @@ public final class ClassEvolutionScreen extends Screen {
     }
 
     private void updateScrollBounds() {
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
-        int contentY = yOffset + CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
+        int contentY = CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int contentHeight = height - contentY - 20;
 
@@ -170,9 +158,6 @@ public final class ClassEvolutionScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        fadeAnimation.update(delta);
-        slideAnimation.update(delta);
-
         // Recalculate item heights if needed (in case of window resize)
         if (itemHeights.size() != displayedClasses.size()) {
             calculateItemHeights();
@@ -182,14 +167,11 @@ public final class ClassEvolutionScreen extends Screen {
         updateScrollBounds();
 
         // Set dark background
-        DrawContextUtils.fillScreen(context, 0xF0121212);
-
-        // Calculate animated offsets
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
+        context.fill(0, 0, width, height, 0xF0121212);
 
         // Main content area
         int contentX = CONTENT_PADDING;
-        int contentY = yOffset + CONTENT_PADDING;
+        int contentY = CONTENT_PADDING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int contentHeight = height - contentY - 20;
 
@@ -222,23 +204,18 @@ public final class ClassEvolutionScreen extends Screen {
         Text titleText = Text.literal("Class Evolution").formatted(Formatting.GOLD, Formatting.BOLD);
         int titleX = x + (width - textRenderer.getWidth(titleText)) / 2;
 
-        AnimationUtils.drawFadeText(context, textRenderer, titleText, titleX, y, 0xFFD700,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawTextWithShadow(textRenderer, titleText, titleX, y, 0xFFD700);
 
-        // Decorative lines
+        // Simple horizontal line
         int lineY = y + textRenderer.fontHeight + 3;
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, x, lineY, width, 1, 400,
-                0xFFFFFFFF, 0, fadeAnimation.getProgress());
+        context.fill(x, lineY, x + width, lineY + 1, 0xFFFFFFFF);
     }
-
     private void renderEvolutionSummary(DrawContext context, int x, int y, int width, float delta) {
         PlayerClass currentClass = classManager.getCurrentClass();
         int level = classManager.getClassLevel();
         boolean ready = classManager.isReadyForEvolution() || classManager.isReadyForTranscendence();
 
         int evolutionCount = classManager.getAvailableEvolutions().size();
-        int transcendenceCount = classManager.getAvailableTranscendence().size();
-        int totalCount = displayedClasses.size();
 
         // Background with border
         context.fill(x, y, x + width, y + SUMMARY_HEIGHT, 0xFF1E1E1E);
@@ -246,12 +223,12 @@ public final class ClassEvolutionScreen extends Screen {
         context.fill(x, y + SUMMARY_HEIGHT - 1, x + width, y + SUMMARY_HEIGHT, 0xFF4CAF50);
 
         // Summary text
-        String summaryText = String.format("Current: %s (Lv.%d) | Available: %d evolutions, %d transcendences",
-                currentClass.getDisplayName(), level, evolutionCount, transcendenceCount);
+        String summaryText = String.format("Current: %s (Lv.%d) | Available: %d evolutions",
+                currentClass.getDisplayName(), level, evolutionCount);
 
-        AnimationUtils.drawFadeText(context, textRenderer,
+        context.drawTextWithShadow(textRenderer,
                 Text.literal(summaryText).formatted(Formatting.WHITE),
-                x + 10, y + 8, 0xFFFFFF, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                x + 10, y + 8, 0xFFFFFF);
 
         // Status indicator with correct required level
         String statusText;
@@ -267,8 +244,8 @@ public final class ClassEvolutionScreen extends Screen {
         }
 
         int statusTextWidth = textRenderer.getWidth(statusText);
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal(statusText),
-                x + width - statusTextWidth - 10, y + 8, statusColor, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawTextWithShadow(textRenderer, Text.literal(statusText),
+                x + width - statusTextWidth - 10, y + 8, statusColor);
     }
 
     private void renderClassEvolutionList(DrawContext context, int x, int y, int width, int height,
@@ -276,12 +253,12 @@ public final class ClassEvolutionScreen extends Screen {
 
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
-        drawBorder(context, x, y, width, height, 0xFF444444);
+        context.drawBorder( x, y, width, height, 0xFF444444);
 
         if (displayedClasses.isEmpty()) {
-            AnimationUtils.drawFadeCenteredText(context, textRenderer,
+            context.drawCenteredTextWithShadow(textRenderer,
                     Text.literal("No evolutions available").formatted(Formatting.GRAY),
-                    x + width / 2, y + height / 2, 0x888888, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                    x + width / 2, y + height / 2, 0x888888);
             return;
         }
 
@@ -350,30 +327,28 @@ public final class ClassEvolutionScreen extends Screen {
 
         // Name with status
         Text className = Text.literal(statusIcon + " " + clazz.getDisplayName()).formatted(color);
-        AnimationUtils.drawFadeText(context, textRenderer, className, textX, currentTextY,
-                color.getColorValue() != null ? color.getColorValue() : 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawTextWithShadow(textRenderer, className, textX, currentTextY,
+                color.getColorValue() != null ? color.getColorValue() : 0xFFFFFF);
 
         currentTextY += textRenderer.fontHeight + 3;
 
         // Tier and code info
         String tierInfo = String.format("[%s] Tier %d", clazz.getClassCode(), clazz.getTier());
-        AnimationUtils.drawFadeText(context, textRenderer,
+        context.drawTextWithShadow(textRenderer,
                 Text.literal(tierInfo).formatted(Formatting.DARK_GRAY),
-                textX, currentTextY, 0x888888, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                textX, currentTextY, 0x888888);
         currentTextY += textRenderer.fontHeight + 2;
 
         // Description (wrapped for long text)
         String description = clazz.getDescription();
         if (description != null && !description.isEmpty()) {
-            List<String> descLines = wrapText(description, width - ITEM_PADDING * 2);
-            for (String line : descLines) {
-                AnimationUtils.drawFadeText(context, textRenderer,
-                        Text.literal(line).formatted(Formatting.GRAY),
-                        textX, currentTextY, 0xAAAAAA, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-                currentTextY += textRenderer.fontHeight + 2;
-            }
+            String shortLine = warpLine(description, width - ITEM_PADDING * 2, textRenderer);
+
+            context.drawTextWithShadow(textRenderer,
+                    Text.literal(shortLine).formatted(Formatting.GRAY),
+                    textX, currentTextY, 0xAAAAAA);
         }
+
 
         // Selection highlight
         if (isSelected) {
@@ -385,12 +360,12 @@ public final class ClassEvolutionScreen extends Screen {
                                              int mouseX, int mouseY, float delta) {
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
-        drawBorder(context, x, y, width, height, 0xFF444444);
+        context.drawBorder( x, y, width, height, 0xFF444444);
 
         if (selectedClass == null) {
-            AnimationUtils.drawFadeCenteredText(context, textRenderer,
+            context.drawCenteredTextWithShadow(textRenderer,
                     Text.literal("Select an evolution").formatted(Formatting.GRAY),
-                    x + width / 2, y + height / 2, 0x888888, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                    x + width / 2, y + height / 2, 0x888888);
             return;
         }
 
@@ -403,28 +378,29 @@ public final class ClassEvolutionScreen extends Screen {
         int scrollOffset = detailsScrollBehavior.getScrollOffset();
         int currentY = y + 10 - scrollOffset;
         int textX = x + 10;
-        int maxWidth = width - 20;
+        int maxWidth = width - 26;
 
-        boolean canEvolve = true; // If selectedClass is in displayedClasses, it's available
         boolean ready = classManager.isReadyForEvolution() || classManager.isReadyForTranscendence();
         boolean requiresDoubleClick = clickedOnceClass != selectedClass;
 
-        // Title with status
-        String statusSuffix = canEvolve && ready ? " ✓" : " ✗";
+        // Title with status - wrapped
+        String statusSuffix = ready ? " ✓" : " ✗";
         Formatting titleColor = selectedClass.isTranscendent() ? Formatting.GOLD : Formatting.GREEN;
 
-        Text titleText = selectedClass.getFormattedName().copy().formatted(titleColor, Formatting.BOLD)
-                .append(Text.literal(statusSuffix).formatted(Formatting.WHITE));
+        String titleString = selectedClass.getFormattedName().getString() + statusSuffix;
+        List<String> titleLines = wrapText(titleString, maxWidth);
+        for (String line : titleLines) {
+            Text titleText = Text.literal(line).formatted(titleColor, Formatting.BOLD);
+            context.drawTextWithShadow(textRenderer, titleText, textX, currentY,
+                    titleColor.getColorValue() != null ? titleColor.getColorValue() : 0xFFFFFF);
+            currentY += textRenderer.fontHeight + 2;
+        }
+        currentY += 6;
 
-        AnimationUtils.drawFadeText(context, textRenderer, titleText, textX, currentY,
-                titleColor.getColorValue() != null ? titleColor.getColorValue() : 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-        currentY += textRenderer.fontHeight + 8;
-
-        // Status description
+        // Status description - wrapped
         String statusText;
         if (!ready) {
-            statusText = "§c● REQUIRES LEVEL 45";
+            statusText = "§c● REQUIREMENT NOT MET";
         } else if (requiresDoubleClick) {
             statusText = "§e● CLICK TO CONFIRM";
         } else {
@@ -434,17 +410,21 @@ public final class ClassEvolutionScreen extends Screen {
         if (selectedClass.isTranscendent()) {
             statusText += " (TRANSCENDENT)";
         }
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal(statusText), textX, currentY, 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-        currentY += textRenderer.fontHeight + 10;
+
+        List<String> statusLines = wrapText(statusText, maxWidth);
+        for (String line : statusLines) {
+            context.drawTextWithShadow(textRenderer, Text.literal(line), textX, currentY, 0xFFFFFF);
+            currentY += textRenderer.fontHeight + 2;
+        }
+        currentY += 8;
 
         // Description
         String description = selectedClass.getDescription();
         if (description != null && !description.isEmpty()) {
             List<String> descLines = wrapText(description, maxWidth);
             for (String line : descLines) {
-                AnimationUtils.drawFadeText(context, textRenderer, Text.literal(line).formatted(Formatting.GRAY),
-                        textX, currentY, 0xAAAAAA, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(Formatting.GRAY),
+                        textX, currentY, 0xAAAAAA);
                 currentY += textRenderer.fontHeight + 2;
             }
             currentY += 10;
@@ -452,11 +432,11 @@ public final class ClassEvolutionScreen extends Screen {
 
         // Requirements header
         if (!selectedClass.getRequirements().isEmpty()) {
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal("Requirements:").formatted(Formatting.GOLD),
-                    textX, currentY, 0xFFD700, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawTextWithShadow(textRenderer, Text.literal("Requirements:").formatted(Formatting.GOLD),
+                    textX, currentY, 0xFFD700);
             currentY += textRenderer.fontHeight + 5;
 
-            // Requirements list
+            // Requirements list - wrapped
             for (var req : selectedClass.getRequirements()) {
                 PlayerClass requiredClass = req.previousClass();
                 int requiredLevel = req.requiredLevel();
@@ -467,46 +447,80 @@ public final class ClassEvolutionScreen extends Screen {
                 Formatting reqColor = meets ? Formatting.GREEN : Formatting.RED;
                 String reqText = String.format("  %s Level %d", requiredClass.getDisplayName(), requiredLevel);
 
-                AnimationUtils.drawFadeText(context, textRenderer, Text.literal(reqText).formatted(reqColor),
-                        textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF,
-                        AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-                currentY += textRenderer.fontHeight + 2;
+                List<String> reqLines = wrapText(reqText, maxWidth);
+                for (String line : reqLines) {
+                    context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(reqColor),
+                            textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF);
+                    currentY += textRenderer.fontHeight + 2;
+                }
             }
             currentY += 10;
         }
 
-        // Attribute bonuses
+        // Enhanced version of your attribute bonuses display
         if (!selectedClass.getAttributeModifiers().isEmpty()) {
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal("Attribute Bonuses:").formatted(Formatting.GOLD),
-                    textX, currentY, 0xFFD700, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawTextWithShadow(textRenderer,
+                    Text.translatable("gui.class_selection.attribute_bonuses").formatted(Formatting.GOLD),
+                    textX, currentY, 0xFFD700);
             currentY += textRenderer.fontHeight + 5;
 
             for (var entry : selectedClass.getAttributeModifiers().entrySet()) {
-                String attrName = entry.getKey().value().getTranslationKey();
+                var attribute = entry.getKey();
                 double value = entry.getValue();
-                String bonusText = String.format("  %s: %+.1f", attrName, value);
-                AnimationUtils.drawFadeText(context, textRenderer, Text.literal(bonusText).formatted(Formatting.AQUA),
-                        textX, currentY, 0x55FFFF, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+
+                String attrName = Text.translatable(attribute.value().getTranslationKey()).getString();
+                String growthDesc = selectedClass.getGrowthDescription(attribute);
+
+                // Base bonus in white/light gray
+                String baseBonus = String.format("  %s: %+.1f", attrName, value);
+                context.drawTextWithShadow(textRenderer, Text.literal(baseBonus).formatted(Formatting.WHITE),
+                        textX, currentY, 0xFFFFFF);
+
+                // Growth description in green on the same line if it fits, otherwise new line
+                if (!growthDesc.isEmpty()) {
+                    String growthText = " (" + growthDesc + ")";
+                    int baseWidth = textRenderer.getWidth(baseBonus);
+                    int growthWidth = textRenderer.getWidth(growthText);
+
+                    if (baseWidth + growthWidth <= maxWidth) {
+                        // Fits on same line
+                        context.drawTextWithShadow(textRenderer, Text.literal(growthText).formatted(Formatting.GREEN),
+                                textX + baseWidth, currentY, 0x55FF55);
+                    } else {
+                        // Put on next line with indentation
+                        currentY += textRenderer.fontHeight + 1;
+                        context.drawTextWithShadow(textRenderer, Text.literal("    " + growthText).formatted(Formatting.GREEN),
+                                textX, currentY, 0x55FF55);
+                    }
+                }
                 currentY += textRenderer.fontHeight + 2;
             }
-            currentY += 10;
+            currentY += 7;
         }
-
-        // Warning for transcendence
+        // Warning for transcendence - wrapped
         if (selectedClass.isTranscendent()) {
-            AnimationUtils.drawFadeText(context, textRenderer,
-                    Text.literal("⚠ WARNING: Transcendence will reset your level to 1!").formatted(Formatting.RED, Formatting.BOLD),
-                    textX, currentY, 0xFFFF6B6B, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-            currentY += textRenderer.fontHeight + 10;
+            String warningText = "⚠ WARNING: Transcendence will reset your level to 1!";
+            List<String> warningLines = wrapText(warningText, maxWidth);
+            for (String line : warningLines) {
+                context.drawTextWithShadow(textRenderer,
+                        Text.literal(line).formatted(Formatting.RED, Formatting.BOLD),
+                        textX, currentY, 0xFFFF6B6B);
+                currentY += textRenderer.fontHeight + 2;
+            }
+            currentY += 8;
         }
 
-        // Double-click instruction
+        // Double-click instruction - wrapped
         if (ready) {
             String instructionText = requiresDoubleClick ? "Click button twice to confirm evolution" : "Click again to confirm";
-            AnimationUtils.drawFadeText(context, textRenderer,
-                    Text.literal(instructionText).formatted(Formatting.YELLOW),
-                    textX, currentY, 0xFFFFD700, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
-            currentY += textRenderer.fontHeight + 5;
+            List<String> instructionLines = wrapText(instructionText, maxWidth);
+            for (String line : instructionLines) {
+                context.drawTextWithShadow(textRenderer,
+                        Text.literal(line).formatted(Formatting.YELLOW),
+                        textX, currentY, 0xFFFFD700);
+                currentY += textRenderer.fontHeight + 2;
+            }
+            currentY += 3;
         }
 
         // Apply button (only if ready)
@@ -520,9 +534,8 @@ public final class ClassEvolutionScreen extends Screen {
 
             int buttonWidth = textRenderer.getWidth(buttonText) + 20;
             int buttonHeight = 20;
-            int buttonX = textX;
 
-            boolean buttonHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+            boolean buttonHovered = mouseX >= textX && mouseX <= textX + buttonWidth &&
                     mouseY >= currentY && mouseY <= currentY + buttonHeight;
 
             int buttonColor;
@@ -538,23 +551,16 @@ public final class ClassEvolutionScreen extends Screen {
                 textColor = buttonHovered ? 0xFFFFFFFF : 0xAAAAAA;
             }
 
-            context.fill(buttonX, currentY, buttonX + buttonWidth, currentY + buttonHeight, buttonColor);
-            drawBorder(context, buttonX, currentY, buttonWidth, buttonHeight, 0xFF777777);
+            context.fill(textX, currentY, textX + buttonWidth, currentY + buttonHeight, buttonColor);
+            context.drawBorder(textX, currentY, buttonWidth, buttonHeight, 0xFF777777);
 
             int textWidth = textRenderer.getWidth(buttonText);
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal(buttonText),
-                    buttonX + buttonWidth / 2 - textWidth / 2, currentY + 6, textColor, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawTextWithShadow(textRenderer, Text.literal(buttonText),
+                    textX + buttonWidth / 2 - textWidth / 2, currentY + 6, textColor);
         }
 
         // Disable scissor
         detailsScrollBehavior.disableScissor(context);
-    }
-
-    private void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        context.fill(x, y, x + width, y + 1, color); // Top
-        context.fill(x, y + height - 1, x + width, y + height, color); // Bottom
-        context.fill(x, y, x + 1, y + height, color); // Left
-        context.fill(x + width - 1, y, x + width, y + height, color); // Right
     }
 
     private void renderToastsOverScreen(DrawContext context, float delta) {
@@ -590,49 +596,42 @@ public final class ClassEvolutionScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Handle details scroll behavior click first
         if (detailsScrollBehavior.handleMouseClick(mouseX, mouseY, button)) {
             return true;
         }
 
-        // Handle list scroll behavior click
         if (listScrollBehavior.handleMouseClick(mouseX, mouseY, button)) {
             return true;
         }
 
         if (button != 0) return super.mouseClicked(mouseX, mouseY, button); // Left click only
 
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
         int contentX = CONTENT_PADDING;
-        int contentY = yOffset + CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
+        int contentY = CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
         int contentWidth = width - (CONTENT_PADDING * 2);
-        int listWidth = (contentWidth - SECTION_SPACING) / 2; // Updated for 2:2 layout
+        int listWidth = (contentWidth - SECTION_SPACING) / 2;
         int contentHeight = height - contentY - 20;
 
         // Use the same bounds as hover detection
-        int listX = contentX;
-        int listY = contentY;
-        int itemAreaX = listX + 5;
-        int itemAreaWidth = listWidth - 30; // This makes the right bound listX + listWidth - 25
+        int itemAreaX = contentX + 5;
+        int itemAreaWidth = listWidth - 30;
 
         // Check if clicking in the same area as hover detection
         if (mouseX >= itemAreaX && mouseX <= itemAreaX + itemAreaWidth &&
-                mouseY >= listY && mouseY <= listY + contentHeight) {
+                mouseY >= contentY && mouseY <= contentY + contentHeight) {
 
             int scrollOffset = listScrollBehavior.getScrollOffset();
-
-            // Calculate the same way as in hover detection with dynamic heights
             int adjustedMouseY = (int) mouseY;
-            int currentY = listY + 10 - scrollOffset; // Same as hover calculation
+            int currentY = contentY + 10 - scrollOffset;
 
-            // Find which item was clicked by iterating through items like hover does
+            // Find which item was clicked
             for (int i = 0; i < displayedClasses.size(); i++) {
                 int itemHeight = itemHeights.get(i);
                 int itemY = currentY;
-                int actualItemHeight = itemHeight - 2; // Same as hover detection
+                int actualItemHeight = itemHeight - 2;
 
                 if (adjustedMouseY >= itemY && adjustedMouseY <= itemY + actualItemHeight) {
-                    if (itemY + actualItemHeight >= listY && itemY <= listY + contentHeight) {
+                    if (itemY + actualItemHeight >= contentY && itemY <= contentY + contentHeight) {
                         selectedClass = displayedClasses.get(i);
                         clickedOnceClass = null; // Reset confirmation when selecting different class
                         listScrollBehavior.scrollToItem(i, itemHeight);
@@ -649,7 +648,7 @@ public final class ClassEvolutionScreen extends Screen {
             boolean ready = classManager.isReadyForEvolution() || classManager.isReadyForTranscendence();
 
             if (ready) {
-                // Check button area (approximate - would need exact calculation from details rendering)
+                // Check button area
                 int detailsX = contentX + listWidth + SECTION_SPACING;
                 int detailsWidth = (contentWidth - SECTION_SPACING) / 2;
 
@@ -670,6 +669,22 @@ public final class ClassEvolutionScreen extends Screen {
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private String warpLine(String text, int maxWidth, TextRenderer renderer) {
+        if (renderer.getWidth(text) <= maxWidth) {
+            return text;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (renderer.getWidth(sb.toString() + c + "...") > maxWidth) {
+                sb.append("...");
+                break;
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     @Override
