@@ -27,9 +27,8 @@ public class ClassRegistry {
                 .toList();
     }
 
-    public static List<PlayerClass> getAvailableEvolutions(PlayerClass currentClass, int classLevel) {
+    public static List<PlayerClass> getAvailableEvolutions(PlayerClass currentClass) {
         return ModClasses.CLASSES.values().stream()
-//                .filter(clazz -> clazz.canEvolveFrom(currentClass, classLevel))
                 .filter(clazz -> clazz != currentClass)
                 .filter(clazz -> clazz.getTier() > currentClass.getTier()) // ONLY HIGHER TIERS
                 .filter(clazz -> !clazz.isTranscendent()) // Exclude transcendent from normal evolutions

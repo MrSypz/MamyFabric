@@ -90,7 +90,7 @@ public final class ToastRenderer {
         renderProgressBar(context, x, y, dimensions, toast.getRemainingProgress(), colors);
 
         // Render text
-        renderToastText(context, textRenderer, toast.getMessage(), x, y, dimensions, colors.text());
+        renderToastText(context, textRenderer, x, y, dimensions, colors.text());
     }
 
     /**
@@ -119,7 +119,7 @@ public final class ToastRenderer {
     /**
      * Render text with word wrapping and proper line spacing
      */
-    private static void renderToastText(DrawContext context, TextRenderer textRenderer, Text message, int x, int y, ToastDimensions dimensions, int textColor) {
+    private static void renderToastText(DrawContext context, TextRenderer textRenderer, int x, int y, ToastDimensions dimensions, int textColor) {
         List<String> lines = dimensions.lines();
 
         int currentY = y + TOAST_PADDING;

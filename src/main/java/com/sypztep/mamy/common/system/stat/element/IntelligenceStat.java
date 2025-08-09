@@ -113,20 +113,6 @@ public final class IntelligenceStat extends Stat {
 
         return description;
     }
-
-
-    public static double calculateMagicDamageBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * MAGIC_DAMAGE_SCALING;
-    }
-
-    public static double calculateMagicResistanceBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * MAGIC_RESISTANCE_SCALING;
-    }
-
-    // NEW: Resource bonus calculation
-    public static double calculateResourceBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * RESOURCE_SCALING;
-    }
     @Override
     protected Identifier getPrimaryId() {
         return Mamy.id("intelligence_primary");

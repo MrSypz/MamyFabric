@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen.hud;
 
+import com.sypztep.mamy.client.event.hud.LevelHudRenderer;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
@@ -184,12 +185,7 @@ public class ResourceBarHud {
         if (progressWidth > 0) {
             // Resource gain glow effect
             if (resourceGainGlowTimer > 0) {
-                float glowStrength = resourceGainGlowTimer / RESOURCE_GLOW_DURATION;
-                float time = (RESOURCE_GLOW_DURATION - resourceGainGlowTimer) * 3.0f;
-                float pulse = (float) (0.5f + 0.5f * Math.sin(time * Math.PI));
-                float finalGlow = glowStrength * (0.7f + 0.3f * pulse);
-
-                int glowAlpha = (int) (finalGlow * 130);
+                int glowAlpha = LevelHudRenderer.glowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
                 int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
 
                 // Glow layers

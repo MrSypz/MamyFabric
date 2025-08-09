@@ -14,6 +14,8 @@ import net.minecraft.util.math.MathHelper;
 import sypztep.tyrannus.client.util.DrawContextUtils;
 import sypztep.tyrannus.common.util.NumberUtil;
 
+import java.util.Optional;
+
 public final class LevelHudRenderer implements HudRenderCallback {
     // Position settings
     private static final int HUD_X = 10;
@@ -158,7 +160,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         TextRenderer textRenderer = client.textRenderer;
 
         // Get values
-        String playerName = client.player.getName().getString();
+        Optional<String> playerName = Optional.ofNullable(client.player).map(clientPlayerEntity -> clientPlayerEntity.getName().getString());
         int level = levelData.getLevel();
         long currentXp = levelData.getExperience();
         long xpToNext = levelData.getExperienceToNextLevel();
@@ -167,7 +169,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         // Calculate text elements
         String levelText = isMaxLevel ? "MAX" : "Lv." + level;
-        int playerNameWidth = textRenderer.getWidth(playerName);
+        int playerNameWidth = textRenderer.getWidth(playerName.orElse("NaN"));
         int levelTextWidth = textRenderer.getWidth(levelText);
 
         // Calculate dynamic HUD dimensions
@@ -183,7 +185,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         DrawContextUtils.drawBorder(drawContext, hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3, BORDER_COLOR);
 
         // Player name on the left
-        drawContext.drawTextWithShadow(textRenderer, playerName, hudX, currentY, TEXT_COLOR);
+        drawContext.drawTextWithShadow(textRenderer, playerName.orElse("NaN"), hudX, currentY, TEXT_COLOR);
 
         // Level on the right
         int levelColor = isMaxLevel ? MAX_LEVEL_COLOR : LEVEL_COLOR;
@@ -202,7 +204,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         if (progressWidth > 0) {
             // XP gain glow effect
             if (xpGainGlowTimer > 0) {
-                renderGlowEffect(drawContext, hudX, mainBarY, progressWidth, xpGainGlowTimer, XP_GAIN_GLOW_COLOR);
+                renderGlowEffect(drawContext, hudX, mainBarY, progressWidth, xpGainGlowTimer);
             }
 
             // Main XP bar
@@ -222,7 +224,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         if (classProgressWidth > 0) {
             // Class gain glow effect ⭐ เพิ่มใหม่
             if (classGainGlowTimer > 0) {
-                renderGlowEffect(drawContext, hudX, classBarY, classProgressWidth, classGainGlowTimer, XP_GAIN_GLOW_COLOR);
+                renderGlowEffect(drawContext, hudX, classBarY, classProgressWidth, classGainGlowTimer);
             }
 
             // Class XP bar
@@ -259,18 +261,22 @@ public final class LevelHudRenderer implements HudRenderCallback {
     /**
      * Render glow effect for progress bars
      */
-    private void renderGlowEffect(DrawContext drawContext, int x, int y, int width, float glowTimer, int glowColor) {
-        float glowStrength = glowTimer / XP_GLOW_DURATION;
-        float time = (XP_GLOW_DURATION - glowTimer) * 3.0f;
-        float pulse = (float) (0.5f + 0.5f * Math.sin(time * Math.PI));
-        float finalGlow = glowStrength * (0.7f + 0.3f * pulse);
-
-        int glowAlpha = (int) (finalGlow * 130);
-        int finalGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
+    private void renderGlowEffect(DrawContext drawContext, int x, int y, int width, float glowTimer) {
+        int glowAlpha = glowStrength(glowTimer, XP_GLOW_DURATION);
+        int finalGlowColor = (glowAlpha << 24) | (LevelHudRenderer.XP_GAIN_GLOW_COLOR & 0x00FFFFFF);
 
         // Glow layers
         drawContext.fill(x - 2, y - 2, x + width + 2, y + BAR_HEIGHT + 2, finalGlowColor);
         drawContext.fill(x - 1, y - 1, x + width + 1, y + BAR_HEIGHT + 1, finalGlowColor);
+    }
+
+    public static int glowStrength(float glowTimer, float xpGlowDuration) {
+        float glowStrength = glowTimer / xpGlowDuration;
+        float time = (xpGlowDuration - glowTimer) * 3.0f;
+        float pulse = (float) (0.5f + 0.5f * Math.sin(time * Math.PI));
+        float finalGlow = glowStrength * (0.7f + 0.3f * pulse);
+
+        return (int) (finalGlow * 130);
     }
 
     private int calculateHudX() {

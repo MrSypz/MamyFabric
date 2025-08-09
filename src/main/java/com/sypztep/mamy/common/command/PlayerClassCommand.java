@@ -693,9 +693,7 @@ public class PlayerClassCommand {
     private static int resetClassAll(ServerCommandSource source, ServerPlayerEntity player) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
 
-        classComponent.performBatchUpdate(() -> {
-            classComponent.getClassManager().getClassLevelSystem().resetForTranscendence();
-        });
+        classComponent.performBatchUpdate(() -> classComponent.getClassManager().getClassLevelSystem().resetForTranscendence());
 
         Text message = Text.literal(String.format("§6Reset %s's class level, experience, and stat points to 0 (like transcendence)",
                 player.getName().getString()));
@@ -717,9 +715,7 @@ public class PlayerClassCommand {
     private static int addClassPoints(ServerCommandSource source, ServerPlayerEntity player, short amount) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
 
-        classComponent.performBatchUpdate(() -> {
-            classComponent.getClassManager().getClassLevelSystem().addStatPoints(amount);
-        });
+        classComponent.performBatchUpdate(() -> classComponent.getClassManager().getClassLevelSystem().addStatPoints(amount));
 
         Text message = Text.literal(String.format("§6Added §f%d §6class stat points to %s",
                 amount, player.getName().getString()));

@@ -9,7 +9,6 @@ import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -262,11 +261,10 @@ public final class ClassEvolutionScreen extends Screen {
                 continue;
             }
 
-            boolean canEvolve = true; // If it's in displayedClasses, it's already available
             boolean isHovered = mouseX >= x + 5 && mouseX <= x + width - 25 && mouseY >= currentY && mouseY <= currentY + itemHeight - 2;
             boolean isSelected = clazz == selectedClass;
 
-            renderClassListItem(context, clazz, x + 5, currentY, width - 30, itemHeight - 2, canEvolve, isHovered, isSelected, delta);
+            renderClassListItem(context, clazz, x + 5, currentY, width - 30, itemHeight - 2, isHovered, isSelected);
 
             currentY += itemHeight;
         }
@@ -275,7 +273,7 @@ public final class ClassEvolutionScreen extends Screen {
         listScrollBehavior.disableScissor(context);
     }
 
-    private void renderClassListItem(DrawContext context, PlayerClass clazz, int x, int y, int width, int height, boolean canEvolve, boolean isHovered, boolean isSelected, float delta) {
+    private void renderClassListItem(DrawContext context, PlayerClass clazz, int x, int y, int width, int height, boolean isHovered, boolean isSelected) {
 
         // Background for item
         int itemBg = 0xFF1A1A1A;
@@ -549,10 +547,6 @@ public final class ClassEvolutionScreen extends Screen {
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    private String warpLine(String text, int maxWidth, TextRenderer renderer) {
-        return TextUtil.warpLine(text, maxWidth, renderer);
     }
 
     @Override

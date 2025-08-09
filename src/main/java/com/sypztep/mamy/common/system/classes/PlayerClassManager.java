@@ -75,10 +75,6 @@ public class PlayerClassManager {
         return classLevelSystem.getExperienceToNextLevel();
     }
 
-    public boolean isClassMaxLevel() {
-        return classLevelSystem.isMaxLevel();
-    }
-
     public short getClassStatPoints() {
         return classLevelSystem.getStatPoints();
     }
@@ -87,7 +83,6 @@ public class PlayerClassManager {
         return hasTranscended;
     }
 
-    // UPDATED: Removed auto skill learning
     public void addClassExperience(long amount) {
         if (amount <= 0) return;
 
@@ -95,10 +90,7 @@ public class PlayerClassManager {
         classLevelSystem.addExperience(amount);
         int newLevel = classLevelSystem.getLevel();
 
-        if (newLevel > oldLevel) {
-            onClassLevelUp(newLevel);
-            // REMOVED: skillManager.onLevelUp(currentClass.getId(), newLevel);
-        }
+        if (newLevel > oldLevel) onClassLevelUp(newLevel);
     }
 
     public boolean canEvolveTo(PlayerClass targetClass) {
@@ -107,7 +99,7 @@ public class PlayerClassManager {
 
     public List<PlayerClass> getAvailableEvolutions() {
 //        return ClassRegistry.getAvailableEvolutions(currentClass, getClassLevel());
-        return ClassRegistry.getAvailableEvolutions(currentClass, 10);
+        return ClassRegistry.getAvailableEvolutions(currentClass);
     }
 
     public List<PlayerClass> getAvailableTranscendence() {

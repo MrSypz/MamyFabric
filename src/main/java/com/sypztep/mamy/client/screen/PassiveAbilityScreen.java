@@ -197,7 +197,7 @@ public final class PassiveAbilityScreen extends Screen {
         int detailsX = contentX + listWidth + SECTION_SPACING;
 
         // Render summary info at top
-        renderPassiveSummary(context, contentX, contentY, contentWidth, delta);
+        renderPassiveSummary(context, contentX, contentY, contentWidth);
 
         // Render ability list with scroll behavior
         renderPassiveAbilityList(context, contentX, contentY + SUMMARY_HEIGHT + SECTION_SPACING,
@@ -226,7 +226,7 @@ public final class PassiveAbilityScreen extends Screen {
                 0xFFFFFFFF, 0, fadeAnimation.getProgress());
     }
 
-    private void renderPassiveSummary(DrawContext context, int x, int y, int width, float delta) {
+    private void renderPassiveSummary(DrawContext context, int x, int y, int width) {
         if (abilityManager == null) return;
 
         int unlockedCount = abilityManager.getUnlockedAbilities().size();
@@ -306,7 +306,7 @@ public final class PassiveAbilityScreen extends Screen {
             boolean isSelected = ability == selectedAbility;
 
             renderAbilityListItem(context, ability, x + 5, currentY, width - 30, itemHeight - 2,
-                    unlocked, active, canUnlock, isHovered, isSelected, delta);
+                    unlocked, active, canUnlock, isHovered, isSelected);
 
             currentY += itemHeight;
         }
@@ -317,7 +317,7 @@ public final class PassiveAbilityScreen extends Screen {
 
     private void renderAbilityListItem(DrawContext context, PassiveAbility ability, int x, int y, int width, int height,
                                        boolean unlocked, boolean active, boolean canUnlock, boolean isHovered,
-                                       boolean isSelected, float delta) {
+                                       boolean isSelected) {
 
         // Background for item
         int itemBg = 0xFF1A1A1A;

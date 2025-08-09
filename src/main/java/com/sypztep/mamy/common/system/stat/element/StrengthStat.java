@@ -101,14 +101,6 @@ public final class StrengthStat extends Stat {
         return description;
     }
 
-    public static double calculateMeleeDamageBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * MELEE_DAMAGE_SCALING;
-    }
-
-    public static double calculateAttackSpeedBonus(int currentValue, int baseValue) {
-        return (currentValue - baseValue) * ATTACK_SPEED_SCALING;
-    }
-
     @Override
     protected Identifier getPrimaryId() {
         return Mamy.id("strength_primary");
