@@ -69,7 +69,7 @@ public final class SkillBindingScreen extends Screen {
         if (client.player == null) return;
 
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        learnedSkills = new ArrayList<>(classComponent.getLearnedSkills());
+        learnedSkills = new ArrayList<>(classComponent.getLearnedSkills(false));
         boundSkills = classComponent.getClassManager().getAllBoundSkills();
     }
 
@@ -132,9 +132,8 @@ public final class SkillBindingScreen extends Screen {
 
     private void updateScrollBounds() {
         // Simple 50:50 split
-        int contentX = CONTENT_PADDING;
         int contentWidth = width - (CONTENT_PADDING * 2);
-        int rightColumnX = contentX + (contentWidth / 2) + SECTION_SPACING;
+        int rightColumnX = CONTENT_PADDING + (contentWidth / 2) + SECTION_SPACING;
         int rightColumnWidth = (contentWidth / 2) - SECTION_SPACING;
 
         int sectionY = CONTENT_PADDING + 30;

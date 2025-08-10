@@ -158,7 +158,7 @@ public abstract class Skill {
                 .append(Text.literal(" sec").formatted(Formatting.GRAY)));
     }
 
-    private void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+    protected void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
         switch (context) {
             case LEARNING_SCREEN -> addLearningInfo(tooltip, player, skillLevel, isLearned);
             case BINDING_SCREEN -> addBindingInfo(tooltip, isLearned);

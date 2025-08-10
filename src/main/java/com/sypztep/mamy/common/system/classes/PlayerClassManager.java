@@ -98,7 +98,6 @@ public class PlayerClassManager {
     }
 
     public List<PlayerClass> getAvailableEvolutions() {
-//        return ClassRegistry.getAvailableEvolutions(currentClass, getClassLevel());
         return ClassRegistry.getAvailableEvolutions(currentClass);
     }
 
@@ -183,8 +182,8 @@ public class PlayerClassManager {
         hasTranscended = true;
 
         // Reset level and experience (like RO transcendence)
-        classLevelSystem.resetForTranscendence();
-        classLevelSystem.updateForClass(currentClass);
+        classLevelSystem.resetForTranscendence();// for future me it not gonna reset class point
+//        classLevelSystem.updateForClass(currentClass);  // it using resetFor
 
         // Apply new class modifiers
         currentClass.applyAttributeModifiers(player);
@@ -280,8 +279,8 @@ public class PlayerClassManager {
     }
 
     // UPDATED: Returns Set instead of List and uses getLearnedSkills()
-    public Set<Identifier> getLearnedSkills() {
-        return skillManager.getLearnedSkills();
+    public Set<Identifier> getLearnedSkills(boolean allowPassive) {
+        return skillManager.getLearnedSkills(allowPassive);
     }
 
     // NEW: Get skill level
@@ -416,7 +415,6 @@ public class PlayerClassManager {
     public void initialize() {
         if (currentClass != null) {
             currentClass.applyAttributeModifiers(player);
-//            this.applyJobBonusesToStats(player);
             currentResource = Math.min(currentResource, getMaxResource());
         }
     }

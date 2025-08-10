@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.novice.FirstAidSkill;
 import com.sypztep.mamy.common.system.skill.swordman.BloodlustSkill;
+import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -14,18 +15,20 @@ public class SkillRegistry {
     // Static skill IDs
     public static final Identifier FIRSTAID = Mamy.id("first_aid");
     public static final Identifier BLOODLUST = Mamy.id("bloodlust");
-    public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
-    public static final Identifier FIREBALL = Mamy.id("fireball");
-    public static final Identifier HEALING_LIGHT = Mamy.id("healing_light");
-    public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
-    public static final Identifier SHADOW_STEP = Mamy.id("shadow_step");
-    public static final Identifier BERSERKER_RAGE = Mamy.id("berserker_rage");
-    public static final Identifier METEOR_STRIKE = Mamy.id("meteor_strike");
-    public static final Identifier DIVINE_JUDGMENT = Mamy.id("divine_judgment");
+    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
+//    public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
+//    public static final Identifier FIREBALL = Mamy.id("fireball");
+//    public static final Identifier HEALING_LIGHT = Mamy.id("healing_light");
+//    public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
+//    public static final Identifier SHADOW_STEP = Mamy.id("shadow_step");
+//    public static final Identifier BERSERKER_RAGE = Mamy.id("berserker_rage");
+//    public static final Identifier METEOR_STRIKE = Mamy.id("meteor_strike");
+//    public static final Identifier DIVINE_JUDGMENT = Mamy.id("divine_judgment");
 
     public static void registerSkills() {
         register(new FirstAidSkill(FIRSTAID));
         register(new BloodlustSkill(BLOODLUST));
+        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
         // register(new ShieldBashSkill());
         // register(new FireballSkill());
         // register(new HealingLightSkill());

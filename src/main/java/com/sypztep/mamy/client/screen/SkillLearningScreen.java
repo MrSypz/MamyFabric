@@ -24,7 +24,7 @@ public final class SkillLearningScreen extends Screen {
     private static final int SKILL_ICON_SIZE = 32;
     private static final int SKILL_SPACING = 20;  // 20px padding between skills
     private static final int DOT_SIZE = 4;
-    private static final int DOT_SPACING = 6;
+    private static final int DOT_SPACING = 3;
     private static final int DOTS_OFFSET_Y = 38;  // Dots under icon
 
     // Colors
@@ -39,7 +39,7 @@ public final class SkillLearningScreen extends Screen {
     private final LivingLevelComponent playerStats;
     private final PlayerClassComponent classComponent;
     private List<Skill> availableSkills;
-    private List<SkillActionButton> skillButtons = new ArrayList<>();
+    private final List<SkillActionButton> skillButtons = new ArrayList<>();
 
     public SkillLearningScreen(MinecraftClient client) {
         super(Text.literal("Skill Learning"));
@@ -58,7 +58,6 @@ public final class SkillLearningScreen extends Screen {
 
         skillButtons.clear();
 
-        int gridStartX = CONTENT_PADDING;
         int gridStartY = CONTENT_PADDING + SUMMARY_HEIGHT + 30;
         int gridWidth = width - (CONTENT_PADDING * 2);
         int skillsPerRow = gridWidth / (SKILL_ICON_SIZE + SKILL_SPACING);
@@ -68,7 +67,7 @@ public final class SkillLearningScreen extends Screen {
 
             int col = i % skillsPerRow;
             int row = i / skillsPerRow;
-            int skillX = gridStartX + col * (SKILL_ICON_SIZE + SKILL_SPACING);
+            int skillX = CONTENT_PADDING + col * (SKILL_ICON_SIZE + SKILL_SPACING);
             int skillY = gridStartY + row * (SKILL_ICON_SIZE + DOTS_OFFSET_Y);
 
             SkillActionButton button = new SkillActionButton(skillX, skillY, skill, playerStats, client);
@@ -100,7 +99,7 @@ public final class SkillLearningScreen extends Screen {
 
     private void renderClassPointsSummary(DrawContext context) {
         int availablePoints = classComponent.getClassManager().getClassStatPoints();
-        String className = classComponent.getClassManager().getCurrentClass().getDisplayName();
+        var className = classComponent.getClassManager().getCurrentClass();
 
         int summaryX = CONTENT_PADDING;
         int summaryY = CONTENT_PADDING;
@@ -111,9 +110,10 @@ public final class SkillLearningScreen extends Screen {
         context.fill(summaryX, summaryY, summaryX + summaryWidth, summaryY + 1, LEARNED_COLOR);
         context.fill(summaryX, summaryY + SUMMARY_HEIGHT - 1, summaryX + summaryWidth, summaryY + SUMMARY_HEIGHT, LEARNED_COLOR);
 
-        // Class info
-        String classText = String.format("Class: %s", className);
-        context.drawTextWithShadow(textRenderer, Text.literal(classText), summaryX + 10, summaryY + 8, 0xFFFFFF);
+        context.drawTextWithShadow(textRenderer,
+                Text.literal("Class: ").formatted(Formatting.WHITE)
+                        .append(Text.literal(className.getDisplayName()).formatted(className.getColor())),
+                summaryX + 10, summaryY + 8, 0xFFFFFF);
 
         // Available points
         String pointsText = String.format("Available Points: %d", availablePoints);
@@ -122,7 +122,7 @@ public final class SkillLearningScreen extends Screen {
                 summaryX + 10, summaryY + 20, pointsColor.getColorValue() != null ? pointsColor.getColorValue() : 0xFFFFFF);
 
         // Learned skills count
-        int learnedCount = classComponent.getLearnedSkills().size();
+        int learnedCount = classComponent.getLearnedSkills(true).size();
         int totalCount = availableSkills.size();
         String skillsText = String.format("Skills: %d/%d", learnedCount, totalCount);
         int skillsTextWidth = textRenderer.getWidth(skillsText);
@@ -165,109 +165,93 @@ public final class SkillLearningScreen extends Screen {
             int x = getX();
             int y = getY();
 
-            // Draw pulsing border for learnable/upgradeable skills
-            if (canLearn || canUpgrade) {
-                float pulse = (float)(Math.sin(System.currentTimeMillis() * 0.006) * 0.5 + 0.5);
-                int pulseAlpha = (int)(pulse * 255);
-                int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
+            // Calculate pulse once and reuse for all effects
+            float pulse = (float) (Math.sin(System.currentTimeMillis() * 0.006) * 0.5 + 0.5);
+            int pulseAlpha = (int) (pulse * 200) + 55; // avoid fully invisible range
+            int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
 
-                // Draw pulsing border (thicker for visibility)
-                context.fill(x - 2, y - 2, x + SKILL_ICON_SIZE + 2, y - 1, pulseColor); // Top
-                context.fill(x - 2, y + SKILL_ICON_SIZE + 1, x + SKILL_ICON_SIZE + 2, y + SKILL_ICON_SIZE + 2, pulseColor); // Bottom
-                context.fill(x - 2, y - 1, x - 1, y + SKILL_ICON_SIZE + 1, pulseColor); // Left
-                context.fill(x + SKILL_ICON_SIZE + 1, y - 1, x + SKILL_ICON_SIZE + 2, y + SKILL_ICON_SIZE + 1, pulseColor); // Right
+            if (canLearn || canUpgrade) {
+                int border = 2;
+                // Top
+                context.fill(x - border, y - border, x + SKILL_ICON_SIZE + border - 1, y - border + 1, pulseColor);
+                // Bottom
+                context.fill(x - border, y + SKILL_ICON_SIZE , x + SKILL_ICON_SIZE + border - 1, y + SKILL_ICON_SIZE + border - 1, pulseColor);
+                // Left
+                context.fill(x - border, y - border + 1, x - border + 1, y + SKILL_ICON_SIZE, pulseColor);
+                // Right
+                context.fill(x + SKILL_ICON_SIZE , y - border + 1, x + SKILL_ICON_SIZE + border - 1, y + SKILL_ICON_SIZE, pulseColor);
             }
 
-            // Draw skill content
+
+            // Skill icon or abbreviation
             if (skill.getIcon() != null) {
                 context.drawGuiTexture(skill.getIcon(), x + 2, y + 2, SKILL_ICON_SIZE - 4, SKILL_ICON_SIZE - 4);
             } else {
-                // Draw skill abbreviation
-                String abbreviation = skill.getName().length() >= 2 ?
-                        skill.getName().substring(0, 2).toUpperCase() : skill.getName().toUpperCase();
+                String abbreviation = skill.getName().length() >= 2
+                        ? skill.getName().substring(0, 2).toUpperCase()
+                        : skill.getName().toUpperCase();
                 int textWidth = textRenderer.getWidth(abbreviation);
                 int textX = x + (SKILL_ICON_SIZE - textWidth) / 2;
                 int textY = y + (SKILL_ICON_SIZE - textRenderer.fontHeight) / 2;
                 context.drawText(textRenderer, Text.literal(abbreviation), textX, textY, 0xFFFFFFFF, false);
             }
 
-            // Dim unlearned skills
-            if (!isLearned) {
-                context.fill(x + 1, y + 1, x + SKILL_ICON_SIZE - 1, y + SKILL_ICON_SIZE - 1, 0xBB000000);
+            // Dim overlay for unlearned or upgradeable-but-not-maxed
+            if (!isLearned || skillLevel < skill.getMaxSkillLevel()) {
+                context.fill(x + 1, y + 1, x + SKILL_ICON_SIZE - 2, y + SKILL_ICON_SIZE - 2, 0xBB000000);
             }
 
-            // Draw action text
-            if (canLearn) {
-                String learnText = "+";
-                int textWidth = textRenderer.getWidth(learnText);
+            // Draw pulsing "+" icon for available actions
+            if (canLearn || canUpgrade) {
+                String plus = "+";
+                int textWidth = textRenderer.getWidth(plus);
                 int textX = x + (SKILL_ICON_SIZE - textWidth) / 2;
                 int textY = y + (SKILL_ICON_SIZE - textRenderer.fontHeight) / 2;
 
-                // Pulsing animation for the + icon
-                float pulse = (float)(Math.sin(System.currentTimeMillis() * 0.006) * 0.5 + 0.5);
-                int pulseAlpha = (int)(pulse * 255);
-                int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
-
                 context.getMatrices().push();
-                context.getMatrices().translate(textX + textWidth/2, textY + textRenderer.fontHeight/2, 0);
-                context.getMatrices().scale(2, 2, 1);
-                context.getMatrices().translate(-textWidth/2, -textRenderer.fontHeight/2, 0);
-                context.drawText(textRenderer, Text.literal(learnText), 0, 0, pulseColor, true);
-                context.getMatrices().pop();
-            } else if (canUpgrade) {
-                String upgradeText = "+";
-                int textWidth = textRenderer.getWidth(upgradeText);
-                int textX = x + (SKILL_ICON_SIZE - textWidth) / 2;
-                int textY = y + (SKILL_ICON_SIZE - textRenderer.fontHeight) / 2;
-
-                // Pulsing animation for the + icon
-                float pulse = (float)(Math.sin(System.currentTimeMillis() * 0.006) * 0.5 + 0.5);
-                int pulseAlpha = (int)(pulse * 255);
-                int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
-
-                context.getMatrices().push();
-                context.getMatrices().translate(textX + textWidth/2, textY + textRenderer.fontHeight/2, 0);
-                context.getMatrices().scale(2, 2, 1);
-                context.getMatrices().translate(-textWidth/2, -textRenderer.fontHeight/2, 0);
-                context.drawText(textRenderer, Text.literal(upgradeText), 0, 0, pulseColor, true);
+                context.getMatrices().translate(textX + textWidth / 2f, textY + textRenderer.fontHeight / 2f, 0);
+                float scale = 1.5f + pulse * 0.5f; // subtle pulsing scale
+                context.getMatrices().scale(scale, scale, 1f);
+                context.getMatrices().translate(-textWidth / 2f, -textRenderer.fontHeight / 2f, 0);
+                context.drawText(textRenderer, Text.literal(plus), 0, 0, pulseColor, true);
                 context.getMatrices().pop();
             }
 
-            // Dim upgradeable skills that aren't at max
-            if (isLearned && skillLevel < skill.getMaxSkillLevel()) {
-                context.fill(x + 1, y + 1, x + SKILL_ICON_SIZE - 1, y + SKILL_ICON_SIZE - 1, 0xBB000000);
-            }
-
-            // Draw skill level dots under icon
+            // Level dots
             renderSkillLevelDots(context, x, y + DOTS_OFFSET_Y, skillLevel);
 
-            // Render tooltip on hover
+            // Tooltip
             if (isHovered) {
                 renderTooltip(context, mouseX, mouseY);
             }
         }
 
+
         private void renderSkillLevelDots(DrawContext context, int x, int y, int currentLevel) {
             int maxLevel = skill.getMaxSkillLevel();
 
-            int totalWidth = maxLevel * DOT_SIZE + (maxLevel - 1) * DOT_SPACING;
-            int startX = x + (SKILL_ICON_SIZE - totalWidth) / 2;
-
+            int dotsPerRow = 5; // max dots before wrapping
             for (int i = 0; i < maxLevel; i++) {
-                int dotX = startX + i * (DOT_SIZE + DOT_SPACING);
+                int row = i / dotsPerRow;
+                int col = i % dotsPerRow;
+
+                int dotX = x + col * (DOT_SIZE + DOT_SPACING);
+                int dotY = y + row * (DOT_SIZE + DOT_SPACING);
+
                 int dotColor = i < currentLevel ? DOT_LEARNED_COLOR : DOT_UNLEARNED_COLOR;
 
                 // Draw dot
-                context.fill(dotX, y, dotX + DOT_SIZE, y + DOT_SIZE, dotColor);
+                context.fill(dotX, dotY, dotX + DOT_SIZE, dotY + DOT_SIZE, dotColor);
 
                 // Draw dot border
                 if (i < currentLevel) {
-                    context.drawBorder(dotX, y, DOT_SIZE, DOT_SIZE, 0xFF2E7D32);
+                    context.drawBorder(dotX, dotY, DOT_SIZE, DOT_SIZE, 0xFF2E7D32);
                 } else {
-                    context.drawBorder(dotX, y, DOT_SIZE, DOT_SIZE, 0xFF424242);
+                    context.drawBorder(dotX, dotY, DOT_SIZE, DOT_SIZE, 0xFF424242);
                 }
             }
         }
+
 
         public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
             boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
@@ -286,20 +270,19 @@ public final class SkillLearningScreen extends Screen {
         @Override
         protected int getBackgroundColor() {
             boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            if (isLearned) return LEARNED_COLOR;
+            if (isLearned) return 0;
             return PANEL_COLOR;
         }
 
         @Override
         protected int getHoverBackgroundColor() {
             boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            if (isLearned) return 0xFF5FBF5F; // Brighter green
+            if (isLearned) return 0; // Brighter green
             return 0xFF3A3A3A; // Lighter gray
         }
 
         @Override
         public void onClick(double mouseX, double mouseY) {
-            // This is called by left click only
         }
 
         @Override

@@ -100,8 +100,8 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
         return classManager.getBoundSkill(slot);
     }
 
-    public Set<Identifier> getLearnedSkills() {
-        return classManager.getLearnedSkills();
+    public Set<Identifier> getLearnedSkills(boolean allowPassive) {
+        return classManager.getLearnedSkills(allowPassive);
     }
 
     public boolean hasLearnedSkill(Identifier skillId) {

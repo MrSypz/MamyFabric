@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,6 +12,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClassSkillManager {
     private final PlayerEntity player;
@@ -68,10 +70,28 @@ public class ClassSkillManager {
 
         skillLevels.put(skillId, 1);
 
+        // Apply passive effects if it's a passive skill
+        if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, 1);
+
         if (player instanceof ServerPlayerEntity serverPlayer && !free) {
             SendToastPayloadS2C.sendInfo(serverPlayer, "Learned: " + skill.getName());
         }
+    }
 
+    /**
+     * Free learning method for basic skills
+     */
+    private void learnSkill(Identifier skillId, boolean free) {
+        if (hasLearnedSkill(skillId)) return;
+        if (free) {
+            skillLevels.put(skillId, 1);
+
+            // Apply passive effects if it's a passive skill
+            Skill skill = SkillRegistry.getSkill(skillId);
+            if (skill instanceof PassiveSkill passiveSkill) {
+                passiveSkill.applyPassiveEffects(player, 1);
+            }
+        }
     }
 
     public void unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
@@ -87,6 +107,11 @@ public class ClassSkillManager {
         }
 
         if (currentLevel <= 1) {
+            // Remove passive effects before removing skill
+            if (skill instanceof PassiveSkill passiveSkill) {
+                passiveSkill.removePassiveEffects(player);
+            }
+
             // Remove skill completely if at level 1
             skillLevels.remove(skillId);
 
@@ -100,8 +125,12 @@ public class ClassSkillManager {
             // Return the base learning cost
             classManager.getClassLevelSystem().addStatPoints((short) skill.getBaseClassPointCost());
         } else {
-            // Reduce skill level by 1
-            skillLevels.put(skillId, currentLevel - 1);
+            // Reduce skill level by 1 and reapply passive effects with new level
+            int newLevel = currentLevel - 1;
+            skillLevels.put(skillId, newLevel);
+
+            if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, newLevel);
+
 
             // Return the upgrade cost
             classManager.getClassLevelSystem().addStatPoints((short) skill.getUpgradeClassPointCost());
@@ -115,15 +144,6 @@ public class ClassSkillManager {
                         skill.getName() + " downgraded to level " + (currentLevel - 1));
             }
         }
-
-    }
-
-    /**
-     * Free learning method for basic skills
-     */
-    private void learnSkill(Identifier skillId, boolean free) {
-        if (hasLearnedSkill(skillId)) return;
-        if (free) skillLevels.put(skillId, 1);
     }
 
     /**
@@ -143,13 +163,26 @@ public class ClassSkillManager {
 
         // Spend class points
         classManager.getClassLevelSystem().subtractStatPoints((short) cost);
-        skillLevels.put(skillId, currentLevel + 1);
+        int newLevel = currentLevel + 1;
+        skillLevels.put(skillId, newLevel);
+
+        // Reapply passive effects with new level
+        if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, newLevel);
+
 
         if (player instanceof ServerPlayerEntity serverPlayer) {
             SendToastPayloadS2C.sendInfo(serverPlayer,
-                    "Upgraded " + skill.getName() + " to level " + (currentLevel + 1));
+                    "Upgraded " + skill.getName() + " to level " + newLevel);
         }
-
+    }
+    @Deprecated
+    public void reapplyPassiveSkills() {
+        for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet()) {
+            Skill skill = SkillRegistry.getSkill(entry.getKey());
+            if (skill instanceof PassiveSkill passiveSkill) {
+                passiveSkill.applyPassiveEffects(player, entry.getValue());
+            }
+        }
     }
 
     /**
@@ -169,8 +202,17 @@ public class ClassSkillManager {
     /**
      * Get all learned skills
      */
-    public Set<Identifier> getLearnedSkills() {
-        return new HashSet<>(skillLevels.keySet());
+    public Set<Identifier> getLearnedSkills(boolean allowPassive) {
+        if (allowPassive) {
+            return new HashSet<>(skillLevels.keySet());
+        } else {
+            return skillLevels.keySet().stream()
+                    .filter(skillId -> {
+                        Skill skill = SkillRegistry.getSkill(skillId);
+                        return skill != null && !(skill instanceof PassiveSkill);
+                    })
+                    .collect(Collectors.toSet());
+        }
     }
 
     // ====================
