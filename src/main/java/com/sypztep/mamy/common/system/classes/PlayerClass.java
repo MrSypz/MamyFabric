@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.NumberUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -358,16 +359,17 @@ public class PlayerClass {
         StringBuilder desc = new StringBuilder();
 
         if (growth.flatPerLevel() > 0) {
-            desc.append(String.format("+%.1f/lvl", growth.flatPerLevel()));
+            desc.append("+").append(NumberUtil.formatDouble(growth.flatPerLevel(), 3)).append("/lvl");
         }
 
         if (growth.percentPerLevel() > 0) {
             if (!desc.isEmpty()) desc.append(" ");
-            desc.append(String.format("+%.1f%%/lvl", growth.percentPerLevel() * 100));
+            desc.append("+").append(NumberUtil.formatDouble(growth.percentPerLevel() * 100, 2)).append("%/lvl");
         }
 
         return desc.toString();
     }
+
     public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {
         return growthFactors;
     }

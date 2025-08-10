@@ -12,4 +12,14 @@ public final class NumberUtil {
             return String.valueOf(number);
         }
     }
+    public static String formatDouble(double value, int maxDecimals) {
+        String format = "%." + maxDecimals + "f";
+        String formatted = String.format(format, value);
+
+        if (formatted.indexOf('.') >= 0) {
+            formatted = formatted.replaceAll("0+$", "");
+            formatted = formatted.replaceAll("\\.$", "");
+        }
+        return formatted;
+    }
 }

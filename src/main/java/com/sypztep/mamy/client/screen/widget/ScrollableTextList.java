@@ -52,7 +52,7 @@ public final class ScrollableTextList {
     }
 
     public void render(DrawContext context, TextRenderer textRenderer, int x, int y, int width, int height,
-                       float scale, float iconScale, int alpha, float deltaTime, double mouseX, double mouseY) {
+                       float scale, float deltaTime, double mouseX, double mouseY) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -82,7 +82,7 @@ public final class ScrollableTextList {
         scrollBehavior.enableScissor(context);
 
         // Render content with proper positioning
-        renderContent(context, textRenderer, scale, iconScale, alpha);
+        renderContent(context, textRenderer, scale);
 
         // Disable scissor
         scrollBehavior.disableScissor(context);
@@ -93,7 +93,7 @@ public final class ScrollableTextList {
         wrappedTextCache.clear();
 
         // Calculate available width for text (accounting for padding and icon space)
-        int textWidth = (int)((width - CONTENT_PADDING * 2) / scale);
+        int textWidth = (int) ((width - CONTENT_PADDING * 2) / scale);
 
         for (int i = 0; i < items.size(); i++) {
             ListElement listElement = items.get(i);
@@ -125,7 +125,7 @@ public final class ScrollableTextList {
         scrollBehavior.setContentHeight(totalContentHeight);
     }
 
-    private void renderContent(DrawContext context, TextRenderer textRenderer, float scale, float iconScale, int alpha) {
+    private void renderContent(DrawContext context, TextRenderer textRenderer, float scale) {
         int scrollOffset = scrollBehavior.getScrollOffset();
         int currentY = y + CONTENT_PADDING - scrollOffset;
 
@@ -147,7 +147,7 @@ public final class ScrollableTextList {
 
             boolean isHovered = (i == hoveredItemIndex);
             renderListItem(context, textRenderer, listElement, wrappedLines, currentY, itemHeight,
-                    scale, alpha, isHovered);
+                    scale, isHovered);
 
             currentY += itemHeight;
         }
@@ -157,15 +157,15 @@ public final class ScrollableTextList {
 
     private void renderListItem(DrawContext context, TextRenderer textRenderer, ListElement listElement,
                                 List<String> wrappedLines, int currentY, int itemHeight,
-                                float scale, int alpha, boolean isHovered) {
+                                float scale, boolean isHovered) {
 
         Text itemText = listElement.text();
         Identifier icon = listElement.icon();
         boolean isMainContext = itemText.getString().equals(itemText.getString().toUpperCase());
 
         int offsetX = isMainContext ? 50 : 20;
-        int textX = (int)((x + offsetX) / scale);
-        int textY = (int)((currentY + ITEM_PADDING) / scale);
+        int textX = (int) ((x + offsetX) / scale);
+        int textY = (int) ((currentY + ITEM_PADDING) / scale);
 
         if (icon != null) {
             renderIcon(context, icon, textX - 30, textY);
@@ -173,16 +173,14 @@ public final class ScrollableTextList {
 
         // Render text lines with proper spacing
         for (String line : wrappedLines) {
-            if (alpha > 0) {
-                int textColor;
-                if (isMainContext) {
-                    context.drawText(textRenderer,
-                            Text.literal(line).formatted(Formatting.BOLD),
-                            textX, textY, 0xFFD700,false);
-                } else {
-                    textColor = isHovered ? 0xFFFFFF : 0xCCCCCC;
-                    context.drawText(textRenderer, Text.of(line), textX, textY, textColor, false);
-                }
+            int textColor;
+            if (isMainContext) {
+                context.drawText(textRenderer,
+                        Text.literal(line).formatted(Formatting.BOLD),
+                        textX, textY, 0xFFD700, false);
+            } else {
+                textColor = isHovered ? 0xFFFFFF : 0xCCCCCC;
+                context.drawText(textRenderer, Text.of(line), textX, textY, textColor, false);
             }
 
             textY += textRenderer.fontHeight + 2;
@@ -190,9 +188,9 @@ public final class ScrollableTextList {
 
         // Enhanced separator line for main context items
         if (isMainContext) {
-            int separatorY = (int)((currentY + itemHeight - 8) / scale);
-            int separatorX = (int)((x + 10) / scale);
-            int separatorWidth = (int)((width - 15) / scale);
+            int separatorY = (int) ((currentY + itemHeight - 8) / scale);
+            int separatorX = (int) ((x + 10) / scale);
+            int separatorWidth = (int) ((width - 15) / scale);
 
             // Gradient separator line
             DrawContextUtils.renderHorizontalLineWithCenterGradient(context,
@@ -294,10 +292,21 @@ public final class ScrollableTextList {
     }
 
     // Getters for external access
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 
     public static class StringFormatter {
         public static String format(String template, Map<String, Object> values) {

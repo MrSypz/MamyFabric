@@ -231,7 +231,7 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     private void drawStatsSection(DrawContext context, int xOffset, float yOffset, int contentWidth, int contentHeight, float deltatick, int mouseX, int mouseY) {
-        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, 1f, 1, deltatick, mouseX, mouseY);
+        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, deltatick, mouseX, mouseY);
     }
 
     private void renderStyledText(DrawContext context, int x, int y, int statValue, float scale) { // Updated parameter name

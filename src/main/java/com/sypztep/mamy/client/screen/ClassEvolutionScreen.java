@@ -433,20 +433,19 @@ public final class ClassEvolutionScreen extends Screen {
                 String growthDesc = selectedClass.getGrowthDescription(attribute);
 
                 // Base bonus in white/light gray
-                String baseBonus = String.format("  %s: %+.1f", attrName, value);
-                context.drawTextWithShadow(textRenderer, Text.literal(baseBonus).formatted(Formatting.WHITE), textX, currentY, 0xFFFFFF);
+                String baseName = String.format(" %s:", attrName);
+                String bonusBonus = String.format(" %+.1f", value);
+                context.drawTextWithShadow(textRenderer, Text.literal(baseName).formatted(Formatting.WHITE).append(Text.literal(bonusBonus).formatted(Formatting.YELLOW).formatted(Formatting.ITALIC)), textX, currentY, 0xFFFFFF);
 
                 // Growth description in green on the same line if it fits, otherwise new line
                 if (!growthDesc.isEmpty()) {
                     String growthText = " (" + growthDesc + ")";
-                    int baseWidth = textRenderer.getWidth(baseBonus);
+                    int baseWidth = textRenderer.getWidth(baseName + bonusBonus);
                     int growthWidth = textRenderer.getWidth(growthText);
 
                     if (baseWidth + growthWidth <= maxWidth) {
-                        // Fits on same line
-                        context.drawTextWithShadow(textRenderer, Text.literal(growthText).formatted(Formatting.GREEN), textX + baseWidth, currentY, 0x55FF55);
+                        context.drawTextWithShadow(textRenderer, Text.literal(growthText).formatted(Formatting.GREEN).formatted(Formatting.ITALIC), textX + baseWidth, currentY, 0x55FF55);
                     } else {
-                        // Put on next line with indentation
                         currentY += textRenderer.fontHeight + 1;
                         context.drawTextWithShadow(textRenderer, Text.literal("    " + growthText).formatted(Formatting.GREEN), textX, currentY, 0x55FF55);
                     }
