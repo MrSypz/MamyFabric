@@ -1,6 +1,5 @@
 package com.sypztep.mamy.client.screen.overlay;
 
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -99,15 +98,14 @@ public class IconOverlayManager {
     private static final int HEADER_COLOR = 0xFFFFD700;
     private static final int DESCRIPTION_COLOR = 0xFFDDDDDD;
     private static final int GRADIENT_START_COLOR = 0xFFFFD700;
-    private static final int GRADIENT_END_COLOR = 0xFF8B7300;
+    private static final int GRADIENT_END_COLOR = 0x0F8B7300;
 
     /**
      * Register a new icon group
      */
-    public static IconGroup registerIconGroup(String groupId, IconPosition position, boolean horizontal) {
+    public static void registerIconGroup(String groupId, IconPosition position, boolean horizontal) {
         IconGroup group = new IconGroup(groupId, position, horizontal);
         iconGroups.add(group);
-        return group;
     }
 
     /**
@@ -197,7 +195,7 @@ public class IconOverlayManager {
 
         // Render tooltip for hovered icon
         if (isOverlayMode && hoveredIcon != null) {
-            renderTooltip(context, client, hoveredIcon, hoveredIconX, hoveredIconY);
+            renderTooltip(context, client, hoveredIcon, hoveredIconX, hoveredIconY - 4);
         }
 
         RenderSystem.disableBlend();
@@ -320,7 +318,7 @@ public class IconOverlayManager {
                 tooltipX + TOOLTIP_PADDING,
                 tooltipY + TOOLTIP_PADDING + textRenderer.fontHeight + 2,
                 tooltipWidth - TOOLTIP_PADDING * 2,
-                GRADIENT_HEIGHT,1,
+                GRADIENT_HEIGHT,700,
                 GRADIENT_START_COLOR,
                 GRADIENT_END_COLOR
         );

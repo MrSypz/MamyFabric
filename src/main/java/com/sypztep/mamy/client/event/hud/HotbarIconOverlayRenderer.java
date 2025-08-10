@@ -12,6 +12,8 @@ public class HotbarIconOverlayRenderer {
     private static final String HOTBAR_GROUP_ID = "hotbar_icons";
 
     public static void register() {
+        IconOverlayManager.clearAll();
+
         IconOverlayManager.registerIconGroup(HOTBAR_GROUP_ID, IconOverlayManager.IconPosition.HOTBAR_RIGHT, true);
 
         IconOverlayManager.addScreenIcon(
