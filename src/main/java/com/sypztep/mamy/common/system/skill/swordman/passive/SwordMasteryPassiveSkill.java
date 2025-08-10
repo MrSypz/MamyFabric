@@ -4,8 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModEntityAttributes; // Assuming this is where MELEE_ATTACK_DAMAGE is
-import net.minecraft.entity.player.PlayerEntity;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -25,7 +24,7 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
                 1, // upgrade cost per level
                 10, // max level (10 levels = +40 damage at max)
                 false, // not a default skill
-                Mamy.id("textures/gui/skills/sword_mastery.png") // icon
+                Mamy.id("skill/sword_mastery") // icon
         );
     }
 
