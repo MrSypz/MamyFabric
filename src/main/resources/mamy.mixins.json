@@ -20,6 +20,7 @@
   "client": [
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
+    "vanilla.stats.dexterity.ClientPlayerEntityMixin",
     "vanilla.stats.strength.client.ItemStackMixin"
   ],
   "injectors": {
