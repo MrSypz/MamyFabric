@@ -12,8 +12,6 @@ import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 
-// === AGILITY ABILITIES ===
-
 public class SwiftFeetAbility extends PassiveAbility {
     public SwiftFeetAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -36,6 +34,6 @@ public class SwiftFeetAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your nimble feet carry you faster than the wind. +15% Movement Speed");
+        return TextStyleHelper.autoStyle("Your nimble steps grant +15% Movement Speed, letting you outrun the wind");
     }
 }

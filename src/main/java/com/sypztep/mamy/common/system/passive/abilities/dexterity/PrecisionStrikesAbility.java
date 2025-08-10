@@ -30,7 +30,7 @@ public class PrecisionStrikesAbility extends PassiveAbility {
                 ModEntityAttributes.ACCURACY,
                 Mamy.id("precision_strikes_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 3.0 // +3 accuracy
+                baseValue -> 20.0
         ));
     }
 
@@ -41,6 +41,6 @@ public class PrecisionStrikesAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your strikes find their mark with deadly precision. +5% Crit Chance, +3 Accuracy");
+        return TextStyleHelper.autoStyle("Your strikes find their mark with deadly precision. +5% Crit Chance, +20 Accuracy, Projectile are more stable");
     }
 }

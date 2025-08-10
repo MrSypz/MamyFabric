@@ -11,15 +11,17 @@ public interface ModPassiveAbilities {
     Map<String, PassiveAbility> ABILITIES = new LinkedHashMap<>();
 
     // === AGILITY ABILITIES ===
-    PassiveAbility SWIFT_FEET = register(new SwiftFeetAbility("swift_feet",Map.of(StatTypes.AGILITY, 5)));
-    PassiveAbility QUICK_REFLEX = register(new QuickReflexPassive("quick_reflex",Map.of(StatTypes.AGILITY, 15)));
+    PassiveAbility SWIFT_FEET = register(new SwiftFeetAbility("swift_feet",Map.of(StatTypes.AGILITY, 10)));
+    PassiveAbility QUICK_REFLEX = register(new QuickReflexPassive("quick_reflex",Map.of(StatTypes.AGILITY, 20)));
     PassiveAbility WIND_WALKER = register(new WindWalkerAbility("wind_walker",Map.of(StatTypes.AGILITY, 30)));
     PassiveAbility SHADOW_STEP = register(new ShadowStepAbility("shadow_step",Map.of(StatTypes.AGILITY, 50)));
+    PassiveAbility PHANTOM_WALKER = register(new PhantomWalkerAbility("phantom_walker",Map.of(StatTypes.AGILITY, 75)));
+    PassiveAbility SHADOW_DASHER = register(new ShadowDasherAbility("shadow_dasher",Map.of(StatTypes.AGILITY, 99)));
 
     // === DEXTERITY ABILITIES ===
     PassiveAbility PRECISION_STRIKES = register(new PrecisionStrikesAbility("precision_strikes", Map.of(StatTypes.DEXTERITY, 10)));
     PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.DEXTERITY, 20)));
-    PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 35)));
+    PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 30)));
 
     // === VITALITY ABILITIES ===
 

@@ -8,8 +8,8 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-public class ShadowStepAbility extends PassiveAbility {
-    public ShadowStepAbility(String id, Map<StatTypes, Integer> requirements) {
+public class ShadowDasherAbility extends PassiveAbility {
+    public ShadowDasherAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
@@ -18,11 +18,11 @@ public class ShadowStepAbility extends PassiveAbility {
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Shadow Step").formatted(Formatting.DARK_GRAY);
+        return Text.literal("Shadow Dasher").formatted(Formatting.DARK_GRAY);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Step unheard — your footsteps make no sound.");
+        return TextStyleHelper.autoStyle("Vanish and reappear in an instant, dashing forward in the blink of an eye.");
     }
 }

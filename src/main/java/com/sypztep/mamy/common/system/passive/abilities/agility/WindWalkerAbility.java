@@ -42,6 +42,6 @@ public class WindWalkerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("One with the wind itself. +30% Movement Speed, +0.5 Attack Speed, Able to Jump in the air");
+        return TextStyleHelper.autoStyle("One with the wind itself — gain +30% Movement Speed, +0.5 Attack Speed, and improved air contro");
     }
 }

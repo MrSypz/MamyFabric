@@ -30,7 +30,7 @@ public class SteadyAimAbility extends PassiveAbility {
                 ModEntityAttributes.ACCURACY,
                 Mamy.id("steady_aim_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 8.0 // +8 accuracy
+                baseValue -> 20.0
         ));
     }
 
@@ -41,6 +41,6 @@ public class SteadyAimAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Perfect control over ranged weapons. +5 Projectile Damage, +8 Accuracy");
+        return TextStyleHelper.autoStyle("Perfect control over ranged weapons. +5 Projectile Damage, +20 Accuracy, And move faster when draw bow | crossbow");
     }
 }
