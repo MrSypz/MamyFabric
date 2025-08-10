@@ -27,5 +27,6 @@ public class  MamyClient implements ClientModInitializer {
         BowItemEvent.register();
 
         IconOverlayManager.initialize(); // Only call once
+        VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
     }
 }
