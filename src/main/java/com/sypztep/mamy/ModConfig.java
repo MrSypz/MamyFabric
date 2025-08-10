@@ -208,13 +208,6 @@ public class ModConfig implements ConfigData {
     public static float deathPenaltyPercentage = 0.1f;
 
     // =====================================
-    // SCREEN ANIMATION
-    // =====================================
-    @ConfigEntry.Category("screen")
-    @Comment("Animate screen when open the screen")
-    public static boolean shouldAnimationScreen = true;
-
-    // =====================================
     // ENUMS
     // =====================================
 
