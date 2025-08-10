@@ -29,11 +29,8 @@ public class BowItemEvent implements ClientTickEvents.EndTick {
                 player.isUsingItem();
 
         if (isUsingBow) {
-            // Calculate shake intensity
             int useTime = player.getItemUseTime();
-            float baseIntensity = calculateBaseIntensity(player, useTime);
-
-            shakeIntensity = baseIntensity;
+            shakeIntensity = calculateBaseIntensity(player, useTime);
             shakeTimer += 1.0f;
 
             // Apply camera shake
@@ -146,8 +143,8 @@ public class BowItemEvent implements ClientTickEvents.EndTick {
         float randomIntensity = Math.max(0.01f, 0.1f - (dexterity / 1000.0f));
         if (hasSteadyAim) randomIntensity *= 0.2f;
 
-        shakeX += (Math.random() - 0.5) * shakeIntensity * randomIntensity;
-        shakeY += (Math.random() - 0.5) * shakeIntensity * randomIntensity;
+        shakeX += (float) ((Math.random() - 0.5) * shakeIntensity * randomIntensity);
+        shakeY += (float) ((Math.random() - 0.5) * shakeIntensity * randomIntensity);
 
         // Apply the shake to camera rotation
         float currentYaw = player.getYaw();
