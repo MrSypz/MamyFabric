@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -34,6 +35,6 @@ public class QuickReflexPassive extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Your quick reflexes increase evasion by 20%");
+        return TextStyleHelper.autoStyle("Your quick reflexes increase evasion by 20%");
     }
 }

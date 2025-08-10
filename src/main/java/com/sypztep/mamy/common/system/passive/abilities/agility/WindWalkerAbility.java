@@ -3,9 +3,9 @@ package com.sypztep.mamy.common.system.passive.abilities.agility;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import com.sypztep.mamy.common.util.AttributeModification;
@@ -42,6 +42,6 @@ public class WindWalkerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("One with the wind itself. +30% Movement Speed, +0.5 Attack Speed, Able to Jump in the air");
+        return TextStyleHelper.autoStyle("One with the wind itself. +30% Movement Speed, +0.5 Attack Speed, Able to Jump in the air");
     }
 }

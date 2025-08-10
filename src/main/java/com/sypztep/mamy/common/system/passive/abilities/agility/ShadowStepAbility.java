@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.system.passive.abilities.agility;
 
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -22,6 +23,6 @@ public class ShadowStepAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("No longer have footstep sound");
+        return TextStyleHelper.autoStyle("No longer have footstep sound");
     }
 }

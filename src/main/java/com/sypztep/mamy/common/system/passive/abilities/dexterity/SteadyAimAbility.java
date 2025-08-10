@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -40,6 +41,6 @@ public class SteadyAimAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Perfect control over ranged weapons. +5 Projectile Damage, +8 Accuracy");
+        return TextStyleHelper.autoStyle("Perfect control over ranged weapons. +5 Projectile Damage, +8 Accuracy");
     }
 }

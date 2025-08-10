@@ -9,6 +9,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -446,9 +447,12 @@ public final class PassiveAbilityScreen extends Screen {
         currentY += textRenderer.fontHeight + 10;
 
         // Description
-        List<String> descLines = TextUtil.wrapText(textRenderer, selectedAbility.getDescription().getString(), maxWidth);
+        String plainDescription = selectedAbility.getDescription().getString();
+        List<String> descLines = TextUtil.wrapText(textRenderer, plainDescription, maxWidth);
+
         for (String line : descLines) {
-            context.drawText(textRenderer, Text.literal(line).formatted(Formatting.GRAY), textX, currentY, 0xAAAAAA, false);
+            Text styledLine = TextStyleHelper.autoStyle(line);
+            context.drawText(textRenderer, styledLine, textX, currentY, 0xFFFFFF, false);
             currentY += textRenderer.fontHeight + 2;
         }
         currentY += 10;
