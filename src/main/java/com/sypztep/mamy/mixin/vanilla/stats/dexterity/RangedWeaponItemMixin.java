@@ -2,10 +2,17 @@ package com.sypztep.mamy.mixin.vanilla.stats.dexterity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.init.ModPassiveAbilities;
+import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
+import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +25,18 @@ public class RangedWeaponItemMixin {
     private void additionArrowDamage(
             RangedWeaponItem instance, LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target,
             Operation<Void> original) {
-        original.call(instance, shooter, projectile, index, speed, divergence, yaw, target);
+        float dexterity = 0f;
+        float factor = 0;
+        if (shooter instanceof PlayerEntity player) {
+            dexterity = MathHelper.clamp(ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.DEXTERITY), 0, ModConfig.maxStatValue);
+            factor = PassiveAbilityManager.isActive(player, ModPassiveAbilities.PRECISION_STRIKES) ? 15 : 0;
+        }
+
+        float newDivergence = 10f * (1f - ((dexterity + factor) / ModConfig.maxStatValue));
+        newDivergence = MathHelper.clamp(newDivergence, 0f, 10f);
+
+        original.call(instance, shooter, projectile, index, speed, newDivergence, yaw, target);
+
         if (projectile instanceof PersistentProjectileEntity projectileEntity) projectileEntity.setCritical(false); // Disable particle
     }
 }
