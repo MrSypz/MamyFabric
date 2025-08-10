@@ -17,12 +17,6 @@ public class ModEntityTypeTagProvider extends FabricTagProvider<EntityType<?>> {
     @Override
     protected void configure(RegistryWrapper.WrapperLookup arg) {
         getOrCreateTagBuilder(ModTags.EntityTypes.CANNOT_HEADSHOT)
-                .add(EntityType.SLIME)
-                .add(EntityType.WARDEN)
-                .add(EntityType.ENDERMAN)
-                .add(EntityType.MAGMA_CUBE)
-                .add(EntityType.ENDER_DRAGON)
-                .add(EntityType.WITHER)
-                .add(EntityType.ELDER_GUARDIAN);
+                .add(EntityType.ENDERMAN);
     }
 }
