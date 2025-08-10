@@ -196,8 +196,8 @@ public final class ScrollableTextList {
 
             // Gradient separator line
             DrawContextUtils.renderHorizontalLineWithCenterGradient(context,
-                    separatorX, separatorY, separatorWidth, 2, 400,
-                    0xFFFFD700, 0x00FFD700, Math.min(alpha / 255.0f, 1.0f));
+                    separatorX, separatorY, separatorWidth, 1, 400,
+                    0xFFFFD700, 0, 1);
         }
     }
 

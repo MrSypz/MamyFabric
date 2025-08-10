@@ -199,7 +199,7 @@ public final class PlayerInfoScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         assert client != null;
         updateValues(client);
-        DrawContextUtils.fillScreenVerticalRatio(context,0xFC141414,0,0xFC141414);
+        DrawContextUtils.fillScreen(context,0xFC141414);
 
         int screenWidth = this.width;
         int screenHeight = this.height;
@@ -211,7 +211,7 @@ public final class PlayerInfoScreen extends Screen {
         int contentHeight = (int) (screenHeight * contentSectionHeightRatio);
 
         int xOffset = (int) (screenWidth * 0.67f); // 2/3 of the screen width
-        int yOffset = 50; // Static offset, removed animation
+        int yOffset = 20; // Static offset, removed animation
         drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
 
         renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);

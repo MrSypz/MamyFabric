@@ -106,9 +106,9 @@ public final class SkillLearningScreen extends Screen {
         int summaryWidth = width - (CONTENT_PADDING * 2);
 
         // Background
-        context.fill(summaryX, summaryY, summaryX + summaryWidth, summaryY + SUMMARY_HEIGHT, PANEL_COLOR);
-        context.fill(summaryX, summaryY, summaryX + summaryWidth, summaryY + 1, LEARNED_COLOR);
-        context.fill(summaryX, summaryY + SUMMARY_HEIGHT - 1, summaryX + summaryWidth, summaryY + SUMMARY_HEIGHT, LEARNED_COLOR);
+        DrawContextUtils.drawRect(context, summaryX, summaryY, summaryWidth, SUMMARY_HEIGHT, PANEL_COLOR);
+        DrawContextUtils.renderHorizontalLine(context,summaryX,summaryY,summaryWidth,1,0,LEARNED_COLOR);
+        DrawContextUtils.renderHorizontalLine(context,summaryX,summaryY + SUMMARY_HEIGHT,summaryWidth,1,0,LEARNED_COLOR);
 
         context.drawTextWithShadow(textRenderer,
                 Text.literal("Class: ").formatted(Formatting.WHITE)
