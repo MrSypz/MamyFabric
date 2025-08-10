@@ -4,7 +4,6 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.stat.Stat;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -16,7 +15,7 @@ import java.util.List;
 public final class StrengthStat extends Stat {
     // Static constants for clean calculations
     private static final double MELEE_DAMAGE_SCALING = 0.05; // 5% per point
-    private static final double ATTACK_SPEED_SCALING = 0.002; // 0.2% per point
+    private static final double PROJECTILE_DAMAGE_SCALING = 0.002; // 0.2% per point
 
     public StrengthStat(short baseValue) {
         super(baseValue);
@@ -35,9 +34,9 @@ public final class StrengthStat extends Stat {
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
                 AttributeModification.addValue(
-                        EntityAttributes.GENERIC_ATTACK_SPEED,
+                        ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
                         getSecondaryId(),
-                        baseValue -> (ATTACK_SPEED_SCALING * this.getEffective())
+                        baseValue -> (PROJECTILE_DAMAGE_SCALING * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
@@ -56,9 +55,9 @@ public final class StrengthStat extends Stat {
         double futureMeleeDamage = Math.max(0, futureTotal * MELEE_DAMAGE_SCALING * 100);
         double meleeDamageIncrease = futureMeleeDamage - currentMeleeDamage;
 
-        double currentAttackSpeed = Math.max(0, currentTotal * ATTACK_SPEED_SCALING * 100);
-        double futureAttackSpeed = Math.max(0, futureTotal * ATTACK_SPEED_SCALING * 100);
-        double attackSpeedIncrease = futureAttackSpeed - currentAttackSpeed;
+        double currentProjectileDamage = Math.max(0, currentTotal * PROJECTILE_DAMAGE_SCALING * 100);
+        double futureProjectileDamage = Math.max(0, futureTotal * PROJECTILE_DAMAGE_SCALING * 100);
+        double projectileDamageIncrease = futureProjectileDamage - currentProjectileDamage;
 
         List<Text> description = new ArrayList<>();
 
@@ -94,9 +93,9 @@ public final class StrengthStat extends Stat {
 
         description.add(Text.literal(""));
         description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
-        description.add(Text.literal("  Attack Speed: ").formatted(Formatting.GRAY)
-                .append(Text.literal(String.format("+%.1f%%", attackSpeedIncrease)).formatted(Formatting.GREEN))
-                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentAttackSpeed, futureAttackSpeed)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Projectile Damage: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%.1f%%", projectileDamageIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentProjectileDamage, futureProjectileDamage)).formatted(Formatting.DARK_GRAY)));
 
         return description;
     }
