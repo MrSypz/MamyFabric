@@ -4,5 +4,11 @@
       "mamy:entity/bloodhit"
     ],
     "subtitle": "subtitles.mamy.entity.generic.bloodhit"
+  },
+  "entity.generic.headshot": {
+    "sounds": [
+      "mamy:entity/headshot"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.headshot"
   }
 }

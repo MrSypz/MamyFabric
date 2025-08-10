@@ -1,9 +1,6 @@
 package com.sypztep.mamy.mixin.vanilla.passive;
 
-import com.sypztep.mamy.common.init.ModDamageTypes;
-import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.init.ModPassiveAbilities;
-import com.sypztep.mamy.common.init.ModTags;
+import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -21,6 +18,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity {
@@ -41,7 +40,6 @@ public abstract class ProjectileEntityMixin extends Entity {
         if (!PassiveAbilityManager.isActive(shooter, ModPassiveAbilities.HEADHUNTER)) return;
         if (!livingTarget.getEquippedStack(EquipmentSlot.HEAD).isEmpty()) return;
         if (hit.getType().isIn(ModTags.EntityTypes.CANNOT_HEADSHOT)) return;
-        if (hit.getType().toString().contains("ender_dragon_part")) return;
 
         float radius = 0.45F;
         if (hit instanceof GhastEntity) radius = 4.5f;
@@ -49,11 +47,10 @@ public abstract class ProjectileEntityMixin extends Entity {
         double y = this.getPos().getY();
         double eyeY = hit.getEyeY();
 
-        if (livingTarget.getHealth() >= livingTarget.getMaxHealth() * 0.6f) return;
         if (y >= eyeY - radius && y <= eyeY + radius) {
             ModEntityComponents.HEADSHOT.maybeGet(livingTarget).ifPresent(component -> {
-                livingTarget.damage(this.getDamageSources().create(ModDamageTypes.HEADSHOT), livingTarget.getHealth() * 0.95f); // 5% hp left
-                component.setHeadShot(true); // then mark headshot
+                component.setHeadShot(true);
+                shooter.playSound(ModSoundEvents.ENTITY_GENERIC_HEADSHOT,1.5f,1);
             });
         }
     }
