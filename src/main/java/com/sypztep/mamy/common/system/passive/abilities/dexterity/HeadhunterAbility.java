@@ -22,7 +22,7 @@ public class HeadhunterAbility extends PassiveAbility {
                 ModEntityAttributes.ACCURACY,
                 Mamy.id("headhunter_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 40.0 // +5 accuracy for precision
+                baseValue -> 40.0
         ));
     }
 
@@ -33,6 +33,6 @@ public class HeadhunterAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Precision shots to the head, Explode ande deal 5x target max health and bleeding to deadnn. +40 Accuracy");
+        return Text.literal("Precision shots to the head, Explode ande deal 5x target max health and bleeding to dead. +40 Accuracy");
     }
 }

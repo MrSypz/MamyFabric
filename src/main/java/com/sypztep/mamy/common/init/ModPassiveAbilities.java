@@ -22,7 +22,7 @@ public interface ModPassiveAbilities {
 
     // === DEXTERITY ABILITIES ===
     PassiveAbility PRECISION_STRIKES = register(new PrecisionStrikesAbility("precision_strikes", Map.of(StatTypes.DEXTERITY, 10)));
-    PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.AGILITY, 20)));
+    PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.DEXTERITY, 20)));
     PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 35)));
 
     // === VITALITY ABILITIES ===
@@ -111,5 +111,4 @@ public interface ModPassiveAbilities {
                 )
                 .toList();
     }
-
 }
