@@ -168,5 +168,4 @@ public abstract class PassiveAbility {
     // Getters
     public String getId() { return id; }
     public Map<StatTypes, Integer> getRequirements() { return Collections.unmodifiableMap(requirements); }
-    public List<AttributeModification> getAttributeModifications() { return Collections.unmodifiableList(attributeModifications); }
 }

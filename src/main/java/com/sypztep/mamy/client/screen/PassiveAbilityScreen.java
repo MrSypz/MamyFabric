@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.screen;
 
 import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
+import com.sypztep.mamy.client.screen.widget.SimpleDropdown;
 import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
@@ -16,10 +17,12 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public final class PassiveAbilityScreen extends Screen {
@@ -43,23 +46,81 @@ public final class PassiveAbilityScreen extends Screen {
     private final ScrollBehavior listScrollBehavior;
     private final ScrollBehavior detailsScrollBehavior;
 
+    // Filter dropdown
+    private final SimpleDropdown statFilterDropdown;
+    private String currentFilter = ""; // Empty string means "All"
+
     public PassiveAbilityScreen(MinecraftClient client) {
         super(Text.literal("Passive Abilities"));
         assert client.player != null;
         this.playerStats = ModEntityComponents.LIVINGLEVEL.get(client.player);
         this.abilityManager = playerStats.getPassiveAbilityManager();
-        this.displayedAbilities = ModPassiveAbilities.getAbilitiesGroupedByStatThenLevel();
+
+        // Get all unique stat types from abilities for filter options
+        List<String> filterOptions = getStatFilterOptions();
+        this.statFilterDropdown = new SimpleDropdown(filterOptions, "", this::onFilterChanged);
+
+        this.displayedAbilities = new ArrayList<>(getFilteredAbilities());
         this.itemHeights = new ArrayList<>();
 
         // Initialize scroll behaviors
         this.listScrollBehavior = new ScrollBehavior().setScrollbarWidth(8).setScrollbarPadding(3).setMinHandleSize(24);
-
         this.detailsScrollBehavior = new ScrollBehavior().setScrollbarWidth(8).setScrollbarPadding(3).setMinHandleSize(24);
+    }
+
+    private List<String> getStatFilterOptions() {
+        List<String> options = new ArrayList<>();
+        options.add(""); // "All" option
+
+        // Collect all unique stat types from abilities
+        Set<String> statTypes = new HashSet<>();
+        for (PassiveAbility ability : ModPassiveAbilities.getAbilitiesGroupedByStatThenLevel()) {
+            for (var req : ability.getRequirements().keySet()) {
+                statTypes.add(req.getAka()); // Assuming getAka() gives you "DEX", "AGI", etc.
+            }
+        }
+
+        options.addAll(statTypes.stream().sorted().collect(Collectors.toList()));
+        return options;
+    }
+
+    private List<PassiveAbility> getFilteredAbilities() {
+        List<PassiveAbility> allAbilities = ModPassiveAbilities.getAbilitiesGroupedByStatThenLevel();
+
+        if (currentFilter.isEmpty()) {
+            return allAbilities;
+        }
+
+        return allAbilities.stream()
+                .filter(ability -> ability.getRequirements().keySet().stream()
+                        .anyMatch(statType -> statType.getAka().equals(currentFilter)))
+                .collect(Collectors.toList());
+    }
+
+    private void onFilterChanged(String newFilter) {
+        this.currentFilter = newFilter;
+        this.displayedAbilities.clear();
+        this.displayedAbilities.addAll(getFilteredAbilities());
+
+        // Recalculate item heights for new filtered list
+        calculateItemHeights();
+        updateScrollBounds();
+
+        // Reset selection if the selected ability is no longer visible
+        if (selectedAbility != null && !displayedAbilities.contains(selectedAbility)) {
+            selectedAbility = null;
+        }
     }
 
     @Override
     protected void init() {
         super.init();
+
+        // Set dropdown bounds (position it above the summary area)
+        int dropdownWidth = 30;
+        int dropdownX = width - CONTENT_PADDING + 4;
+        int dropdownY = CONTENT_PADDING - 30;
+        statFilterDropdown.setBounds(dropdownX, dropdownY, dropdownWidth);
 
         // Calculate item heights and update scroll bounds
         calculateItemHeights();
@@ -132,12 +193,6 @@ public final class PassiveAbilityScreen extends Screen {
         int magicNumber = 14; // it all screen pad
         // Requirements list
         totalHeight += selectedAbility.getRequirements().size() * (textRenderer.fontHeight + 2) + magicNumber;
-
-        // Effects description
-        String effectDesc = getEffectDescription(selectedAbility);
-        List<String> effectLines = TextUtil.wrapText(textRenderer, effectDesc, maxWidth);
-        totalHeight += effectLines.size() * (textRenderer.fontHeight + 2);
-
         // Add some extra padding
         totalHeight += 50;
 
@@ -162,6 +217,9 @@ public final class PassiveAbilityScreen extends Screen {
         int contentWidth = width - (CONTENT_PADDING * 2);
         int contentHeight = height - contentY - 20;
 
+        // Render filter dropdown FIRST (so it appears on top)
+        renderFilterDropdown(context, mouseX, mouseY, delta);
+
         // Render title
         renderTitle(context, contentX, contentY - 25, contentWidth);
 
@@ -185,6 +243,17 @@ public final class PassiveAbilityScreen extends Screen {
         renderToastsOverScreen(context, delta);
     }
 
+    private void renderFilterDropdown(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Label for the dropdown
+        Text filterLabel = Text.literal("Filter:").formatted(Formatting.GRAY);
+        int labelX = statFilterDropdown.x - textRenderer.getWidth(filterLabel) - 5;
+        int labelY = statFilterDropdown.y + (18 - textRenderer.fontHeight) / 2;
+        context.drawText(textRenderer, filterLabel, labelX, labelY, 0xAAAAAA, false);
+
+        // Render the dropdown
+        statFilterDropdown.render(context, mouseX, mouseY, delta);
+    }
+
     private void renderTitle(DrawContext context, int x, int y, int width) {
         Text titleText = Text.literal("Passive Abilities").formatted(Formatting.GOLD, Formatting.BOLD);
         int titleX = x + (width - textRenderer.getWidth(titleText)) / 2;
@@ -202,23 +271,30 @@ public final class PassiveAbilityScreen extends Screen {
         int unlockedCount = abilityManager.getUnlockedAbilities().size();
         int activeCount = abilityManager.getActiveAbilities().size();
         int totalCount = displayedAbilities.size();
+        int allAbilitiesCount = ModPassiveAbilities.getAbilitiesGroupedByStatThenLevel().size();
 
         // Background with border
         context.fill(x, y, x + width, y + SUMMARY_HEIGHT, 0xFF1E1E1E);
         context.fill(x, y, x + width, y + 1, 0xFF4CAF50);
         context.fill(x, y + SUMMARY_HEIGHT - 1, x + width, y + SUMMARY_HEIGHT, 0xFF4CAF50);
 
-        // Summary text
-        String summaryText = String.format("Unlocked: %d/%d | Active: %d ", unlockedCount, totalCount, activeCount);
+        // Summary text - show filtered vs total
+        String summaryText;
+        if (currentFilter.isEmpty()) {
+            summaryText = String.format("Unlocked: %d/%d | Active: %d ", unlockedCount, totalCount, activeCount);
+        } else {
+            summaryText = String.format("Unlocked: %d/%d | Active: %d | Showing: %d/%d (%s)",
+                    unlockedCount, allAbilitiesCount, activeCount, totalCount, allAbilitiesCount, currentFilter);
+        }
 
         context.drawText(textRenderer, Text.literal(summaryText).formatted(Formatting.WHITE), x + 10, y + 8, 0xFFFFFF, false);
 
-        // Progress bar
+        // Progress bar (use total abilities, not just filtered)
         int barX = x + width - 150;
         int barY = y + 10;
         int barWidth = 120;
         int barHeight = 6;
-        float progress = totalCount > 0 ? (float) unlockedCount / totalCount : 0;
+        float progress = allAbilitiesCount > 0 ? (float) unlockedCount / allAbilitiesCount : 0;
 
         // Progress bar background
         context.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF333333);
@@ -394,20 +470,6 @@ public final class PassiveAbilityScreen extends Screen {
             context.drawText(textRenderer, Text.literal(reqText).formatted(reqColor), textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF, false);
             currentY += textRenderer.fontHeight + 2;
         }
-
-        // Effect preview
-        currentY += 10;
-        context.drawText(textRenderer, Text.literal("Effects:").formatted(Formatting.GOLD), textX, currentY, 0xFFD700, false);
-        currentY += textRenderer.fontHeight + 5;
-
-        // Show effect description
-        String effectDesc = getEffectDescription(selectedAbility);
-        List<String> effectLines = TextUtil.wrapText(textRenderer, effectDesc, maxWidth);
-        for (String line : effectLines) {
-            context.drawText(textRenderer, Text.literal(line).formatted(Formatting.AQUA), textX, currentY, 0x55FFFF, false);
-            currentY += textRenderer.fontHeight + 2;
-        }
-
         // Disable scissor
         detailsScrollBehavior.disableScissor(context);
     }
@@ -429,22 +491,19 @@ public final class PassiveAbilityScreen extends Screen {
         return summary.toString();
     }
 
-    private String getEffectDescription(PassiveAbility ability) {
-        List<AttributeModification> modifications = ability.getAttributeModifications();
-        if (modifications.isEmpty()) return "No specific attribute bonuses.";
-
-        StringBuilder desc = new StringBuilder();
-        for (var mod : modifications) {
-            if (!desc.isEmpty()) desc.append(", ");
-            String attributeName = mod.attribute().getIdAsString();
-            desc.append(attributeName.substring(attributeName.lastIndexOf('.') + 1));
-        }
-
-        return desc.toString();
-    }
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Handle dropdown click first (highest priority)
+        if (statFilterDropdown.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        // Close dropdown if clicking elsewhere
+        if (statFilterDropdown.isOpen()) {
+            statFilterDropdown.close();
+            return true;
+        }
+
         // Handle details scroll behavior click first
         if (detailsScrollBehavior.handleMouseClick(mouseX, mouseY, button)) {
             return true;
