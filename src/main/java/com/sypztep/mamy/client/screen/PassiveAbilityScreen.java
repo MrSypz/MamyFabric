@@ -146,7 +146,6 @@ public final class PassiveAbilityScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Recalculate item heights if needed (in case of window resize)
         if (itemHeights.size() != displayedAbilities.size()) {
             calculateItemHeights();
         }

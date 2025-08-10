@@ -170,18 +170,8 @@ public final class SkillLearningScreen extends Screen {
             int pulseAlpha = (int) (pulse * 200) + 55; // avoid fully invisible range
             int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
 
-            if (canLearn || canUpgrade) {
-                int border = 2;
-                // Top
-                context.fill(x - border, y - border, x + SKILL_ICON_SIZE + border - 1, y - border + 1, pulseColor);
-                // Bottom
-                context.fill(x - border, y + SKILL_ICON_SIZE , x + SKILL_ICON_SIZE + border - 1, y + SKILL_ICON_SIZE + border - 1, pulseColor);
-                // Left
-                context.fill(x - border, y - border + 1, x - border + 1, y + SKILL_ICON_SIZE, pulseColor);
-                // Right
-                context.fill(x + SKILL_ICON_SIZE , y - border + 1, x + SKILL_ICON_SIZE + border - 1, y + SKILL_ICON_SIZE, pulseColor);
-            }
-
+            if (canLearn || canUpgrade)
+                context.drawBorder(x- 1,y - 1,SKILL_ICON_SIZE + 1,SKILL_ICON_SIZE + 1,pulseColor);
 
             // Skill icon or abbreviation
             if (skill.getIcon() != null) {

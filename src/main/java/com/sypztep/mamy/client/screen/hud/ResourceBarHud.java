@@ -167,7 +167,7 @@ public class ResourceBarHud {
 
         // Background panel with border
         drawContext.fill(hudX - 3, hudY - 3, hudX + hudWidth, hudY + hudHeight, BACKGROUND_COLOR);
-        DrawContextUtils.drawBorder(drawContext, hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3,BACKGROUND_COLOR);
+        drawContext.drawBorder(hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3,BACKGROUND_COLOR);
 
         // Resource type label
         String resourceLabel = resourceType.getDisplayName();
@@ -187,7 +187,6 @@ public class ResourceBarHud {
             if (resourceGainGlowTimer > 0) {
                 int glowAlpha = LevelHudRenderer.glowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
                 int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
-
                 // Glow layers
                 drawContext.fill(hudX - 2, barY - 2, hudX + progressWidth + 2, barY + BAR_HEIGHT + 2, resourceGlowColor);
                 drawContext.fill(hudX - 1, barY - 1, hudX + progressWidth + 1, barY + BAR_HEIGHT + 1, resourceGlowColor);
@@ -198,7 +197,7 @@ public class ResourceBarHud {
         }
 
         // Resource bar border
-        DrawContextUtils.drawBorder(drawContext, hudX, barY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
+        drawContext.drawBorder(hudX, barY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
 
         // Resource text (current/max)
         String resourceText = NumberUtil.formatNumber((long) currentResource) + "/" + NumberUtil.formatNumber((long) maxResource);

@@ -7,30 +7,6 @@ import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
-    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int z, int color) {
-        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        VertexConsumer consumer = context.getVertexConsumers().getBuffer(RenderLayer.getGui());
-
-        // Top
-        consumer.vertex(matrix, x, y, z).color(color);
-        consumer.vertex(matrix, x + width, y, z).color(color);
-        // Right
-        consumer.vertex(matrix, x + width, y, z).color(color);
-        consumer.vertex(matrix, x + width, y + height, z).color(color);
-        // Bottom
-        consumer.vertex(matrix, x + width, y + height, z).color(color);
-        consumer.vertex(matrix, x, y + height, z).color(color);
-        // Left
-        consumer.vertex(matrix, x, y + height, z).color(color);
-        consumer.vertex(matrix, x, y, z).color(color);
-
-        context.draw(); // Flush
-    }
-    //TODO: Replace mostly drawBorder to using this one to
-    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int color) {
-        drawBorder(context, x, y, width, height, 0, color);
-    }
-
 
     public static void renderVerticalLine(DrawContext context, int positionX, int positionY, int height, int thickness, int z, int color) {
         context.fill(positionX, positionY, positionX + thickness, positionY + height, z, color);

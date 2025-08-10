@@ -45,10 +45,8 @@ public final class SkillBindingScreen extends Screen {
     private int hoveredSkill = -1;
 
     // UI Components
-    private ScrollBehavior learnedSkillsScroll;
-    private List<SkillSlotButton> skillSlotButtons = new ArrayList<>();
-    private ActionWidgetButton closeButton;
-    private ActionWidgetButton clearAllButton;
+    private final ScrollBehavior learnedSkillsScroll;
+    private final List<SkillSlotButton> skillSlotButtons = new ArrayList<>();
 
     // Slot positions
     private static final String[] SLOT_KEYS = {"Z", "X", "C", "V", "⇧Z", "⇧X", "⇧C", "⇧V"};
@@ -87,14 +85,13 @@ public final class SkillBindingScreen extends Screen {
         LivingLevelComponent statsComponent = ModEntityComponents.LIVINGLEVEL.get(client.player);
 
         // Match panel positioning - same calculations as renderSkillSlotsSection
-        int contentX = CONTENT_PADDING;
         int sectionY = CONTENT_PADDING + 30;
         int slotsY = sectionY + 30; // Below title in panel
 
         for (int i = 0; i < 8; i++) {
             int col = i % 4;
             int row = i / 4;
-            int slotX = contentX + col * (SKILL_BUTTON_SIZE + 12);
+            int slotX = CONTENT_PADDING + col * (SKILL_BUTTON_SIZE + 12);
             int slotY = slotsY + row * (SKILL_BUTTON_SIZE + 12);
 
             SkillSlotButton slotButton = new SkillSlotButton(
@@ -107,7 +104,7 @@ public final class SkillBindingScreen extends Screen {
         }
 
         // Control buttons
-        closeButton = new ControlButton(
+        ActionWidgetButton closeButton = new ControlButton(
                 width - CONTENT_PADDING - 60, height - CONTENT_PADDING,
                 50, 20, Text.literal("Close"), statsComponent, client
         ) {
@@ -118,7 +115,7 @@ public final class SkillBindingScreen extends Screen {
         };
         addDrawableChild(closeButton);
 
-        clearAllButton = new ControlButton(
+        ActionWidgetButton clearAllButton = new ControlButton(
                 CONTENT_PADDING, height - CONTENT_PADDING,
                 60, 20, Text.literal("Clear All"), statsComponent, client
         ) {
@@ -226,9 +223,8 @@ public final class SkillBindingScreen extends Screen {
 
     private void renderLearnedSkillsSection(DrawContext context, int mouseX, int mouseY, float delta) {
         // Simple 50:50 split
-        int contentX = CONTENT_PADDING;
         int contentWidth = width - (CONTENT_PADDING * 2);
-        int rightColumnX = contentX + (contentWidth / 2) + SECTION_SPACING;
+        int rightColumnX = CONTENT_PADDING + (contentWidth / 2) + SECTION_SPACING;
         int rightColumnWidth = (contentWidth / 2) - SECTION_SPACING;
 
         int sectionY = CONTENT_PADDING + 30;
@@ -405,9 +401,8 @@ public final class SkillBindingScreen extends Screen {
         }
 
         // Simple 50:50 split
-        int contentX = CONTENT_PADDING;
         int contentWidth = width - (CONTENT_PADDING * 2);
-        int rightColumnX = contentX + (contentWidth / 2) + SECTION_SPACING;
+        int rightColumnX = CONTENT_PADDING + (contentWidth / 2) + SECTION_SPACING;
         int rightColumnWidth = (contentWidth / 2) - SECTION_SPACING;
 
         int sectionY = CONTENT_PADDING + 30;

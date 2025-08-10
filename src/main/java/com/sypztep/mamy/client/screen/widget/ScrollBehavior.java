@@ -23,7 +23,6 @@ public class ScrollBehavior {
 
     // Animation state
     private float scrollbarHoverAnimation = 0.0f;
-    private boolean scrollbarHovered = false;
     private boolean isDragging = false;
 
     // Animation constants
@@ -161,7 +160,7 @@ public class ScrollBehavior {
 
     private void updateScrollbarAnimation(int mouseX, int mouseY, float delta) {
         if (enableScrollbar && maxScroll > 0) {
-            scrollbarHovered = isScrollbarHovered(mouseX, mouseY);
+            boolean scrollbarHovered = isScrollbarHovered(mouseX, mouseY);
 
             float targetAnimation = (scrollbarHovered || isDragging) ? 1.0f : 0.0f;
 

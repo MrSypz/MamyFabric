@@ -187,7 +187,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         // Background panel with border
         drawContext.fill(hudX - 3, currentY - 3, hudX + hudWidth, currentY + hudHeight, BACKGROUND_COLOR);
-        DrawContextUtils.drawBorder(drawContext, hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3, BORDER_COLOR);
+        drawContext.drawBorder(hudX - 3, currentY - 3, hudWidth + 3, hudHeight + 3, BORDER_COLOR);
 
         // Player name on the left
         drawContext.drawTextWithShadow(textRenderer, playerName.orElse("NaN"), hudX, currentY, TEXT_COLOR);
@@ -216,7 +216,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
             drawContext.fill(hudX, mainBarY, hudX + progressWidth, mainBarY + BAR_HEIGHT, XP_BAR_COLOR);
         }
 
-        DrawContextUtils.drawBorder(drawContext, hudX, mainBarY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
+        drawContext.drawBorder(hudX, mainBarY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
 
         // === CLASS XP BAR ===
         int classBarY = mainBarY + CLASS_BAR_OFFSET;
@@ -236,7 +236,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
             drawContext.fill(hudX, classBarY, hudX + classProgressWidth, classBarY + BAR_HEIGHT, CLASS_BAR_COLOR);
         }
 
-        DrawContextUtils.drawBorder(drawContext, hudX, classBarY, BAR_WIDTH, BAR_HEIGHT,BORDER_COLOR);
+        drawContext.drawBorder(hudX, classBarY, BAR_WIDTH, BAR_HEIGHT,BORDER_COLOR);
 
         currentY = classBarY + BAR_HEIGHT + 4;
 
