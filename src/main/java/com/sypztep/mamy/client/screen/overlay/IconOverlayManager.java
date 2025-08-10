@@ -164,6 +164,7 @@ public class IconOverlayManager {
         if (isLeftAltPressed && !wasLeftAltPressed) {
             toggleOverlayMode(client);
         }
+        handleKeyPress(client);
         wasLeftAltPressed = isLeftAltPressed;
     }
 
@@ -357,4 +358,11 @@ public class IconOverlayManager {
     public static void clearAll() {
         iconGroups.clear();
     }
+    public static void handleKeyPress(MinecraftClient client) {
+        if (isOverlayMode && client.currentScreen == null && InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_ESCAPE)) {
+            isOverlayMode = false;
+            client.mouse.lockCursor();
+        }
+    }
+
 }
