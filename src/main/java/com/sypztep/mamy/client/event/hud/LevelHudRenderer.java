@@ -54,7 +54,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
     // Slide animation state
     private static float slideOffset = 0.0f;
     private static float hideTimer = 0.0f;
-    private static boolean shouldBeVisible = true;
+    private static boolean shouldBeVisible = false;
 
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
