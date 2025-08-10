@@ -46,6 +46,14 @@ public final class IntelligenceStat extends Stat {
                         baseValue -> this.getEffective() * RESOURCE_SCALING
                 )
         );
+        int regenBonus = this.getEffective() / 5;
+        if (regenBonus > 0) {
+            applyEffect(living,
+                    ModEntityAttributes.RESOURCE_REGEN_RATE,
+                    Mamy.id("int_regen_bonus"),
+                    baseValue -> (double) - regenBonus
+            );
+        }
         applyEffects(living, modifications);
     }
 
@@ -69,6 +77,10 @@ public final class IntelligenceStat extends Stat {
         double currentResourceBonus = currentTotal * RESOURCE_SCALING * 100;
         double futureResourceBonus = futureTotal * RESOURCE_SCALING * 100;
         double resourceIncrease = futureResourceBonus - currentResourceBonus;
+
+        int currentRegenBonusInt = getEffective() / 6;
+        int futureRegenBonusInt = (getEffective() + additionalPoints) / 6;
+        int regenIncreaseInt = futureRegenBonusInt - currentRegenBonusInt;
 
         List<Text> description = new ArrayList<>();
 
@@ -110,7 +122,9 @@ public final class IntelligenceStat extends Stat {
         description.add(Text.literal("  Max Resource: ").formatted(Formatting.GRAY)
                 .append(Text.literal(String.format("+%.1f%%", resourceIncrease)).formatted(Formatting.AQUA))
                 .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentResourceBonus, futureResourceBonus)).formatted(Formatting.DARK_GRAY)));
-
+        description.add(Text.literal("  Resource Regen Rate: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%d%%", regenIncreaseInt)).formatted(Formatting.AQUA))
+                .append(Text.literal(String.format(" (%d%% → %d%%)", currentRegenBonusInt, futureRegenBonusInt)).formatted(Formatting.DARK_GRAY)));
         return description;
     }
     @Override
