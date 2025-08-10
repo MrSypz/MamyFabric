@@ -26,7 +26,7 @@ public class HotbarIconOverlayRenderer {
 
         IconOverlayManager.addScreenIcon(
                 HOTBAR_GROUP_ID,
-                Mamy.id("textures/gui/icons/skills_icon.png"),
+                Mamy.id("overlay/skills"),
                 "Skills",
                 "Learn and upgrade your skills",
                 SkillLearningScreen::new
@@ -34,7 +34,7 @@ public class HotbarIconOverlayRenderer {
 
         IconOverlayManager.addScreenIcon(
                 HOTBAR_GROUP_ID,
-                Mamy.id("textures/gui/icons/keybind_icon.png"),
+                Mamy.id("overlay/binding"),
                 "Skill Bindings",
                 "Configure skill hotkeys",
                 SkillBindingScreen::new
@@ -42,7 +42,7 @@ public class HotbarIconOverlayRenderer {
 
         IconOverlayManager.addScreenIcon(
                 HOTBAR_GROUP_ID,
-                Mamy.id("textures/gui/icons/passive_icon.png"),
+                Mamy.id("overlay/codex"),
                 "Passive Table",
                 "Check your passive ability",
                 PassiveAbilityScreen::new
