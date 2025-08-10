@@ -22,7 +22,7 @@ public class QuickReflexPassive extends PassiveAbility {
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.EVASION,
                 Mamy.id("quick_reflex"),
-                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
+                EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> 80 // +20% Evasion
         ));
     }
