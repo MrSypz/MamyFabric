@@ -21,8 +21,6 @@
   "client": [
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
-    "feature.screenanimation.CameraMixin",
-    "feature.screenanimation.GameRendererMixin",
     "vanilla.passive.client.LivingEntityRendererMixin",
     "vanilla.stats.strength.client.ItemStackMixin"
   ],
