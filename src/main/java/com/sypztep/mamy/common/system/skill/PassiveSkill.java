@@ -11,6 +11,7 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.registry.entry.RegistryEntry;
 import sypztep.tyrannus.common.util.AttributeModification;
@@ -73,9 +74,11 @@ public abstract class PassiveSkill extends Skill {
 
             if (player.getAttributeInstance(modification.attribute()) != null) {
                 // Remove existing modifier if present
-                player.getAttributeInstance(modification.attribute()).removeModifier(modification.modifierId());
-                // Add new modifier with updated value
-                player.getAttributeInstance(modification.attribute()).addTemporaryModifier(modifier);
+                Optional.ofNullable(player.getAttributeInstance(modification.attribute()))
+                        .ifPresent(attr -> {
+                            attr.removeModifier(modification.modifierId());
+                            attr.addPersistentModifier(modifier);
+                        });
             }
         }
 
@@ -91,7 +94,8 @@ public abstract class PassiveSkill extends Skill {
     public void removePassiveEffects(PlayerEntity player) {
         for (AttributeModification modification : attributeModifications) {
             if (player.getAttributeInstance(modification.attribute()) != null) {
-                player.getAttributeInstance(modification.attribute()).removeModifier(modification.modifierId());
+                Optional.ofNullable(player.getAttributeInstance(modification.attribute()))
+                        .ifPresent(attr -> attr.removeModifier(modification.modifierId()));
             }
         }
 

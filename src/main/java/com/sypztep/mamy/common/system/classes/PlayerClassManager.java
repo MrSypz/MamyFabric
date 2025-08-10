@@ -416,6 +416,7 @@ public class PlayerClassManager {
         if (currentClass != null) {
             currentClass.applyAttributeModifiers(player);
             currentResource = Math.min(currentResource, getMaxResource());
+            skillManager.reapplyPassiveSkills();
         }
     }
 
