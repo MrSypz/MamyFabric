@@ -3,8 +3,6 @@ package com.sypztep.mamy.client.screen;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.screen.widget.*;
 import com.sypztep.mamy.client.toast.ToastRenderer;
-import com.sypztep.mamy.client.util.AnimationUtils;
-import com.sypztep.mamy.client.util.CyclingTextIcon;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -26,20 +24,11 @@ import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public final class PlayerInfoScreen extends Screen {
-    private static final float ANIMATION_DURATION = 12.0f; // Duration of the animation in seconds
-    private static final float FINAL_Y_OFFSET = 50.0f; // Final vertical offset of the text
-
-    // Animations
-    private Animation verticalAnimation;
-    private Animation fadeAnimation;
-
     // Player Stats
     private final LivingLevelComponent playerStats;
 
     // UI Components
     private List<IncreasePointButton> increaseButtons;
-    private List<Text> texts;
-    private final CyclingTextIcon cyclingTextIcon;
     private final ScrollableTextList playerInfo;
 
     private final int buttonHeight = 16;
@@ -54,7 +43,6 @@ public final class PlayerInfoScreen extends Screen {
         List<ListElement> listInfo = createListItems();
 
         this.playerInfo = new ScrollableTextList(listInfo, infoKeys);
-        this.cyclingTextIcon = new CyclingTextIcon(100);
     }
 
     public void updateValues(MinecraftClient client) {
@@ -190,8 +178,6 @@ public final class PlayerInfoScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.verticalAnimation = new Animation(ANIMATION_DURATION); // Single play for vertical animation
-        this.fadeAnimation = new Animation(ANIMATION_DURATION); // Single play for fade animation
         increaseButtons = new ArrayList<>(); // Initialize the list to hold buttons
 
         int y = 50;
@@ -207,12 +193,6 @@ public final class PlayerInfoScreen extends Screen {
 
             y += statRowHeight; // Move to the next row
         }
-
-        texts = Arrays.asList(
-                Text.of("Lvl Progress: " + playerStats.getExperience() + "/" + playerStats.getExperienceToNextLevel()),
-                Text.of(playerStats.getExperienceToNextLevel() + " XP to Level " + (playerStats.getLevel() + 1)),
-                Text.of("Level: " + playerStats.getLevel() + " " + String.format("%.1f%%", playerStats.getExperiencePercentage()))
-        );
     }
 
     @Override
@@ -220,8 +200,6 @@ public final class PlayerInfoScreen extends Screen {
         assert client != null;
         updateValues(client);
         DrawContextUtils.fillScreenVerticalRatio(context,0xFC141414,0,0xFC141414);
-        verticalAnimation.update(delta);
-        fadeAnimation.update(delta);
 
         int screenWidth = this.width;
         int screenHeight = this.height;
@@ -233,18 +211,16 @@ public final class PlayerInfoScreen extends Screen {
         int contentHeight = (int) (screenHeight * contentSectionHeightRatio);
 
         int xOffset = (int) (screenWidth * 0.67f); // 2/3 of the screen width
-        int yOffset = (int) AnimationUtils.getPositionOffset(verticalAnimation.getProgress(), FINAL_Y_OFFSET, screenHeight);
+        int yOffset = 50; // Static offset, removed animation
         drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
 
         renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);
 
-        renderBottomLeftSection(context, screenWidth, screenHeight, delta);
-
-        renderBenefitPoint(context, screenWidth, screenHeight, fadeAnimation.getProgress());
+        renderBenefitPoint(context, screenWidth, screenHeight);
 
         // Draw header section - updated translation keys
-        drawHeaderSection(context, xOffset + 100, yOffset, fadeAnimation.getProgress(), "mamy.gui.player_info.header");
-        drawHeaderSection(context, (int) (screenWidth * 0.025f) + 80, yOffset, fadeAnimation.getProgress(), "mamy.gui.player_info.header_level");
+        drawHeaderSection(context, xOffset + 100, yOffset, "mamy.gui.player_info.header");
+        drawHeaderSection(context, (int) (screenWidth * 0.025f) + 80, yOffset, "mamy.gui.player_info.header_level");
 
         renderToastsOverScreen(context, delta);
     }
@@ -255,7 +231,7 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     private void drawStatsSection(DrawContext context, int xOffset, float yOffset, int contentWidth, int contentHeight, float deltatick, int mouseX, int mouseY) {
-        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, 1f, AnimationUtils.getAlpha(fadeAnimation.getProgress()), deltatick, mouseX, mouseY);
+        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, 1f, 1, deltatick, mouseX, mouseY);
     }
 
     private void renderStyledText(DrawContext context, int x, int y, int statValue, float scale) { // Updated parameter name
@@ -339,14 +315,7 @@ public final class PlayerInfoScreen extends Screen {
         }
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (!texts.isEmpty())
-            cyclingTextIcon.updateTexts(texts);
-    }
-
-    private void renderBenefitPoint(DrawContext context, int screenWidth, int screenHeight, float fadeProgress) {
+    private void renderBenefitPoint(DrawContext context, int screenWidth, int screenHeight) {
         int remainingPoints = playerStats.getAvailableStatPoints();
         float scaleFactor = 2.5f;
         int posX = (int) (screenWidth * 0.50f);
@@ -359,31 +328,19 @@ public final class PlayerInfoScreen extends Screen {
         context.getMatrices().push();
         context.getMatrices().scale(scaleFactor, scaleFactor, 0.0f);
 
-        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY + 5 , 0xF17633, AnimationUtils.getAlpha(fadeProgress));
+        context.drawCenteredTextWithShadow(textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY + 5 , 0xF17633);
         context.getMatrices().pop();
-        AnimationUtils.drawFadeCenteredText(context, textRenderer, Text.of(fuckyougramma),  posX, posY + 35, 0xFFFFFF, AnimationUtils.getAlpha(fadeProgress));
+        context.drawCenteredTextWithShadow(textRenderer, Text.of(fuckyougramma),  posX, posY + 35, 0xFFFFFF);
     }
 
-    private void renderBottomLeftSection(DrawContext context, int screenWidth, int screenHeight, float delta) {
-        int labelX = (int) (screenWidth * 0.025f); // X position, a little inset from the left edge
-        int labelY = screenHeight - 45; // Y position, near the bottom of the screen
-        context.getMatrices().push();
-        context.getMatrices().scale(0.8f, 0.8f, 1.0f);
-        int scaledLabelX = (int) (labelX / 0.8f); // Adjust X position for scaling
-        int scaledLabelY = (int) (labelY / 0.8f); // Adjust Y position for scaling
-
-        cyclingTextIcon.render(context, textRenderer, delta, scaledLabelX, scaledLabelY + 40, 0xFFFFFF);  // Lvl Progession
-        context.getMatrices().pop();
-    }
-
-    private void drawHeaderSection(DrawContext context, int x, float verticalOffset, float fadeProgress, String text) {
+    private void drawHeaderSection(DrawContext context, int x, float verticalOffset, String text) {
         int textWidth = this.textRenderer.getWidth(Text.translatable(text));
         int centeredX = x - (textWidth / 2);
-        AnimationUtils.drawFadeText(context, this.textRenderer, Text.translatable(text), centeredX, (int) verticalOffset, AnimationUtils.getAlpha(fadeProgress));
+        context.drawText(this.textRenderer, Text.translatable(text), centeredX, (int) verticalOffset, 0xFFFFFF, false);
         int lineY1 = (int) (verticalOffset - 4);
         int lineY2 = (int) (verticalOffset + 10);
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY1, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, fadeProgress);
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY2, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, fadeProgress);
+        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY1, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, 1.0f);
+        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY2, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, 1.0f);
     }
 
     @Override

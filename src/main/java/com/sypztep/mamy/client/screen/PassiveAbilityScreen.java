@@ -1,9 +1,7 @@
 package com.sypztep.mamy.client.screen;
 
-import com.sypztep.mamy.client.screen.widget.Animation;
 import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
 import com.sypztep.mamy.client.toast.ToastRenderer;
-import com.sypztep.mamy.client.util.AnimationUtils;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -25,10 +23,6 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public final class PassiveAbilityScreen extends Screen {
-    // Animation constants
-    private static final float ANIMATION_DURATION = 0.8f;
-    private static final float FINAL_Y_OFFSET = 30.0f;
-
     // UI constants
     private static final int CONTENT_PADDING = 50;
     private static final int SECTION_SPACING = 10;
@@ -49,10 +43,6 @@ public final class PassiveAbilityScreen extends Screen {
     private final ScrollBehavior listScrollBehavior;
     private final ScrollBehavior detailsScrollBehavior;
 
-    // Animations
-    private Animation fadeAnimation;
-    private Animation slideAnimation;
-
     public PassiveAbilityScreen(MinecraftClient client) {
         super(Text.literal("Passive Abilities"));
         assert client.player != null;
@@ -62,22 +52,14 @@ public final class PassiveAbilityScreen extends Screen {
         this.itemHeights = new ArrayList<>();
 
         // Initialize scroll behaviors
-        this.listScrollBehavior = new ScrollBehavior()
-                .setScrollbarWidth(8)
-                .setScrollbarPadding(3)
-                .setMinHandleSize(24);
+        this.listScrollBehavior = new ScrollBehavior().setScrollbarWidth(8).setScrollbarPadding(3).setMinHandleSize(24);
 
-        this.detailsScrollBehavior = new ScrollBehavior()
-                .setScrollbarWidth(8)
-                .setScrollbarPadding(3)
-                .setMinHandleSize(24);
+        this.detailsScrollBehavior = new ScrollBehavior().setScrollbarWidth(8).setScrollbarPadding(3).setMinHandleSize(24);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.fadeAnimation = new Animation(ANIMATION_DURATION);
-        this.slideAnimation = new Animation(ANIMATION_DURATION);
 
         // Calculate item heights and update scroll bounds
         calculateItemHeights();
@@ -112,8 +94,7 @@ public final class PassiveAbilityScreen extends Screen {
     }
 
     private void updateScrollBounds() {
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
-        int contentY = yOffset + CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
+        int contentY = CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int contentHeight = height - contentY - 20;
 
@@ -165,9 +146,6 @@ public final class PassiveAbilityScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        fadeAnimation.update(delta);
-        slideAnimation.update(delta);
-
         // Recalculate item heights if needed (in case of window resize)
         if (itemHeights.size() != displayedAbilities.size()) {
             calculateItemHeights();
@@ -179,12 +157,9 @@ public final class PassiveAbilityScreen extends Screen {
         // Set dark background
         DrawContextUtils.fillScreen(context, 0xF0121212);
 
-        // Calculate animated offsets
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
-
         // Main content area
         int contentX = CONTENT_PADDING;
-        int contentY = yOffset + CONTENT_PADDING;
+        int contentY = CONTENT_PADDING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int contentHeight = height - contentY - 20;
 
@@ -200,13 +175,11 @@ public final class PassiveAbilityScreen extends Screen {
         renderPassiveSummary(context, contentX, contentY, contentWidth);
 
         // Render ability list with scroll behavior
-        renderPassiveAbilityList(context, contentX, contentY + SUMMARY_HEIGHT + SECTION_SPACING,
-                listWidth, contentHeight - SUMMARY_HEIGHT - SECTION_SPACING, mouseX, mouseY, delta);
+        renderPassiveAbilityList(context, contentX, contentY + SUMMARY_HEIGHT + SECTION_SPACING, listWidth, contentHeight - SUMMARY_HEIGHT - SECTION_SPACING, mouseX, mouseY, delta);
 
         // Render details panel with scroll behavior
         if (selectedAbility != null) {
-            renderPassiveAbilityDetails(context, detailsX, contentY + SUMMARY_HEIGHT + SECTION_SPACING,
-                    detailsWidth, contentHeight - SUMMARY_HEIGHT - SECTION_SPACING, mouseX, mouseY, delta);
+            renderPassiveAbilityDetails(context, detailsX, contentY + SUMMARY_HEIGHT + SECTION_SPACING, detailsWidth, contentHeight - SUMMARY_HEIGHT - SECTION_SPACING, mouseX, mouseY, delta);
         }
 
         // Render toasts over screen
@@ -217,13 +190,11 @@ public final class PassiveAbilityScreen extends Screen {
         Text titleText = Text.literal("Passive Abilities").formatted(Formatting.GOLD, Formatting.BOLD);
         int titleX = x + (width - textRenderer.getWidth(titleText)) / 2;
 
-        AnimationUtils.drawFadeText(context, textRenderer, titleText, titleX, y, 0xFFD700,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, titleText, titleX, y, 0xFFD700, false);
 
         // Decorative lines
         int lineY = y + textRenderer.fontHeight + 3;
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, x, lineY, width, 1, 400,
-                0xFFFFFFFF, 0, fadeAnimation.getProgress());
+        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, x, lineY, width, 1, 400, 0xFFFFFFFF, 0, 1.0f);
     }
 
     private void renderPassiveSummary(DrawContext context, int x, int y, int width) {
@@ -239,12 +210,9 @@ public final class PassiveAbilityScreen extends Screen {
         context.fill(x, y + SUMMARY_HEIGHT - 1, x + width, y + SUMMARY_HEIGHT, 0xFF4CAF50);
 
         // Summary text
-        String summaryText = String.format("Unlocked: %d/%d | Active: %d ",
-                unlockedCount, totalCount, activeCount);
+        String summaryText = String.format("Unlocked: %d/%d | Active: %d ", unlockedCount, totalCount, activeCount);
 
-        AnimationUtils.drawFadeText(context, textRenderer,
-                Text.literal(summaryText).formatted(Formatting.WHITE),
-                x + 10, y + 8, 0xFFFFFF, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, Text.literal(summaryText).formatted(Formatting.WHITE), x + 10, y + 8, 0xFFFFFF, false);
 
         // Progress bar
         int barX = x + width - 150;
@@ -265,12 +233,10 @@ public final class PassiveAbilityScreen extends Screen {
         // Progress text
         String progressText = String.format("%.1f%%", progress * 100);
         int progressTextX = barX + barWidth + 5;
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal(progressText).formatted(Formatting.GRAY),
-                progressTextX, y + 8, 0xAAAAAA, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, Text.literal(progressText).formatted(Formatting.GRAY), progressTextX, y + 8, 0xAAAAAA, false);
     }
 
-    private void renderPassiveAbilityList(DrawContext context, int x, int y, int width, int height,
-                                          int mouseX, int mouseY, float delta) {
+    private void renderPassiveAbilityList(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY, float delta) {
 
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
@@ -301,12 +267,10 @@ public final class PassiveAbilityScreen extends Screen {
             boolean unlocked = abilityManager.isUnlocked(ability);
             boolean active = abilityManager.isActive(ability);
             boolean canUnlock = ability.meetsRequirements(client.player);
-            boolean isHovered = mouseX >= x + 5 && mouseX <= x + width - 25 &&
-                    mouseY >= currentY && mouseY <= currentY + itemHeight - 2;
+            boolean isHovered = mouseX >= x + 5 && mouseX <= x + width - 25 && mouseY >= currentY && mouseY <= currentY + itemHeight - 2;
             boolean isSelected = ability == selectedAbility;
 
-            renderAbilityListItem(context, ability, x + 5, currentY, width - 30, itemHeight - 2,
-                    unlocked, active, canUnlock, isHovered, isSelected);
+            renderAbilityListItem(context, ability, x + 5, currentY, width - 30, itemHeight - 2, unlocked, active, canUnlock, isHovered, isSelected);
 
             currentY += itemHeight;
         }
@@ -315,15 +279,12 @@ public final class PassiveAbilityScreen extends Screen {
         listScrollBehavior.disableScissor(context);
     }
 
-    private void renderAbilityListItem(DrawContext context, PassiveAbility ability, int x, int y, int width, int height,
-                                       boolean unlocked, boolean active, boolean canUnlock, boolean isHovered,
-                                       boolean isSelected) {
+    private void renderAbilityListItem(DrawContext context, PassiveAbility ability, int x, int y, int width, int height, boolean unlocked, boolean active, boolean canUnlock, boolean isHovered, boolean isSelected) {
 
         // Background for item
         int itemBg = 0xFF1A1A1A;
         if (isSelected) itemBg = 0xFF2A4A2A;
-         else if (isHovered) itemBg = 0xFF2A2A2A;
-
+        else if (isHovered) itemBg = 0xFF2A2A2A;
 
         context.fill(x, y, x + width, y + height, itemBg);
 
@@ -350,9 +311,7 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Name with status
         Text abilityName = Text.literal(statusIcon + " " + ability.getDisplayName().getString()).formatted(color);
-        AnimationUtils.drawFadeText(context, textRenderer, abilityName, textX, currentTextY,
-                color.getColorValue() != null ? color.getColorValue() : 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, abilityName, textX, currentTextY, color.getColorValue() != null ? color.getColorValue() : 0xFFFFFF, false);
 
         currentTextY += textRenderer.fontHeight + 3;
 
@@ -361,9 +320,7 @@ public final class PassiveAbilityScreen extends Screen {
         if (!reqSummary.isEmpty()) {
             List<String> reqLines = TextUtil.wrapText(textRenderer, reqSummary, width - ITEM_PADDING * 2);
             for (String line : reqLines) {
-                AnimationUtils.drawFadeText(context, textRenderer,
-                        Text.literal(line).formatted(Formatting.DARK_GRAY),
-                        textX, currentTextY, 0x888888, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+                context.drawText(textRenderer, Text.literal(line).formatted(Formatting.DARK_GRAY), textX, currentTextY, 0x888888, false);
                 currentTextY += textRenderer.fontHeight + 2;
             }
         }
@@ -374,16 +331,13 @@ public final class PassiveAbilityScreen extends Screen {
         }
     }
 
-    private void renderPassiveAbilityDetails(DrawContext context, int x, int y, int width, int height,
-                                             int mouseX, int mouseY, float delta) {
+    private void renderPassiveAbilityDetails(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY, float delta) {
         // Background with border
         context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
         context.drawBorder(x, y, width, height, 0xFF444444);
 
         if (selectedAbility == null) {
-            AnimationUtils.drawFadeCenteredText(context, textRenderer,
-                    Text.literal("Select an ability").formatted(Formatting.GRAY),
-                    x + width / 2, y + height / 2, 0x888888, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawCenteredTextWithShadow(textRenderer, Text.literal("Select an ability").formatted(Formatting.GRAY), x + width / 2, y + height / 2, 0x888888);
             return;
         }
 
@@ -404,36 +358,28 @@ public final class PassiveAbilityScreen extends Screen {
 
         // Title with status
         String statusSuffix = active ? " ✓" : (unlocked ? " ⚠" : (canUnlock ? " !" : " ✗"));
-        Formatting titleColor = active ? Formatting.GREEN : (unlocked ? Formatting.YELLOW :
-                (canUnlock ? Formatting.AQUA : Formatting.GRAY));
+        Formatting titleColor = active ? Formatting.GREEN : (unlocked ? Formatting.YELLOW : (canUnlock ? Formatting.AQUA : Formatting.GRAY));
 
-        Text titleText = selectedAbility.getDisplayName().copy().formatted(titleColor, Formatting.BOLD)
-                .append(Text.literal(statusSuffix).formatted(Formatting.WHITE));
+        Text titleText = selectedAbility.getDisplayName().copy().formatted(titleColor, Formatting.BOLD).append(Text.literal(statusSuffix).formatted(Formatting.WHITE));
 
-        AnimationUtils.drawFadeText(context, textRenderer, titleText, textX, currentY,
-                titleColor.getColorValue() != null ? titleColor.getColorValue() : 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, titleText, textX, currentY, titleColor.getColorValue() != null ? titleColor.getColorValue() : 0xFFFFFF, false);
         currentY += textRenderer.fontHeight + 8;
 
         // Status description
-        String statusText = active ? "§a● ACTIVE" : (unlocked ? "§e● UNLOCKED" :
-                (canUnlock ? "§b● CAN UNLOCK!" : "§7● LOCKED"));
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal(statusText), textX, currentY, 0xFFFFFF,
-                AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        String statusText = active ? "§a● ACTIVE" : (unlocked ? "§e● UNLOCKED" : (canUnlock ? "§b● CAN UNLOCK!" : "§7● LOCKED"));
+        context.drawText(textRenderer, Text.literal(statusText), textX, currentY, 0xFFFFFF, false);
         currentY += textRenderer.fontHeight + 10;
 
         // Description
         List<String> descLines = TextUtil.wrapText(textRenderer, selectedAbility.getDescription().getString(), maxWidth);
         for (String line : descLines) {
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal(line).formatted(Formatting.GRAY),
-                    textX, currentY, 0xAAAAAA, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawText(textRenderer, Text.literal(line).formatted(Formatting.GRAY), textX, currentY, 0xAAAAAA, false);
             currentY += textRenderer.fontHeight + 2;
         }
         currentY += 10;
 
         // Requirements header
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal("Requirements:").formatted(Formatting.GOLD),
-                textX, currentY, 0xFFD700, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, Text.literal("Requirements:").formatted(Formatting.GOLD), textX, currentY, 0xFFD700, false);
         currentY += textRenderer.fontHeight + 5;
 
         // Requirements list
@@ -446,24 +392,20 @@ public final class PassiveAbilityScreen extends Screen {
             Formatting reqColor = meets ? Formatting.GREEN : Formatting.RED;
             String reqText = String.format("  %s: %d/%d", statType.getAka(), current, required);
 
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal(reqText).formatted(reqColor),
-                    textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF,
-                    AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawText(textRenderer, Text.literal(reqText).formatted(reqColor), textX, currentY, reqColor.getColorValue() != null ? reqColor.getColorValue() : 0xFFFFFF, false);
             currentY += textRenderer.fontHeight + 2;
         }
 
         // Effect preview
         currentY += 10;
-        AnimationUtils.drawFadeText(context, textRenderer, Text.literal("Effects:").formatted(Formatting.GOLD),
-                textX, currentY, 0xFFD700, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+        context.drawText(textRenderer, Text.literal("Effects:").formatted(Formatting.GOLD), textX, currentY, 0xFFD700, false);
         currentY += textRenderer.fontHeight + 5;
 
         // Show effect description
         String effectDesc = getEffectDescription(selectedAbility);
         List<String> effectLines = TextUtil.wrapText(textRenderer, effectDesc, maxWidth);
         for (String line : effectLines) {
-            AnimationUtils.drawFadeText(context, textRenderer, Text.literal(line).formatted(Formatting.AQUA),
-                    textX, currentY, 0x55FFFF, AnimationUtils.getAlpha(fadeAnimation.getProgress()));
+            context.drawText(textRenderer, Text.literal(line).formatted(Formatting.AQUA), textX, currentY, 0x55FFFF, false);
             currentY += textRenderer.fontHeight + 2;
         }
 
@@ -516,8 +458,7 @@ public final class PassiveAbilityScreen extends Screen {
 
         if (button != 0) return super.mouseClicked(mouseX, mouseY, button); // Left click only
 
-        int yOffset = (int) AnimationUtils.getPositionOffset(slideAnimation.getProgress(), FINAL_Y_OFFSET, height);
-        int contentY = yOffset + CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
+        int contentY = CONTENT_PADDING + SUMMARY_HEIGHT + SECTION_SPACING;
         int contentWidth = width - (CONTENT_PADDING * 2);
         int listWidth = (contentWidth - SECTION_SPACING) / 2; // Updated for 2:2 layout
         int contentHeight = height - contentY - 20;
@@ -527,8 +468,7 @@ public final class PassiveAbilityScreen extends Screen {
         int itemAreaWidth = listWidth - 30; // This makes the right bound listX + listWidth - 25
 
         // Check if clicking in the same area as hover detection
-        if (mouseX >= itemAreaX && mouseX <= itemAreaX + itemAreaWidth &&
-                mouseY >= contentY && mouseY <= contentY + contentHeight) {
+        if (mouseX >= itemAreaX && mouseX <= itemAreaX + itemAreaWidth && mouseY >= contentY && mouseY <= contentY + contentHeight) {
 
             int scrollOffset = listScrollBehavior.getScrollOffset();
 

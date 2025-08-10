@@ -3,10 +3,6 @@ package com.sypztep.mamy.common.init;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.passive.abilities.agility.*;
 import com.sypztep.mamy.common.system.passive.abilities.dexterity.*;
-import com.sypztep.mamy.common.system.passive.abilities.vitality.*;
-import com.sypztep.mamy.common.system.passive.abilities.strength.*;
-import com.sypztep.mamy.common.system.passive.abilities.intelligence.*;
-import com.sypztep.mamy.common.system.passive.abilities.luck.*;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 
 import java.util.*;
@@ -26,24 +22,12 @@ public interface ModPassiveAbilities {
     PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 35)));
 
     // === VITALITY ABILITIES ===
-    PassiveAbility IRON_SKIN = register(new IronSkinAbility("iron_skin", Map.of(StatTypes.VITALITY, 8)));
-    PassiveAbility REGENERATION = register(new RegenerationAbility("regeneration", Map.of(StatTypes.VITALITY, 20)));
-    PassiveAbility LAST_STAND = register(new LastStandAbility("last_stand", Map.of(StatTypes.VITALITY, 40)));
 
     // === STRENGTH ABILITIES ===
-    PassiveAbility HEAVY_HITTER = register(new HeavyHitterAbility("heavy_hitter", Map.of(StatTypes.STRENGTH, 12)));
-    PassiveAbility BERSERKER = register(new BerserkerAbility("berserker", Map.of(StatTypes.STRENGTH, 30)));
-    PassiveAbility WEAPON_MASTER = register(new WeaponMasterAbility("weapon_master", Map.of(StatTypes.STRENGTH, 45)));
 
     // === INTELLIGENCE ABILITIES ===
-    PassiveAbility ARCANE_POWER = register(new ArcanePowerAbility("arcane_power", Map.of(StatTypes.INTELLIGENCE, 15)));
-    PassiveAbility MANA_SHIELD = register(new ManaShieldAbility("mana_shield", Map.of(StatTypes.INTELLIGENCE, 25)));
-    PassiveAbility SPELL_ECHO = register(new SpellEchoAbility("spell_echo", Map.of(StatTypes.INTELLIGENCE, 40)));
 
     // === LUCK ABILITIES ===
-    PassiveAbility FORTUNE_FAVOR = register(new FortuneFavorAbility("fortune_favor", Map.of(StatTypes.LUCK, 10)));
-    PassiveAbility CRITICAL_EXPERT = register(new CriticalExpertAbility("critical_expert", Map.of(StatTypes.LUCK, 25)));
-    PassiveAbility LUCKY_STRIKES = register(new LuckyStrikesAbility("lucky_strikes", Map.of(StatTypes.LUCK, 40)));
 
     // === MULTI-STAT ABILITIES ===
 //    PassiveAbility ELEMENTAL_IMMUNITY = register(new ElementalImmunityAbility("elemental_immunity", Map.of(StatTypes.VITALITY, 25,

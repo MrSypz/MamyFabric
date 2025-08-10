@@ -1,7 +1,6 @@
 package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
-import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -10,6 +9,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.ColorHelper;
 
 public abstract class ActionWidgetButton extends ClickableWidget {
     protected static final int DEFAULT_BG_COLOR = 0xFF2C2C2C;
@@ -123,9 +123,9 @@ public abstract class ActionWidgetButton extends ClickableWidget {
             borderColor = getHoverBorderColor();
             textColor = getHoverTextColor();
         } else if (isHovered) {
-            bgColor = ColorUtils.interpolateColor(getBackgroundColor(), getHoverBackgroundColor(), hoverAnimation);
-            borderColor = ColorUtils.interpolateColor(getBorderColor(), getHoverBorderColor(), hoverAnimation);
-            textColor = ColorUtils.interpolateColor(getTextColor(), getHoverTextColor(), hoverAnimation);
+            bgColor = ColorHelper.Argb.lerp(hoverAnimation, getBackgroundColor(), getHoverBackgroundColor());
+            borderColor = ColorHelper.Argb.lerp(hoverAnimation, getBorderColor(), getHoverBorderColor());
+            textColor = ColorHelper.Argb.lerp(hoverAnimation,  getTextColor(), getHoverTextColor());
         } else {
             bgColor = getBackgroundColor();
             borderColor = getBorderColor();

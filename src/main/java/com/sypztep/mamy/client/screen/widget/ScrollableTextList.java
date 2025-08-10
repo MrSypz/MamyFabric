@@ -1,6 +1,5 @@
 package com.sypztep.mamy.client.screen.widget;
 
-import com.sypztep.mamy.client.util.AnimationUtils;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -177,12 +176,12 @@ public final class ScrollableTextList {
             if (alpha > 0) {
                 int textColor;
                 if (isMainContext) {
-                    AnimationUtils.drawFadeText(context, textRenderer,
+                    context.drawText(textRenderer,
                             Text.literal(line).formatted(Formatting.BOLD),
-                            textX, textY, 0xFFD700, alpha);
+                            textX, textY, 0xFFD700,false);
                 } else {
-                    textColor = isHovered ? 0xFFFFFF : 0xCCCCCC; // Brighter when hovered
-                    AnimationUtils.drawFadeText(context, textRenderer, Text.of(line), textX, textY, textColor, alpha);
+                    textColor = isHovered ? 0xFFFFFF : 0xCCCCCC;
+                    context.drawText(textRenderer, Text.of(line), textX, textY, textColor, false);
                 }
             }
 

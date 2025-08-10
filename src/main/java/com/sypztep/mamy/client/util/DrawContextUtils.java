@@ -1,9 +1,9 @@
 package com.sypztep.mamy.client.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
@@ -44,14 +44,14 @@ public final class DrawContextUtils {
     public static void fillScreen(DrawContext context, int red, int green, int blue, int alpha) {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
-        int color = ColorUtils.rgbaToHex(red, green, blue, alpha);
+        int color = ColorHelper.Argb.getArgb(alpha, red, green, blue);
         context.fill(0, 0, width, height, color);
     }
 
     public static void fillScreen(DrawContext context, int red, int green, int blue) {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
-        int color = ColorUtils.fromRgb(red, green, blue);
+        int color = ColorHelper.Argb.getArgb(red, green, blue);
         context.fill(0, 0, width, height, color);
     }
 
@@ -59,42 +59,6 @@ public final class DrawContextUtils {
         int width = context.getScaledWindowWidth();
         int height = context.getScaledWindowHeight();
         context.fill(0, 0, width, height, color);
-    }
-
-    /**
-     * Fills the screen with three horizontal sections, each occupying
-     * approximately one-third of the screen height.
-     *
-     * <p><b>Example Usage:</b></p>
-     * <pre>{@code
-     * public static void exampleHorizontal(DrawContext context) {
-     * ScreenFiller.fillScreenHorizontalRatio(context,
-     * 0xFF1E1E1E, // Top - dark gray
-     * 0xFF4CAF50, // Middle - green
-     * 0xFF2196F3  // Bottom - blue
-     * );
-     * }
-     * }</pre>
-     *
-     * @param context     The drawing context providing screen dimensions and fill capabilities.
-     * @param topColor    The ARGB color for the top one-third section of the screen.
-     * @param middleColor The ARGB color for the middle one-third section of the screen.
-     * @param bottomColor The ARGB color for the bottom one-third section of the screen.
-     */
-    public static void fillScreenHorizontalRatio(DrawContext context, int topColor, int middleColor, int bottomColor) {
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-
-        int sectionHeight = height / 3;
-
-        // Top section (1/3)
-        context.fill(0, 0, width, sectionHeight, topColor);
-
-        // Middle section (1/3)
-        context.fill(0, sectionHeight, width, sectionHeight * 2, middleColor);
-
-        // Bottom section (1/3)
-        context.fill(0, sectionHeight * 2, width, height, bottomColor);
     }
 
     /**
@@ -131,127 +95,6 @@ public final class DrawContextUtils {
 
         // Right section (1/3)
         context.fill(sectionWidth * 2, 0, width, height, rightColor);
-    }
-
-    /**
-     * Fills the screen with a 3x3 grid of nine equal sections, each colored
-     * according to the provided array of colors.
-     *
-     * <p>The colors are applied row by row, from left to right within each row.
-     * The {@code colors} array must contain exactly 9 ARGB color integers.</p>
-     *
-     * <p><b>Example Usage:</b></p>
-     * <pre>{@code
-     * public static void exampleGrid(DrawContext context) {
-     * int[] gridColors = {
-     * 0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3, // Top row
-     * 0xFFFF5722, 0xFFFFEB3B, 0xFF9C27B0, // Middle row
-     * 0xFF795548, 0xFF607D8B, 0xFFFFC107  // Bottom row
-     * };
-     * ScreenFiller.fillScreenGridRatio(context, gridColors);
-     * }
-     * }</pre>
-     *
-     * @param context The drawing context providing screen dimensions and fill capabilities.
-     * @param colors  An array of exactly 9 ARGB color integers for the 3x3 grid sections.
-     * @throws IllegalArgumentException If the {@code colors} array does not contain exactly 9 elements.
-     */
-    public static void fillScreenGridRatio(DrawContext context, int[] colors) {
-        if (colors.length != 9) {
-            throw new IllegalArgumentException("Grid ratio requires exactly 9 colors");
-        }
-
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-
-        int sectionWidth = width / 3;
-        int sectionHeight = height / 3;
-
-        int colorIndex = 0;
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                int x1 = col * sectionWidth;
-                int y1 = row * sectionHeight;
-                int x2 = (col == 2) ? width : (col + 1) * sectionWidth;  // Handle remainder
-                int y2 = (row == 2) ? height : (row + 1) * sectionHeight; // Handle remainder
-
-                context.fill(x1, y1, x2, y2, colors[colorIndex++]);
-            }
-        }
-    }
-
-    /**
-     * Fills the screen with sections based on custom ratios, either horizontally or vertically.
-     *
-     * <p>This method allows for flexible screen partitioning where each section's size
-     * is proportional to its corresponding ratio value. The sum of all ratios
-     * determines the total proportion.</p>
-     *
-     * <p><b>Example Usage (Horizontal 2:3:1):</b></p>
-     * <pre>{@code
-     * public static void exampleCustom(DrawContext context) {
-     * int[] ratios = {2, 3, 1}; // 2:3:1 ratio
-     * int[] colors = {0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3};
-     * ScreenFiller.fillScreenCustomRatio(context, ratios, colors, true); // true = horizontal
-     * }
-     * }</pre>
-     *
-     * <p><b>Example Usage (Equal 1:1:1 Horizontal):</b></p>
-     * <pre>{@code
-     * public static void exampleEqual(DrawContext context) {
-     * int[] ratios = {1, 1, 1}; // 1:1:1 ratio
-     * int[] colors = {0xFF1E1E1E, 0xFF4CAF50, 0xFF2196F3};
-     * ScreenFiller.fillScreenCustomRatio(context, ratios, colors, true); // true = horizontal
-     * }
-     * }</pre>
-     *
-     * @param context    The drawing context providing screen dimensions and fill capabilities.
-     * @param ratios     An array of integers representing the proportional sizes of each section.
-     *                   For example, {@code {1, 2, 1}} means the sections will have sizes
-     *                   in a 1:2:1 proportion.
-     * @param colors     An array of ARGB color integers, where each color corresponds
-     *                   to a ratio in the {@code ratios} array. The length of this array
-     *                   must match the length of the {@code ratios} array.
-     * @param horizontal If {@code true}, the sections will be arranged horizontally;
-     *                   otherwise, they will be arranged vertically.
-     * @throws IllegalArgumentException If the {@code ratios} and {@code colors} arrays
-     *                                  do not have the same length.
-     */
-    public static void fillScreenCustomRatio(DrawContext context, int[] ratios, int[] colors, boolean horizontal) {
-        if (ratios.length != colors.length) {
-            throw new IllegalArgumentException("Ratios and colors arrays must have the same length");
-        }
-
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-
-        // Calculate total ratio
-        int totalRatio = 0;
-        for (int ratio : ratios) {
-            totalRatio += ratio;
-        }
-
-        if (horizontal) {
-            // Horizontal sections
-            int currentY = 0;
-            for (int i = 0; i < ratios.length; i++) {
-                int sectionHeight = (height * ratios[i]) / totalRatio;
-                int nextY = (i == ratios.length - 1) ? height : currentY + sectionHeight;
-
-                context.fill(0, currentY, width, nextY, colors[i]);
-                currentY = nextY;
-            }
-        } else {
-            // Vertical sections
-            int currentX = 0;
-            for (int i = 0; i < ratios.length; i++) {
-                int sectionWidth = (width * ratios[i]) / totalRatio;
-                int nextX = (i == ratios.length - 1) ? width : currentX + sectionWidth;
-
-                context.fill(currentX, 0, nextX, height, colors[i]);
-                currentX = nextX;
-            }
-        }
     }
 
     public static void drawRect(DrawContext context, int contentX, int contentY, int contentWidth, int contentHeight, int color) {
@@ -435,19 +278,5 @@ public final class DrawContextUtils {
         int originalAlpha = (color >> 24) & 0xFF;
         int newAlpha = (int) (originalAlpha * alpha);
         return (color & 0x00FFFFFF) | (newAlpha << 24);
-    }
-
-    /**
-     * Create a color with specific alpha
-     */
-    public static int colorWithAlpha(int rgb, int alpha) {
-        return (rgb & 0x00FFFFFF) | ((alpha & 0xFF) << 24);
-    }
-
-    /**
-     * Blend two colors with a ratio
-     */
-    public static int blendColors(int color1, int color2, float ratio) {
-        return ColorUtils.interpolateColor(color1, color2, ratio);
     }
 }

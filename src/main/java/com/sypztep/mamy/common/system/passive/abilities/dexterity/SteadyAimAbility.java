@@ -22,7 +22,7 @@ public class SteadyAimAbility extends PassiveAbility {
                 ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
                 Mamy.id("steady_aim_projectile"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.25 // +25% projectile damage
+                baseValue -> 5.0
         ));
 
         addAttributeEffect(new AttributeModification(
@@ -40,6 +40,6 @@ public class SteadyAimAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Perfect control over ranged weapons. +25% Projectile Damage, +8 Accuracy");
+        return Text.literal("Perfect control over ranged weapons. +5 Projectile Damage, +8 Accuracy");
     }
 }

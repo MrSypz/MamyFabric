@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.screen.widget;
 
-import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -200,7 +200,7 @@ public class ScrollBehavior {
         // Colors with smooth transitions
         int baseAlpha = 120 + (int)(135 * scrollbarHoverAnimation);
         int handleBgColor = (baseAlpha << 24) | 0x666666;
-        int handleFgColor = ColorUtils.interpolateColor(0xFFAAAAAA, 0xFFFFFFFF, scrollbarHoverAnimation);
+        int handleFgColor = ColorHelper.Argb.lerp( scrollbarHoverAnimation,0xFFAAAAAA, 0xFFFFFFFF);
 
         // Glow effect when hovered
         if (scrollbarHoverAnimation > 0.1f) {
