@@ -114,7 +114,7 @@ public final class PlayerInfoScreen extends Screen {
         // COMBAT POWER SECTION
         // ==========================================
         listElements.add(new ListElement(Text.translatable("mamy.info.header_combat"),
-                Mamy.id("hud/container/icon_sword")));
+                Mamy.id("hud/icon_sword")));
         listElements.add(new ListElement(Text.translatable("mamy.info.physical")));
         listElements.add(new ListElement(Text.translatable("mamy.info.melee_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.projectile_damage")));
@@ -125,7 +125,7 @@ public final class PlayerInfoScreen extends Screen {
         // PRECISION & CRITICAL SECTION
         // ==========================================
         listElements.add(new ListElement(Text.translatable("mamy.info.header_precision"),
-                Mamy.id("hud/container/icon_crosshair")));
+                Mamy.id("hud/icon_crosshair")));
         listElements.add(new ListElement(Text.translatable("mamy.info.accuracy")));
         listElements.add(new ListElement(Text.translatable("mamy.info.critical_chance")));
         listElements.add(new ListElement(Text.translatable("mamy.info.critical_damage")));
@@ -148,7 +148,7 @@ public final class PlayerInfoScreen extends Screen {
         // REGENERATION & RECOVERY SECTION
         // ==========================================
         listElements.add(new ListElement(Text.translatable("mamy.info.header_recovery"),
-                Mamy.id("hud/container/icon_heal")));
+                Mamy.id("hud/recovery")));
         listElements.add(new ListElement(Text.translatable("mamy.info.nature_health_regen")));
         listElements.add(new ListElement(Text.translatable("mamy.info.heal_effective")));
 
