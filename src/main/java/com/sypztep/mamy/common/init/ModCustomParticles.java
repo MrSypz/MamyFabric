@@ -1,8 +1,8 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.client.particle.TextParticleProvider;
 import net.minecraft.text.Text;
-import sypztep.tyrannus.client.util.TextParticleProvider;
 
 import java.awt.*;
 

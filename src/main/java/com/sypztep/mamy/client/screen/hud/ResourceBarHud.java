@@ -1,18 +1,18 @@
 package com.sypztep.mamy.client.screen.hud;
 
 import com.sypztep.mamy.client.event.hud.LevelHudRenderer;
+import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
 import com.sypztep.mamy.common.system.classes.ResourceType;
+import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
-import sypztep.tyrannus.client.util.DrawContextUtils;
-import sypztep.tyrannus.common.util.NumberUtil;
 
 @Environment(EnvType.CLIENT)
 public class ResourceBarHud {

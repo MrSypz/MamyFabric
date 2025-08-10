@@ -26,6 +26,9 @@
     ],
     "cardinal-components-entity": [
       "com.sypztep.mamy.common.init.ModEntityComponents"
+    ],
+    "modmenu": [
+      "com.sypztep.mamy.common.compat.ModMenuIntegration"
     ]
   },
   "mixins": [

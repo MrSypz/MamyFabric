@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.util.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import sypztep.tyrannus.common.util.ColorUtils;
 
 public abstract class ActionWidgetButton extends ClickableWidget {
     protected static final int DEFAULT_BG_COLOR = 0xFF2C2C2C;

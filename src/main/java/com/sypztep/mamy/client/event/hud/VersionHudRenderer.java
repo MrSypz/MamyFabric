@@ -16,7 +16,7 @@ public class VersionHudRenderer implements HudRenderCallback {
                 .getModContainer("mamy") // your mod id here
                 .map(c -> c.getMetadata().getVersion().getFriendlyString())
                 .orElse("unknown");
-        displayText = "mamy | Alpha v" + version +" nothing stable..";
+        displayText = "mamy | Alpha v" + version;
     }
 
     @Override

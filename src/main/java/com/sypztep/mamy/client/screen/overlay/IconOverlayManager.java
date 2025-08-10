@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.screen.overlay;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.sypztep.mamy.client.util.DrawContextUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -10,7 +11,6 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
-import sypztep.tyrannus.client.util.DrawContextUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen;
 
+import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
 import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ClassEvolutionPayloadC2S;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import sypztep.tyrannus.client.screen.widget.ScrollBehavior;
 
 import java.util.ArrayList;
 import java.util.Comparator;

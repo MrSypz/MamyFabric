@@ -1,15 +1,14 @@
 package com.sypztep.mamy.client.util;
 
+import com.sypztep.mamy.client.particle.TextParticleProvider;
 import com.sypztep.mamy.client.payload.AddEmitterParticlePayloadS2C;
 import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import sypztep.tyrannus.client.util.TextParticleProvider;
 
 public final class ParticleHandler {
-
     private static void send(Entity target, Entity attacker, ParticleType<?> particle, boolean self, boolean others) {
         if (target == null) return;
 

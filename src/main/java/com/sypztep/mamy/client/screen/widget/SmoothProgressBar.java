@@ -2,7 +2,6 @@ package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.ModConfig;
 import net.minecraft.client.gui.DrawContext;
-import sypztep.tyrannus.client.screen.widget.Animation;
 
 public final class SmoothProgressBar extends Animation {
     private final int barWidth;  // Width of the progress bar

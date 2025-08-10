@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.stat;
 
 import com.sypztep.mamy.common.system.level.LevelSystem;
+import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -11,7 +12,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import sypztep.tyrannus.common.util.AttributeModification;
 
 import java.util.List;
 import java.util.function.ToDoubleFunction;

@@ -1,9 +1,11 @@
 package com.sypztep.mamy.client.event.hud;
 
+import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
+import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -11,8 +13,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import sypztep.tyrannus.client.util.DrawContextUtils;
-import sypztep.tyrannus.common.util.NumberUtil;
 
 import java.util.Optional;
 
@@ -111,6 +111,8 @@ public final class LevelHudRenderer implements HudRenderCallback {
         lastClassLevel = classLevel;
     }
 
+    // Replace the updateAnimations method in LevelHudRenderer with this fixed version:
+
     private void updateAnimations(long currentXp, long xpToNext, boolean isMaxLevel,
                                   long currentClassXp, long classXpToNext, boolean isMaxClassLevel, float deltaTime) {
         // Main XP progress animation
@@ -118,7 +120,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         float lerpSpeed = 0.08f;
         animatedXpProgress = MathHelper.lerp(lerpSpeed, animatedXpProgress, targetProgress);
 
-        // Class XP progress animation ⭐ เพิ่มใหม่
+        // Class XP progress animation
         float targetClassProgress = isMaxClassLevel ? 1.0f : (float) ((double) currentClassXp / (double) classXpToNext);
         animatedClassProgress = MathHelper.lerp(lerpSpeed, animatedClassProgress, targetClassProgress);
 
@@ -128,16 +130,19 @@ public final class LevelHudRenderer implements HudRenderCallback {
             if (xpGainGlowTimer < 0) xpGainGlowTimer = 0;
         }
 
-        // Class gain glow timer countdown ⭐ เพิ่มใหม่
+        // Class gain glow timer countdown
         if (classGainGlowTimer > 0) {
             classGainGlowTimer -= deltaTime;
             if (classGainGlowTimer < 0) classGainGlowTimer = 0;
         }
 
-        // Handle auto-hide functionality
-        if (hideTimer > 0) {
+        // Handle auto-hide functionality - THIS IS THE FIX
+        if (shouldBeVisible && hideTimer > 0) {
             hideTimer -= deltaTime;
-            if (hideTimer <= 0) shouldBeVisible = false;
+            if (hideTimer <= 0) {
+                shouldBeVisible = false; // Properly set to false when timer expires
+                hideTimer = 0; // Reset timer
+            }
         }
 
         // Calculate target slide offset

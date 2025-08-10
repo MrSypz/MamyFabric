@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.registry.entry.RegistryEntry;
-import sypztep.tyrannus.common.util.AttributeModification;
+import com.sypztep.mamy.common.util.AttributeModification;
 
 public abstract class PassiveSkill extends Skill {
     protected final List<AttributeModification> attributeModifications;

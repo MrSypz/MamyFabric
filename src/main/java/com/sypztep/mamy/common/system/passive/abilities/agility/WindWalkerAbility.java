@@ -8,7 +8,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import sypztep.tyrannus.common.util.AttributeModification;
+import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 

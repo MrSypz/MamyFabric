@@ -7,7 +7,7 @@ import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import sypztep.tyrannus.common.util.AttributeModification;
+import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 

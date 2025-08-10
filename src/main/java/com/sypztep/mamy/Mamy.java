@@ -46,6 +46,5 @@ public class Mamy implements ModInitializer {
         DeathPenaltyEvent.register();
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyMobExpReloadListener());
-
     }
 }

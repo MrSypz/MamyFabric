@@ -16,6 +16,9 @@ public interface ModClasses {
     PlayerClass NOVICE = register(PlayerClass
             .create("novice", 0, 0, "Novice", Formatting.GRAY, ResourceType.MANA,
                     "A beginning adventurer with no specialized skills")
+            .attributes(Map.of(
+                    EntityAttributes.GENERIC_MAX_HEALTH, 10.0
+                    ))
             .maxLevel(10)
             .build());
 
@@ -25,8 +28,8 @@ public interface ModClasses {
                     "A warrior who has chosen the path of the sword")
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
-                    EntityAttributes.GENERIC_ARMOR, 2.0,
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.10
+                    EntityAttributes.GENERIC_ARMOR, 4.0,
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15
             ))
             .growthFactors(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.12),
