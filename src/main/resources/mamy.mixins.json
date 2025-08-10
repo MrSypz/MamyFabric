@@ -10,7 +10,6 @@
     "core.fixprojectile.PersistentProjectileEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
     "core.registry.attribute.LivingEntityMixin",
-    "vanilla.passive.LivingEntityMixin",
     "vanilla.passive.ProjectileEntityMixin",
     "vanilla.stats.agility.projectileclip.PersistentProjectileEntityMixin",
     "vanilla.stats.agility.projectileclip.TridentEntityMixin",
@@ -21,7 +20,6 @@
   "client": [
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
-    "vanilla.passive.client.LivingEntityRendererMixin",
     "vanilla.stats.strength.client.ItemStackMixin"
   ],
   "injectors": {
