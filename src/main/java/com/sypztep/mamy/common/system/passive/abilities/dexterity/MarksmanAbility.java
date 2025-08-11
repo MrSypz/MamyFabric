@@ -22,7 +22,13 @@ public class MarksmanAbility extends PassiveAbility {
                 ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
                 Mamy.id("marksman"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 2.5
+                baseValue -> 4.0
+        ));
+        addAttributeEffect(new AttributeModification(
+                ModEntityAttributes.HEADSHOT_DAMAGE,
+                Mamy.id("marksman"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 2.0
         ));
     }
 
@@ -33,6 +39,8 @@ public class MarksmanAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("+2.5 Projectile Damage");
+        return TextStyleHelper.autoStyle(
+                "+4.0 Projectile Damage Persistent projectiles bypass target invulnerability frames, And shots to the head, deal 2x damage, enabling repeated damage."
+        );
     }
 }

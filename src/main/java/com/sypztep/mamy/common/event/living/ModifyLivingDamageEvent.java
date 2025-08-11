@@ -4,6 +4,7 @@ import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.ModCustomParticles;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.util.DamageUtil;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
@@ -20,8 +21,8 @@ public final class ModifyLivingDamageEvent implements DominatusLivingEntityEvent
         if (entity.getWorld().isClient()) return amount;
         if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit)
             LivingEntityUtil.playCriticalSound(projectile);
-        if (ModEntityComponents.HEADSHOT.get(entity).isHeadShot() && source.getSource() instanceof PersistentProjectileEntity) {
-            amount = amount * 5;
+        if (ModEntityComponents.HEADSHOT.get(entity).isHeadShot() && source.getSource() instanceof PersistentProjectileEntity && source.getAttacker() instanceof LivingEntity attacker) {
+            amount *= (float) attacker.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE);
             ModEntityComponents.HEADSHOT.get(entity).setHeadShot(false);
             ParticleHandler.sendToAll(entity, source.getSource(), ModCustomParticles.HEADSHOT);
         }

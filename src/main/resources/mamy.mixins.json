@@ -9,6 +9,7 @@
     "core.damage.DamageUtilMixin",
     "core.fixprojectile.PersistentProjectileEntityMixin",
     "core.passive.headhunter.PersistentProjectileEntityMixin",
+    "core.passive.marksman.LivingEntityMixin",
     "core.passive.shadowstep.PlayerEntityMixin",
     "core.passive.windwalker.LivingEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",

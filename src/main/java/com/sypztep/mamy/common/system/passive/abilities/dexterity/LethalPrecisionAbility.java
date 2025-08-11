@@ -22,14 +22,14 @@ public class LethalPrecisionAbility extends PassiveAbility {
                 ModEntityAttributes.CRIT_DAMAGE,
                 Mamy.id("lethal_precision_crit"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.1 // +10% crit chance
+                baseValue -> 0.15 // +15% crit chance
         ));
 
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.ACCURACY,
                 Mamy.id("lethal_precision_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 15.0
+                baseValue -> 25.0
         ));
     }
 
@@ -40,6 +40,6 @@ public class LethalPrecisionAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Increases critical damage by +10% and +15 accuracy ");
+        return TextStyleHelper.autoStyle("Increases critical damage by +15% and +25 accuracy ");
     }
 }

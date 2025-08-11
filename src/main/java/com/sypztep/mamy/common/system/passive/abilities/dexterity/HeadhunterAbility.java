@@ -25,6 +25,12 @@ public class HeadhunterAbility extends PassiveAbility {
                 EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> 40.0
         ));
+        addAttributeEffect(new AttributeModification(
+                ModEntityAttributes.HEADSHOT_DAMAGE,
+                Mamy.id("headhunter_accuracy"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 2
+        ));
     }
 
     @Override
@@ -34,6 +40,6 @@ public class HeadhunterAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Precision shots to the head, Explode ande deal 5x target max health and bleeding to dead. +40 Accuracy");
+        return TextStyleHelper.autoStyle("Precision shots to the head, deal 2x damage. +40 Accuracy");
     }
 }
