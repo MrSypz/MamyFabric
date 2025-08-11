@@ -133,12 +133,7 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
     }
 
     public void initialize() {
-        classManager.initialize();
-        sync();
-    }
-
-    public void handleRespawn() {
-        performBatchUpdate(classManager::handleRespawn);
+        performBatchUpdate(classManager::initialize);
     }
 
     // ====================

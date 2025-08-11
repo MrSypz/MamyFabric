@@ -275,19 +275,23 @@ public class PlayerClass {
      * Get max resource from player's current RESOURCE attribute value
      */
     public float getMaxResource(PlayerEntity player) {
-        if (player == null) return getMaxResource();
+        if (player == null) {
+//            Mamy.LOGGER.info("[PlayerClass] Using GetMaxReSource But Can't get player fallback to resource 200");
+            return getBaseMaxResource();
+        }
         return (float) player.getAttributeValue(ModEntityAttributes.RESOURCE);
     }
 
     /**
-     * Get max resource without player context (for display/calculation)
+     * Get base max resource calculation (class base + class bonus only)
+     * Use this for UI display when player context isn't available
      */
-    public float getMaxResource() {
+    public float getBaseMaxResource() {
+//        Mamy.LOGGER.info("[PlayerClass] Can't get player fallback to resource 200");
         double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
         double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
         return (float) (baseResource + classBonus);
     }
-
     public void applyAttributeModifiers(LivingEntity entity) {
         // Get current class level
         int classLevel = 1; // Default level

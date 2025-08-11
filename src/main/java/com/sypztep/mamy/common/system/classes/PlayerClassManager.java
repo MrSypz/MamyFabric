@@ -41,7 +41,7 @@ public class PlayerClassManager {
         this.player = player;
         this.currentClass = ClassRegistry.getDefaultClass(); // NOVICE
         this.classLevelSystem = new ClassLevelSystem(player, currentClass);
-        this.currentResource = currentClass.getMaxResource();
+        this.currentResource = currentClass.getBaseMaxResource();
         this.hasTranscended = false;
         this.skillManager = new ClassSkillManager(player);
 
@@ -189,7 +189,7 @@ public class PlayerClassManager {
         currentClass.applyAttributeModifiers(player);
 
         // Reset resource to full
-        currentResource = targetClass.getMaxResource();
+        currentResource = targetClass.getMaxResource(player);
 
         // Reset all stats to base values (transcendence resets everything)
         resetAllStatsForTranscendence();
@@ -218,7 +218,7 @@ public class PlayerClassManager {
         currentClass = newClass;
         classLevelSystem.updateForClass(currentClass);
         currentClass.applyAttributeModifiers(player);
-        currentResource = currentClass.getMaxResource();
+        currentResource = currentClass.getMaxResource(player);
         applyJobBonusesToStats(player);
     }
 
@@ -317,7 +317,7 @@ public class PlayerClassManager {
     }
 
     public void setCurrentResource(float amount) {
-        this.currentResource = Math.max(0, Math.min(getMaxResource(), amount));
+        this.currentResource = Math.clamp(amount,0,getMaxResource());
     }
 
     public boolean useResource(float amount) {
@@ -415,17 +415,9 @@ public class PlayerClassManager {
     public void initialize() {
         if (currentClass != null) {
             currentClass.applyAttributeModifiers(player);
-            currentResource = Math.min(currentResource, getMaxResource());
             skillManager.reapplyPassiveSkills();
+            currentResource = Math.min(currentResource, this.getMaxResource());
         }
-    }
-
-    /**
-     * Handle respawn - reapply class effects
-     */
-    public void handleRespawn() {
-        initialize();
-        currentResource = getMaxResource() * 0.1f; // 10% resource on respawn
     }
 
     // ====================
@@ -453,26 +445,22 @@ public class PlayerClassManager {
     public void readFromNbt(NbtCompound nbt) {
         String classId = nbt.getString("CurrentClass");
         PlayerClass loadedClass = ClassRegistry.getClass(classId);
-        if (loadedClass != null) {
-            currentClass = loadedClass;
-        } else {
-            currentClass = ClassRegistry.getDefaultClass();
-        }
+        currentClass = loadedClass != null ? loadedClass : ClassRegistry.getDefaultClass();
 
         hasTranscended = nbt.getBoolean("HasTranscended");
 
         classLevelSystem.updateForClass(currentClass);
         classLevelSystem.readFromNbt(nbt);
 
-        // Load resource state
+        // Load resource state - DON'T clamp yet!
         currentResource = nbt.getFloat("CurrentResource");
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
 
         idleTicks = nbt.getInt("IdleTicks");
         isIdle = nbt.getBoolean("IsIdle");
 
-        // Ensure resource is within valid bounds
-        currentResource = Math.min(currentResource, getMaxResource());
+        // REMOVE THIS LINE - clamp later after attributes are loaded
+        // currentResource = Math.min(currentResource, getMaxResource());
 
         if (nbt.contains("ClassSkills")) {
             skillManager.readFromNbt(nbt.getCompound("ClassSkills"));
@@ -501,9 +489,9 @@ public class PlayerClassManager {
     }
 
     public int getEvolutionRequiredLevel() {
-        if (currentClass.getTier() == 0) { // Tier 0 = Novice
+        if (currentClass.getTier() == 0)  // Tier 0 = Novice
             return currentClass.getMaxLevel();
-        }
+
         return 45;
     }
     public boolean reachCap() {

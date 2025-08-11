@@ -11,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public final class InitPlayerClassEvent implements ServerPlayerEvents.AfterRespawn, ServerPlayConnectionEvents.Join {
     private static final InitPlayerClassEvent INSTANCE = new InitPlayerClassEvent();
+
     public static void register() {
         ServerPlayerEvents.AFTER_RESPAWN.register(INSTANCE);
         ServerPlayConnectionEvents.JOIN.register(INSTANCE);
@@ -19,7 +20,7 @@ public final class InitPlayerClassEvent implements ServerPlayerEvents.AfterRespa
     @Override
     public void afterRespawn(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(newPlayer);
-        classComponent.handleRespawn();
+        classComponent.initialize(); // Replace  classComponent.handleRespawn();
     }
 
     @Override
