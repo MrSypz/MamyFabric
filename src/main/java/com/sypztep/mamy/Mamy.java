@@ -8,7 +8,9 @@ import com.sypztep.mamy.common.event.player.*;
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.util.MultiHitSystem;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -42,6 +44,7 @@ public class Mamy implements ModInitializer {
         InitPlayerClassEvent.register();
         PlayerDisconnectCleanupEvent.register();
         DeathPenaltyEvent.register();
+        ServerTickEvents.START_SERVER_TICK.register(MultiHitSystem::tick);
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyMobExpReloadListener());
     }
