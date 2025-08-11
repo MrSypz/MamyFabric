@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.novice.FirstAidSkill;
 import com.sypztep.mamy.common.system.skill.swordman.BloodlustSkill;
 import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
+import com.sypztep.mamy.common.system.skill.thief.passive.DoubleAttackPassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -16,6 +17,7 @@ public class SkillRegistry {
     public static final Identifier FIRSTAID = Mamy.id("first_aid");
 //    public static final Identifier BLOODLUST = Mamy.id("bloodlust");
 //    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
+//    public static final Identifier DOUBLE_ATTACK = Mamy.id("double_attack");
 //    public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
 //    public static final Identifier FIREBALL = Mamy.id("fireball");
 //    public static final Identifier HEALING_LIGHT = Mamy.id("healing_light");
@@ -29,6 +31,7 @@ public class SkillRegistry {
         register(new FirstAidSkill(FIRSTAID));
 //        register(new BloodlustSkill(BLOODLUST));
 //        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
+//        register(new DoubleAttackPassiveSkill(DOUBLE_ATTACK));
         // register(new ShieldBashSkill());
         // register(new FireballSkill());
         // register(new HealingLightSkill());
