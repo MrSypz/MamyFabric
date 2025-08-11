@@ -1,18 +1,15 @@
 package com.sypztep.mamy.mixin.core.critevasion;
 
-import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
 import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.MissingAccessor;
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.init.ModCustomParticles;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
