@@ -11,6 +11,7 @@
     "core.registry.attribute.EntityAttributesMixin",
     "core.registry.attribute.LivingEntityMixin",
     "vanilla.passive.headhunter.ProjectileEntityMixin",
+    "vanilla.passive.shadowstep.PlayerEntityMixin",
     "vanilla.passive.windwalker.LivingEntityMixin",
     "vanilla.stats.agility.projectileclip.PersistentProjectileEntityMixin",
     "vanilla.stats.agility.projectileclip.TridentEntityMixin",
