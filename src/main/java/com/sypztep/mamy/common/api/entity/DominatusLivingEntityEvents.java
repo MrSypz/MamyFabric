@@ -13,9 +13,20 @@ public final class DominatusLivingEntityEvents {
         }
         return amount;
     });
+    public static final Event<PostArmorDamage> POST_ARMOR_DAMAGE = EventFactory.createArrayBacked(PostArmorDamage.class, callbacks -> (entity, source, amount, isCrit) -> {
+        for (PostArmorDamage callback : callbacks) {
+            amount = callback.postModifyDamage(entity, source, amount, isCrit);
+            if (amount <= 0.0f) return 0.0f;
+        }
+        return amount;
+    });
 
     @FunctionalInterface
     public interface PreArmorDamage {
         float preModifyDamage(LivingEntity entity, DamageSource source, float amount, boolean isCrit);
+    }
+    @FunctionalInterface
+    public interface PostArmorDamage {
+        float postModifyDamage(LivingEntity entity, DamageSource source, float amount, boolean isCrit);
     }
 }

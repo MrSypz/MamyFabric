@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.passive;
+package com.sypztep.mamy.mixin.vanilla.passive.headhunter;
 
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
@@ -18,8 +18,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity {

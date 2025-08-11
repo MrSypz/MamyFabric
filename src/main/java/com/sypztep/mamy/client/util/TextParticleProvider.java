@@ -1,5 +1,6 @@
-package com.sypztep.mamy.client.particle;
+package com.sypztep.mamy.client.util;
 
+import com.sypztep.mamy.client.particle.TextParticle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

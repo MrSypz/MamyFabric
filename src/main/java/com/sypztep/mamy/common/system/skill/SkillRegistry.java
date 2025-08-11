@@ -14,8 +14,8 @@ public class SkillRegistry {
 
     // Static skill IDs
     public static final Identifier FIRSTAID = Mamy.id("first_aid");
-    public static final Identifier BLOODLUST = Mamy.id("bloodlust");
-    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
+//    public static final Identifier BLOODLUST = Mamy.id("bloodlust");
+//    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
 //    public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
 //    public static final Identifier FIREBALL = Mamy.id("fireball");
 //    public static final Identifier HEALING_LIGHT = Mamy.id("healing_light");
@@ -27,8 +27,8 @@ public class SkillRegistry {
 
     public static void registerSkills() {
         register(new FirstAidSkill(FIRSTAID));
-        register(new BloodlustSkill(BLOODLUST));
-        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
+//        register(new BloodlustSkill(BLOODLUST));
+//        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
         // register(new ShieldBashSkill());
         // register(new FireballSkill());
         // register(new HealingLightSkill());

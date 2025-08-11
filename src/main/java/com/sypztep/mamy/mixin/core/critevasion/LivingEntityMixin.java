@@ -1,15 +1,18 @@
 package com.sypztep.mamy.mixin.core.critevasion;
 
-import com.sypztep.mamy.client.particle.TextParticleProvider;
+import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
+import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.MissingAccessor;
 import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.init.ModCustomParticles;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,7 +36,6 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
     @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isSleeping()Z"), cancellable = true)
     private void allowDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return;
-
         if (!LivingEntityUtil.isHitable(target, source)) return;
         isHit = LivingEntityUtil.hitCheck(attacker, target);
         if (!isHit) {
@@ -48,6 +50,12 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
         isCrit = LivingEntityUtil.isCrit(attacker);
         return DominatusLivingEntityEvents.PRE_ARMOR_DAMAGE.invoker().preModifyDamage(target, source, amount, isCrit);
+    }
+    @ModifyVariable(method = "modifyAppliedDamage", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/enchantment/EnchantmentHelper;getProtectionAmount(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/damage/DamageSource;)F"), argsOnly = true)
+    private float applyPostArmorDamageModification(float amount, DamageSource source) {
+        if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
+        isCrit = LivingEntityUtil.isCrit(attacker);
+        return DominatusLivingEntityEvents.POST_ARMOR_DAMAGE.invoker().postModifyDamage(target, source, amount, isCrit);
     }
 
     @Override

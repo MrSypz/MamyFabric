@@ -54,4 +54,13 @@ public final class LivingEntityUtil {
 
         return false;
     }
+    public static boolean canPerformJump(LivingEntity entity) {
+        if (entity.isFallFlying()) return false;
+        if (entity.getVehicle() != null) return false;
+        if (entity.isClimbing()) return false;
+
+        if (entity instanceof PlayerEntity player && player.getAbilities().flying) return false;
+
+        return (!entity.isTouchingWater() && !entity.isSwimming());
+    }
 }

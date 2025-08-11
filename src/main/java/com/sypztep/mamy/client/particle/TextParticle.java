@@ -112,8 +112,8 @@ public final class TextParticle extends Particle {
                 .scale(scale, scale, scale);
 
         Vector3f offset = new Vector3f(0.0f, 0.0f, 0.03f);
-        int textColor = new Color(clamp(red, 0.0f, 1.0f), clamp(green, 0.0f, 1.0f), clamp(blue, 0.0f, 1.0f), clamp(alpha, 0.1f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
-        int textBorderColor = new Color(clamp(red, 0.0f, 0.0f), clamp(green, 0.0f, 0.0f), clamp(blue, 0.0f, 0.0f), clamp(alpha, 0.1f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
+        int textColor = new Color(clamp(red, 0.0f, 1.0f), clamp(green, 0.0f, 1.0f), clamp(blue, 0.0f, 1.0f), clamp(alpha, 0.001f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
+        int textBorderColor = new Color(clamp(red, 0.0f, 0.0f), clamp(green, 0.0f, 0.0f), clamp(blue, 0.0f, 0.0f), clamp(alpha, 0.001f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
 
         for (int[] pos : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
             matrix.translate(offset);

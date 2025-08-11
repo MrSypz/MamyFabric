@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.living.*;
+import com.sypztep.mamy.common.component.living.ability.PhantomWalkerComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -19,6 +20,9 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<PlayerStanceComponent> PLAYERSTANCE = ComponentRegistry.getOrCreate(Mamy.id("playerstance"), PlayerStanceComponent.class);
     public static final ComponentKey<HeadShotEntityComponent> HEADSHOT = ComponentRegistry.getOrCreate(Mamy.id("headshot"), HeadShotEntityComponent.class);
 
+    public static final ComponentKey<PhantomWalkerComponent> PHANTOMWALKER = ComponentRegistry.getOrCreate(Mamy.id("phantomwalker"), PhantomWalkerComponent.class);
+
+
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.beginRegistration(LivingEntity.class, LIVINGLEVEL).respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(LivingLevelComponent::new);
@@ -26,5 +30,6 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerFor(MobEntity.class, DAMAGETRACKER, entity -> new DamageTrackerComponent());
         registry.registerFor(LivingEntity.class, HEADSHOT, HeadShotEntityComponent::new);
         registry.registerForPlayers(PLAYERSTANCE, PlayerStanceComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerFor(PlayerEntity.class, PHANTOMWALKER, PhantomWalkerComponent::new);
     }
 }

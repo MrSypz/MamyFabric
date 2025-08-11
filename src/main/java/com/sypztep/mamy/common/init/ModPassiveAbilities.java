@@ -22,6 +22,8 @@ public interface ModPassiveAbilities {
     PassiveAbility PRECISION_STRIKES = register(new PrecisionStrikesAbility("precision_strikes", Map.of(StatTypes.DEXTERITY, 10)));
     PassiveAbility HEADHUNTER = register(new HeadhunterAbility("headhunter",Map.of(StatTypes.DEXTERITY, 20)));
     PassiveAbility STEADY_AIM = register(new SteadyAimAbility("steady_aim", Map.of(StatTypes.DEXTERITY, 30)));
+    PassiveAbility MARKS_MAN = register(new MarksmanAbility("marks_man", Map.of(StatTypes.DEXTERITY, 50)));
+    PassiveAbility LETHAL_PRECISION = register(new LethalPrecisionAbility("lethal_precision", Map.of(StatTypes.DEXTERITY, 75)));
 
     // === VITALITY ABILITIES ===
 

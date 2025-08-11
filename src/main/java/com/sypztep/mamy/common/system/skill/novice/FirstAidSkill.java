@@ -17,7 +17,7 @@ public class FirstAidSkill extends Skill {
 
     public FirstAidSkill(Identifier identifier) {
         super(identifier, "First Aid", "Heal yourself and nearby allies",
-                10f, 3f, ModClasses.NOVICE, 0, 1, 5, true, Mamy.id("skill/first_aid"));
+                10f, 3f, ModClasses.NOVICE, 0, 1, 10, true, Mamy.id("skill/first_aid"));
     }
 
     @Override
