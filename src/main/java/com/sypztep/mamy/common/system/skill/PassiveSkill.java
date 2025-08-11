@@ -112,9 +112,10 @@ public abstract class PassiveSkill extends Skill {
     }
 
     @Override
-    public void use(LivingEntity caster, int skillLevel) {
+    public boolean use(LivingEntity caster, int skillLevel) {
         // Passive skills don't have an active use
         // This method shouldn't be called for passive skills
+        return false;
     }
 
     @Override

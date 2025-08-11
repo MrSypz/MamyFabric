@@ -41,8 +41,8 @@ public class BloodlustSkill extends Skill {
     }
 
     @Override
-    public void use(LivingEntity caster, int level) {
-        if (!(caster instanceof PlayerEntity player)) return;
+    public boolean use(LivingEntity caster, int level) {
+        if (!(caster instanceof PlayerEntity player)) return false;
 
         if (!player.getWorld().isClient) {
             SkillConfig config = createBloodlustConfig(level, caster);
@@ -51,6 +51,7 @@ public class BloodlustSkill extends Skill {
             bloodLust.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, 0.7F, 0.0F);
             player.getWorld().spawnEntity(bloodLust);
         }
+        return true;
     }
 
     private SkillConfig createBloodlustConfig(int skillLevel, LivingEntity caster) {

@@ -39,8 +39,8 @@ public class FirstAidSkill extends Skill {
     }
 
     @Override
-    public void use(LivingEntity caster, int skillLevel) {
-        if (!(caster instanceof PlayerEntity player)) return;
+    public boolean use(LivingEntity caster, int skillLevel) {
+        if (!(caster instanceof PlayerEntity player)) return false;
 
         // Calculate healing based on player's magic attack damage attribute
         double magicAttackDamage = player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE);
@@ -74,6 +74,7 @@ public class FirstAidSkill extends Skill {
         player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS,
                 0.3f + (skillLevel * 0.1f), 1.2f + (skillLevel * 0.1f));
+        return true;
     }
 
     @Override

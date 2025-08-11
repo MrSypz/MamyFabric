@@ -10,15 +10,16 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-public record SkillCooldownPayloadS2C(Identifier skillId, float cooldownSeconds) implements CustomPayload {
-    public static final CustomPayload.Id<SkillCooldownPayloadS2C> ID = new Id<>(Mamy.id("skill_cooldown"));
+public record SkillCooldownPayloadS2C(Identifier skillId, long cooldownEndTime) implements CustomPayload {
+    public static final CustomPayload.Id<SkillCooldownPayloadS2C> ID =
+            new Id<>(Mamy.id("skill_cooldown"));
 
     public static final PacketCodec<PacketByteBuf, SkillCooldownPayloadS2C> CODEC = PacketCodec.of(
             (value, buf) -> {
                 buf.writeIdentifier(value.skillId);
-                buf.writeFloat(value.cooldownSeconds);
+                buf.writeLong(value.cooldownEndTime);
             },
-            buf -> new SkillCooldownPayloadS2C(buf.readIdentifier(), buf.readFloat())
+            buf -> new SkillCooldownPayloadS2C(buf.readIdentifier(), buf.readLong())
     );
 
     @Override
@@ -26,14 +27,14 @@ public record SkillCooldownPayloadS2C(Identifier skillId, float cooldownSeconds)
         return ID;
     }
 
-    public static void send(ServerPlayerEntity player, Identifier skillId, float cooldownSeconds) {
-        ServerPlayNetworking.send(player, new SkillCooldownPayloadS2C(skillId, cooldownSeconds));
+    public static void send(ServerPlayerEntity player, Identifier skillId, long cooldownEndTime) {
+        ServerPlayNetworking.send(player, new SkillCooldownPayloadS2C(skillId, cooldownEndTime));
     }
 
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<SkillCooldownPayloadS2C> {
         @Override
         public void receive(SkillCooldownPayloadS2C payload, ClientPlayNetworking.Context context) {
-            ClientSkillCooldowns.setCooldown(payload.skillId(), payload.cooldownSeconds());
+            ClientSkillCooldowns.setCooldown(payload.skillId(), payload.cooldownEndTime());
         }
     }
 }

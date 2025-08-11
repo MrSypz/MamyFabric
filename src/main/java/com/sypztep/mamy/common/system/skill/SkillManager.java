@@ -19,7 +19,7 @@ public class SkillManager {
     private static final Map<String, Map<Identifier, Long>> PLAYER_COOLDOWNS = new HashMap<>();
 
     public static void useSkill(PlayerEntity player, Identifier skillId) {
-        if (!(player instanceof ServerPlayerEntity serverPlayer)) return;
+        if (!(player instanceof ServerPlayerEntity)) return;
 
         Skill skill = SkillRegistry.getSkill(skillId);
         if (skill == null) {
@@ -72,14 +72,12 @@ public class SkillManager {
             return;
         }
 
-        // Use level-based cooldown
-        float cooldown = skill.getCooldown(skillLevel);
-        setCooldown(player, skillId, cooldown);
+        boolean bl1 = skill.use(player, skillLevel);
 
-        SkillCooldownPayloadS2C.send(serverPlayer, skillId, cooldown);
-
-        // Execute skill with level
-        skill.use(player, skillLevel);
+        if (bl1) {
+            float cooldown = skill.getCooldown(skillLevel);
+            setCooldown(player, skillId, cooldown);
+        }
 
         // Success message with skill level
         player.sendMessage(Text.literal("Used " + skill.getName() + " (Level " + skillLevel + ")")
@@ -121,6 +119,9 @@ public class SkillManager {
 
         PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>())
                 .put(skillId, endTime);
+
+        if (player instanceof ServerPlayerEntity serverPlayer)
+            SkillCooldownPayloadS2C.send(serverPlayer, skillId, endTime);
     }
 
     public static void cleanupPlayer(String playerId) {

@@ -264,7 +264,7 @@ public abstract class Skill {
     // ============================================================================
 
     public abstract boolean canUse(LivingEntity caster, int skillLevel);
-    public abstract void use(LivingEntity caster, int skillLevel);
+    public abstract boolean use(LivingEntity caster, int skillLevel);
     public abstract boolean isAvailableForClass(PlayerClass playerClass);
 
     public float getResourceCost(int skillLevel) {

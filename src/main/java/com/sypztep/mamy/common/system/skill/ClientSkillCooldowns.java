@@ -10,23 +10,21 @@ import java.util.Map;
 public class ClientSkillCooldowns {
     private static final Map<Identifier, Long> cooldowns = new HashMap<>();
 
-    public static void setCooldown(Identifier skillId, float seconds) {
-        if (seconds <= 0) cooldowns.remove(skillId);
-         else cooldowns.put(skillId, System.currentTimeMillis() + (long)(seconds * 1000));
+    // Store the server cooldown end time (epoch millis)
+    public static void setCooldown(Identifier skillId, long cooldownEndTime) {
+        if (cooldownEndTime <= System.currentTimeMillis()) {
+            cooldowns.remove(skillId);
+        } else {
+            cooldowns.put(skillId, cooldownEndTime);
+        }
     }
 
+    // Returns remaining seconds of cooldown or 0 if expired
     public static float getRemaining(Identifier skillId) {
         Long endTime = cooldowns.get(skillId);
-        if (endTime == null) return 0.0f;
-
-        long remaining = endTime - System.currentTimeMillis();
-        if (remaining <= 0) {
-            cooldowns.remove(skillId);
-            return 0.0f;
-        }
-        return remaining * 0.0001f;
+        if (endTime == null) return 0f;
+        return Math.max(0f, (endTime - System.currentTimeMillis()) / 1000f);
     }
-
     public static void clear() {
         cooldowns.clear();
     }
