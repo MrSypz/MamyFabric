@@ -8,22 +8,23 @@
     "core.critevasion.PlayerEntityMixin",
     "core.damage.DamageUtilMixin",
     "core.fixprojectile.PersistentProjectileEntityMixin",
+    "core.passive.headhunter.ProjectileEntityMixin",
+    "core.passive.shadowstep.PlayerEntityMixin",
+    "core.passive.windwalker.LivingEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
     "core.registry.attribute.LivingEntityMixin",
-    "vanilla.passive.headhunter.ProjectileEntityMixin",
-    "vanilla.passive.shadowstep.PlayerEntityMixin",
-    "vanilla.passive.windwalker.LivingEntityMixin",
-    "vanilla.stats.agility.projectileclip.PersistentProjectileEntityMixin",
-    "vanilla.stats.agility.projectileclip.TridentEntityMixin",
-    "vanilla.stats.dexterity.RangedWeaponItemMixin",
-    "vanilla.stats.vitality.HungerManagerMixin",
-    "vanilla.stats.vitality.LivingEntityMixin"
+    "core.stats.agility.projectileclip.PersistentProjectileEntityMixin",
+    "core.stats.agility.projectileclip.TridentEntityMixin",
+    "core.stats.dexterity.RangedWeaponItemMixin",
+    "core.stats.vitality.HungerManagerMixin",
+    "core.stats.vitality.LivingEntityMixin"
   ],
   "client": [
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
-    "vanilla.stats.dexterity.ClientPlayerEntityMixin",
-    "vanilla.stats.strength.client.ItemStackMixin"
+    "core.classes.PlayerEntityMixin",
+    "core.stats.dexterity.ClientPlayerEntityMixin",
+    "core.stats.strength.client.ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
