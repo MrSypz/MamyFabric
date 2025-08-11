@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
+import com.sypztep.mamy.client.payload.SkillCooldownPayloadS2C;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.ClassSkillManager;
@@ -18,7 +19,7 @@ public class SkillManager {
     private static final Map<String, Map<Identifier, Long>> PLAYER_COOLDOWNS = new HashMap<>();
 
     public static void useSkill(PlayerEntity player, Identifier skillId) {
-        if (!(player instanceof ServerPlayerEntity)) return;
+        if (!(player instanceof ServerPlayerEntity serverPlayer)) return;
 
         Skill skill = SkillRegistry.getSkill(skillId);
         if (skill == null) {
@@ -75,31 +76,14 @@ public class SkillManager {
         float cooldown = skill.getCooldown(skillLevel);
         setCooldown(player, skillId, cooldown);
 
+        SkillCooldownPayloadS2C.send(serverPlayer, skillId, cooldown);
+
         // Execute skill with level
         skill.use(player, skillLevel);
 
         // Success message with skill level
         player.sendMessage(Text.literal("Used " + skill.getName() + " (Level " + skillLevel + ")")
                 .formatted(Formatting.GREEN), true);
-    }
-
-    public static float getRemainingCooldownSeconds(PlayerEntity player, Identifier skillId) {
-        String playerId = player.getUuidAsString();
-        Map<Identifier, Long> playerCooldowns = PLAYER_COOLDOWNS.get(playerId);
-
-        if (playerCooldowns == null) return 0.0f;
-
-        Long endTime = playerCooldowns.get(skillId);
-        if (endTime == null) return 0.0f;
-
-        long currentTime = System.currentTimeMillis();
-        if (currentTime >= endTime) {
-            playerCooldowns.remove(skillId);
-            return 0.0f;
-        }
-
-        // Convert remaining milliseconds to seconds
-        return (endTime - currentTime) / 1000.0f;
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
@@ -113,7 +97,12 @@ public class SkillManager {
 
         long currentTime = System.currentTimeMillis();
         if (currentTime >= endTime) {
+            // Auto cleanup when cooldown expires
             playerCooldowns.remove(skillId);
+            // Clean up empty player map
+            if (playerCooldowns.isEmpty()) {
+                PLAYER_COOLDOWNS.remove(playerId);
+            }
             return false;
         }
 
@@ -127,8 +116,6 @@ public class SkillManager {
     private static void setCooldown(PlayerEntity player, Identifier skillId, float cooldownSeconds) {
         String playerId = player.getUuidAsString();
         long currentTime = System.currentTimeMillis();
-
-        // Convert seconds to milliseconds and add to current time
         long cooldownMillis = Math.round(cooldownSeconds * 1000);
         long endTime = currentTime + cooldownMillis;
 

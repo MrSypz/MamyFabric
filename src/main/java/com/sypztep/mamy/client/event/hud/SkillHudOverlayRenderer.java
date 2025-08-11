@@ -5,8 +5,8 @@ import com.sypztep.mamy.client.ModKeyBindings;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.skill.ClientSkillCooldowns;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillManager;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
@@ -238,7 +238,7 @@ public class SkillHudOverlayRenderer {
         if (client.player == null) return;
 
         // Pass currentTick to the cooldown method
-        float remainingCooldown = SkillManager.getRemainingCooldownSeconds(client.player, skill.getId());
+        float remainingCooldown = ClientSkillCooldowns.getRemaining(skill.getId());
 
         int availableSpace = SKILL_SLOT_SIZE - 6;
         int skillLevel = classComponent.getSkillLevel(skill.getId());

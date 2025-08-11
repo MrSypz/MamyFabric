@@ -1,9 +1,6 @@
 package com.sypztep.mamy.common.init;
 
-import com.sypztep.mamy.client.payload.AddAirhikeParticlesPayloadS2C;
-import com.sypztep.mamy.client.payload.AddEmitterParticlePayloadS2C;
-import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
-import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.client.payload.*;
 import com.sypztep.mamy.common.payload.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,6 +17,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playS2C().register(AddEmitterParticlePayloadS2C.ID, AddEmitterParticlePayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(SendToastPayloadS2C.ID, SendToastPayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(AddAirhikeParticlesPayloadS2C.ID, AddAirhikeParticlesPayloadS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(SkillCooldownPayloadS2C.ID, SkillCooldownPayloadS2C.CODEC);
 
         PayloadTypeRegistry.playC2S().register(IncreaseStatsPayloadC2S.ID, IncreaseStatsPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(ToggleStancePayloadC2S.ID, ToggleStancePayloadC2S.CODEC);
@@ -48,6 +46,7 @@ public final class ModPayloads {
             ClientPlayNetworking.registerGlobalReceiver(AddEmitterParticlePayloadS2C.ID, new AddEmitterParticlePayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(SendToastPayloadS2C.ID, new SendToastPayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(AddAirhikeParticlesPayloadS2C.ID, new AddAirhikeParticlesPayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(SkillCooldownPayloadS2C.ID, new SkillCooldownPayloadS2C.Receiver());
         }
     }
 }

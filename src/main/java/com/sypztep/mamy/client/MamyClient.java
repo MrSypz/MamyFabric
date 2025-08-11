@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
@@ -31,7 +32,9 @@ public class MamyClient implements ClientModInitializer {
         SkillHudOverlayRenderer.register();
         SkillBoundingRenderer.register();
         HotbarIconOverlayRenderer.register();
+
         BowItemEvent.register();
+        SkillCooldownCleanUpEvent.register();
 
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
