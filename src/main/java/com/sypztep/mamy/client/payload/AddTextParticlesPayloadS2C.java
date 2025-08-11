@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.payload;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.TextParticleProvider;
+import com.sypztep.mamy.client.util.TextParticleRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -26,15 +27,15 @@ public record AddTextParticlesPayloadS2C(int entityId, int selector) implements 
         return ID;
     }
 
-    public static void send(ServerPlayerEntity player, int entityId, TextParticleProvider selector) {
-        ServerPlayNetworking.send(player, new AddTextParticlesPayloadS2C(entityId, selector.getId()));
+    public static void send(ServerPlayerEntity player, int entityId, TextParticleProvider provider) {
+        ServerPlayNetworking.send(player, new AddTextParticlesPayloadS2C(entityId, TextParticleRegistry.getParticleId(provider)));
     }
 
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<AddTextParticlesPayloadS2C> {
         @Override
         public void receive(AddTextParticlesPayloadS2C payload, ClientPlayNetworking.Context context) {
             Entity entity = context.player().getWorld().getEntityById(payload.entityId());
-            if (entity != null) TextParticleProvider.handleParticle(entity, payload.selector());
+            if (entity != null) TextParticleRegistry.handleParticle(entity, payload.selector());
         }
     }
 }

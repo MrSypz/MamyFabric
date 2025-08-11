@@ -5,10 +5,7 @@ import com.sypztep.mamy.common.event.living.MobDeathExperienceEvent;
 import com.sypztep.mamy.common.event.living.MobSpawnStatsEvent;
 import com.sypztep.mamy.common.event.living.ModifyLivingDamageEvent;
 import com.sypztep.mamy.common.event.player.*;
-import com.sypztep.mamy.common.init.ModCommands;
-import com.sypztep.mamy.common.init.ModEntityTypes;
-import com.sypztep.mamy.common.init.ModParticles;
-import com.sypztep.mamy.common.init.ModPayloads;
+import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.fabricmc.api.ModInitializer;
@@ -32,6 +29,7 @@ public class Mamy implements ModInitializer {
         ModCommands.init();
         ModEntityTypes.init();
         ModParticles.init();
+        ModCustomParticles.init();
 
         SkillRegistry.registerSkills();
         // EVENT
