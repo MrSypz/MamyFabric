@@ -15,7 +15,7 @@ import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import net.minecraft.util.math.MathHelper;
 
-public class BowItemEvent implements ClientTickEvents.EndTick, HudRenderCallback {
+public class  BowItemEvent implements ClientTickEvents.EndTick, HudRenderCallback {
     public static final BowItemEvent INSTANCE = new BowItemEvent();
 
     // Breath cooldown constants
@@ -101,20 +101,6 @@ public class BowItemEvent implements ClientTickEvents.EndTick, HudRenderCallback
                 bowPower * 100.0f, 100.0f, "Draw Power",
                 bowPower >= minPowerForSteady ? 0xFFAA00 : 0x888888, // Orange when ready for steady
                 false);
-
-        // Render steady window indicator - only when conditions are met
-        if (steadyWindow > 0.5f) {
-            int centerX = screenWidth / 2;
-            int centerY = screenHeight / 2;
-            int indicatorSize = 4;
-
-            // Pulsing green dot when in steady window
-            int alpha = (int) (255 * Math.sin(swayTimer * 8.0f) * 0.3f + 127);
-            int color = (alpha << 24) | 0x00FF00;
-
-            drawContext.fill(centerX - indicatorSize, centerY - indicatorSize,
-                    centerX + indicatorSize, centerY + indicatorSize, color);
-        }
     }
     private void renderStaminaBar(DrawContext drawContext, int x, int y, int width, int height,
                                   float current, float max, String label, int color, boolean isActive) {
