@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.AttributeModification;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 
@@ -34,11 +35,11 @@ public class LethalPrecisionAbility extends PassiveAbility {
 
     @Override
     public Text getDisplayName() {
-        return null;
+        return Text.literal("Lethal Precision");
     }
 
     @Override
     public Text getDescription() {
-        return null;
+        return TextStyleHelper.autoStyle("Increases critical damage by +10% and +15 accuracy ");
     }
 }

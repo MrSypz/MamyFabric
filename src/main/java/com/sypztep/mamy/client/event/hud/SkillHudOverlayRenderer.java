@@ -39,7 +39,6 @@ public class SkillHudOverlayRenderer {
 
     // Animation state
     private static float fadeOffset = 1.0f; // 0 = fully visible, 1 = fully hidden
-    private static float hideTimer = 0.0f;
     private static boolean shouldBeVisible = false;
     private static boolean lastCombatStance = false;
 
@@ -67,15 +66,7 @@ public class SkillHudOverlayRenderer {
         // Check for stance changes
         boolean currentCombatStance = stanceComponent.isInCombatStance();
         if (currentCombatStance != lastCombatStance) {
-            if (currentCombatStance) {
-                // Entering combat stance - show skill hotbar immediately
-                shouldBeVisible = true;
-                hideTimer = 0.0f; // Reset hide timer
-            } else {
-                // Exiting combat stance - hide immediately (no delay)
-                shouldBeVisible = false;
-                hideTimer = 0.0f;
-            }
+            shouldBeVisible = currentCombatStance;
             lastCombatStance = currentCombatStance;
         }
 

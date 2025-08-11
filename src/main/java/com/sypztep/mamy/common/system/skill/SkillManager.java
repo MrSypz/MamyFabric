@@ -17,9 +17,6 @@ import java.util.Map;
 public class SkillManager {
     private static final Map<String, Map<Identifier, Long>> PLAYER_COOLDOWNS = new HashMap<>();
 
-    // Minecraft runs at 20 ticks per second
-    private static final int TICKS_PER_SECOND = 20;
-
     public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
 
@@ -92,17 +89,17 @@ public class SkillManager {
 
         if (playerCooldowns == null) return 0.0f;
 
-        Long endTick = playerCooldowns.get(skillId);
-        if (endTick == null) return 0.0f;
+        Long endTime = playerCooldowns.get(skillId);
+        if (endTime == null) return 0.0f;
 
-        long currentTick = player.getWorld().getTime();
-        if (currentTick >= endTick) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime >= endTime) {
             playerCooldowns.remove(skillId);
             return 0.0f;
         }
 
-        // Convert remaining ticks to seconds
-        return (float)(endTick - currentTick) / TICKS_PER_SECOND;
+        // Convert remaining milliseconds to seconds
+        return (endTime - currentTime) / 1000.0f;
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
@@ -111,17 +108,17 @@ public class SkillManager {
 
         if (playerCooldowns == null) return false;
 
-        Long endTick = playerCooldowns.get(skillId);
-        if (endTick == null) return false;
+        Long endTime = playerCooldowns.get(skillId);
+        if (endTime == null) return false;
 
-        long currentTick = player.getWorld().getTime();
-        if (currentTick >= endTick) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime >= endTime) {
             playerCooldowns.remove(skillId);
             return false;
         }
 
-        // Convert remaining ticks to seconds for display
-        float remainingSeconds = (float)(endTick - currentTick) / TICKS_PER_SECOND;
+        // Convert remaining milliseconds to seconds for display
+        float remainingSeconds = (endTime - currentTime) / 1000.0f;
         player.sendMessage(Text.literal(String.format("Skill on cooldown for %.1f seconds",
                 remainingSeconds)).formatted(Formatting.YELLOW), true);
         return true;
@@ -129,12 +126,14 @@ public class SkillManager {
 
     private static void setCooldown(PlayerEntity player, Identifier skillId, float cooldownSeconds) {
         String playerId = player.getUuidAsString();
-        long currentTick = player.getWorld().getTime();
+        long currentTime = System.currentTimeMillis();
 
-        long cooldownTicks = Math.round(cooldownSeconds * TICKS_PER_SECOND);
+        // Convert seconds to milliseconds and add to current time
+        long cooldownMillis = Math.round(cooldownSeconds * 1000);
+        long endTime = currentTime + cooldownMillis;
 
         PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>())
-                .put(skillId, currentTick + cooldownTicks);
+                .put(skillId, endTime);
     }
 
     public static void cleanupPlayer(String playerId) {
