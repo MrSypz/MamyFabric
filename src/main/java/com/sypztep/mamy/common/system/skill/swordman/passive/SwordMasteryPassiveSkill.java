@@ -22,7 +22,7 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
                 ModClasses.SWORDMAN,
                 0, // base cost to learn
                 1, // upgrade cost per level
-                10, // max level (10 levels = +40 damage at max)
+                10, // max level (10 levels = +15 damage at max)
                 false, // not a default skill
                 Mamy.id("skill/sword_mastery") // icon
         );
@@ -34,7 +34,7 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
                 AttributeModification.addValue(
                         ModEntityAttributes.MELEE_ATTACK_DAMAGE,
                         Mamy.id("sword_mastery_damage"),
-                        skillLevel -> skillLevel * 1.5 // +4 damage per level
+                        skillLevel -> skillLevel * 1.5 // +1.5 damage per level
                 )
         );
     }
