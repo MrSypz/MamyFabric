@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.passive.windwalker;
+package com.sypztep.mamy.mixin.core.passive.windwalker;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -33,7 +33,7 @@ public abstract class LivingEntityMixin extends Entity {
         PhantomWalkerComponent phantomWalker = ModEntityComponents.PHANTOMWALKER.getNullable(this);
         double value = original.call(instance, attribute);
 
-        if (phantomWalker != null && (phantomWalker.hasAirHike() || phantomWalker.hasAirControl())) return value + (phantomWalker.getMaxJumps() - phantomWalker.getJumpsLeft()) + 16;
+        if (phantomWalker != null && (phantomWalker.hasAirHike() || phantomWalker.hasAirControl())) return value + (phantomWalker.getMaxJumps() - phantomWalker.getJumpsLeft()) + 8;
 
         return value;
     }

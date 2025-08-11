@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.passive.headhunter;
+package com.sypztep.mamy.mixin.core.passive.headhunter;
 
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;

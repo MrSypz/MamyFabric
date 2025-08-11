@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.passive.shadowstep;
+package com.sypztep.mamy.mixin.core.passive.shadowstep;
 
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;

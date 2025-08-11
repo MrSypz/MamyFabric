@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.vanilla.stats.dexterity;
+package com.sypztep.mamy.mixin.core.stats.dexterity;
 
 import com.mojang.authlib.GameProfile;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
