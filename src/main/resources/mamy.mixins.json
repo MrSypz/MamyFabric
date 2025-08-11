@@ -8,7 +8,7 @@
     "core.critevasion.PlayerEntityMixin",
     "core.damage.DamageUtilMixin",
     "core.fixprojectile.PersistentProjectileEntityMixin",
-    "core.passive.headhunter.ProjectileEntityMixin",
+    "core.passive.headhunter.PersistentProjectileEntityMixin",
     "core.passive.shadowstep.PlayerEntityMixin",
     "core.passive.windwalker.LivingEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
