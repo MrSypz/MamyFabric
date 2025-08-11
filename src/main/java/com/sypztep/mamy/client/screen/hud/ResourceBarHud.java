@@ -21,22 +21,14 @@ public class ResourceBarHud {
     private static final int HUD_Y_OFFSET = 35 ; // Offset from bottom
     private static final int BAR_WIDTH = 110;
     private static final int BAR_HEIGHT = 12;
-
     // Colors
     private static final int BACKGROUND_COLOR = 0x80000000; // Semi-transparent black
     private static final int BORDER_COLOR = 0xFF333333;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
-
     // Mana colors
     private static final int MANA_BAR_BG_COLOR = 0xFF1a1a3d;
-    private static final int MANA_BAR_COLOR = 0xFF3366FF;
-    private static final int MANA_GLOW_COLOR = 0xFF66AAFF;
-
     // Rage colors
     private static final int RAGE_BAR_BG_COLOR = 0xFF3d1a1a;
-    private static final int RAGE_BAR_COLOR = 0xFFFF3333;
-    private static final int RAGE_GLOW_COLOR = 0xFFFF6666;
-
     // Animation constants
     private static final float RESOURCE_GLOW_DURATION = 1.0f; // 1 second glow
     private static final float SLIDE_DURATION = 0.5f; // 0.5 second slide
@@ -138,9 +130,6 @@ public class ResourceBarHud {
         }
     }
 
-    /**
-     * Render the resource bar
-     */
     private void renderResourceBar(DrawContext drawContext, MinecraftClient client, PlayerClassManager manager,
                                    int hudX, int hudY, ResourceType resourceType) {
         TextRenderer textRenderer = client.textRenderer;
@@ -153,26 +142,20 @@ public class ResourceBarHud {
         int hudWidth = BAR_WIDTH + 6;
         int hudHeight = BAR_HEIGHT + textRenderer.fontHeight + 8;
 
-        // Choose colors based on resource type
-        int barBgColor, barColor, glowColor;
-        if (resourceType == ResourceType.MANA) {
-            barBgColor = MANA_BAR_BG_COLOR;
-            barColor = MANA_BAR_COLOR;
-            glowColor = MANA_GLOW_COLOR;
-        } else {
-            barBgColor = RAGE_BAR_BG_COLOR;
-            barColor = RAGE_BAR_COLOR;
-            glowColor = RAGE_GLOW_COLOR;
-        }
+        // Dynamic colors from ResourceType
+        int barColor = resourceType.getColor();
+        int glowColor = resourceType.getColorglow();
+
+        // For background, keep your original color but based on resource type (optional)
+        int barBgColor = (resourceType == ResourceType.MANA) ? MANA_BAR_BG_COLOR : RAGE_BAR_BG_COLOR;
 
         // Background panel with border
         drawContext.fill(hudX - 3, hudY - 3, hudX + hudWidth, hudY + hudHeight, BACKGROUND_COLOR);
-        drawContext.drawBorder(hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3,BACKGROUND_COLOR);
+        drawContext.drawBorder(hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3, BACKGROUND_COLOR);
 
-        // Resource type label
+        // Resource type label color dynamically from enum color
         String resourceLabel = resourceType.getDisplayName();
-        int labelColor = (resourceType == ResourceType.MANA) ? MANA_BAR_COLOR : RAGE_BAR_COLOR;
-        drawContext.drawTextWithShadow(textRenderer, resourceLabel, hudX, hudY, labelColor);
+        drawContext.drawTextWithShadow(textRenderer, resourceLabel, hudX, hudY, barColor);
 
         int barY = hudY + textRenderer.fontHeight + 2;
 
@@ -183,16 +166,12 @@ public class ResourceBarHud {
         int progressWidth = (int) (BAR_WIDTH * animatedResourceProgress);
 
         if (progressWidth > 0) {
-            // Resource gain glow effect
             if (resourceGainGlowTimer > 0) {
                 int glowAlpha = LevelHudRenderer.glowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
                 int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
-                // Glow layers
                 drawContext.fill(hudX - 2, barY - 2, hudX + progressWidth + 2, barY + BAR_HEIGHT + 2, resourceGlowColor);
                 drawContext.fill(hudX - 1, barY - 1, hudX + progressWidth + 1, barY + BAR_HEIGHT + 1, resourceGlowColor);
             }
-
-            // Main resource bar
             drawContext.fill(hudX, barY, hudX + progressWidth, barY + BAR_HEIGHT, barColor);
         }
 
@@ -202,14 +181,13 @@ public class ResourceBarHud {
         // Resource text (current/max)
         String resourceText = NumberUtil.formatNumber((long) currentResource) + "/" + NumberUtil.formatNumber((long) maxResource);
         int textX = hudX + BAR_WIDTH - textRenderer.getWidth(resourceText);
-        int textY = barY + 2; // Center vertically in bar
+        int textY = barY + 2;
         drawContext.drawTextWithShadow(textRenderer, resourceText, textX, textY, TEXT_COLOR);
 
         // Resource percentage (left side of bar)
         String percentText = String.format("%.0f%%", animatedResourceProgress * 100);
         drawContext.drawTextWithShadow(textRenderer, percentText, hudX + 2, textY, 0xFFAAAAAA);
     }
-
 
     /**
      * Force show the resource bar (for when skills are used, etc.)
