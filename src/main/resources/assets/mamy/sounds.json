@@ -10,5 +10,11 @@
       "mamy:entity/headshot"
     ],
     "subtitle": "subtitles.mamy.entity.generic.headshot"
+  },
+  "entity.generic.ricochet": {
+    "sounds": [
+      "mamy:entity/ricochet"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.ricochet"
   }
 }

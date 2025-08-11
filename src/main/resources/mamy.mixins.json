@@ -10,6 +10,7 @@
     "core.fixprojectile.PersistentProjectileEntityMixin",
     "core.passive.headhunter.PersistentProjectileEntityMixin",
     "core.passive.marksman.LivingEntityMixin",
+    "core.passive.ricochet.ProjectileEntityMixin",
     "core.passive.shadowstep.PlayerEntityMixin",
     "core.passive.windwalker.LivingEntityMixin",
     "core.registry.attribute.EntityAttributesMixin",
@@ -18,7 +19,9 @@
     "core.stats.agility.projectileclip.TridentEntityMixin",
     "core.stats.dexterity.RangedWeaponItemMixin",
     "core.stats.vitality.HungerManagerMixin",
-    "core.stats.vitality.LivingEntityMixin"
+    "core.stats.vitality.LivingEntityMixin",
+    "vanilla.coyotytime.LivingEntityMixin",
+    "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin"
   ],
   "client": [
     "core.altfeature.KeyboardMixin",

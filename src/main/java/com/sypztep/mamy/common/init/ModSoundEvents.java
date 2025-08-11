@@ -14,10 +14,9 @@ public interface ModSoundEvents {
 	//Sound
     SoundEvent ENTITY_GENERIC_BLOODHIT = createSoundEvent("entity.generic.bloodhit");
     SoundEvent ENTITY_GENERIC_HEADSHOT = createSoundEvent("entity.generic.headshot");
+    SoundEvent ENTITY_GENERIC_RICOCHET = createSoundEvent("entity.generic.ricochet");
 	static void init() {
-		SOUND_EVENTS.keySet().forEach((soundEvent) -> {
-			Registry.register(Registries.SOUND_EVENT, SOUND_EVENTS.get(soundEvent), soundEvent);
-		});
+		SOUND_EVENTS.keySet().forEach((soundEvent) -> Registry.register(Registries.SOUND_EVENT, SOUND_EVENTS.get(soundEvent), soundEvent));
 	}
 	private static SoundEvent createSoundEvent(String path) {
 		SoundEvent soundEvent = SoundEvent.of(Mamy.id(path));
