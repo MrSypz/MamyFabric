@@ -47,6 +47,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(ModTags.DamageTags.MELEE_DAMAGE)
 				.add(DamageTypes.MOB_ATTACK)          // Melee from mobs
 				.add(DamageTypes.PLAYER_ATTACK)       // Melee from players
+				.addTag(ModTags.DamageTags.DOUBLE_ATTACK)
 				.add(DamageTypes.STING);              // Bee stings (close range)
 
 		// ==========================================

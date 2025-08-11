@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ModDamageTypes {
     public static final RegistryKey<DamageType> BLOODLUST = createType("bloodlust");
-    public static final RegistryKey<DamageType> HEADSHOT = createType("headshot");
+    public static final RegistryKey<DamageType> DOUBLE_ATTACK = createType("double_attack");
     public static RegistryKey<DamageType> createType(String name) {
         return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id(name));
     }
