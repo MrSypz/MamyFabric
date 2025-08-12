@@ -374,10 +374,6 @@ public class PlayerClass {
         return desc.toString();
     }
 
-    public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {
-        return growthFactors;
-    }
-
     private Identifier getClassModifierId() {
         return Mamy.id("class_modify_" + id);
     }
@@ -389,10 +385,6 @@ public class PlayerClass {
 
     public Text getFormattedNameWithTier() {
         return Text.literal("[" + getClassCode() + "] " + displayName).formatted(color);
-    }
-
-    public Text getFormattedDescription() {
-        return Text.literal(description).formatted(Formatting.GRAY);
     }
 
     // Getters
