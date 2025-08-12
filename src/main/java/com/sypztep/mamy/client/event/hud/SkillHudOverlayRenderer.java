@@ -24,35 +24,18 @@ public class SkillHudOverlayRenderer {
     private static final int HOTBAR_MARGIN_BOTTOM = 30;
 
     // Animation constants
-    private static final float FADE_DURATION = 0.5f; // 0.5 second fade in/out
-    private static final float AUTO_HIDE_DELAY = 8.0f; // Hide after 8 seconds of non-combat
+    private static final float FADE_DURATION = 0.5f;
 
     // Minecraft hotbar textures
     private static final Identifier HOTBAR_SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/hud/hotbar.png");
     private static final Identifier HOTBAR_SELECTION_TEXTURE = Identifier.ofVanilla("hud/hotbar_selection");
 
-    // Keybinding references for display
-    private static final KeyBinding[] SKILL_KEYBINDINGS = new KeyBinding[8];
-    private static final String[] KEYBIND_DISPLAY_NAMES = {
-            "Z", "X", "C", "V", "⇧Z", "⇧X", "⇧C", "⇧V"
-    };
-
     // Animation state
-    private static float fadeOffset = 1.0f; // 0 = fully visible, 1 = fully hidden
+    private static float fadeOffset = 1.0f;
     private static boolean shouldBeVisible = false;
     private static boolean lastCombatStance = false;
 
     public static void register() {
-        // Initialize keybinding references
-        SKILL_KEYBINDINGS[0] = ModKeyBindings.SKILL_SLOT_1;
-        SKILL_KEYBINDINGS[1] = ModKeyBindings.SKILL_SLOT_2;
-        SKILL_KEYBINDINGS[2] = ModKeyBindings.SKILL_SLOT_3;
-        SKILL_KEYBINDINGS[3] = ModKeyBindings.SKILL_SLOT_4;
-        SKILL_KEYBINDINGS[4] = ModKeyBindings.SKILL_SLOT_5;
-        SKILL_KEYBINDINGS[5] = ModKeyBindings.SKILL_SLOT_6;
-        SKILL_KEYBINDINGS[6] = ModKeyBindings.SKILL_SLOT_7;
-        SKILL_KEYBINDINGS[7] = ModKeyBindings.SKILL_SLOT_8;
-
         HudRenderCallback.EVENT.register(SkillHudOverlayRenderer::render);
     }
 
@@ -91,13 +74,12 @@ public class SkillHudOverlayRenderer {
 
     private static void updateAnimations(float deltaTime) {
         float targetFadeOffset = shouldBeVisible ? 0.0f : 1.0f;
-
         float fadeSpeed = 1.0f / FADE_DURATION;
+
         if (fadeOffset != targetFadeOffset) {
             float direction = targetFadeOffset > fadeOffset ? 1.0f : -1.0f;
             fadeOffset += direction * fadeSpeed * deltaTime;
 
-            // Clamp to target
             if (direction > 0 && fadeOffset > targetFadeOffset) fadeOffset = targetFadeOffset;
             else if (direction < 0 && fadeOffset < targetFadeOffset) fadeOffset = targetFadeOffset;
         }
@@ -108,9 +90,9 @@ public class SkillHudOverlayRenderer {
         Text stanceText = stanceComponent.isInCombatStance() ?
                 Text.literal("⚔ COMBAT").formatted(Formatting.RED, Formatting.BOLD) :
                 Text.literal("✋ NORMAL").formatted(Formatting.GRAY);
-        int XPaddle = 5;
-        // Stance indicator (top right)
-        int stanceX = screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(stanceText) - XPaddle;
+        int xPadding = 5;
+
+        int stanceX = screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(stanceText) - xPadding;
         int stanceY = 10;
 
         context.drawText(MinecraftClient.getInstance().textRenderer, stanceText, stanceX, stanceY, 0xFFFFFF, true);
@@ -120,41 +102,34 @@ public class SkillHudOverlayRenderer {
         int screenWidth = context.getScaledWindowWidth();
         int screenHeight = context.getScaledWindowHeight();
 
-        // Calculate hotbar position - fit properly on screen
+        // Calculate hotbar position
         int totalHotbarHeight = 8 * SKILL_SLOT_SPACING;
         int availableHeight = screenHeight - HOTBAR_MARGIN_BOTTOM * 2;
 
-        // Ensure hotbar fits on screen
         int hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM,
                 screenHeight - HOTBAR_MARGIN_BOTTOM - totalHotbarHeight);
 
-        // Position hotbar slots at the right edge of screen with fade animation
+        // Position hotbar with fade animation
         int baseHotbarX = screenWidth - SKILL_SLOT_SIZE + 1;
-        int fadeDistance = 50; // Distance to slide in from
+        int fadeDistance = 50;
         int animatedHotbarX = baseHotbarX + (int) (fadeOffset * fadeDistance);
 
-        // Calculate overall alpha for fade effect
         float alpha = 1.0f - fadeOffset;
 
         // Get bound skills
         Identifier[] boundSkills = classComponent.getClassManager().getAllBoundSkills();
 
-        // Enable blending for proper transparency
+        // Enable blending
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-
-        // Apply global alpha for fade effect
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
 
-        // Render each skill slot vertically (only as many as fit on screen)
-        int maxSlotsToShow = 8;
-
-        for (int i = 0; i < maxSlotsToShow; i++) {
-            int slotY = hotbarStartY + (int) (i * SKILL_SLOT_SPACING * (1.0f - fadeOffset * 0.1f)); // Slight spacing animation
+        // Render skill slots
+        for (int i = 0; i < 8; i++) {
+            int slotY = hotbarStartY + (int) (i * SKILL_SLOT_SPACING * (1.0f - fadeOffset * 0.1f));
             renderSkillSlot(context, animatedHotbarX, slotY, i, boundSkills[i], alpha, classComponent);
         }
 
-        // Reset shader color
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
     }
@@ -162,10 +137,10 @@ public class SkillHudOverlayRenderer {
     private static void renderSkillSlot(DrawContext context, int x, int y, int slotIndex, Identifier skillId, float alpha, PlayerClassComponent classComponent) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        // Check if this keybinding is currently pressed
-        boolean isPressed = SKILL_KEYBINDINGS[slotIndex] != null && SKILL_KEYBINDINGS[slotIndex].isPressed();
+        // Check if this skill slot is visually "pressed"
+        boolean isPressed = ModKeyBindings.isKeyVisuallyPressed(slotIndex);
 
-        // Render hotbar slot using Minecraft texture
+        // Render hotbar slot
         context.drawTexture(HOTBAR_SLOT_TEXTURE, x, y, 0, 0, SKILL_SLOT_SIZE - 1, SKILL_SLOT_SIZE, 182, 22);
 
         // Render selection highlight if pressed
@@ -178,29 +153,24 @@ public class SkillHudOverlayRenderer {
             Skill skill = SkillRegistry.getSkill(skillId);
             if (skill != null) {
                 renderSkillIcon(context, x + 3, y + 3, skill);
-
-                // Show cooldown overlay if applicable
                 renderCooldownOverlay(context, x + 3, y + 3, skill, classComponent);
             }
         }
 
-        // Render keybinding text (to the left of slot, but make sure it doesn't go off screen)
-        String keyText = KEYBIND_DISPLAY_NAMES[slotIndex];
+        // Render keybinding text
+        String keyText = getKeybindDisplayName(slotIndex);
         int keyTextColor = isPressed ? 0xFFFFFF00 : 0xFFAAAAAA;
 
-        // Apply alpha to keybinding text
         int alphaValue = (int) (alpha * 255);
         int finalKeyTextColor = (keyTextColor & 0x00FFFFFF) | (alphaValue << 24);
 
         int keyTextWidth = client.textRenderer.getWidth(keyText);
-
-        // Position key text to the left of the slot, but keep it on screen
-        int keyX = Math.max(4, x - keyTextWidth - 6); // Ensure minimum 4px from left edge
+        int keyX = Math.max(4, x - keyTextWidth - 6);
         int keyY = y + (SKILL_SLOT_SIZE - client.textRenderer.fontHeight) / 2;
 
         context.drawText(client.textRenderer, Text.literal(keyText), keyX, keyY, finalKeyTextColor, true);
 
-        // Render slot number (small, in corner)
+        // Render slot number
         String slotNum = String.valueOf(slotIndex + 1);
         int slotNumColor = 0xFF888888;
         int finalSlotNumColor = (slotNumColor & 0x00FFFFFF) | (alphaValue << 24);
@@ -210,23 +180,38 @@ public class SkillHudOverlayRenderer {
                 y + 2, finalSlotNumColor, false);
     }
 
+    private static String getKeybindDisplayName(int slotIndex) {
+        if (slotIndex < 4) {
+            // Single keys (slots 1-4): Z, X, C, V
+            KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex);
+            if (keyBinding != null) {
+                return keyBinding.getBoundKeyLocalizedText().getString();
+            }
+            return "?";
+        } else {
+            // Shift combinations (slots 5-8): ⇧Z, ⇧X, ⇧C, ⇧V
+            KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex - 4);
+            if (keyBinding != null) {
+                return "⇧" + keyBinding.getBoundKeyLocalizedText().getString();
+            }
+            return "⇧?";
+        }
+    }
+
     private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        // Try to render skill icon first
         if (skill.getIcon() != null) {
             context.drawGuiTexture(skill.getIcon(), x, y, SKILL_SLOT_SIZE - 6, SKILL_SLOT_SIZE - 6);
         } else {
             String skillName = skill.getName();
             String abbreviation = skillName.length() >= 2 ? skillName.substring(0, 2).toUpperCase() : skillName.toUpperCase();
 
-            // Center the text in the available space (accounting for slot padding)
-            int availableSpace = SKILL_SLOT_SIZE - 6; // 3px padding on each side
+            int availableSpace = SKILL_SLOT_SIZE - 6;
             int textWidth = client.textRenderer.getWidth(abbreviation);
             int textX = x + (availableSpace - textWidth) / 2;
             int textY = y + (availableSpace - client.textRenderer.fontHeight) / 2;
 
-            // Background for text readability
             context.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + client.textRenderer.fontHeight + 1, 0x88000000);
             context.drawText(client.textRenderer, Text.literal(abbreviation), textX, textY, 0xFFFFFFFF, false);
         }
@@ -234,28 +219,22 @@ public class SkillHudOverlayRenderer {
 
     private static void renderCooldownOverlay(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent) {
         MinecraftClient client = MinecraftClient.getInstance();
-
         if (client.player == null) return;
 
-        // Pass currentTick to the cooldown method
         float remainingCooldown = ClientSkillCooldowns.getRemaining(skill.getId());
-
         int availableSpace = SKILL_SLOT_SIZE - 6;
         int skillLevel = classComponent.getSkillLevel(skill.getId());
+
         if (remainingCooldown > 0) {
             float cooldownProgress = remainingCooldown / skill.getCooldown(skillLevel);
             int overlayHeight = (int) (availableSpace * cooldownProgress);
 
-            // Draw semi-transparent cooldown overlay
             context.fill(x, y + availableSpace - overlayHeight,
                     x + availableSpace, y + availableSpace,
                     0x88222222);
 
-            // Draw cooldown text with decimal precision
             if (remainingCooldown > 0.1f) {
-                String cooldownText;
-                cooldownText = String.format("%.1f", remainingCooldown);
-
+                String cooldownText = String.format("%.1f", remainingCooldown);
                 int textWidth = client.textRenderer.getWidth(cooldownText);
                 context.drawText(client.textRenderer,
                         Text.literal(cooldownText),
