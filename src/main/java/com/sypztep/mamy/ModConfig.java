@@ -16,6 +16,10 @@ public class ModConfig implements ConfigData {
     public static float lvbarscale = 0.7f;
 
     @ConfigEntry.Category("client_features")
+    @Comment("auto hide duration")
+    public static float autohideDuration = 15f;
+
+    @ConfigEntry.Category("client_features")
     @Comment("Show visual indicator when landing critical hits")
     public static boolean damageCritIndicator = true;
 
