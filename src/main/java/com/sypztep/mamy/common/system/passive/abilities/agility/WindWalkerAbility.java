@@ -24,7 +24,7 @@ public class WindWalkerAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MOVEMENT_SPEED,
                 Mamy.id("wind_walker_speed"),
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.30 // +30% movement speed
+                baseValue -> 0.15 // +15% movement speed
         ));
 
         addAttributeEffect(new AttributeModification(
@@ -42,6 +42,6 @@ public class WindWalkerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("One with the wind itself — gain +30% Movement Speed, +0.5 Attack Speed, and improved air contro");
+        return TextStyleHelper.autoStyle("One with the wind itself — gain +15% Movement Speed, +0.5 Attack Speed, and improved air contro");
     }
 }

@@ -24,7 +24,7 @@ public class PhantomWalkerAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MOVEMENT_SPEED,
                 Mamy.id("phantom_walker"),
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.30 // +30% movement speed
+                baseValue -> 0.25 // +25% movement speed
         ));
     }
 
@@ -35,6 +35,6 @@ public class PhantomWalkerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your speed surges by 30%, and you can perform an extra leap while airborne");
+        return TextStyleHelper.autoStyle("Your speed surges by 25%, and you can perform an extra leap while airborne");
     }
 }

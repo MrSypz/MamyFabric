@@ -23,7 +23,7 @@ public class SwiftFeetAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MOVEMENT_SPEED,
                 Mamy.id("swift_feet_speed"),
                 EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.15 // +15% movement speed
+                baseValue -> 0.5 // +5% movement speed
         ));
     }
 
@@ -34,6 +34,6 @@ public class SwiftFeetAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your nimble steps grant +15% Movement Speed, letting you outrun the wind");
+        return TextStyleHelper.autoStyle("Your nimble steps grant +5% Movement Speed, letting you outrun the wind");
     }
 }
