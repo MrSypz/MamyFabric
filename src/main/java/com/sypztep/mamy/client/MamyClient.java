@@ -1,16 +1,27 @@
 package com.sypztep.mamy.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
+import com.sypztep.mamy.client.screen.KeyEntryScreen;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.*;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.gui.screen.TitleScreen;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();
@@ -38,5 +49,47 @@ public class MamyClient implements ClientModInitializer {
 
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
+//        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
+//                KeyEntryScreen.keyValidated = true;
+//
+//                String identity = KeyEntryScreen.getPlayerIdentity(client);
+//                String apiUrl = String.format("http://tyranus.online/smp/check_token.php?uuid=%s", identity);
+//
+//                HttpClient httpClient = HttpClient.newHttpClient();
+//                HttpRequest request = HttpRequest.newBuilder()
+//                        .uri(URI.create(apiUrl))
+//                        .GET()
+//                        .build();
+//
+//                CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+//
+//                responseFuture.thenAccept(response -> {
+//                    try {
+//                        JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+//                        boolean validated = json.get("success").getAsBoolean();
+//                        if (validated) {
+//                            KeyEntryScreen.keyValidated = true;
+//                        } else {
+//                            client.execute(() -> {
+//                                client.setScreen(new KeyEntryScreen());
+//                                KeyEntryScreen.keyValidated = false; // Reset flag so user can submit key
+//                            });
+//                        }
+//                    } catch (Exception e) {
+//                        client.execute(() -> {
+//                            client.setScreen(new KeyEntryScreen());
+//                            KeyEntryScreen.keyValidated = false;
+//                        });
+//                    }
+//                }).exceptionally(ex -> {
+//                    client.execute(() -> {
+//                        client.setScreen(new KeyEntryScreen());
+//                        KeyEntryScreen.keyValidated = false;
+//                    });
+//                    return null;
+//                });
+//            }
+//        });
     }
 }

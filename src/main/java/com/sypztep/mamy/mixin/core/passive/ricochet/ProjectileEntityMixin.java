@@ -16,6 +16,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -198,10 +199,11 @@ public class ProjectileEntityMixin {
                 0.15
         );
 
-        // Custom sound combination for target redirect
         world.playSound(null, pos.x, pos.y, pos.z,
                 ModSoundEvents.ENTITY_GENERIC_RICOCHET, SoundCategory.PLAYERS,
-                1f, 0.8f + (projectile.getRandom().nextFloat() * 0.4f));
+                1f,
+                (float) MathHelper.clamp(0.5f + projectile.getVelocity().length() * 0.1f + (projectile.getRandom().nextFloat() * 0.05f), 0.8f, 1.5f));
+
 
         world.playSound(null, pos.x, pos.y, pos.z,
                 SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS,
@@ -237,7 +239,8 @@ public class ProjectileEntityMixin {
         // Standard ricochet sound
         world.playSound(null, pos.x, pos.y, pos.z,
                 ModSoundEvents.ENTITY_GENERIC_RICOCHET, SoundCategory.PLAYERS,
-                1f, 0.8f + (projectile.getRandom().nextFloat() * 0.4f));
+                1f,
+                (float) MathHelper.clamp(0.5f + projectile.getVelocity().length() * 0.1f + (projectile.getRandom().nextFloat() * 0.05f), 0.8f, 1.5f));
 
         world.playSound(null, pos.x, pos.y, pos.z,
                 SoundEvents.ENTITY_ARROW_HIT, SoundCategory.PLAYERS,
