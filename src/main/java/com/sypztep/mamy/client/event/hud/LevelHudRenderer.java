@@ -15,13 +15,13 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public final class LevelHudRenderer implements HudRenderCallback {
     // Layout settings - base dimensions (not scaled)
@@ -51,7 +51,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
     // Animation settings
     private static final float XP_GLOW_DURATION = 3.0f;
     private static final float SLIDE_DURATION = 0.6f;
-    private static final float AUTO_HIDE_DELAY = 10.0f;
+    private static final float AUTO_HIDE_DELAY = ModConfig.autohideDuration;
     private static final float PORTAL_ANIMATION_SPEED = 0.001f;
 
     // Shake animation settings
@@ -131,33 +131,41 @@ public final class LevelHudRenderer implements HudRenderCallback {
         long classXpToNext = classComponent.getClassManager().getClassLevelSystem().getExperienceToNextLevel();
         boolean isMaxClassLevel = classComponent.getClassManager().getClassLevelSystem().isMaxLevel();
 
-        // DEBUGGING
-        shouldBeVisible = true;
+        // Check if Alt key is being held down
+        boolean forceShow = InputUtil.isKeyPressed(client.getWindow().getHandle(), InputUtil.GLFW_KEY_LEFT_ALT);
 
-        // Detect changes and trigger appropriate effects
+// Detect changes and trigger appropriate effects
         boolean baseXpGained = currentXp > lastXp;
         boolean baseLevelUp = level > lastLevel;
         boolean classXpGained = currentClassXp > lastClassXp;
         boolean classLevelUp = classLevel > lastClassLevel;
 
-        // Trigger base XP glow only when base XP is gained
+// Trigger base XP glow only when base XP is gained
         if (baseXpGained || baseLevelUp) {
             baseXpGlowTimer = XP_GLOW_DURATION;
             shouldBeVisible = true;
             hideTimer = AUTO_HIDE_DELAY;
         }
 
-        // Trigger class XP glow only when class XP is gained
+// Trigger class XP glow only when class XP is gained
         if (classXpGained || classLevelUp) {
             classXpGlowTimer = XP_GLOW_DURATION;
             shouldBeVisible = true;
             hideTimer = AUTO_HIDE_DELAY;
         }
 
-        // Trigger shake animation on level ups
+// Trigger shake animation on level ups
         if (baseLevelUp || classLevelUp) {
             shakeTimer = SHAKE_DURATION;
             isLevelUpShaking = true;
+        }
+
+// Handle Alt key override visibility
+        if (forceShow) {
+            shouldBeVisible = true;
+            hideTimer = 0; // Stop auto-hide timer while Alt is held
+        } else if (hideTimer <= 0) {
+            shouldBeVisible = false;
         }
 
         // Update animations
@@ -196,7 +204,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         float targetClassProgress = isMaxClassLevel ? 1.0f : (float) ((double) currentClassXp / (double) classXpToNext);
         animatedClassProgress = MathHelper.lerp(lerpSpeed, animatedClassProgress, targetClassProgress);
-
+        if (animatedXpProgress == 0) clearSparks();
         // Base XP glow timer
         if (baseXpGlowTimer > 0) {
             baseXpGlowTimer -= deltaTime;
@@ -295,7 +303,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         int classColorValue = (0xFF << 24) | classData.getClassManager().getCurrentClass().getColor().getColorValue();
         currentY = renderShaderProgressBar(drawContext, BASE_HUD_X + BASE_PADDING, currentY, BASE_MAIN_BAR_WIDTH, BASE_BAR_HEIGHT,
                 animatedClassProgress, classData.getClassManager().getClassLevelSystem().isMaxLevel(),
-                classColorValue, darkenColor(classColorValue, 0.8f), classXpGlowTimer, false); // Use classXpGlowTimer
+                classColorValue, DrawContextUtils.darkenColor(classColorValue, 0.8f), classXpGlowTimer, false); // Use classXpGlowTimer
 
         // === GOLDEN GRADIENT LINE 2 ===
         currentY = renderGoldenLine(drawContext, currentY);
@@ -507,94 +515,209 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         return y + height + BASE_SPACING;
     }
-
     /**
-     * Renders animated sparks at the end of the progress bar
+     * Particle class to represent individual sparks with physics
      */
-    private void renderProgressSparks(DrawContext drawContext, int barEndX, int barY, int barHeight, float glowTimer, int baseColor, boolean isBaseXp) {
-        float sparkIntensity = glowTimer / XP_GLOW_DURATION;
+    private static class SparkParticle {
+        float x, y;           // Position
+        float velocityX, velocityY;  // Velocity
+        float life;           // Remaining life (1.0 to 0.0)
+        float maxLife;        // Maximum life duration
+        int color;            // Particle color
+        float size;           // Particle size
+        int sparkType;        // Type of spark for color variation
 
-        // Use different spark patterns for base XP vs class XP
-        Random sparkRandom = new Random((long)(portalTime * 1000) + (isBaseXp ? 0 : 1000));
-
-        // Number of sparks based on intensity
-        int sparkCount = (int)(sparkIntensity * 8) + 3; // 3-11 sparks
-
-        for (int i = 0; i < sparkCount; i++) {
-            // Calculate spark properties
-            float sparkAge = (sparkIntensity + (i * 0.1f)) % 1.0f;
-            float sparkLife = 1.0f - sparkAge;
-
-            if (sparkLife <= 0) continue;
-
-            // Position calculations
-            float sparkDistance = sparkAge * 12.0f; // How far the spark travels
-            float sparkAngle = (float)(sparkRandom.nextGaussian() * 0.6f + (isBaseXp ? 0 : Math.PI * 0.1f)); // Slight angle variation
-
-            int sparkX = barEndX + (int)(Math.cos(sparkAngle) * sparkDistance);
-            int sparkY = barY + barHeight / 2 + (int)(Math.sin(sparkAngle) * sparkDistance);
-
-            // Spark size and alpha based on life
-            float sparkSize = MathHelper.lerp(sparkLife, 0.5f, 2.5f);
-            int sparkAlpha = (int)(sparkLife * sparkIntensity * 200);
-
-            if (sparkAlpha > 255) sparkAlpha = 255;
-            if (sparkAlpha < 10) continue;
-
-            // Create spark colors with different effects
-            int sparkColor = createSparkColor(baseColor, sparkAlpha, sparkLife, i);
-
-            // Render the spark
-            renderSingleSpark(drawContext, sparkX, sparkY, sparkSize, sparkColor, sparkLife);
+        public SparkParticle(float startX, float startY, float velX, float velY,
+                             float lifespan, int baseColor, int type) {
+            this.x = startX;
+            this.y = startY;
+            this.velocityX = velX;
+            this.velocityY = velY;
+            this.life = lifespan;
+            this.maxLife = lifespan;
+            this.sparkType = type;
+            this.size = 1.5f + (float)(Math.random() * 2.0f); // Random size 1.5-3.5
+            this.color = baseColor;
         }
 
-        // Add extra "burst" effect at the very end
-        if (sparkIntensity > 0.7f) {
-            renderSparkBurst(drawContext, barEndX, barY + barHeight / 2, sparkIntensity, baseColor);
+        public void update(float deltaTime) {
+            // Apply gravity
+            velocityY += 180.0f * deltaTime; // Gravity acceleration (pixels/second²)
+
+            // Apply air resistance
+            velocityX *= (1.0f - 0.5f * deltaTime);
+            velocityY *= (1.0f - 0.3f * deltaTime);
+
+            // Update position
+            x += velocityX * deltaTime;
+            y += velocityY * deltaTime;
+
+            // Decrease life
+            life -= deltaTime;
+
+            // Update size based on life
+            float lifeRatio = life / maxLife;
+            size = Math.max(0.2f, size * (0.95f + lifeRatio * 0.05f));
+        }
+
+        public boolean isAlive() {
+            return life > 0;
+        }
+
+        public float getLifeRatio() {
+            return Math.max(0, life / maxLife);
+        }
+    }
+
+    // Add this as a class field
+    private final List<SparkParticle> activeParticles = new ArrayList<>();
+    private long lastSparkTime = 0;
+
+    /**
+     * Renders animated sparks with physics at the end of the progress bar
+     */
+    private void renderProgressSparks(DrawContext drawContext, int barEndX, int barY, int barHeight,
+                                      float glowTimer, int baseColor, boolean isBaseXp) {
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = Math.min(0.05f, (currentTime - lastSparkTime) / 1000.0f); // Cap at 50ms
+        if (lastSparkTime == 0) deltaTime = 0.016f; // First frame
+        lastSparkTime = currentTime;
+
+        float sparkIntensity = glowTimer / XP_GLOW_DURATION;
+
+        // Spawn new particles
+        if (sparkIntensity > 0.1f) {
+            Random sparkRandom = new Random((long)(portalTime * 1000) + (isBaseXp ? 0 : 1000));
+
+            // Spawn rate based on intensity
+            int newParticlesThisFrame = (int)(sparkIntensity * 3) + 1;
+
+            for (int i = 0; i < newParticlesThisFrame; i++) {
+                // Random spawn position around the bar end
+                float spawnX = barEndX + (float)(sparkRandom.nextGaussian() * 2.0f);
+                float spawnY = barY + barHeight / 2.0f + (float)(sparkRandom.nextGaussian() * 2.0f);
+
+                // Random initial velocity (welding spark pattern)
+                float baseSpeed = 40.0f + sparkIntensity * 60.0f; // Base velocity
+                float angle = (float)(sparkRandom.nextGaussian() * 1.2f); // Mostly horizontal with spread
+                float speed = baseSpeed + (float)(sparkRandom.nextGaussian() * 30.0f);
+
+                float velX = (float)(Math.cos(angle) * speed);
+                float velY = (float)(Math.sin(angle) * speed - 20.0f); // Slight upward bias
+
+                // Random lifespan
+                float lifespan = 0.8f + (float)(sparkRandom.nextFloat() * 1.2f);
+
+                // Create particle
+                int sparkType = sparkRandom.nextInt(4);
+                SparkParticle particle = new SparkParticle(spawnX, spawnY, velX, velY,
+                        lifespan, baseColor, sparkType);
+                activeParticles.add(particle);
+            }
+        }
+
+        // Update and render existing particles
+        Iterator<SparkParticle> iterator = activeParticles.iterator();
+        while (iterator.hasNext()) {
+            SparkParticle particle = iterator.next();
+
+            // Update physics
+            particle.update(deltaTime);
+
+            // Remove dead particles
+            if (!particle.isAlive()) {
+                iterator.remove();
+                continue;
+            }
+
+            // Calculate current color with life-based alpha
+            float lifeRatio = particle.getLifeRatio();
+            int alpha = (int)(lifeRatio * sparkIntensity * 255);
+            if (alpha < 5) {
+                iterator.remove();
+                continue;
+            }
+
+            int sparkColor = createPhysicsSparkColor(baseColor, alpha, lifeRatio, particle.sparkType);
+
+            // Render the particle
+            renderPhysicsSpark(drawContext, (int)particle.x, (int)particle.y,
+                    particle.size, sparkColor, lifeRatio);
+        }
+
+        // Add occasional bright flash at the source (welding arc effect)
+        if (sparkIntensity > 0.5f && !activeParticles.isEmpty()) {
+            Random flashRandom = new Random((long)(portalTime * 2000));
+            if (flashRandom.nextFloat() < 0.3f) {
+                int flashAlpha = (int)(sparkIntensity * 100);
+                int flashColor = (flashAlpha << 24) | 0xFFFFFF;
+
+                drawContext.fill(
+                        barEndX - 3, barY + barHeight / 2 - 1,
+                        barEndX + 3, barY + barHeight / 2 + 1,
+                        flashColor
+                );
+            }
         }
     }
 
     /**
-     * Creates a color for a single spark with various effects
+     * Creates colors for physics-based sparks
      */
-    private int createSparkColor(int baseColor, int alpha, float life, int sparkIndex) {
+    private int createPhysicsSparkColor(int baseColor, int alpha, float life, int sparkType) {
         // Extract base color components
         int baseRed = (baseColor >> 16) & 0xFF;
         int baseGreen = (baseColor >> 8) & 0xFF;
         int baseBlue = baseColor & 0xFF;
 
-        // Create variations for different spark types
-        switch (sparkIndex % 4) {
-            case 0: // White-hot spark
-                return (alpha << 24) | 0xFFFFFF;
-            case 1: // Golden spark
-                int goldenRed = Math.min(255, (int)(baseRed * 1.2f + 60));
-                int goldenGreen = Math.min(255, (int)(baseGreen * 1.1f + 40));
-                int goldenBlue = Math.max(0, (int)(baseBlue * 0.3f));
+        // Color changes based on "temperature" (life) like real welding sparks
+        switch (sparkType) {
+            case 0: // White-hot when young, orange when cooling
+                if (life > 0.7f) {
+                    return (alpha << 24) | 0xFFFFFF; // White hot
+                } else if (life > 0.4f) {
+                    return (alpha << 24) | 0xFFAA33; // Orange
+                } else {
+                    return (alpha << 24) | 0xFF4400; // Red
+                }
+
+            case 1: // Golden sparks
+                int goldenRed = Math.min(255, (int)(255 * life + 100));
+                int goldenGreen = Math.min(255, (int)(200 * life + 50));
+                int goldenBlue = Math.max(0, (int)(50 * life));
                 return (alpha << 24) | (goldenRed << 16) | (goldenGreen << 8) | goldenBlue;
-            case 2: // Base color spark
-                return (alpha << 24) | (baseColor & 0x00FFFFFF);
-            case 3: // Bright spark
-                int brightRed = Math.min(255, (int)(baseRed * 1.5f));
-                int brightGreen = Math.min(255, (int)(baseGreen * 1.3f));
-                int brightBlue = Math.min(255, (int)(baseBlue * 1.1f));
-                return (alpha << 24) | (brightRed << 16) | (brightGreen << 8) | brightBlue;
+
+            case 2: // Base color sparks that fade
+                float intensity = 0.5f + life * 0.5f;
+                int fadeRed = (int)(baseRed * intensity);
+                int fadeGreen = (int)(baseGreen * intensity);
+                int fadeBlue = (int)(baseBlue * intensity);
+                return (alpha << 24) | (fadeRed << 16) | (fadeGreen << 8) | fadeBlue;
+
+            case 3: // Bright blue-white (like welding arc)
+                if (life > 0.8f) {
+                    return (alpha << 24) | 0xCCFFFF; // Blue-white
+                } else {
+                    return (alpha << 24) | 0xFFCC99; // Warm white
+                }
+
             default:
                 return (alpha << 24) | (baseColor & 0x00FFFFFF);
         }
     }
 
     /**
-     * Renders a single spark with glow effect
+     * Renders a single physics-based spark
      */
-    private void renderSingleSpark(DrawContext drawContext, int x, int y, float size, int color, float life) {
+    private void renderPhysicsSpark(DrawContext drawContext, int x, int y, float size,
+                                    int color, float life) {
         int sparkSize = Math.max(1, (int)size);
 
-        // Render spark glow (larger, more transparent)
-        if (sparkSize > 1) {
-            int glowAlpha = ((color >> 24) & 0xFF) / 3;
+        // Add subtle glow for brighter sparks
+        if (life > 0.5f && sparkSize > 1) {
+            int glowAlpha = ((color >> 24) & 0xFF) / 4;
             int glowColor = (glowAlpha << 24) | (color & 0x00FFFFFF);
-            int glowSize = sparkSize + 2;
+            int glowSize = sparkSize + 1;
 
             drawContext.fill(
                     x - glowSize / 2,
@@ -604,7 +727,8 @@ public final class LevelHudRenderer implements HudRenderCallback {
                     glowColor
             );
         }
-        // Render main spark
+
+        // Render main spark dot
         drawContext.fill(
                 x - sparkSize / 2,
                 y - sparkSize / 2,
@@ -615,26 +739,10 @@ public final class LevelHudRenderer implements HudRenderCallback {
     }
 
     /**
-     * Renders a burst effect at the progress bar end
+     * Call this method to clear particles when needed (e.g., when XP gain stops)
      */
-    private void renderSparkBurst(DrawContext drawContext, int centerX, int centerY, float intensity, int baseColor) {
-        // Create radiating lines effect
-        int lineCount = 6;
-        float burstIntensity = (intensity - 0.7f) / 0.3f; // 0 to 1 range
-
-        for (int i = 0; i < lineCount; i++) {
-            float angle = (float)(i * Math.PI * 2 / lineCount + portalTime * 2);
-            float lineLength = burstIntensity * 8.0f;
-
-            int endX = centerX + (int)(Math.cos(angle) * lineLength);
-            int endY = centerY + (int)(Math.sin(angle) * lineLength);
-
-            int lineAlpha = (int)(burstIntensity * 150);
-            int lineColor = (lineAlpha << 24) | 0xFFFFFF;
-
-            // Draw line (simple implementation using multiple fills)
-            DrawContextUtils.renderLine(drawContext, centerX, centerY, endX, endY, lineColor);
-        }
+    private void clearSparks() {
+        activeParticles.clear();
     }
 
     public static int calculateGlowStrength(float glowTimer, float duration) {
@@ -644,15 +752,6 @@ public final class LevelHudRenderer implements HudRenderCallback {
         float finalGlow = glowStrength * (0.8f + 0.2f * pulse);
 
         return (int) (finalGlow * 160);
-    }
-
-    private int darkenColor(int color, float factor) {
-        int alpha = ColorHelper.Argb.getAlpha(color);
-        int red = (int) (ColorHelper.Argb.getRed(color) * factor);
-        int green = (int) (ColorHelper.Argb.getGreen(color) * factor);
-        int blue = (int) (ColorHelper.Argb.getBlue(color) * factor);
-
-        return ColorHelper.Argb.getArgb(alpha, red, green, blue);
     }
 
     private int calculateTotalHeight(TextRenderer textRenderer) {
@@ -668,17 +767,8 @@ public final class LevelHudRenderer implements HudRenderCallback {
     private int calculateHudX() {
         int hudWidth = BASE_HUD_WIDTH + 24;
         int hiddenX = -hudWidth;
-        float easedOffset = enhancedEaseInOut(slideOffset);
+        float easedOffset = DrawContextUtils.enhancedEaseInOut(slideOffset);
         return MathHelper.lerp(easedOffset, BASE_HUD_X, hiddenX);
-    }
-
-    private float enhancedEaseInOut(float t) {
-        if (t < 0.5f) {
-            return 4.0f * t * t * t;
-        } else {
-            float p = 2.0f * t - 2.0f;
-            return 1.0f + p * p * p / 2.0f;
-        }
     }
 
     public static void register() {
