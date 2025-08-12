@@ -20,7 +20,6 @@
     "core.stats.dexterity.RangedWeaponItemMixin",
     "core.stats.vitality.HungerManagerMixin",
     "core.stats.vitality.LivingEntityMixin",
-    "vanilla.coyotytime.LivingEntityMixin",
     "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin"
   ],
   "client": [
