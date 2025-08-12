@@ -9,35 +9,6 @@ import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 public final class DrawContextUtils {
-    /**
-     * Renders a simple line between two points
-     */
-    //TODO: Replace texture for better performacnce
-    public static void renderLine(DrawContext context, int x1, int y1, int x2, int y2, int color) {
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int sx = x1 < x2 ? 1 : -1;
-        int sy = y1 < y2 ? 1 : -1;
-        int err = dx - dy;
-
-        int x = x1, y = y1;
-
-        while (true) {
-            context.fill(x, y, x + 1, y + 1, color);
-
-            if (x == x2 && y == y2) break;
-
-            int e2 = 2 * err;
-            if (e2 > -dy) {
-                err -= dy;
-                x += sx;
-            }
-            if (e2 < dx) {
-                err += dx;
-                y += sy;
-            }
-        }
-    }
     public static void renderVerticalLine(DrawContext context, int positionX, int positionY, int height, int thickness, int z, int color) {
         context.fill(positionX, positionY, positionX + thickness, positionY + height, z, color);
     }
@@ -530,5 +501,24 @@ public final class DrawContextUtils {
 
         BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
         RenderSystem.disableBlend();
+    }
+
+    // UTILITY //
+
+    public static int darkenColor(int color, float factor) {
+        int alpha = ColorHelper.Argb.getAlpha(color);
+        int red = (int) (ColorHelper.Argb.getRed(color) * factor);
+        int green = (int) (ColorHelper.Argb.getGreen(color) * factor);
+        int blue = (int) (ColorHelper.Argb.getBlue(color) * factor);
+
+        return ColorHelper.Argb.getArgb(alpha, red, green, blue);
+    }
+    public static float enhancedEaseInOut(float t) {
+        if (t < 0.5f) {
+            return 4.0f * t * t * t;
+        } else {
+            float p = 2.0f * t - 2.0f;
+            return 1.0f + p * p * p / 2.0f;
+        }
     }
 }
