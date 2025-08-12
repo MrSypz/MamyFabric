@@ -1,6 +1,8 @@
 package com.sypztep.mamy.client.screen.hud;
 
+import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.event.hud.LevelHudRenderer;
+import com.sypztep.mamy.client.util.BlendMode;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -12,32 +14,63 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class ResourceBarHud {
-    // UI Constants
-    private static final int HUD_X = 5; // Left side of screen
-    private static final int HUD_Y_OFFSET = 35 ; // Offset from bottom
-    private static final int BAR_WIDTH = 110;
-    private static final int BAR_HEIGHT = 12;
-    // Colors
-    private static final int BACKGROUND_COLOR = 0x80000000; // Semi-transparent black
-    private static final int BORDER_COLOR = 0xFF333333;
-    private static final int TEXT_COLOR = 0xFFFFFFFF;
-    // Mana colors
+    // UI Constants - matching LevelHudRenderer style
+    private static final int HUD_X = 5;
+    private static final int HUD_Y_OFFSET = 45;
+    private static final int BAR_WIDTH = 140;
+    private static final int BAR_HEIGHT = 8;
+    private static final int PADDING = 6;
+
+    // Texture identifiers
+    private static final Identifier BACKGROUND_TEXTURE = Mamy.id("textures/gui/hud/resource/card.png");
+    private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/sky_night.png");
+
+    // Color scheme
+    private static final int BACKGROUND_DARK = 0xFF000000;
+    private static final int BACKGROUND_LIGHT = 0xE01B1B2A;
+    private static final int BORDER_COLOR = 0xFF2D3748;
+    private static final int BAR_BORDER_COLOR = 0xFF4A5568;
+    private static final int TEXT_COLOR = 0xFFF7FAFC;
+    private static final int PERCENTAGE_COLOR = 0xFFAAAAAA;
+
+    // Golden gradient line
+    private static final int GOLDEN_CENTER = 0xFFFFD700;
+    private static final int GOLDEN_EDGE = 0x00FFD700;
+    private static final int LINE_HEIGHT = 1;
+
+    // Resource-specific background colors
     private static final int MANA_BAR_BG_COLOR = 0xFF1a1a3d;
-    // Rage colors
     private static final int RAGE_BAR_BG_COLOR = 0xFF3d1a1a;
+
     // Animation constants
-    private static final float RESOURCE_GLOW_DURATION = 1.0f; // 1 second glow
-    private static final float SLIDE_DURATION = 0.5f; // 0.5 second slide
-    private static final float AUTO_HIDE_DELAY = 15.0f; // Hide after 10 seconds
+    private static final float RESOURCE_GLOW_DURATION = 2.0f;
+    private static final float SLIDE_DURATION = 0.6f;
+    private static final float AUTO_HIDE_DELAY = 8.0f;
+    private static final float PORTAL_ANIMATION_SPEED = 0.001f;
+
+    // Particle constants
+    private static final float PARTICLE_LIFETIME = 3.0f; // How long particles live
+    private static final float GRAVITY = 25.0f; // Gravity strength
+    private static final float INITIAL_VELOCITY_Y = -30.0f; // Initial upward velocity
+    private static final float INITIAL_VELOCITY_X_VARIATION = 20.0f; // Random horizontal spread
+
+    // Portal effect settings
+    private static float portalTime = 0.0f;
 
     // Animation state
     private float animatedResourceProgress = 0.0f;
     private float resourceGainGlowTimer = 0.0f;
-    private float slideOffset = 1.0f; // 0 = fully visible, 1 = fully hidden
+    private float slideOffset = 1.0f;
     private float hideTimer = 0.0f;
     private boolean shouldBeVisible = false;
 
@@ -45,8 +78,78 @@ public class ResourceBarHud {
     private float lastResourceAmount = -1;
     private ResourceType lastResourceType = null;
 
+    // Particle system
+    private final List<ResourceParticle> particles = new ArrayList<>();
+
     /**
-     * Render the resource bar HUD
+     * Floating number particle class
+     */
+    private static class ResourceParticle {
+        float x, y;           // Position
+        float velocityX, velocityY; // Velocity
+        float life;           // Remaining lifetime
+        float maxLife;        // Maximum lifetime
+        String text;          // Text to display
+        int color;            // Text color
+        boolean isGain;       // Whether this is a gain or loss
+        float scale;          // Text scale
+
+        ResourceParticle(float x, float y, float amount, int color, boolean isGain) {
+            this.x = x;
+            this.y = y;
+            this.maxLife = PARTICLE_LIFETIME;
+            this.life = maxLife;
+            this.isGain = isGain;
+            this.color = color;
+            this.scale = 1.0f;
+
+            // Format the text
+            String prefix = isGain ? "+" : "-";
+            this.text = prefix + NumberUtil.formatNumber((long) Math.abs(amount));
+
+            // Random initial velocity
+            Random rand = new Random();
+            this.velocityX = (rand.nextFloat() - 0.5f) * INITIAL_VELOCITY_X_VARIATION;
+            this.velocityY = INITIAL_VELOCITY_Y + rand.nextFloat() * 10.0f; // Slight variation
+        }
+
+        void update(float deltaTime) {
+            // Apply physics
+            x += velocityX * deltaTime;
+            y += velocityY * deltaTime;
+            velocityY += GRAVITY * deltaTime; // Apply gravity
+
+            // Update lifetime
+            life -= deltaTime;
+
+            // Calculate scale and alpha based on lifetime
+            float lifeRatio = life / maxLife;
+            scale = MathHelper.lerp(1.0f - lifeRatio, 1.0f, 0.3f); // Shrink over time
+        }
+
+        boolean isAlive() {
+            return life > 0;
+        }
+
+        int getAlpha() {
+            float lifeRatio = life / maxLife;
+            if (lifeRatio > 0.7f) {
+                // Fade in phase
+                return (int)(255 * ((1.0f - lifeRatio) / 0.3f));
+            } else {
+                // Fade out phase
+                return (int)(255 * (lifeRatio / 0.7f));
+            }
+        }
+
+        int getColorWithAlpha() {
+            int alpha = getAlpha();
+            return (alpha << 24) | (color & 0x00FFFFFF);
+        }
+    }
+
+    /**
+     * Render the resource bar HUD with particles
      */
     public void render(DrawContext drawContext, MinecraftClient client, float deltaTime) {
         if (client.player == null) return;
@@ -56,16 +159,28 @@ public class ResourceBarHud {
 
         PlayerClassManager manager = classComponent.getClassManager();
 
+        // Update portal animation
+        portalTime += PORTAL_ANIMATION_SPEED;
+        if (portalTime > Math.PI * 20) portalTime = 0.0f;
+
         // Get resource data
         float currentResource = manager.getCurrentResource();
         float maxResource = manager.getMaxResource();
         ResourceType resourceType = manager.getResourceType();
 
-        // Check for resource changes to trigger visibility and glow
+        // Check for resource changes and spawn particles
         if (lastResourceAmount != currentResource || lastResourceType != resourceType) {
-            if (lastResourceAmount >= 0 && currentResource > lastResourceAmount) {
-                // Resource gained - trigger glow and show
-                resourceGainGlowTimer = RESOURCE_GLOW_DURATION;
+            if (lastResourceAmount >= 0) {
+                float change = currentResource - lastResourceAmount;
+
+                if (Math.abs(change) > 0.1f) { // Only show significant changes
+                    spawnResourceParticle(change, resourceType);
+                }
+
+                if (change > 0) {
+                    resourceGainGlowTimer = RESOURCE_GLOW_DURATION;
+                }
+
                 shouldBeVisible = true;
                 hideTimer = AUTO_HIDE_DELAY;
             } else if (currentResource < maxResource) {
@@ -77,124 +192,280 @@ public class ResourceBarHud {
             lastResourceType = resourceType;
         }
 
+        // Update particles
+        updateParticles(deltaTime);
+
         // Don't render if fully hidden
         if (slideOffset >= 1.0f && !shouldBeVisible) return;
 
         // Update animations
-        updateAnimations(deltaTime,manager);
+        updateAnimations(deltaTime, manager);
 
-        // Calculate HUD position with slide animation
+        // Calculate position
         int screenHeight = client.getWindow().getScaledHeight();
         int hudY = screenHeight - HUD_Y_OFFSET;
-        int slideDistance = (int) (slideOffset * (BAR_HEIGHT + 30)); // Slide down off screen
-        int actualHudY = hudY + slideDistance;
+        int currentHudX = calculateHudX();
 
-        // Render the resource bar
-        renderResourceBar(drawContext, client, manager, HUD_X, actualHudY, resourceType);
+        // Render the enhanced resource bar
+        renderEnhancedResourceBar(drawContext, client, manager, currentHudX, hudY, resourceType);
+
+        // Render particles
+        renderParticles(drawContext, client);
     }
 
     /**
-     * Update all animations
+     * Spawn a resource usage particle
+     */
+    private void spawnResourceParticle(float amount, ResourceType resourceType) {
+        // Calculate spawn position (center of the resource bar)
+        int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
+        int barCenterX = calculateHudX() + PADDING + BAR_WIDTH / 2;
+        int barCenterY = screenHeight - HUD_Y_OFFSET + PADDING +
+                MinecraftClient.getInstance().textRenderer.fontHeight + LINE_HEIGHT + 4 + BAR_HEIGHT / 2;
+
+        // Determine color based on gain/loss and resource type
+        boolean isGain = amount > 0;
+        int particleColor;
+
+        if (isGain) {
+            particleColor = resourceType.getColor(); // Use resource color for gains
+        } else {
+            particleColor = 0xFFFF4444; // Red for losses
+        }
+
+        // Create the particle
+        ResourceParticle particle = new ResourceParticle(barCenterX, barCenterY, amount, particleColor, isGain);
+        particles.add(particle);
+
+        // Limit particle count to prevent performance issues
+        if (particles.size() > 10) {
+            particles.removeFirst(); // Remove oldest particle
+        }
+    }
+
+    /**
+     * Update all particles
+     */
+    private void updateParticles(float deltaTime) {
+        Iterator<ResourceParticle> iterator = particles.iterator();
+        while (iterator.hasNext()) {
+            ResourceParticle particle = iterator.next();
+            particle.update(deltaTime);
+
+            if (!particle.isAlive()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Render all particles
+     */
+    private void renderParticles(DrawContext drawContext, MinecraftClient client) {
+        TextRenderer textRenderer = client.textRenderer;
+
+        for (ResourceParticle particle : particles) {
+            // Calculate scaled text dimensions
+            int textWidth = (int)(textRenderer.getWidth(particle.text) * particle.scale);
+            int textHeight = (int)(textRenderer.fontHeight * particle.scale);
+
+            // Center the text on the particle position
+            int textX = (int)(particle.x - (float) textWidth / 2);
+            int textY = (int)(particle.y - (float) textHeight / 2);
+
+            // Draw text with glow effect for better visibility
+            int glowColor = 0x40000000; // Semi-transparent black glow
+
+            // Draw glow (offset in multiple directions)
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                for (int offsetY = -1; offsetY <= 1; offsetY++) {
+                    if (offsetX == 0 && offsetY == 0) continue;
+                    drawScaledText(drawContext, textRenderer, particle.text,
+                            textX + offsetX, textY + offsetY, glowColor, particle.scale);
+                }
+            }
+
+            // Draw main text
+            drawScaledText(drawContext, textRenderer, particle.text,
+                    textX, textY, particle.getColorWithAlpha(), particle.scale);
+        }
+    }
+
+    /**
+     * Draw scaled text (simple implementation)
+     */
+    private void drawScaledText(DrawContext drawContext, TextRenderer textRenderer, String text,
+                                int x, int y, int color, float scale) {
+        if (scale == 1.0f) {
+            // No scaling needed
+            drawContext.drawText(textRenderer, text, x, y, color, false);
+        } else {
+            // Apply scaling using matrix transformations
+            drawContext.getMatrices().push();
+            drawContext.getMatrices().translate(x, y, 0);
+            drawContext.getMatrices().scale(scale, scale, 1.0f);
+            drawContext.drawText(textRenderer, text, 0, 0, color, false);
+            drawContext.getMatrices().pop();
+        }
+    }
+
+    /**
+     * Update animations with enhanced easing
      */
     private void updateAnimations(float deltaTime, PlayerClassManager manager) {
         float targetProgress = manager.getResourcePercentage();
 
         // Smooth progress animation
-        float lerpSpeed = 0.08f;
+        float lerpSpeed = 0.06f;
         animatedResourceProgress = MathHelper.lerp(lerpSpeed, animatedResourceProgress, targetProgress);
 
-        // Resource gain glow timer countdown
+        // Resource gain glow timer
         if (resourceGainGlowTimer > 0) {
             resourceGainGlowTimer -= deltaTime;
             if (resourceGainGlowTimer < 0) resourceGainGlowTimer = 0;
         }
 
-        // Handle auto-hide functionality
+        // Auto-hide logic
         if (hideTimer > 0) {
             hideTimer -= deltaTime;
             if (hideTimer <= 0) shouldBeVisible = false;
         }
 
-        // Calculate target slide offset
+        // Enhanced slide animation with easing
         float targetSlideOffset = shouldBeVisible ? 0.0f : 1.0f;
-
-        // Smooth slide animation
         float slideSpeed = 1.0f / SLIDE_DURATION;
+
         if (slideOffset != targetSlideOffset) {
             float direction = targetSlideOffset > slideOffset ? 1.0f : -1.0f;
             slideOffset += direction * slideSpeed * deltaTime;
 
-            // Clamp to target
             if (direction > 0 && slideOffset > targetSlideOffset) slideOffset = targetSlideOffset;
             else if (direction < 0 && slideOffset < targetSlideOffset) slideOffset = targetSlideOffset;
         }
     }
 
-    private void renderResourceBar(DrawContext drawContext, MinecraftClient client, PlayerClassManager manager,
-                                   int hudX, int hudY, ResourceType resourceType) {
+    /**
+     * Render enhanced resource bar matching LevelHudRenderer aesthetic
+     */
+    private void renderEnhancedResourceBar(DrawContext drawContext, MinecraftClient client, PlayerClassManager manager,
+                                           int hudX, int hudY, ResourceType resourceType) {
         TextRenderer textRenderer = client.textRenderer;
 
         // Get resource values
         float currentResource = manager.getCurrentResource();
         float maxResource = manager.getMaxResource();
 
-        // Calculate dimensions
-        int hudWidth = BAR_WIDTH + 6;
-        int hudHeight = BAR_HEIGHT + textRenderer.fontHeight + 8;
+        // Calculate enhanced dimensions
+        int hudWidth = BAR_WIDTH + (PADDING * 2);
+        int hudHeight = textRenderer.fontHeight + BAR_HEIGHT + LINE_HEIGHT + (PADDING * 3) + 4;
 
         // Dynamic colors from ResourceType
         int barColor = resourceType.getColor();
         int glowColor = resourceType.getColorglow();
-
-        // For background, keep your original color but based on resource type (optional)
         int barBgColor = (resourceType == ResourceType.MANA) ? MANA_BAR_BG_COLOR : RAGE_BAR_BG_COLOR;
 
-        // Background panel with border
-        drawContext.fill(hudX - 3, hudY - 3, hudX + hudWidth, hudY + hudHeight, BACKGROUND_COLOR);
-        drawContext.drawBorder(hudX - 3, hudY - 3, hudWidth + 3, hudHeight + 3, BACKGROUND_COLOR);
+        // === ENHANCED BACKGROUND WITH GRADIENT ===
+        DrawContextUtils.renderVerticalGradientWithBlendedImage(
+                drawContext,
+                hudX,
+                hudY,
+                hudWidth,
+                hudHeight,
+                BACKGROUND_LIGHT,
+                BACKGROUND_DARK,
+                BACKGROUND_TEXTURE,
+                0.2f,
+                BlendMode.MULTIPLY_SCREEN_HYBRID,
+                DrawContextUtils.ImageScaleMode.FILL,
+                256, 128
+        );
+        drawContext.drawBorder(hudX, hudY, hudWidth, hudHeight, BORDER_COLOR);
 
-        // Resource type label color dynamically from enum color
+        int contentY = hudY + PADDING;
+
+        // Resource type label
         String resourceLabel = resourceType.getDisplayName();
-        drawContext.drawTextWithShadow(textRenderer, resourceLabel, hudX, hudY, barColor);
+        int labelX = hudX + PADDING;
+        drawContext.drawTextWithShadow(textRenderer, resourceLabel, labelX, contentY, barColor);
 
-        int barY = hudY + textRenderer.fontHeight + 2;
+        // Percentage (right aligned)
+        String percentText = String.format("%.0f%%", animatedResourceProgress * 100);
+        int percentX = hudX + hudWidth - textRenderer.getWidth(percentText) - PADDING;
+        drawContext.drawTextWithShadow(textRenderer, percentText, percentX, contentY, PERCENTAGE_COLOR);
 
-        // Resource bar background
-        drawContext.fill(hudX, barY, hudX + BAR_WIDTH, barY + BAR_HEIGHT, barBgColor);
+        contentY += textRenderer.fontHeight + 2;
 
-        // Resource bar progress with glow effect
+        // === GOLDEN GRADIENT LINE ===
+        int lineX = hudX + PADDING;
+        int lineWidth = hudWidth - (PADDING * 2);
+        DrawContextUtils.renderHorizontalLineWithCenterGradient(drawContext, lineX, contentY, lineWidth, LINE_HEIGHT, 0, GOLDEN_CENTER, GOLDEN_EDGE);
+        contentY += LINE_HEIGHT + 2;
+
+        // === ENHANCED PROGRESS BAR WITH PORTAL EFFECT ===
+        int barX = hudX + PADDING;
+        int barY = contentY;
+
+        drawContext.fill(barX, barY, barX + BAR_WIDTH, barY + BAR_HEIGHT, barBgColor);
+
         int progressWidth = (int) (BAR_WIDTH * animatedResourceProgress);
 
         if (progressWidth > 0) {
             if (resourceGainGlowTimer > 0) {
                 int glowAlpha = LevelHudRenderer.calculateGlowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
-                int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
-                drawContext.fill(hudX - 2, barY - 2, hudX + progressWidth + 2, barY + BAR_HEIGHT + 2, resourceGlowColor);
-                drawContext.fill(hudX - 1, barY - 1, hudX + progressWidth + 1, barY + BAR_HEIGHT + 1, resourceGlowColor);
+
+                // Multiple glow layers for depth
+                int outerGlowColor = (glowAlpha / 6) << 24 | (glowColor & 0x00FFFFFF);
+                drawContext.fill(barX - 2, barY - 2, barX + progressWidth + 2, barY + BAR_HEIGHT + 2, outerGlowColor);
+
+                int innerGlowColor = (glowAlpha / 3) << 24 | (glowColor & 0x00FFFFFF);
+                drawContext.fill(barX - 1, barY - 1, barX + progressWidth + 1, barY + BAR_HEIGHT + 1, innerGlowColor);
             }
-            drawContext.fill(hudX, barY, hudX + progressWidth, barY + BAR_HEIGHT, barColor);
+
+            // SECOND: Base gradient fill
+            int darkerColor = DrawContextUtils.darkenColor(barColor, 0.7f);
+            DrawContextUtils.renderVerticalGradient(drawContext, barX, barY, progressWidth, BAR_HEIGHT, barColor, darkerColor);
+
+            // THIRD: Magical portal effect overlay
+            float portalAlpha = 0.2f;
+            if (resourceGainGlowTimer > 0) {
+                portalAlpha = 0.2f + (resourceGainGlowTimer / RESOURCE_GLOW_DURATION) * 0.1f;
+            }
+
+            DrawContextUtils.renderMagicalPortalEffect(drawContext, barX, barY, progressWidth, BAR_HEIGHT,
+                    SKY_NIGHT_TEXTURE, portalTime, portalAlpha);
         }
 
-        // Resource bar border
-        drawContext.drawBorder(hudX, barY, BAR_WIDTH, BAR_HEIGHT, BORDER_COLOR);
+        // Enhanced bar border
+        drawContext.drawBorder(barX, barY, BAR_WIDTH, BAR_HEIGHT, BAR_BORDER_COLOR);
 
-        // Resource text (current/max)
+        // Inner highlight for depth
+        int highlightColor = 0x30FFFFFF;
+        drawContext.fill(barX + 1, barY + 1, barX + BAR_WIDTH - 1, barY + 2, highlightColor);
+
+        // === RESOURCE TEXT (BOTTOM) ===
         String resourceText = NumberUtil.formatNumber((long) currentResource) + "/" + NumberUtil.formatNumber((long) maxResource);
-        int textX = hudX + BAR_WIDTH - textRenderer.getWidth(resourceText);
-        int textY = barY + 2;
+        int textX = barX + BAR_WIDTH - textRenderer.getWidth(resourceText);
+        int textY = barY + 1;
         drawContext.drawTextWithShadow(textRenderer, resourceText, textX, textY, TEXT_COLOR);
-
-        // Resource percentage (left side of bar)
-        String percentText = String.format("%.0f%%", animatedResourceProgress * 100);
-        drawContext.drawTextWithShadow(textRenderer, percentText, hudX + 2, textY, 0xFFAAAAAA);
     }
 
     /**
-     * Force show the resource bar (for when skills are used, etc.)
+     * Calculate HUD X position with enhanced easing
+     */
+    private int calculateHudX() {
+        int hudWidth = BAR_WIDTH + (PADDING * 2);
+        int hiddenX = -hudWidth - 10;
+        float easedOffset = DrawContextUtils.enhancedEaseInOut(slideOffset);
+        return MathHelper.lerp(easedOffset, HUD_X, hiddenX);
+    }
+
+    /**
+     * Force show the resource bar with glow effect
      */
     public void forceShow() {
         shouldBeVisible = true;
         hideTimer = AUTO_HIDE_DELAY;
+        resourceGainGlowTimer = RESOURCE_GLOW_DURATION;
     }
 
     /**
@@ -203,5 +474,21 @@ public class ResourceBarHud {
     public void forceHide() {
         shouldBeVisible = false;
         hideTimer = 0;
+    }
+
+    /**
+     * Trigger glow effect (for skill usage, combat, etc.)
+     */
+    public void triggerGlow() {
+        resourceGainGlowTimer = RESOURCE_GLOW_DURATION;
+        forceShow();
+    }
+
+    /**
+     * Manually spawn a resource particle (for external triggers like skill usage)
+     */
+    public void spawnParticle(float amount, ResourceType resourceType) {
+        spawnResourceParticle(amount, resourceType);
+        forceShow(); // Show the bar when manually spawning particles
     }
 }
