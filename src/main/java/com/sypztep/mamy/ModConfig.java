@@ -57,24 +57,6 @@ public class ModConfig implements ConfigData {
     public static int toastScale = 50;
 
     // =====================================
-    // PROGRESS BARS
-    // =====================================
-
-    @ConfigEntry.Category("progress_bars")
-    @ConfigEntry.ColorPicker(allowAlpha = true)
-    @Comment("Color of the experience progress bar fill")
-    public static int barColor = 0xFFFFFFFF;
-
-    @ConfigEntry.Category("progress_bars")
-    @ConfigEntry.ColorPicker(allowAlpha = true)
-    @Comment("Background color of the experience progress bar")
-    public static int barBGColor = 0xFFAB5C00;
-
-    @ConfigEntry.Category("progress_bars")
-    @Comment("Visual style for progress bars")
-    public static RenderStyle renderStyle = RenderStyle.BAR;
-
-    // =====================================
     // GAMEPLAY SETTINGS
     // =====================================
 
@@ -206,13 +188,4 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 1)
     @Comment("Percentage of next level experience lost on death (0.0 - 1.0)")
     public static float deathPenaltyPercentage = 0.1f;
-
-    // =====================================
-    // ENUMS
-    // =====================================
-
-    public enum RenderStyle {
-        BAR,
-        SLATE
-    }
 }
