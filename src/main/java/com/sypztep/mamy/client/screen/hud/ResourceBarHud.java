@@ -167,7 +167,7 @@ public class ResourceBarHud {
 
         if (progressWidth > 0) {
             if (resourceGainGlowTimer > 0) {
-                int glowAlpha = LevelHudRenderer.glowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
+                int glowAlpha = LevelHudRenderer.calculateGlowStrength(resourceGainGlowTimer, RESOURCE_GLOW_DURATION);
                 int resourceGlowColor = (glowAlpha << 24) | (glowColor & 0x00FFFFFF);
                 drawContext.fill(hudX - 2, barY - 2, hudX + progressWidth + 2, barY + BAR_HEIGHT + 2, resourceGlowColor);
                 drawContext.fill(hudX - 1, barY - 1, hudX + progressWidth + 1, barY + BAR_HEIGHT + 1, resourceGlowColor);

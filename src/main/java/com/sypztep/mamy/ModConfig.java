@@ -11,6 +11,9 @@ public class ModConfig implements ConfigData {
     // =====================================
     // CLIENT FEATURES
     // =====================================
+    @ConfigEntry.Category("client_features")
+    @Comment("Scale Factor for level bar")
+    public static float lvbarscale = 0.7f;
 
     @ConfigEntry.Category("client_features")
     @Comment("Show visual indicator when landing critical hits")
