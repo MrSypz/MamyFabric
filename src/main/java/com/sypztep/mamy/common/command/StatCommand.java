@@ -266,8 +266,8 @@ public class StatCommand {
             stat.setPoints((short) value);
             stat.applyPrimaryEffect(player);
             stat.applySecondaryEffect(player);
+            component.getPassiveAbilityManager().updatePassiveAbilitiesForStat(statType);
         });
-
         Text message = Text.literal(String.format(
                 "§6Set %s's §e%s §6from §f%d §6to §f%d",
                 player.getName().getString(), statType.getAka(), oldValue, value
@@ -309,6 +309,7 @@ public class StatCommand {
             stat.add((short) (newValue - oldValue));
             stat.applyPrimaryEffect(player);
             stat.applySecondaryEffect(player);
+            component.getPassiveAbilityManager().updatePassiveAbilitiesForStat(statType);
         });
 
         Text message = Text.literal(String.format(

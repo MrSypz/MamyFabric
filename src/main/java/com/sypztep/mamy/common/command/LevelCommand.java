@@ -187,6 +187,7 @@ public class LevelCommand {
             component.setLevel((short) 1);
             component.getLevelSystem().setExperience(0);
             component.getLevelSystem().setStatPoints(ModConfig.startStatpoints);
+            component.getPassiveAbilityManager().updatePassiveAbilities();
             component.getLivingStats().resetStats(player,false);
             component.getPassiveAbilityManager().resetAll();
         });
