@@ -276,7 +276,6 @@ public class PlayerClass {
      */
     public float getMaxResource(PlayerEntity player) {
         if (player == null) {
-//            Mamy.LOGGER.info("[PlayerClass] Using GetMaxReSource But Can't get player fallback to resource 200");
             return getBaseMaxResource();
         }
         return (float) player.getAttributeValue(ModEntityAttributes.RESOURCE);
@@ -287,7 +286,6 @@ public class PlayerClass {
      * Use this for UI display when player context isn't available
      */
     public float getBaseMaxResource() {
-//        Mamy.LOGGER.info("[PlayerClass] Can't get player fallback to resource 200");
         double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
         double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
         return (float) (baseResource + classBonus);
@@ -296,9 +294,9 @@ public class PlayerClass {
         // Get current class level
         int classLevel = 1; // Default level
         if (entity instanceof PlayerEntity player) {
-            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.getNullable(player);
-            if (classComponent != null) {
-                classLevel = classComponent.getClassManager().getClassLevel();
+            LivingLevelComponent baseComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player); // using base instead of class lvl
+            if (baseComponent != null) {
+                classLevel = baseComponent.getLevel();
             }
         }
 
