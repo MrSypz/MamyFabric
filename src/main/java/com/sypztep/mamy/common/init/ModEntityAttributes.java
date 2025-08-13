@@ -28,9 +28,9 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> HEADSHOT_DAMAGE = register("headshot_damage", 0.0, 0.0, 1024D);
 
 
-    RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE = register("melee_attack_damage", 0, 0.0, 2048D);
-    RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE = register("magic_attack_damage", 0, 0.0, 10.24D);
-    RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE = register("projectile_attack_damage",0, 0.0, 10.24D);
+    RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE = register("melee_attack_damage", 0, 0.0, 4096);
+    RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE = register("magic_attack_damage", 0, 0.0, 4096);
+    RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE = register("projectile_attack_damage",0, 0.0, 4096);
 
     RegistryEntry<EntityAttribute> MAGIC_RESISTANCE = register("magic_resistance", 0, -10.0D, 0.75D);
     RegistryEntry<EntityAttribute> DAMAGE_REDUCTION = register("damage_reduction", 0.05, 0.0D, 0.8D);
