@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.system.passive;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
+import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -64,9 +65,14 @@ public class PassiveAbilityManager {
      * Update all passive abilities - check for new unlocks and apply/remove effects
      */
     public void updatePassiveAbilities() {
-        for (PassiveAbility ability : ModPassiveAbilities.getAllAbilities()) {
-            updateAbility(ability);
-        }
+        for (PassiveAbility ability : ModPassiveAbilities.getAllAbilities()) updateAbility(ability);
+    }
+    /**
+     * Update all passive abilities by Stats - check for new unlocks and apply/remove effects
+     */
+    public void updatePassiveAbilitiesForStat(StatTypes changedStatType) {
+        for (PassiveAbility ability : ModPassiveAbilities.getAllAbilities())
+            if (ability.getRequirements().containsKey(changedStatType)) updateAbility(ability);
     }
 
     /**
