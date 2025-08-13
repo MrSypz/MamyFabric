@@ -2,7 +2,6 @@ package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
-import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
@@ -324,7 +323,7 @@ public class PlayerClass {
                 }
 
                 // Use ADD_VALUE for all class bonuses (flat amounts)
-                attribute.addTemporaryModifier(new EntityAttributeModifier(
+                attribute.addPersistentModifier(new EntityAttributeModifier(
                         modifierId,
                         effectValue,
                         EntityAttributeModifier.Operation.ADD_VALUE

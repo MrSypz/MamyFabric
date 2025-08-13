@@ -66,7 +66,11 @@ public final class LivingEntityUtil {
     }
 
     // PLAYER CLASS //
-    public static void updateClassModifierBonus(LivingEntity livingEntity,short i, short j) {
-        ModEntityComponents.PLAYERCLASS.get(livingEntity).getClassManager().getCurrentClass().applyAttributeModifiers(livingEntity);
+    public static void updateClassModifierBonus(LivingEntity livingEntity) {
+        var playerClass = ModEntityComponents.PLAYERCLASS.get(livingEntity);
+        playerClass.performBatchUpdate(() -> {
+            playerClass.getClassManager().getCurrentClass().removeAttributeModifiers(livingEntity);
+            playerClass.getClassManager().getCurrentClass().applyAttributeModifiers(livingEntity);
+        });
     }
 }

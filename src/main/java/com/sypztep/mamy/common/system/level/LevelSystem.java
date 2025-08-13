@@ -23,6 +23,7 @@ public class LevelSystem {
         this.experienceToNextLevel = calculateXpForNextLevel(level);
         this.levelUpCallback = null; // Set by external system
     }
+    //TODO: Update the toast sender
     public void levelUp(LevelUpCallback callback) {
         this.levelUpCallback = callback;
     }
@@ -51,9 +52,9 @@ public class LevelSystem {
         experience -= experienceToNextLevel;
         short oldLevel = level;
         level++;
-        if (levelUpCallback != null) {
-            levelUpCallback.onLevelUp(livingEntity, oldLevel, level);
-        }
+        if (levelUpCallback != null) levelUpCallback.onLevelUp(livingEntity, oldLevel, level);
+
+        LivingEntityUtil.updateClassModifierBonus(livingEntity);
 
         statPoints += getStatPointsForLevel(level);
         if (level < maxLevel) updateNextLvl();
@@ -71,7 +72,9 @@ public class LevelSystem {
         return level >= maxLevel;
     }
 
-    public void setMaxLevel(short maxLevel) { this.maxLevel = maxLevel; }
+    public void setMaxLevel(short maxLevel) {
+        this.maxLevel = maxLevel;
+    }
 
     public short getMaxLevel() {
         return maxLevel;
@@ -128,6 +131,7 @@ public class LevelSystem {
         this.experienceToNextLevel = tag.getLong("ExperienceToNextLevel");
         if (LivingEntityUtil.isPlayer(livingEntity)) this.statPoints = tag.getShort("StatPoints");
     }
+
     @FunctionalInterface
     public interface LevelUpCallback {
         void onLevelUp(LivingEntity entity, short oldLevel, short newLevel);

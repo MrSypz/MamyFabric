@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -158,6 +159,7 @@ public class LevelCommand {
         int oldLevel = component.getLevel();
 
         component.setLevel(level);
+        LivingEntityUtil.updateClassModifierBonus(player);
 
         Text message = Text.literal(String.format(
                 "§6Set %s's level from §f%d §6to §f%d",
@@ -233,6 +235,7 @@ public class LevelCommand {
 
         return 1;
     }
+
     private static int getSelfInfo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         return showLevelInfo(context.getSource(), player);
