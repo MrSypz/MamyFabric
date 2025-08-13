@@ -12,6 +12,7 @@ public class LevelSystem {
     protected short statPoints;
     protected final LivingEntity livingEntity;
     protected short maxLevel;
+    private LevelUpCallback levelUpCallback;
 
     public LevelSystem(LivingEntity livingEntity) {
         this.level = 1;
@@ -20,8 +21,11 @@ public class LevelSystem {
         this.livingEntity = livingEntity;
         this.maxLevel = ModConfig.maxLevel;
         this.experienceToNextLevel = calculateXpForNextLevel(level);
+        this.levelUpCallback = null; // Set by external system
     }
-
+    public void levelUp(LevelUpCallback callback) {
+        this.levelUpCallback = callback;
+    }
     private long calculateXpForNextLevel(int level) {
         if (level < 1 || level >= ModConfig.maxLevel) return 0L;
         return ModConfig.EXP_MAP[level - 1];
@@ -45,7 +49,12 @@ public class LevelSystem {
         if (level >= maxLevel) return;
 
         experience -= experienceToNextLevel;
+        short oldLevel = level;
         level++;
+        if (levelUpCallback != null) {
+            levelUpCallback.onLevelUp(livingEntity, oldLevel, level);
+        }
+
         statPoints += getStatPointsForLevel(level);
         if (level < maxLevel) updateNextLvl();
     }
@@ -118,5 +127,9 @@ public class LevelSystem {
         this.experience = tag.getLong("Experience");
         this.experienceToNextLevel = tag.getLong("ExperienceToNextLevel");
         if (LivingEntityUtil.isPlayer(livingEntity)) this.statPoints = tag.getShort("StatPoints");
+    }
+    @FunctionalInterface
+    public interface LevelUpCallback {
+        void onLevelUp(LivingEntity entity, short oldLevel, short newLevel);
     }
 }
