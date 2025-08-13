@@ -1,27 +1,16 @@
 package com.sypztep.mamy.client;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
-import com.sypztep.mamy.client.screen.KeyEntryScreen;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.*;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.gui.screen.TitleScreen;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.concurrent.CompletableFuture;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();
