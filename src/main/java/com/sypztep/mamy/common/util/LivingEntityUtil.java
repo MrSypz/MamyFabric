@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.util;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -62,5 +63,10 @@ public final class LivingEntityUtil {
         if (entity instanceof PlayerEntity player && player.getAbilities().flying) return false;
 
         return (!entity.isTouchingWater() && !entity.isSwimming());
+    }
+
+    // PLAYER CLASS //
+    public static void updateClassModifierBonus(LivingEntity livingEntity,short i, short j) {
+        ModEntityComponents.PLAYERCLASS.get(livingEntity).getClassManager().getCurrentClass().applyAttributeModifiers(livingEntity);
     }
 }

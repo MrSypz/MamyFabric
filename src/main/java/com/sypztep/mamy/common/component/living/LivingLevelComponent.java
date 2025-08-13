@@ -109,6 +109,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         performBatchUpdate(() -> {
             livingStats.getLevelSystem().setLevel((short) level);
             livingStats.getLevelSystem().setExperience(0);
+            livingStats.getLevelSystem().levelUp(LivingEntityUtil::updateClassModifierBonus);
         });
     }
 
