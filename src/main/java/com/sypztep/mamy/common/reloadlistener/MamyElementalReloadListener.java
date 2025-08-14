@@ -33,7 +33,7 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
 
     @Override
     public void reload(ResourceManager manager) {
-        ItemElementDataEntry.clearAll();
+        ItemElementDataEntry.ITEM_DATA_MAP.clear();
 
         AtomicInteger loadedCount = new AtomicInteger();
         AtomicInteger errorCount = new AtomicInteger();
@@ -75,7 +75,7 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
                             // Parse damage ratios
                             Map<RegistryEntry<EntityAttribute>, Double> damageRatios = parseDamageRatios(object, item);
                             ItemElementDataEntry entry = new ItemElementDataEntry(damageRatios, powerBudget);
-                            ItemElementDataEntry.addEntry(item, entry);
+                            ItemElementDataEntry.ITEM_DATA_MAP.put(item, entry);
 
                             loadedCount.getAndIncrement();
 

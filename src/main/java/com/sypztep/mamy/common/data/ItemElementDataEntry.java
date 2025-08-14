@@ -14,20 +14,12 @@ public record ItemElementDataEntry(
 
     public static final Map<Item, ItemElementDataEntry> ITEM_DATA_MAP = new ConcurrentHashMap<>();
 
-    public static void addEntry(Item item, ItemElementDataEntry entry) {
-        ITEM_DATA_MAP.put(item, entry);
-    }
-
     public static ItemElementDataEntry getEntry(Item item) {
         return ITEM_DATA_MAP.get(item);
     }
 
     public static boolean hasEntry(Item item) {
         return ITEM_DATA_MAP.containsKey(item);
-    }
-
-    public static void clearAll() {
-        ITEM_DATA_MAP.clear();
     }
 
     @Override
