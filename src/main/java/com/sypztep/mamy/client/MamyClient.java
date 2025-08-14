@@ -4,6 +4,7 @@ import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
+import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.client.util.ElementalDamageDisplay;
@@ -40,7 +41,10 @@ public class MamyClient implements ClientModInitializer {
 
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
+        ItemWeightTooltip.register();
+
         ClientTickEvents.END_CLIENT_TICK.register(ElementalDamageDisplay::tickScheduledSpawns);
+
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
 //                KeyEntryScreen.keyValidated = true;
