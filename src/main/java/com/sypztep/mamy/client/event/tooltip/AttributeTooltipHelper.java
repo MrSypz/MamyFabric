@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.event.tooltip;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.data.ItemDataEntry;
+import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -138,7 +138,7 @@ public abstract class AttributeTooltipHelper {
     }
     // Add this new method to AttributeTooltipHelper.java
     protected static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer, String budgetKey) {
-        ItemDataEntry itemData = ItemDataEntry.getEntry(stack.getItem());
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         // Show power budget if not default
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
@@ -213,7 +213,7 @@ public abstract class AttributeTooltipHelper {
     // Updated elemental section with percentage and amount display
     protected static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, String sectionKey,
                                                  String budgetKey, String elementKeyPrefix, double baseDamage, boolean showAmount) {
-        ItemDataEntry itemData = ItemDataEntry.getEntry(stack.getItem());
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         // Show power budget if not default
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {

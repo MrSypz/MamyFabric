@@ -1,6 +1,6 @@
 package com.sypztep.mamy.client.event.tooltip;
 
-import com.sypztep.mamy.common.data.ItemDataEntry;
+import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.component.DataComponentTypes;
@@ -44,7 +44,7 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
         hasShownHeader = appendAttackSpeed(stack, textConsumer, player, hasShownHeader);
 
         // 3. ELEMENTAL DAMAGE (only if has elemental data)
-        if (ItemDataEntry.hasEntry(stack.getItem())) {
+        if (ItemElementDataEntry.hasEntry(stack.getItem())) {
             hasShownHeader = appendElementalDamage(stack, textConsumer, player, hasShownHeader);
         }
 
@@ -80,7 +80,7 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
         textConsumer.accept(ScreenTexts.space().append(comp));
 
         // Breakdown on shift (only if has elemental data)
-        if (ItemDataEntry.hasEntry(stack.getItem()) && Screen.hasShiftDown()) {
+        if (ItemElementDataEntry.hasEntry(stack.getItem()) && Screen.hasShiftDown()) {
             textConsumer.accept(
                     ScreenTexts.space()
                             .append(Text.literal("  ├─ ").formatted(Formatting.DARK_GRAY))

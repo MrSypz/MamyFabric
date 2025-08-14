@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.data.ItemDataEntry;
+import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.util.ElementalAttributeRegistry;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -33,7 +33,7 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
 
     @Override
     public void reload(ResourceManager manager) {
-        ItemDataEntry.clearAll();
+        ItemElementDataEntry.clearAll();
 
         AtomicInteger loadedCount = new AtomicInteger();
         AtomicInteger errorCount = new AtomicInteger();
@@ -74,8 +74,8 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
 
                             // Parse damage ratios
                             Map<RegistryEntry<EntityAttribute>, Double> damageRatios = parseDamageRatios(object, item);
-                            ItemDataEntry entry = new ItemDataEntry(damageRatios, powerBudget);
-                            ItemDataEntry.addEntry(item, entry);
+                            ItemElementDataEntry entry = new ItemElementDataEntry(damageRatios, powerBudget);
+                            ItemElementDataEntry.addEntry(item, entry);
 
                             loadedCount.getAndIncrement();
 
@@ -99,11 +99,11 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
         }
 
         if (Mamy.LOGGER.isDebugEnabled()) {
-            ItemDataEntry.ITEM_DATA_MAP.entrySet().stream()
+            ItemElementDataEntry.ITEM_DATA_MAP.entrySet().stream()
                     .limit(5)
                     .forEach(entry -> {
                         Identifier id = Registries.ITEM.getId(entry.getKey());
-                        ItemDataEntry itemEntry = entry.getValue();
+                        ItemElementDataEntry itemEntry = entry.getValue();
                         Mamy.LOGGER.debug("Loaded: {} -> {}", id, itemEntry);
                     });
         }

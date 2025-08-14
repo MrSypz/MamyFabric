@@ -1,6 +1,6 @@
 package com.sypztep.mamy.client.event.tooltip;
 
-import com.sypztep.mamy.common.data.ItemDataEntry;
+import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -61,7 +61,7 @@ public class CustomArmorTooltip extends AttributeTooltipHelper {
             });
 
             // Add elemental resistances section if this slot had modifiers and item has elemental data
-            if (!hasShownHeader.isTrue() && ItemDataEntry.hasEntry(stack.getItem())) {
+            if (!hasShownHeader.isTrue() && ItemElementDataEntry.hasEntry(stack.getItem())) {
                 appendElementalResistances(stack, textConsumer, player);
             }
         }
@@ -98,7 +98,7 @@ public class CustomArmorTooltip extends AttributeTooltipHelper {
     }
 
     private void appendElementalResistances(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
-        ItemDataEntry itemData = ItemDataEntry.getEntry(stack.getItem());
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         // Check if has any resistances (positive or negative)
         boolean hasElementalResistances = itemData.damageRatios().entrySet().stream()

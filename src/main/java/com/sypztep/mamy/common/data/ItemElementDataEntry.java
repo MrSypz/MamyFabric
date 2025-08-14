@@ -7,18 +7,18 @@ import net.minecraft.registry.entry.RegistryEntry;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public record ItemDataEntry(
+public record ItemElementDataEntry(
         Map<RegistryEntry<EntityAttribute>, Double> damageRatios,
         double powerBudget
 ) {
 
-    public static final Map<Item, ItemDataEntry> ITEM_DATA_MAP = new ConcurrentHashMap<>();
+    public static final Map<Item, ItemElementDataEntry> ITEM_DATA_MAP = new ConcurrentHashMap<>();
 
-    public static void addEntry(Item item, ItemDataEntry entry) {
+    public static void addEntry(Item item, ItemElementDataEntry entry) {
         ITEM_DATA_MAP.put(item, entry);
     }
 
-    public static ItemDataEntry getEntry(Item item) {
+    public static ItemElementDataEntry getEntry(Item item) {
         return ITEM_DATA_MAP.get(item);
     }
 

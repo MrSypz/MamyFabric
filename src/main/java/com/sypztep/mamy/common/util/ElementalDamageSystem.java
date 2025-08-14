@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.util;
 
 import com.sypztep.mamy.client.payload.ElementalDamagePayloadS2C;
-import com.sypztep.mamy.common.data.ItemDataEntry;
+import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModTags;
@@ -138,8 +138,8 @@ public final class ElementalDamageSystem {
     }
 
     private static double getPowerBudget(ItemStack weapon) {
-        if (ItemDataEntry.hasEntry(weapon.getItem())) {
-            return ItemDataEntry.getEntry(weapon.getItem()).powerBudget();
+        if (ItemElementDataEntry.hasEntry(weapon.getItem())) {
+            return ItemElementDataEntry.getEntry(weapon.getItem()).powerBudget();
         }
         return 1.0; // Default power budget
     }
@@ -188,8 +188,8 @@ public final class ElementalDamageSystem {
 
             debugLog("Checking armor: %s", armorPiece.getItem());
 
-            if (ItemDataEntry.hasEntry(armorPiece.getItem())) {
-                ItemDataEntry entry = ItemDataEntry.getEntry(armorPiece.getItem());
+            if (ItemElementDataEntry.hasEntry(armorPiece.getItem())) {
+                ItemElementDataEntry entry = ItemElementDataEntry.getEntry(armorPiece.getItem());
                 debugLog("  Has elemental data: %s", entry.damageRatios());
                 debugLog("  Power budget: %.2f", entry.powerBudget());
 
@@ -278,8 +278,8 @@ public final class ElementalDamageSystem {
         }
 
         // Convert attribute-based ratios to ElementType ratios
-        if (ItemDataEntry.hasEntry(weapon.getItem())) {
-            ItemDataEntry itemData = ItemDataEntry.getEntry(weapon.getItem());
+        if (ItemElementDataEntry.hasEntry(weapon.getItem())) {
+            ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(weapon.getItem());
 
             for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : itemData.damageRatios().entrySet()) {
                 RegistryEntry<EntityAttribute> attribute = entry.getKey();
