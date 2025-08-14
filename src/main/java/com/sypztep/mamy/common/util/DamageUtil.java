@@ -24,17 +24,8 @@ public final class DamageUtil {
         float get(LivingEntity attacker, LivingEntity target, DamageSource source, boolean isCrit);
     }
 
-    @FunctionalInterface
-    private interface DamageResistanceModifier {
-        float get(LivingEntity defender, DamageSource source, float amount);
-    }
-
     private static float specialAttack(LivingEntity attacker) {
         return (float) attacker.getAttributeValue(ModEntityAttributes.SPECIAL_ATTACK);
-    }
-
-    private static float specialDefense(LivingEntity defender) {
-        return (float) defender.getAttributeValue(ModEntityAttributes.SPECIAL_DEFENSE);
     }
 
     private enum ModifierOperationType {
@@ -77,21 +68,12 @@ public final class DamageUtil {
             return 0.0f;
         }),
 
+        // Keep only NON-ELEMENTAL damage modifiers
         PROJECTILE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
                 float projectileBonus = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
                 float extra = projectileBonus + specialAttack(attacker);
                 debugLog("Projectile Damage: +%.1f (%.1f projectile, %.1f special)", extra, projectileBonus, specialAttack(attacker));
-                return extra;
-            }
-            return 0.0f;
-        }),
-
-        MELEE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
-                float meleeBonus = (float) attacker.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
-                float extra = meleeBonus + specialAttack(attacker);
-                debugLog("Melee Damage: +%.1f (%.1f melee, %.1f special)", extra, meleeBonus, specialAttack(attacker));
                 return extra;
             }
             return 0.0f;
@@ -105,30 +87,9 @@ public final class DamageUtil {
                 return extra;
             }
             return 0.0f;
-        }),
-
-        // ADD ELEMENTAL DAMAGE MODIFIERS
-        FIRE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            // You can add custom fire damage tags or use vanilla fire tags
-            if (source.isIn(DamageTypeTags.IS_FIRE)) {
-                float fireBonus = (float) attacker.getAttributeValue(ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT);
-                float extra = fireBonus + specialAttack(attacker);
-                debugLog("Fire Damage: +%.1f (%.1f fire, %.1f special)", extra, fireBonus, specialAttack(attacker));
-                return extra;
-            }
-            return 0.0f;
-        }),
-
-        ELECTRIC_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            // You'll need to create custom electric damage tags
-            if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE)) { // Add this to your ModTags
-                float electricBonus = (float) attacker.getAttributeValue(ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_FLAT);
-                float extra = electricBonus + specialAttack(attacker);
-                debugLog("Electric Damage: +%.1f (%.1f electric, %.1f special)", extra, electricBonus, specialAttack(attacker));
-                return extra;
-            }
-            return 0.0f;
         });
+
+        // REMOVED: MELEE_DAMAGE, FIRE_DAMAGE, ELECTRIC_DAMAGE - let ElementalDamageSystem handle these
 
         private final ModifierOperationType opType;
         private final DamageModifier modifier;
@@ -147,111 +108,6 @@ public final class DamageUtil {
         }
     }
 
-    private enum ResistanceModifierType {
-        PROJECTILE_RESISTANCE(ModifierOperationType.MULTIPLY, (defender, source, amount) -> {
-            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-                float projectileResistance = (float) defender.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE);
-                float resistance = projectileResistance + specialDefense(defender);
-                debugLog("Projectile Resistance: %.1f%% (%.1f projectile, %.1f special)", resistance * 100, projectileResistance * 100, specialDefense(defender) * 100);
-                return resistance;
-            }
-            return 0.0f;
-        }),
-
-        MELEE_RESISTANCE(ModifierOperationType.MULTIPLY, (defender, source, amount) -> {
-            if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
-                float meleeResistance = (float) defender.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE);
-                float resistance = meleeResistance + specialDefense(defender);
-                debugLog("Melee Resistance: %.1f%% (%.1f melee, %.1f special)", resistance * 100, meleeResistance * 100, specialDefense(defender) * 100);
-                return resistance;
-            }
-            return 0.0f;
-        }),
-
-        MAGIC_RESISTANCE(ModifierOperationType.MULTIPLY, (defender, source, amount) -> {
-            if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-                float magicResistance = (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE);
-                float resistance = magicResistance + specialDefense(defender);
-                debugLog("Magic Resistance: %.1f%% (%.1f magic, %.1f special)", resistance * 100, magicResistance * 100, specialDefense(defender) * 100);
-                return resistance;
-            }
-            return 0.0f;
-        }),
-
-        FIRE_RESISTANCE(ModifierOperationType.MULTIPLY, (defender, source, amount) -> {
-            if (source.isIn(DamageTypeTags.IS_FIRE)) {
-                float fireResistance = (float) defender.getAttributeValue(ModEntityAttributes.FIRE_RESISTANCE);
-                float resistance = fireResistance + specialDefense(defender);
-                debugLog("Fire Resistance: %.1f%% (%.1f fire, %.1f special)", resistance * 100, fireResistance * 100, specialDefense(defender) * 100);
-                return resistance;
-            }
-            return 0.0f;
-        }),
-
-        ELECTRIC_RESISTANCE(ModifierOperationType.MULTIPLY, (defender, source, amount) -> {
-            if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE)) {
-                float electricResistance = (float) defender.getAttributeValue(ModEntityAttributes.ELECTRIC_RESISTANCE);
-                float resistance = electricResistance + specialDefense(defender);
-                debugLog("Electric Resistance: %.1f%% (%.1f electric, %.1f special)", resistance * 100, electricResistance * 100, specialDefense(defender) * 100);
-                return resistance;
-            }
-            return 0.0f;
-        }),
-
-        // Add flat damage reduction for specific damage types
-        FLAT_DAMAGE_REDUCTION(ModifierOperationType.ADD, (defender, source, amount) -> {
-            float flatReduction = 0.0f;
-
-            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION);
-            }
-            if (source.isIn(DamageTypeTags.IS_FIRE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_FIRE_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_ELECTRIC_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.WATER_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_WATER_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.WIND_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_WIND_REDUCTION);
-            }
-            if (source.isIn(ModTags.DamageTags.HOLY_DAMAGE)) {
-                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_HOLY_REDUCTION);
-            }
-
-            if (flatReduction > 0) {
-                flatReduction += specialDefense(defender);
-                debugLog("Flat Damage Reduction: -%.1f damage", flatReduction);
-            }
-
-            return flatReduction;
-        });
-
-        private final ModifierOperationType opType;
-        private final DamageResistanceModifier modifier;
-
-        ResistanceModifierType(ModifierOperationType opType, DamageResistanceModifier modifier) {
-            this.opType = opType;
-            this.modifier = modifier;
-        }
-
-        public ModifierOperationType getOperationType() {
-            return opType;
-        }
-
-        public float getModifierValue(LivingEntity defender, DamageSource source, float amount) {
-            return modifier.get(defender, source, amount);
-        }
-    }
-
     /**
      * Handles damage increases (attacker bonuses)
      */
@@ -267,7 +123,7 @@ public final class DamageUtil {
             if (modifierType.getOperationType() == ModifierOperationType.ADD) {
                 additiveBonus += value;
             } else if (modifierType.getOperationType() == ModifierOperationType.MULTIPLY) {
-                multiplicativeMultiplier *= (1.0f + value); // value = 0.3 → ×1.3
+                multiplicativeMultiplier *= (1.0f + value);
             }
         }
 
@@ -277,20 +133,22 @@ public final class DamageUtil {
 
         return finalDamage;
     }
+
+    /**
+     * SIMPLIFIED: Only handle elemental damage system + non-elemental flat reductions
+     */
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
         debugLog("====RESISTANCE MODIFIER START====");
 
-        // Apply elemental damage calculation first
         float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
 
-        // Then apply existing flat reduction system for any remaining effects
         float flatReduction = 0.0f;
-        for (ResistanceModifierType resistanceType : ResistanceModifierType.values()) {
-            float value = resistanceType.getModifierValue(defender, source, elementalDamage);
-            if (resistanceType.getOperationType() == ModifierOperationType.ADD) {
-                flatReduction += value;
-            }
+
+        // Keep only non-elemental flat reductions
+        if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
+            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION);
         }
+        // You could add other non-elemental flat reductions here
 
         float finalDamage = Math.max(0.1f, elementalDamage - flatReduction);
 
@@ -301,6 +159,7 @@ public final class DamageUtil {
         return finalDamage;
     }
 
+    // Keep armor and other utility methods unchanged
     public static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
                                                   DamageSource source, float flatArmor) {
         debugLog("====START====");
@@ -317,11 +176,10 @@ public final class DamageUtil {
         return Math.max(0.1f, finalDamage);
     }
 
-    //Armour
     public static float getDamageAfterArmor(LivingEntity self, DamageSource source, float amount) {
         if (!source.isIn(DamageTypeTags.BYPASSES_ARMOR)) {
             self.damageArmor(source, amount);
-            return calculateDamageAfterArmor(self,amount,source,self.getArmor());
+            return calculateDamageAfterArmor(self, amount, source, self.getArmor());
         }
         return amount;
     }
