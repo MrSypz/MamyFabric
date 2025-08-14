@@ -1,9 +1,11 @@
 package com.sypztep.mamy.common.util;
 
+import com.sypztep.mamy.client.payload.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModTags;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
@@ -13,7 +15,7 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ElementalDamageSystem {
+public final class ElementalDamageSystem {
     private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
@@ -106,15 +108,16 @@ public class ElementalDamageSystem {
         ItemStack weapon = attacker.getMainHandStack();
         Map<ElementType, Double> ratios = getElementalRatios(weapon, source);
 
-        debugLog("Weapon: %s, Ratios: %s", weapon.getItem().toString(), ratios);
+        double powerBudget = getPowerBudget(weapon);
+
+        debugLog("Weapon: %s, Ratios: %s, PowerBudget: %.2f", weapon.getItem().toString(), ratios, powerBudget);
 
         // Split base damage according to ratios, then apply attacker bonuses
         for (Map.Entry<ElementType, Double> entry : ratios.entrySet()) {
             ElementType element = entry.getKey();
             double ratio = entry.getValue();
 
-            // Base damage from ratio
-            float baseDamage = (float) (totalDamage * ratio);
+            float baseDamage = (float) (totalDamage * ratio * powerBudget);
 
             // Add attacker's base elemental damage
             float elementalBonus = getElementalBonus(attacker, element);
@@ -134,11 +137,25 @@ public class ElementalDamageSystem {
         return new ElementalBreakdown(elementalDamage, source);
     }
 
+    private static double getPowerBudget(ItemStack weapon) {
+        if (ItemDataEntry.hasEntry(weapon.getItem())) {
+            return ItemDataEntry.getEntry(weapon.getItem()).powerBudget();
+        }
+        return 1.0; // Default power budget
+    }
+
     /**
      * Apply defender's resistances to each elemental damage type
      */
     private static float applyElementalResistances(LivingEntity defender, ElementalBreakdown breakdown) {
         debugLog("=== APPLYING ELEMENTAL RESISTANCES ===");
+
+        // Debug armor resistances
+        debugLog("=== ARMOR RESISTANCE DEBUG ===");
+        Map<ElementType, Float> armorResistances = calculateArmorResistances(defender);
+        armorResistances.forEach((element, resistance) ->
+                debugLog("Armor %s resistance: %.3f", element.name, resistance));
+        debugLog("=== END ARMOR DEBUG ===");
 
         float totalFinalDamage = 0.0f;
 
@@ -146,22 +163,71 @@ public class ElementalDamageSystem {
             ElementType element = entry.getKey();
             float elementDamage = entry.getValue();
 
-            float resistance = getElementalResistance(defender, element);
-            float finalElementDamage = elementDamage * (1.0f - resistance);
+            // Get combined resistance (player stats + armor)
+            float playerResistance = getPlayerElementalResistance(defender, element);
+            float armorResistance = armorResistances.getOrDefault(element, 0.0f);
+            float totalResistance = Math.min(0.95f, playerResistance + armorResistance); // Cap at 95%
 
-            // Ensure minimum damage per element
+            float finalElementDamage = elementDamage * (1.0f - totalResistance);
             finalElementDamage = Math.max(0.05f, finalElementDamage);
 
             totalFinalDamage += finalElementDamage;
 
-            debugLog("%s: %.2f × (1 - %.2f resistance) = %.2f",
-                    element.name, elementDamage, resistance, finalElementDamage);
+            debugLog("%s: %.2f × (1 - %.3f player - %.3f armor = %.3f total) = %.2f",
+                    element.name, elementDamage, playerResistance, armorResistance, totalResistance, finalElementDamage);
         }
+        sendDamageNumbers(defender, breakdown);
 
-        // Ensure minimum total damage
         return Math.max(0.1f, totalFinalDamage);
     }
+    private static Map<ElementType, Float> calculateArmorResistances(LivingEntity entity) {
+        Map<ElementType, Float> totalResistances = new HashMap<>();
 
+        for (ItemStack armorPiece : entity.getArmorItems()) {
+            if (armorPiece.isEmpty()) continue;
+
+            debugLog("Checking armor: %s", armorPiece.getItem());
+
+            if (ItemDataEntry.hasEntry(armorPiece.getItem())) {
+                ItemDataEntry entry = ItemDataEntry.getEntry(armorPiece.getItem());
+                debugLog("  Has elemental data: %s", entry.damageRatios());
+                debugLog("  Power budget: %.2f", entry.powerBudget());
+
+                // Convert armor ratios to resistance values
+                for (Map.Entry<RegistryEntry<EntityAttribute>, Double> ratioEntry : entry.damageRatios().entrySet()) {
+                    ElementType elementType = attributeToElementType(ratioEntry.getKey());
+                    if (elementType != null) {
+                        double ratio = ratioEntry.getValue();
+                        double powerBudget = entry.powerBudget();
+
+                        // Calculate resistance: ratio × powerBudget
+                        float resistance = (float) (ratio * powerBudget);
+
+                        totalResistances.merge(elementType, resistance, Float::sum);
+
+                        debugLog("    %s: %.3f ratio × %.2f budget = %.3f resistance",
+                                elementType.name, ratio, powerBudget, resistance);
+                    }
+                }
+            } else {
+                debugLog("  No elemental data found");
+            }
+        }
+
+        return totalResistances;
+    }
+
+    private static float getPlayerElementalResistance(LivingEntity entity, ElementType element) {
+        if (element == ElementType.PHYSICAL) {
+            return (float) entity.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE);
+        }
+        if (element.resistAttribute == null) return 0.0f;
+        return (float) entity.getAttributeValue(element.resistAttribute);
+    }
+
+    private static float getElementalResistance(LivingEntity entity, ElementType element) {
+        return getPlayerElementalResistance(entity, element);
+    }
     /**
      * Check if damage is weapon-based (should use weapon ratios)
      */
@@ -200,14 +266,6 @@ public class ElementalDamageSystem {
         return (float) entity.getAttributeValue(element.affinityAttribute);
     }
 
-    private static float getElementalResistance(LivingEntity entity, ElementType element) {
-        if (element == ElementType.PHYSICAL) {
-            return (float) entity.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE);
-        }
-        if (element.resistAttribute == null) return 0.0f;
-        return (float) entity.getAttributeValue(element.resistAttribute);
-    }
-
     // Update the existing method to convert from attributes to ElementType
     private static Map<ElementType, Double> getElementalRatios(ItemStack weapon, DamageSource source) {
         Map<ElementType, Double> ratios = new HashMap<>();
@@ -236,20 +294,42 @@ public class ElementalDamageSystem {
 
         // Default to 100% physical if no ratios found
         if (ratios.isEmpty()) {
-            ratios.put(ElementType.PHYSICAL, 1.0);
+            ratios.put(ElementType.PHYSICAL, 0.0);
         }
 
         return ratios;
     }
 
-    // Helper method to convert attributes to ElementType
     private static ElementType attributeToElementType(RegistryEntry<EntityAttribute> attribute) {
+        // DAMAGE attributes (for weapons)
         if (attribute.equals(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT)) return ElementType.PHYSICAL;
         if (attribute.equals(ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT)) return ElementType.HEAT;
         if (attribute.equals(ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_FLAT)) return ElementType.ELECTRIC;
         if (attribute.equals(ModEntityAttributes.WATER_ATTACK_DAMAGE_FLAT)) return ElementType.WATER;
         if (attribute.equals(ModEntityAttributes.WIND_ATTACK_DAMAGE_FLAT)) return ElementType.WIND;
         if (attribute.equals(ModEntityAttributes.HOLY_ATTACK_DAMAGE_FLAT)) return ElementType.HOLY;
+
+        // RESISTANCE attributes (for armor)
+        if (attribute.equals(ModEntityAttributes.MELEE_RESISTANCE)) return ElementType.PHYSICAL;
+        if (attribute.equals(ModEntityAttributes.FIRE_RESISTANCE)) return ElementType.HEAT;
+        if (attribute.equals(ModEntityAttributes.ELECTRIC_RESISTANCE)) return ElementType.ELECTRIC;
+        if (attribute.equals(ModEntityAttributes.WATER_RESISTANCE)) return ElementType.WATER;
+        if (attribute.equals(ModEntityAttributes.WIND_RESISTANCE)) return ElementType.WIND;
+        if (attribute.equals(ModEntityAttributes.HOLY_RESISTANCE)) return ElementType.HOLY;
+
         return null;
+    }
+    public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {
+        if (target.getWorld().isClient()) return;
+
+        // Send to all nearby players
+        PlayerLookup.tracking(target).forEach(player ->
+                ElementalDamagePayloadS2C.send(
+                        player,
+                        target.getId(),
+                        breakdown.elementalDamage,
+                        breakdown.elementalDamage.size() > 1 // Show breakdown if multiple elements
+                )
+        );
     }
 }
