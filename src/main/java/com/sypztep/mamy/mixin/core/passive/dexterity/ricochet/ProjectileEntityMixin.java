@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.passive.ricochet;
+package com.sypztep.mamy.mixin.core.passive.dexterity.ricochet;
 
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
 import com.sypztep.mamy.common.init.ModSoundEvents;

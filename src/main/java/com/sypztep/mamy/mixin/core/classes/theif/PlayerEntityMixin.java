@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.classes;
+package com.sypztep.mamy.mixin.core.classes.theif;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.payload.MultiHitPayloadC2S;

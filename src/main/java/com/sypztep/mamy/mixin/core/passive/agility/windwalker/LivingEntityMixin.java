@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.passive.windwalker;
+package com.sypztep.mamy.mixin.core.passive.agility.windwalker;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

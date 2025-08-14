@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.passive.headhunter;
+package com.sypztep.mamy.mixin.core.passive.dexterity.headhunter;
 
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
@@ -13,9 +13,7 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;

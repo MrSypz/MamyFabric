@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.registry.attribute;
+package com.sypztep.mamy.mixin.vanilla.changeattributerange;
 
 import net.minecraft.entity.attribute.ClampedEntityAttribute;
 import net.minecraft.entity.attribute.EntityAttribute;

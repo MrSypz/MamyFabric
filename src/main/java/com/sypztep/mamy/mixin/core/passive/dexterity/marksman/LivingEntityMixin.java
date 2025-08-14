@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.passive.marksman;
+package com.sypztep.mamy.mixin.core.passive.dexterity.marksman;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.sypztep.mamy.common.init.ModPassiveAbilities;
