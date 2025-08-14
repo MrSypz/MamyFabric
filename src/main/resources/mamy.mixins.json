@@ -20,6 +20,7 @@
     "core.stats.vitality.LivingEntityMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
     "vanilla.changeattributerange.EntityAttributesMixin",
+    "vanilla.disableitemtooltip.ItemStackMixin",
     "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin",
     "vanilla.fixprojectileserde.PersistentProjectileEntityMixin"
   ],
@@ -28,7 +29,6 @@
     "core.altfeature.MouseMixin",
     "core.classes.theif.PlayerEntityMixin",
     "core.stats.dexterity.ClientPlayerEntityMixin",
-    "core.stats.strength.client.ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

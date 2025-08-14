@@ -38,24 +38,6 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE_FLAT = register("projectile_attack_damage_flat", 0, 0.0, 4096);
     RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE_MULT = register("projectile_attack_damage_mult", 0, 0.0, 10.24D);
 
-    // Elemental damage attributes (flat and percentage)
-    RegistryEntry<EntityAttribute> FIRE_ATTACK_DAMAGE_FLAT = register("fire_attack_damage_flat", 0, 0.0, 4096);
-    RegistryEntry<EntityAttribute> FIRE_ATTACK_DAMAGE_MULT = register("fire_attack_damage_mult", 0, 0.0, 10.24D);
-
-    RegistryEntry<EntityAttribute> ELECTRIC_ATTACK_DAMAGE_FLAT = register("electric_attack_damage_flat", 0, 0.0, 4096);
-    RegistryEntry<EntityAttribute> ELECTRIC_ATTACK_DAMAGE_MULT = register("electric_attack_damage_mult", 0, 0.0, 10.24D);
-
-    RegistryEntry<EntityAttribute> WATER_ATTACK_DAMAGE_FLAT = register("water_attack_damage_flat", 0, 0.0, 4096);
-    RegistryEntry<EntityAttribute> WATER_ATTACK_DAMAGE_MULT = register("water_attack_damage_mult", 0, 0.0, 10.24D);
-
-    RegistryEntry<EntityAttribute> WIND_ATTACK_DAMAGE_FLAT = register("wind_attack_damage_flat", 0, 0.0, 4096);
-    RegistryEntry<EntityAttribute> WIND_ATTACK_DAMAGE_MULT = register("wind_attack_damage_mult", 0, 0.0, 10.24D);
-
-    RegistryEntry<EntityAttribute> HOLY_ATTACK_DAMAGE_FLAT = register("holy_attack_damage_flat", 0, 0.0, 4096);
-    RegistryEntry<EntityAttribute> HOLY_ATTACK_DAMAGE_MULT = register("holy_attack_damage_mult", 0, 0.0, 10.24D);
-
-    RegistryEntry<EntityAttribute> DAMAGE_REDUCTION = register("damage_reduction", 0.05, 0.0D, 0.8D);
-
     // Flat damage reduction
     RegistryEntry<EntityAttribute> FLAT_PROJECTILE_REDUCTION = register("flat_projectile_reduction", 0, 0.0D, 20.0D);
     RegistryEntry<EntityAttribute> FLAT_MELEE_REDUCTION = register("flat_melee_reduction", 0, 0.0D, 20.0D);
@@ -68,17 +50,39 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> FLAT_WIND_REDUCTION = register("flat_wind_reduction", 0, 0.0D, 20.0D);
     RegistryEntry<EntityAttribute> FLAT_HOLY_REDUCTION = register("flat_holy_reduction", 0, 0.0D, 20.0D);
 
-    // ADD MISSING PERCENTAGE RESISTANCES
     RegistryEntry<EntityAttribute> PROJECTILE_RESISTANCE = register("projectile_resistance", 0, -10.0D, 0.75D);
     RegistryEntry<EntityAttribute> MELEE_RESISTANCE = register("melee_resistance", 0, -10.0D, 0.75D);
-
-    // Elemental resistances
     RegistryEntry<EntityAttribute> MAGIC_RESISTANCE = register("magic_resistance", 0, -10.0D, 0.75D);
-    RegistryEntry<EntityAttribute> FIRE_RESISTANCE = register("fire_resistance", 0, -10.0D, 0.75D);
-    RegistryEntry<EntityAttribute> ELECTRIC_RESISTANCE = register("electric_resistance", 0, -10.0D, 0.75D);
-    RegistryEntry<EntityAttribute> WATER_RESISTANCE = register("water_resistance", 0, -10.0D, 0.75D);
-    RegistryEntry<EntityAttribute> WIND_RESISTANCE = register("wind_resistance", 0, -10.0D, 0.75D);
-    RegistryEntry<EntityAttribute> HOLY_RESISTANCE = register("holy_resistance", 0, -10.0D, 0.75D);
+
+    // Elemental damage attributes (flat and percentage)
+    RegistryEntry<EntityAttribute> DAMAGE_REDUCTION = register("damage_reduction", 0.05, 0.0D, 0.8D);
+
+    // ========== ELEMENTAL DAMAGE SYSTEM ATTRIBUTES ==========
+
+    // Base elemental damage (flat bonuses)
+    RegistryEntry<EntityAttribute> FIRE_ATTACK_DAMAGE_FLAT = register("fire_attack_damage_flat", 0, 0.0, 4096);      // ELEMENTAL
+    RegistryEntry<EntityAttribute> COLD_DAMAGE_FLAT = register("cold_damage_flat", 0, 0.0, 4096);                    // ELEMENTAL
+    RegistryEntry<EntityAttribute> ELECTRIC_ATTACK_DAMAGE_FLAT = register("electric_attack_damage_flat", 0, 0.0, 4096); // ELEMENTAL
+    RegistryEntry<EntityAttribute> WATER_ATTACK_DAMAGE_FLAT = register("water_attack_damage_flat", 0, 0.0, 4096);    // ELEMENTAL
+    RegistryEntry<EntityAttribute> WIND_ATTACK_DAMAGE_FLAT = register("wind_attack_damage_flat", 0, 0.0, 4096);      // ELEMENTAL
+    RegistryEntry<EntityAttribute> HOLY_ATTACK_DAMAGE_FLAT = register("holy_attack_damage_flat", 0, 0.0, 4096);      // ELEMENTAL
+
+    // Elemental damage multipliers (affinity)
+    RegistryEntry<EntityAttribute> FIRE_ATTACK_DAMAGE_MULT = register("fire_attack_damage_mult", 0, 0.0, 10.24D);    // ELEMENTAL
+    RegistryEntry<EntityAttribute> COLD_DAMAGE_MULT = register("cold_damage_mult", 0, 0.0, 10.24D);                  // ELEMENTAL
+    RegistryEntry<EntityAttribute> ELECTRIC_ATTACK_DAMAGE_MULT = register("electric_attack_damage_mult", 0, 0.0, 10.24D); // ELEMENTAL
+    RegistryEntry<EntityAttribute> WATER_ATTACK_DAMAGE_MULT = register("water_attack_damage_mult", 0, 0.0, 10.24D);  // ELEMENTAL
+    RegistryEntry<EntityAttribute> WIND_ATTACK_DAMAGE_MULT = register("wind_attack_damage_mult", 0, 0.0, 10.24D);    // ELEMENTAL
+    RegistryEntry<EntityAttribute> HOLY_ATTACK_DAMAGE_MULT = register("holy_attack_damage_mult", 0, 0.0, 10.24D);    // ELEMENTAL
+
+    // Elemental resistances (damage reduction)
+    RegistryEntry<EntityAttribute> FIRE_RESISTANCE = register("fire_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
+    RegistryEntry<EntityAttribute> ELECTRIC_RESISTANCE = register("electric_resistance", 0, -10.0D, 0.75D);         // ELEMENTAL
+    RegistryEntry<EntityAttribute> WATER_RESISTANCE = register("water_resistance", 0, -10.0D, 0.75D);               // ELEMENTAL
+    RegistryEntry<EntityAttribute> WIND_RESISTANCE = register("wind_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
+    RegistryEntry<EntityAttribute> HOLY_RESISTANCE = register("holy_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
+    RegistryEntry<EntityAttribute> COLD_RESISTANCE = register("cold_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
+
 
     RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
     RegistryEntry<EntityAttribute> DOUBLE_ATTACK_CHANCE = register("double_attack_chance", 0, 0, 1);

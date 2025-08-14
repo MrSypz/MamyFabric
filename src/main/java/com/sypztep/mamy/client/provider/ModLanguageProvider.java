@@ -26,6 +26,37 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         playerInfo(translate);
         generateConfigTranslations(translate);
         generateAttributeTranslations(translate);
+        generateElementalTranslations(translate); // Add this new method
+    }
+
+    private void generateElementalTranslations(TranslationBuilder translate) {
+        // Weapon tooltips
+        translate.add("tooltip.mamy.power_budget", "Power: %s");
+        translate.add("tooltip.mamy.base_weapon", "Base Weapon");
+        translate.add("tooltip.mamy.melee_bonus", "Melee Bonus");
+        translate.add("tooltip.mamy.other_attributes", "Other Attributes");
+
+        // Armor tooltips
+        translate.add("tooltip.mamy.elemental_resistances", "Elemental Resistances");
+        translate.add("tooltip.mamy.resistance_budget", "Resistance: %s");
+
+        // Damage element types
+        translate.add("damage_element.physical", "Physical");
+        translate.add("damage_element.heat", "Fire");
+        translate.add("damage_element.cold", "Cold");
+        translate.add("damage_element.electric", "Electric");
+        translate.add("damage_element.water", "Water");
+        translate.add("damage_element.wind", "Wind");
+        translate.add("damage_element.holy", "Holy");
+
+        // Resistance element types
+        translate.add("resistance_element.physical", "Physical Resistance");
+        translate.add("resistance_element.heat", "Fire Resistance");
+        translate.add("resistance_element.cold", "Cold Resistance");
+        translate.add("resistance_element.electric", "Electric Resistance");
+        translate.add("resistance_element.water", "Water Resistance");
+        translate.add("resistance_element.wind", "Wind Resistance");
+        translate.add("resistance_element.holy", "Holy Resistance");
     }
     private void playerInfo(TranslationBuilder translator) {
         String key = "mamy.info.";

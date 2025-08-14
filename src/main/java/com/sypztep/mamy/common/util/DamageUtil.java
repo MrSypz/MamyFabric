@@ -277,35 +277,26 @@ public final class DamageUtil {
 
         return finalDamage;
     }
-
-    /**
-     * Handles damage reductions (defender resistances)
-     */
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
-        debugLog("====RESISTANCE START====");
+        debugLog("====RESISTANCE MODIFIER START====");
 
+        // Apply elemental damage calculation first
+        float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
+
+        // Then apply existing flat reduction system for any remaining effects
         float flatReduction = 0.0f;
-        float percentageReduction = 1.0f;
-
         for (ResistanceModifierType resistanceType : ResistanceModifierType.values()) {
-            float value = resistanceType.getModifierValue(defender, source, amount);
-
+            float value = resistanceType.getModifierValue(defender, source, elementalDamage);
             if (resistanceType.getOperationType() == ModifierOperationType.ADD) {
                 flatReduction += value;
-            } else if (resistanceType.getOperationType() == ModifierOperationType.MULTIPLY) {
-                percentageReduction *= (1.0f - value); // value = 0.3 (30%) → ×0.7 (reduce by 30%)
             }
         }
 
-        // Apply percentage reduction first, then subtract flat reduction
-        float finalDamage = (amount * percentageReduction) - flatReduction;
+        float finalDamage = Math.max(0.1f, elementalDamage - flatReduction);
 
-        // Ensure minimum damage
-        finalDamage = Math.max(0.1f, finalDamage);
-
-        debugLog("Resistance calculation: base %.1f × %.2fx - %.1f → final %.1f",
-                amount, percentageReduction, flatReduction, finalDamage);
-        debugLog("====RESISTANCE END====");
+        debugLog("Elemental damage: %.2f, Flat reduction: %.2f, Final: %.2f",
+                elementalDamage, flatReduction, finalDamage);
+        debugLog("====RESISTANCE MODIFIER END====");
 
         return finalDamage;
     }
