@@ -73,8 +73,7 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
                             double powerBudget = object.has("powerBudget") ? object.get("powerBudget").getAsDouble() : 1.0;
 
                             // Parse damage ratios
-                            Map<RegistryEntry<EntityAttribute>, Double> damageRatios = parseDamageRatios(object);
-
+                            Map<RegistryEntry<EntityAttribute>, Double> damageRatios = parseDamageRatios(object, item);
                             ItemDataEntry entry = new ItemDataEntry(damageRatios, powerBudget);
                             ItemDataEntry.addEntry(item, entry);
 
@@ -110,16 +109,24 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
         }
     }
 
-    private Map<RegistryEntry<EntityAttribute>, Double> parseDamageRatios(JsonObject object) {
+    private Map<RegistryEntry<EntityAttribute>, Double> parseDamageRatios(JsonObject object, Item item) {
         if (!object.has("damageRatios")) {
-            return createDefaultDamageRatios();
+            return createDefaultDamageRatios(item);
         }
 
         JsonObject ratiosObject = object.getAsJsonObject("damageRatios");
         Map<RegistryEntry<EntityAttribute>, Double> ratios = new HashMap<>();
 
-        // Use the registry to automatically handle all elements!
-        Map<String, RegistryEntry<EntityAttribute>> elementMap = ElementalAttributeRegistry.getJsonToAttributeMap();
+        // Determine if this is armor or weapon
+        boolean isArmor = item instanceof net.minecraft.item.ArmorItem;
+
+        // Get the appropriate attribute map based on item type
+        Map<String, RegistryEntry<EntityAttribute>> elementMap = isArmor
+                ? ElementalAttributeRegistry.getArmorAttributeMap()
+                : ElementalAttributeRegistry.getWeaponAttributeMap();
+
+        Mamy.LOGGER.debug("Processing {} as {}", Registries.ITEM.getId(item), isArmor ? "ARMOR" : "WEAPON");
+        Mamy.LOGGER.debug("Available JSON keys: {}", elementMap.keySet());
 
         for (Map.Entry<String, RegistryEntry<EntityAttribute>> entry : elementMap.entrySet()) {
             String elementName = entry.getKey();
@@ -127,19 +134,28 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
 
             if (ratiosObject.has(elementName)) {
                 double ratio = ratiosObject.get(elementName).getAsDouble();
-                if (ratio > 0) {
-                    ratios.put(attribute, Math.max(0.0, ratio));
+
+                // ✅ For armor, allow negative values (vulnerabilities)
+                // ✅ For weapons, filter out negative values
+                if (isArmor || ratio > 0) {
+                    ratios.put(attribute, ratio); // Don't clamp armor values!
+                    Mamy.LOGGER.debug("  {} -> {} = {}", elementName,
+                            attribute.value().getTranslationKey(), ratio);
+                } else {
+                    Mamy.LOGGER.debug("  Skipping negative weapon ratio: {} = {}", elementName, ratio);
                 }
             }
         }
 
-        return normalizeRatios(ratios);
+        // Only normalize weapon ratios, not armor resistances
+        return isArmor ? ratios : normalizeRatios(ratios, item);
     }
-    private Map<RegistryEntry<EntityAttribute>, Double> normalizeRatios(Map<RegistryEntry<EntityAttribute>, Double> ratios) {
+
+    private Map<RegistryEntry<EntityAttribute>, Double> normalizeRatios(Map<RegistryEntry<EntityAttribute>, Double> ratios, Item item) {
         // If no ratios were found, use default
         if (ratios.isEmpty()) {
             Mamy.LOGGER.warn("No valid damage ratios found, using default");
-            return createDefaultDamageRatios();
+            return createDefaultDamageRatios(item);
         }
 
         // Normalize ratios to sum to 1.0
@@ -152,11 +168,20 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
             return normalizedRatios;
         }
 
-        return createDefaultDamageRatios();
+        return createDefaultDamageRatios(item);
     }
-    private Map<RegistryEntry<EntityAttribute>, Double> createDefaultDamageRatios() {
+
+    private Map<RegistryEntry<EntityAttribute>, Double> createDefaultDamageRatios(Item item) {
         Map<RegistryEntry<EntityAttribute>, Double> defaultRatios = new HashMap<>();
-        defaultRatios.put(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, 1.0);
-        return defaultRatios;
+
+        boolean isArmor = item instanceof net.minecraft.item.ArmorItem;
+
+        if (isArmor) {
+            Mamy.LOGGER.debug("No default resistances for armor item: {}", Registries.ITEM.getId(item));
+        } else {
+            defaultRatios.put(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, 1.0);
+            Mamy.LOGGER.debug("Default physical damage for weapon: {}", Registries.ITEM.getId(item));
+        }
+        return defaultRatios; // Empty map
     }
 }

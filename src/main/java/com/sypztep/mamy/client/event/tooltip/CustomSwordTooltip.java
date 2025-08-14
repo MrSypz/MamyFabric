@@ -29,10 +29,6 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
 
     @Override
     public void appendCustomTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
-        if (!ItemDataEntry.hasEntry(stack.getItem())) {
-            return;
-        }
-
         AttributeModifiersComponent attributeModifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 
         if (!attributeModifiers.showInTooltip()) {
@@ -41,16 +37,18 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
 
         boolean hasShownHeader = false;
 
-        // 1. MELEE DAMAGE
+        // 1. MELEE DAMAGE (always show if present)
         hasShownHeader = appendMeleeDamage(stack, textConsumer, player, hasShownHeader);
 
-        // 2. ATTACK SPEED
+        // 2. ATTACK SPEED (always show if present)
         hasShownHeader = appendAttackSpeed(stack, textConsumer, player, hasShownHeader);
 
-        // 3. ELEMENTAL DAMAGE
-        hasShownHeader = appendElementalDamage(stack, textConsumer, player, hasShownHeader);
+        // 3. ELEMENTAL DAMAGE (only if has elemental data)
+        if (ItemDataEntry.hasEntry(stack.getItem())) {
+            hasShownHeader = appendElementalDamage(stack, textConsumer, player, hasShownHeader);
+        }
 
-        // 4. OTHER ATTRIBUTES
+        // 4. OTHER ATTRIBUTES (always show if present)
         appendOtherAttributes(stack, textConsumer, player, hasShownHeader);
     }
 
@@ -81,8 +79,8 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
 
         textConsumer.accept(ScreenTexts.space().append(comp));
 
-        // Breakdown on shift
-        if (Screen.hasShiftDown()) {
+        // Breakdown on shift (only if has elemental data)
+        if (ItemDataEntry.hasEntry(stack.getItem()) && Screen.hasShiftDown()) {
             textConsumer.accept(
                     ScreenTexts.space()
                             .append(Text.literal("  ├─ ").formatted(Formatting.DARK_GRAY))
@@ -134,11 +132,13 @@ public final class CustomSwordTooltip extends AttributeTooltipHelper {
             textConsumer.accept(Text.translatable("item.modifiers.mainhand").formatted(Formatting.GRAY));
             hasShownHeader = true;
         }
+
         var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE, AttributeModifierSlot.MAINHAND);
         double baseDamage = 0;
         if (attackDamageModifier != null && player != null) {
             baseDamage = attackDamageModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         }
+
         appendElementalSection(stack, textConsumer, "tooltip.mamy.elemental_damage", "tooltip.mamy.power_budget", "damage_element.", baseDamage, true);
 
         return hasShownHeader;

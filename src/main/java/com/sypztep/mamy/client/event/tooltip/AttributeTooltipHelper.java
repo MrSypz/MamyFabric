@@ -101,6 +101,7 @@ public abstract class AttributeTooltipHelper {
         return null;
     }
 
+
     protected static void appendVanillaAttributeModifier(Consumer<Text> textConsumer, PlayerEntity player,
                                                          RegistryEntry<EntityAttribute> attribute, EntityAttributeModifier modifier) {
         double value = modifier.value();
@@ -135,6 +136,79 @@ public abstract class AttributeTooltipHelper {
             );
         }
     }
+    // Add this new method to AttributeTooltipHelper.java
+    protected static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer, String budgetKey) {
+        ItemDataEntry itemData = ItemDataEntry.getEntry(stack.getItem());
+
+        // Show power budget if not default
+        if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
+            textConsumer.accept(
+                    ScreenTexts.space()
+                            .append(Text.literal(" ✦ ").formatted(Formatting.GOLD))
+                            .append(Text.translatable(budgetKey,
+                                    String.format("%.1f%%", itemData.powerBudget() * 100)))
+                            .formatted(Formatting.YELLOW)
+            );
+        }
+
+        // Show individual resistances with PROPER element detection
+        itemData.damageRatios().entrySet().stream()
+                .filter(entry -> entry.getValue() != 0.0) // Show both positive and negative
+                .sorted((a, b) -> Double.compare(Math.abs(b.getValue()), Math.abs(a.getValue()))) // Sort by absolute value
+                .forEach(entry -> {
+                    RegistryEntry<EntityAttribute> attribute = entry.getKey();
+                    double resistance = entry.getValue() * itemData.powerBudget(); // Apply power budget
+
+                    // ✅ Get the correct element info from resistance attribute
+                    ElementInfo element = getElementInfoFromResistanceAttribute(attribute);
+
+                    // Format percentage correctly for resistance
+                    String percentage = String.format("%.1f%%", Math.abs(resistance * 100));
+
+                    MutableText elementComp = Text.empty();
+                    elementComp.append(Text.literal("  "));
+                    elementComp.append(createIconText(element.icon));
+                    elementComp.append(Text.translatable("resistance_element." + element.name).setStyle(Style.EMPTY.withColor(element.color)));
+                    elementComp.append(Text.literal(": ").formatted(Formatting.GRAY));
+
+                    // Color based on positive (resistance) or negative (vulnerability)
+                    if (resistance >= 0) {
+                        elementComp.append(Text.literal("+" + percentage).formatted(Formatting.BLUE));
+                    } else {
+                        elementComp.append(Text.literal("-" + percentage).formatted(Formatting.RED));
+                    }
+
+                    textConsumer.accept(ScreenTexts.space().append(elementComp));
+                });
+    }
+
+    protected static ElementInfo getElementInfoFromResistanceAttribute(RegistryEntry<EntityAttribute> attribute) {
+        // Map resistance attributes to correct elements
+        if (attribute.equals(ModEntityAttributes.MELEE_RESISTANCE)) {
+            return new ElementInfo("physical", 0x9C9393, PHYSICAL_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.FIRE_RESISTANCE)) {
+            return new ElementInfo("heat", 0xFF4500, FIRE_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.COLD_RESISTANCE)) {
+            return new ElementInfo("cold", 0x70C1E3, COLD_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.ELECTRIC_RESISTANCE)) {
+            return new ElementInfo("electric", 0xFFD700, ELECTRIC_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.WATER_RESISTANCE)) {
+            return new ElementInfo("water", 0x4169E1, WATER_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.WIND_RESISTANCE)) {
+            return new ElementInfo("wind", 0x98FB98, WIND_ICON, attribute);
+        }
+        if (attribute.equals(ModEntityAttributes.HOLY_RESISTANCE)) {
+            return new ElementInfo("holy", 0xDDA0DD, HOLY_ICON, attribute);
+        }
+
+        // Default to physical if unknown
+        return new ElementInfo("physical", 0x9C9393, PHYSICAL_ICON, attribute);
+    }
 
     // Updated elemental section with percentage and amount display
     protected static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, String sectionKey,
@@ -145,7 +219,7 @@ public abstract class AttributeTooltipHelper {
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(
                     ScreenTexts.space()
-                            .append(Text.literal("  ● ").formatted(Formatting.GOLD))
+                            .append(Text.literal(" ✦ ").formatted(Formatting.GOLD))
                             .append(Text.translatable(budgetKey,
                                     String.format("%.1f%%", itemData.powerBudget() * 100)))
                             .formatted(Formatting.YELLOW)
@@ -182,12 +256,6 @@ public abstract class AttributeTooltipHelper {
                     textConsumer.accept(ScreenTexts.space().append(elementComp));
                 });
     }
-
-    // Overloaded method for compatibility (no amount display)
-    protected static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, String sectionKey, String budgetKey, String elementKeyPrefix) {
-        appendElementalSection(stack, textConsumer, sectionKey, budgetKey, elementKeyPrefix, 0, false);
-    }
-
     // Abstract method to be implemented by subclasses
     public abstract void appendCustomTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player);
 }
