@@ -29,12 +29,12 @@ public interface ModClasses {
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 40.0,
                     EntityAttributes.GENERIC_ARMOR, 4.0,
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.15
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, 0.15
             ))
             .growthFactors(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.12),
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.04),
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, GrowthFactor.flat(0.8),
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, GrowthFactor.flat(0.8),
                     EntityAttributes.GENERIC_ARMOR, GrowthFactor.flat(0.1)
             ))
             .resource(150)
@@ -47,13 +47,13 @@ public interface ModClasses {
                     "A spellcaster who manipulates arcane energies")
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 25.0,
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.25,
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT, 0.25,
                     ModEntityAttributes.RESOURCE_REGEN, 35.0
             ))
             .growthFactors(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.05),
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.10),
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.03),
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT, GrowthFactor.percent(0.03),
                     ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(2.0)
             ))
             .resource(300)
@@ -67,14 +67,14 @@ public interface ModClasses {
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 30.0,
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.02,
-                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE, 0.15,
+                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT, 0.15,
                     ModEntityAttributes.CRIT_CHANCE, 0.10
             ))
             .growthFactors(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.07),
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.06),
                     ModEntityAttributes.CRIT_CHANCE, GrowthFactor.flat(0.005),
-                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE, GrowthFactor.percent(0.02),
+                    ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT, GrowthFactor.percent(0.02),
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, GrowthFactor.flat(0.001)
             ))
             .resource(200)
@@ -87,14 +87,14 @@ public interface ModClasses {
                     "A holy servant dedicated to helping others")
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 35.0,
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, 0.15,
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT, 0.15,
                     ModEntityAttributes.RESOURCE_REGEN, 25.0,
                     ModEntityAttributes.HEAL_EFFECTIVE, 0.20
             ))
             .growthFactors(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.percent(0.08),
                     ModEntityAttributes.RESOURCE, GrowthFactor.percent(0.08),
-                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE, GrowthFactor.percent(0.02),
+                    ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT, GrowthFactor.percent(0.02),
                     ModEntityAttributes.HEAL_EFFECTIVE, GrowthFactor.flat(0.01)
             ))
             .resource(250)
@@ -108,7 +108,7 @@ public interface ModClasses {
             .attributes(Map.of(
                     EntityAttributes.GENERIC_MAX_HEALTH, 28.0,
                     EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.03,
-                    ModEntityAttributes.MELEE_ATTACK_DAMAGE, 0.12,
+                    ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, 0.12,
                     ModEntityAttributes.CRIT_CHANCE, 0.15,
                     ModEntityAttributes.BACK_ATTACK, 0.30
             ))

@@ -25,7 +25,7 @@ public class BloodlustSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         // Base damage + scaling with skill level
-        data.baseDamage = 4.0f + (skillLevel * 2.0f) + (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
+        data.baseDamage = 4.0f + (skillLevel * 2.0f) + (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
         data.damageType = DamageType.PHYSICAL;
         data.maxHits = 5;
 
@@ -55,7 +55,7 @@ public class BloodlustSkill extends Skill {
     }
 
     private SkillConfig createBloodlustConfig(int skillLevel, LivingEntity caster) {
-        float totalDamage = 4.0f + (skillLevel * 2.0f) + (float) caster.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
+        float totalDamage = 4.0f + (skillLevel * 2.0f) + (float) caster.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
         int maxHitCount = Math.min(5 + skillLevel, 10);
 
         return new SkillConfig.Builder()

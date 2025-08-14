@@ -19,7 +19,7 @@ public class MarksmanAbility extends PassiveAbility {
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
+                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
                 Mamy.id("marksman"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> 4.0

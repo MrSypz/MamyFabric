@@ -26,7 +26,7 @@ public final class IntelligenceStat extends Stat {
     public void applyPrimaryEffect(LivingEntity living) {
         applyEffect(
                 living,
-                ModEntityAttributes.MAGIC_ATTACK_DAMAGE,
+                ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT,
                 getPrimaryId(),
                 baseValue -> MAGIC_DAMAGE_SCALING * this.getEffective()
         );

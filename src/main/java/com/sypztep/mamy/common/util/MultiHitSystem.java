@@ -4,7 +4,6 @@ import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.init.ModCustomParticles;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
-import com.terraformersmc.modmenu.util.mod.Mod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -42,7 +41,7 @@ public final class MultiHitSystem {
         if (!player.getWorld().isClient) {
             hitCount = Math.min(hitCount, 2);
             long startTick = player.getWorld().getServer().getTicks() + 3; // delay first hit by 0.5 sec
-            float baseAmount = (float) (player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) + player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE)) * 0.5f;
+            float baseAmount = (float) (player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) + player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT)) * 0.5f;
             activeHits.put(player.getUuid(), new MultiHitData(target, hitCount, startTick, baseAmount));
         }
     }

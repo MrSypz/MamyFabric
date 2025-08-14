@@ -24,7 +24,7 @@ public final class StrengthStat extends Stat {
     @Override
     public void applyPrimaryEffect(LivingEntity living) {
         applyEffect(living,
-                ModEntityAttributes.MELEE_ATTACK_DAMAGE,
+                ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT,
                 getPrimaryId(),
                 baseValue -> (MELEE_DAMAGE_SCALING * this.getEffective())
         );
@@ -34,7 +34,7 @@ public final class StrengthStat extends Stat {
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
                 AttributeModification.addValue(
-                        ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
+                        ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
                         getSecondaryId(),
                         baseValue -> (PROJECTILE_DAMAGE_SCALING * this.getEffective())
                 )

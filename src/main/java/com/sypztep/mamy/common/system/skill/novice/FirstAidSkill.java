@@ -43,7 +43,7 @@ public class FirstAidSkill extends Skill {
         if (!(caster instanceof PlayerEntity player)) return false;
 
         // Calculate healing based on player's magic attack damage attribute
-        double magicAttackDamage = player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE);
+        double magicAttackDamage = player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         double healingPercentage = (30 + (skillLevel * 10)) * 0.01;
         float baseHealing = 2.0f + (skillLevel * 1.5f);
         float totalHealing = (float)(magicAttackDamage * healingPercentage) + baseHealing;

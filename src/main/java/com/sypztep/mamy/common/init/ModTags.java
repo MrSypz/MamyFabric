@@ -14,6 +14,11 @@ public final class ModTags {
         public static final TagKey<DamageType> PROJECTILE_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("projectile_damage"));
 
         public static final TagKey<DamageType> DOUBLE_ATTACK = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("double_attack"));
+
+        public static final TagKey<DamageType> HOLY_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("holy_damage"));
+        public static final TagKey<DamageType> WIND_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("wind_damage"));
+        public static final TagKey<DamageType> WATER_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("water_damage"));
+        public static final TagKey<DamageType> ELECTRIC_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("electric_damage"));
     }
     public static class EntityTypes {
         public static final TagKey<EntityType<?>> CANNOT_HEADSHOT = TagKey.of(RegistryKeys.ENTITY_TYPE, Mamy.id("cannot_headshot"));

@@ -20,7 +20,7 @@ public class SteadyAimAbility extends PassiveAbility {
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE,
+                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
                 Mamy.id("steady_aim_projectile"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> 5.0

@@ -40,7 +40,7 @@ public class ItemStackMixin {
         if (attribute.matches(EntityAttributes.GENERIC_ATTACK_DAMAGE) &&
                 modifier.idMatches(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID)) {
 
-            double meleeDamage = player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
+            double meleeDamage = player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
             return original + meleeDamage;
         }
 
@@ -59,7 +59,7 @@ public class ItemStackMixin {
                 attribute.matches(EntityAttributes.GENERIC_ATTACK_DAMAGE) &&
                 modifier.idMatches(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID)) {
 
-            double meleeDamage = player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE);
+            double meleeDamage = player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
             if (meleeDamage > 0) {
                 textConsumer.accept(
                         ScreenTexts.space()
