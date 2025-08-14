@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.event.living.MobSpawnStatsEvent;
 import com.sypztep.mamy.common.event.living.ModifyLivingDamageEvent;
 import com.sypztep.mamy.common.event.player.*;
 import com.sypztep.mamy.common.init.*;
+import com.sypztep.mamy.common.reloadlistener.MamyElementalReloadListener;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.util.MultiHitSystem;
@@ -32,7 +33,7 @@ public class Mamy implements ModInitializer {
         ModEntityTypes.init();
         ModParticles.init();
         ModCustomParticles.init();
-
+        ModDataComponents.init();
         SkillRegistry.registerSkills();
         // EVENT
         InitDamageTrackerEvent.register();
@@ -47,5 +48,7 @@ public class Mamy implements ModInitializer {
         ServerTickEvents.START_SERVER_TICK.register(MultiHitSystem::tick);
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyMobExpReloadListener());
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyElementalReloadListener());
+
     }
 }
