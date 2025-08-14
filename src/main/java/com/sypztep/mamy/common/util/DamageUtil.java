@@ -301,9 +301,6 @@ public final class DamageUtil {
         return finalDamage;
     }
 
-    // Remove the calculateCompleteDamage method since you're not using the dual damage system
-    // Keep the rest of your methods as they are...
-
     public static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
                                                   DamageSource source, float flatArmor) {
         debugLog("====START====");
@@ -320,8 +317,8 @@ public final class DamageUtil {
         return Math.max(0.1f, finalDamage);
     }
 
-    @Deprecated
-    public static float test (LivingEntity self, DamageSource source, float amount) {
+    //Armour
+    public static float getDamageAfterArmor(LivingEntity self, DamageSource source, float amount) {
         if (!source.isIn(DamageTypeTags.BYPASSES_ARMOR)) {
             self.damageArmor(source, amount);
             return calculateDamageAfterArmor(self,amount,source,self.getArmor());
