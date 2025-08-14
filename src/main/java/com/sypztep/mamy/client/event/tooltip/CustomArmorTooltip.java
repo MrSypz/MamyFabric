@@ -15,7 +15,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.function.Consumer;
 
-public class CustomArmorTooltip extends AttributeTooltipHelper {
+public final class CustomArmorTooltip extends AttributeTooltipHelper {
 
     // Armor-specific icons
     private static final String ARMOR_ICON = "\u0011";
