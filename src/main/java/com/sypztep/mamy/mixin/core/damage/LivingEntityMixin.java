@@ -13,7 +13,7 @@ public class LivingEntityMixin {
 
     @Inject(method = "applyArmorToDamage", at = @At("HEAD"), cancellable = true)
     private void replaceArmorCalculation(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(DamageUtil.test((LivingEntity) (Object) this, source, amount));
+        cir.setReturnValue(DamageUtil.getDamageAfterArmor((LivingEntity) (Object) this, source, amount));
     }
 
     // Inject code after get Enchantment Protection
