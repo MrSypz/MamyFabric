@@ -8,6 +8,7 @@ import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.DamageUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -78,7 +79,7 @@ public final class PlayerInfoScreen extends Screen {
         values.put("hp", client.player.getHealth());
         values.put("maxhp", client.player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
         values.put("dp", client.player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
-        values.put("drec", client.player.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100f);
+        values.put("drec", client.player.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100f + DamageUtil.getArmorDamageReduction(client.player.getArmor()));
         values.put("eva", client.player.getAttributeValue(ModEntityAttributes.EVASION));
         values.put("mresis", client.player.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100f);
 
