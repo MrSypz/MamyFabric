@@ -14,11 +14,11 @@ import net.minecraft.util.Identifier;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-public class ModMobDataGenerator implements DataProvider {
+public class ModMobDataProvider implements DataProvider {
 
     private final FabricDataOutput output;
 
-    public ModMobDataGenerator(FabricDataOutput output) {
+    public ModMobDataProvider(FabricDataOutput output) {
         this.output = output;
     }
 
