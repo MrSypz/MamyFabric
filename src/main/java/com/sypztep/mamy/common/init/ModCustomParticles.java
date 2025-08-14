@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface ModCustomParticles {
     Map<TextParticleProvider, Integer> PARTICLES = new LinkedHashMap<>();
@@ -22,7 +23,7 @@ public interface ModCustomParticles {
         System.out.println("ModCustomParticles initialized - registered " + PARTICLES.size() + " particles");
     }
 
-    private static TextParticleProvider createParticle(Text text, Color color, float maxSize, float yPos, java.util.function.Supplier<Boolean> configSupplier) {
+    private static TextParticleProvider createParticle(Text text, Color color, float maxSize, float yPos, Supplier<Boolean> configSupplier) {
         TextParticleProvider provider = TextParticleProvider.create(text, color, maxSize, yPos, configSupplier);
         int id = TextParticleRegistry.register(provider);
         PARTICLES.put(provider, id);
