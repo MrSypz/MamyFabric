@@ -6,10 +6,12 @@ import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
+import com.sypztep.mamy.client.util.ElementalDamageDisplay;
 import com.sypztep.mamy.common.init.*;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 public class MamyClient implements ClientModInitializer {
@@ -38,6 +40,7 @@ public class MamyClient implements ClientModInitializer {
 
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
+        ClientTickEvents.END_CLIENT_TICK.register(ElementalDamageDisplay::tickScheduledSpawns);
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
 //                KeyEntryScreen.keyValidated = true;

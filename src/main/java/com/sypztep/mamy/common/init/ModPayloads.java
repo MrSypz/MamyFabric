@@ -18,6 +18,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playS2C().register(SendToastPayloadS2C.ID, SendToastPayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(AddAirhikeParticlesPayloadS2C.ID, AddAirhikeParticlesPayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(SkillCooldownPayloadS2C.ID, SkillCooldownPayloadS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(ElementalDamagePayloadS2C.ID, ElementalDamagePayloadS2C.CODEC);
 
         PayloadTypeRegistry.playC2S().register(IncreaseStatsPayloadC2S.ID, IncreaseStatsPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(ToggleStancePayloadC2S.ID, ToggleStancePayloadC2S.CODEC);
@@ -49,6 +50,7 @@ public final class ModPayloads {
             ClientPlayNetworking.registerGlobalReceiver(SendToastPayloadS2C.ID, new SendToastPayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(AddAirhikeParticlesPayloadS2C.ID, new AddAirhikeParticlesPayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(SkillCooldownPayloadS2C.ID, new SkillCooldownPayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(ElementalDamagePayloadS2C.ID, new ElementalDamagePayloadS2C.Receiver());
         }
     }
 }
