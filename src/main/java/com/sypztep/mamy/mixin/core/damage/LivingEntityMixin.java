@@ -16,8 +16,9 @@ public class LivingEntityMixin {
         cir.setReturnValue(DamageUtil.test((LivingEntity) (Object) this, source, amount));
     }
 
-//    @Inject(method = "modifyAppliedDamage", at = @At("HEAD"), cancellable = true)
-//    private void replaceModifyAppliedDamage(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
-//        cir.setReturnValue(amount);
-//    }
+    // Inject code after get Enchantment Protection
+    @Inject(method = "modifyAppliedDamage", at = @At(value = "RETURN", ordinal = 3), cancellable = true)
+    private void replaceModifyAppliedDamage(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
+        cir.setReturnValue(DamageUtil.damageResistanceModifier((LivingEntity) (Object) this, cir.getReturnValue(), source));
+    }
 }
