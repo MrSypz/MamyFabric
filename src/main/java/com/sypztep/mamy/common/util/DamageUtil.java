@@ -217,6 +217,15 @@ public final class DamageUtil {
             if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE)) {
                 flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_ELECTRIC_REDUCTION);
             }
+            if (source.isIn(ModTags.DamageTags.WATER_DAMAGE)) {
+                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_WATER_REDUCTION);
+            }
+            if (source.isIn(ModTags.DamageTags.WIND_DAMAGE)) {
+                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_WIND_REDUCTION);
+            }
+            if (source.isIn(ModTags.DamageTags.HOLY_DAMAGE)) {
+                flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_HOLY_REDUCTION);
+            }
 
             if (flatReduction > 0) {
                 flatReduction += specialDefense(defender);
