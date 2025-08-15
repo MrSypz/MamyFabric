@@ -7,15 +7,15 @@ import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.awt.*;
 
-public final class TextParticle extends Particle {
+public class TextParticle extends Particle {
     private static final int FLICK_DURATION = 12;
     private static final int FADE_DURATION = 10;
     private static final float VELOCITY_DAMPEN = 0.9f;
@@ -70,20 +70,12 @@ public final class TextParticle extends Particle {
     public void tick() {
         if (this.age++ <= FLICK_DURATION) {
             float progress = age / (float) FLICK_DURATION;
-            setColor(
-                    MathHelper.lerp(progress, 1.0f, targetRed),
-                    MathHelper.lerp(progress, 1.0f, targetGreen),
-                    MathHelper.lerp(progress, 1.0f, targetBlue)
-            );
+            setColor(MathHelper.lerp(progress, 1.0f, targetRed), MathHelper.lerp(progress, 1.0f, targetGreen), MathHelper.lerp(progress, 1.0f, targetBlue));
             this.scale = MathHelper.lerp(ease(progress, 0.0F, 1.0F, 1.0F), 0.0F, this.maxSize);
             this.alpha = MathHelper.lerp(progress, 1.0f, targetAlpha);
         } else if (this.age <= this.maxAge) {
             float progress = (age - FLICK_DURATION) / (float) FADE_DURATION;
-            setColor(
-                    targetRed * (1f - progress * FADE_AMOUNT),
-                    targetGreen * (1f - progress * FADE_AMOUNT),
-                    targetBlue * (1f - progress * FADE_AMOUNT)
-            );
+            setColor(targetRed * (1f - progress * FADE_AMOUNT), targetGreen * (1f - progress * FADE_AMOUNT), targetBlue * (1f - progress * FADE_AMOUNT));
             this.scale = MathHelper.lerp(progress, this.maxSize, 0.0f);
             this.alpha = MathHelper.lerp(progress, targetAlpha, 0.0f);
         } else {
@@ -111,19 +103,9 @@ public final class TextParticle extends Particle {
                 .rotate((float) Math.PI, 0.0F, 1.0F, 0.0F)
                 .scale(scale, scale, scale);
 
-        Vector3f offset = new Vector3f(0.0f, 0.0f, 0.03f);
-        int textColor = new Color(clamp(red, 0.0f, 1.0f), clamp(green, 0.0f, 1.0f), clamp(blue, 0.0f, 1.0f), clamp(alpha, 0.001f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
-        int textBorderColor = new Color(clamp(red, 0.0f, 0.0f), clamp(green, 0.0f, 0.0f), clamp(blue, 0.0f, 0.0f), clamp(alpha, 0.001f, 1.0f)).getRGB(); // Ensure alpha does not go below 0.1
+        int textColor = new Color(clamp(red, 0.0f, 1.0f), clamp(green, 0.0f, 1.0f), clamp(blue, 0.0f, 1.0f), clamp(alpha, 0.001f, 1.0f)).getRGB();
 
-        for (int[] pos : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            matrix.translate(offset);
-            textRenderer.draw(text, textX + pos[0], pos[1], textBorderColor, false, matrix,
-                    vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 0xF000F0);
-        }
-
-        matrix.translate(offset);
-        textRenderer.draw(text, textX, 0, textColor, false, matrix,
-                vertexConsumers, TextRenderer.TextLayerType.NORMAL, 0, 0xF000F0);
+        textRenderer.drawWithOutline(Text.literal(text).asOrderedText(), textX, 0, textColor, 0xFF000000, matrix, vertexConsumers, 0xF000F0);
 
         vertexConsumers.draw();
     }
