@@ -33,6 +33,7 @@ public abstract class AttributeTooltipHelper {
     protected static final String WATER_ICON = "\u0007";
     protected static final String WIND_ICON = "\u0008";
     protected static final String HOLY_ICON = "\u0009";
+    protected static final String POWER = "\u0010";
 
     // Element data holder with custom color support
     protected static class ElementInfo {
@@ -139,19 +140,16 @@ public abstract class AttributeTooltipHelper {
     // Add this new method to AttributeTooltipHelper.java
     protected static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer, String budgetKey) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
-
-        // Show power budget if not default
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(
                     ScreenTexts.space()
-                            .append(Text.literal(" ✦ ").formatted(Formatting.GOLD))
+                            .append(Text.literal(POWER).setStyle(ICONS))
                             .append(Text.translatable(budgetKey,
                                     String.format("%.1f%%", itemData.powerBudget() * 100)))
                             .formatted(Formatting.YELLOW)
             );
         }
 
-        // Show individual resistances with PROPER element detection
         itemData.damageRatios().entrySet().stream()
                 .filter(entry -> entry.getValue() != 0.0) // Show both positive and negative
                 .sorted((a, b) -> Double.compare(Math.abs(b.getValue()), Math.abs(a.getValue()))) // Sort by absolute value
@@ -159,10 +157,8 @@ public abstract class AttributeTooltipHelper {
                     RegistryEntry<EntityAttribute> attribute = entry.getKey();
                     double resistance = entry.getValue() * itemData.powerBudget(); // Apply power budget
 
-                    // ✅ Get the correct element info from resistance attribute
                     ElementInfo element = getElementInfoFromResistanceAttribute(attribute);
 
-                    // Format percentage correctly for resistance
                     String percentage = String.format("%.1f%%", Math.abs(resistance * 100));
 
                     MutableText elementComp = Text.empty();
@@ -210,7 +206,6 @@ public abstract class AttributeTooltipHelper {
         return new ElementInfo("physical", 0x9C9393, PHYSICAL_ICON, attribute);
     }
 
-    // Updated elemental section with percentage and amount display
     protected static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, String sectionKey,
                                                  String budgetKey, String elementKeyPrefix, double baseDamage, boolean showAmount) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
@@ -219,7 +214,8 @@ public abstract class AttributeTooltipHelper {
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(
                     ScreenTexts.space()
-                            .append(Text.literal(" ✦ ").formatted(Formatting.GOLD))
+                            .append(Text.literal("  "))
+                            .append(Text.literal(POWER).setStyle(ICONS).formatted(Formatting.GOLD))
                             .append(Text.translatable(budgetKey,
                                     String.format("%.1f%%", itemData.powerBudget() * 100)))
                             .formatted(Formatting.YELLOW)
