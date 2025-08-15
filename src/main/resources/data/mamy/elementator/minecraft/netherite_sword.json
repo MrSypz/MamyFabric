@@ -1,0 +1,7 @@
+{
+  "damageRatios": {
+    "physical": 0.3,
+    "fire": 0.7
+  },
+  "powerBudget": 1.5
+}

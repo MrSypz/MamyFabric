@@ -1,0 +1,7 @@
+{
+  "damageRatios": {
+    "physical": 0.6,
+    "holy": 0.4
+  },
+  "powerBudget": 1.0
+}
