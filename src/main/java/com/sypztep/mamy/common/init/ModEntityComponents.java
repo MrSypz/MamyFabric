@@ -19,6 +19,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<PlayerClassComponent> PLAYERCLASS = ComponentRegistry.getOrCreate(Mamy.id("playerclass"), PlayerClassComponent.class);
     public static final ComponentKey<PlayerStanceComponent> PLAYERSTANCE = ComponentRegistry.getOrCreate(Mamy.id("playerstance"), PlayerStanceComponent.class);
     public static final ComponentKey<HeadShotEntityComponent> HEADSHOT = ComponentRegistry.getOrCreate(Mamy.id("headshot"), HeadShotEntityComponent.class);
+    public static final ComponentKey<PlayerWeightComponent> PLAYERWEIGHT = ComponentRegistry.getOrCreate(Mamy.id("playerweight"), PlayerWeightComponent.class);
 
     public static final ComponentKey<PhantomWalkerComponent> PHANTOMWALKER = ComponentRegistry.getOrCreate(Mamy.id("phantomwalker"), PhantomWalkerComponent.class);
 
@@ -30,6 +31,8 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerFor(MobEntity.class, DAMAGETRACKER, entity -> new DamageTrackerComponent());
         registry.registerFor(LivingEntity.class, HEADSHOT, HeadShotEntityComponent::new);
         registry.registerForPlayers(PLAYERSTANCE, PlayerStanceComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerForPlayers(PLAYERWEIGHT, PlayerWeightComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+
         registry.registerFor(PlayerEntity.class, PHANTOMWALKER, PhantomWalkerComponent::new);
     }
 }
