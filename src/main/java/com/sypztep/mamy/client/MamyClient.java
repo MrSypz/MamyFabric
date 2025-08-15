@@ -43,8 +43,6 @@ public class MamyClient implements ClientModInitializer {
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
 
-        ClientTickEvents.END_CLIENT_TICK.register(ElementalDamageDisplay::tickScheduledSpawns);
-
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
 //                KeyEntryScreen.keyValidated = true;
