@@ -20,34 +20,64 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 	@Override
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
 		// ==========================================
-		// MELEE DAMAGE - Close combat attacks
-		// ==========================================
-		getOrCreateTagBuilder(ModTags.DamageTags.MELEE_DAMAGE)
-				.add(DamageTypes.MOB_ATTACK)          // Melee from mobs
-				.add(DamageTypes.PLAYER_ATTACK)       // Melee from players
-				.addOptionalTag(ModTags.DamageTags.DOUBLE_ATTACK)
-				.add(DamageTypes.STING);              // Bee stings (close range)
-
-		// ==========================================
-		// MAGIC DAMAGE - Magical/supernatural forces
-		// ==========================================
-		getOrCreateTagBuilder(ModTags.DamageTags.MAGIC_DAMAGE)
-				.add(DamageTypes.WITHER_SKULL)        // Wither skull projectiles
-				.add(DamageTypes.DRAGON_BREATH)       // Ender dragon breath
-				.add(DamageTypes.WITHER)              // Wither effect
-				.addOptionalTag(DamageTypeTags.WITCH_RESISTANT_TO); // Vanilla magic tag
-
-		// ==========================================
-		// FIRE DAMAGE - Heat and flame based
+		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.FIRE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_FIRE); // Vanilla fire tag
+				.addOptionalTag(DamageTypeTags.IS_FIRE); // DRY: Use vanilla's comprehensive fire tag
 
 		// ==========================================
-		// PROJECTILE DAMAGE - Ranged attacks
+		// ELECTRIC DAMAGE - Just reference vanilla IS_LIGHTNING tag
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.ELECTRIC_DAMAGE)
+				.addOptionalTag(DamageTypeTags.IS_LIGHTNING); // DRY: Use vanilla's lightning tag
+
+		// ==========================================
+		// PROJECTILE DAMAGE - Just reference vanilla IS_PROJECTILE tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.PROJECTILE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_PROJECTILE); // Vanilla projectile tag
+				.addOptionalTag(DamageTypeTags.IS_PROJECTILE);     // DRY: Use vanilla's projectile tag
 
+		// ==========================================
+		// WATER DAMAGE - Combine vanilla water-related tags
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.WATER_DAMAGE)
+				.addOptionalTag(DamageTypeTags.IS_DROWNING);
+		// ==========================================
+		// COLD DAMAGE - Combine vanilla cold-related tags
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.COLD_DAMAGE)
+				.addOptionalTag(DamageTypeTags.IS_FREEZING);
+
+		// ==========================================
+		// WIND DAMAGE - Combine vanilla fall + kinetic damage
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.WIND_DAMAGE)
+				.add(DamageTypes.WIND_CHARGE)
+				.add(DamageTypes.SONIC_BOOM)
+				.add(DamageTypes.DRY_OUT);
+
+		// ==========================================
+		// MELEE DAMAGE - Add vanilla player attack + close combat
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.MELEE_DAMAGE)
+				.addOptionalTag(DamageTypeTags.IS_PLAYER_ATTACK)  // DRY: Use vanilla player attack
+				.add(DamageTypes.MOB_ATTACK)                      // ADD: Mob melee
+				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)             // ADD: Passive mob attacks
+				.add(DamageTypes.STING)                           // ADD: Bee stings
+				.add(DamageTypes.THORNS)                          // ADD: Thorns enchantment
+				.add(DamageTypes.SWEET_BERRY_BUSH)                // ADD: Contact damage
+				.add(DamageTypes.CACTUS);                         // ADD: Cactus damage
+
+		// ==========================================
+		// HOLY DAMAGE - Pure magical/supernatural (no vanilla equivalent)
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.HOLY_DAMAGE);
+
+		// ==========================================
+		// MAGIC DAMAGE - Your custom magic system
+		// ==========================================
+		getOrCreateTagBuilder(ModTags.DamageTags.MAGIC_DAMAGE)
+				.add(DamageTypes.THORNS)
+				.addOptionalTag(DamageTypeTags.WITCH_RESISTANT_TO); // DRY: Use vanilla witch resistances
 	}
 }
