@@ -68,28 +68,50 @@ public final class DamageUtil {
             return 0.0f;
         }),
 
-        // Keep only NON-ELEMENTAL damage modifiers
+        // ==========================================
+        // NON-ELEMENTAL DAMAGE BONUSES (Pre-Element System)
+        // ==========================================
+
         PROJECTILE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-                float projectileBonus = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
-                float extra = projectileBonus + specialAttack(attacker);
-                debugLog("Projectile Damage: +%.1f (%.1f projectile, %.1f special)", extra, projectileBonus, specialAttack(attacker));
+                float projectileFlat = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
+                float extra = projectileFlat + specialAttack(attacker);
+                debugLog("Projectile Damage: +%.1f (%.1f projectile, %.1f special)", extra, projectileFlat, specialAttack(attacker));
                 return extra;
+            }
+            return 0.0f;
+        }),
+
+        PROJECTILE_MULTIPLIER(ModifierOperationType.MULTIPLY, (attacker, target, source, isCrit) -> {
+            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
+                float projectileMult = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT);
+                debugLog("Projectile Multiplier: %.2fx", projectileMult);
+                return projectileMult;
             }
             return 0.0f;
         }),
 
         MAGIC_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-                float magicBonus = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
-                float extra = magicBonus + specialAttack(attacker);
-                debugLog("Magic Damage: +%.1f (%.1f magic, %.1f special)", extra, magicBonus, specialAttack(attacker));
+                float magicFlat = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
+                float extra = magicFlat + specialAttack(attacker);
+                debugLog("Magic Damage: +%.1f (%.1f magic, %.1f special)", extra, magicFlat, specialAttack(attacker));
                 return extra;
+            }
+            return 0.0f;
+        }),
+
+        MAGIC_MULTIPLIER(ModifierOperationType.MULTIPLY, (attacker, target, source, isCrit) -> {
+            if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
+                float magicMult = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT);
+                debugLog("Magic Multiplier: %.2fx", magicMult);
+                return magicMult;
             }
             return 0.0f;
         });
 
-        // REMOVED: MELEE_DAMAGE, FIRE_DAMAGE, ELECTRIC_DAMAGE - let ElementalDamageSystem handle these
+        // NOTE: ELEMENTAL damage (fire, electric, etc.) is handled by ElementalDamageSystem
+        // Don't add them here to avoid double-processing!
 
         private final ModifierOperationType opType;
         private final DamageModifier modifier;
@@ -107,6 +129,7 @@ public final class DamageUtil {
             return modifier.get(attacker, target, source, isCrit);
         }
     }
+
 
     /**
      * Handles damage increases (attacker bonuses)
@@ -135,35 +158,65 @@ public final class DamageUtil {
     }
 
     /**
-     * SIMPLIFIED: Only handle elemental damage system + non-elemental flat reductions
+     * UPDATED: Handle elemental damage system + ALL non-elemental flat reductions
      */
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
         debugLog("====RESISTANCE MODIFIER START====");
 
+        // Step 1: Apply elemental damage calculations (handles all elemental resistances)
         float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
 
+        // Step 2: Apply NON-ELEMENTAL flat reductions (after elemental processing)
         float flatReduction = 0.0f;
 
-        // Keep only non-elemental flat reductions
+        // Combat type flat reductions
         if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
             flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION);
+            debugLog("Magic flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION));
         }
-        // You could add other non-elemental flat reductions here
+        if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
+            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION);
+            debugLog("Projectile flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION));
+        }
+        if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
+            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION);
+            debugLog("Melee flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION));
+        }
 
-        float finalDamage = Math.max(0.1f, elementalDamage - flatReduction);
+        // Step 3: Apply combat type percentage resistances
+        float percentageReduction = 0.0f;
 
-        debugLog("Elemental damage: %.2f, Flat reduction: %.2f, Final: %.2f",
-                elementalDamage, flatReduction, finalDamage);
+        if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
+            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE);
+            debugLog("Projectile resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE));
+        }
+        if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
+            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE);
+            debugLog("Melee resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE));
+        }
+        if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
+            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE);
+            debugLog("Magic resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE));
+        }
+
+        // Apply percentage resistance (cap at 95%)
+        float afterPercentageReduction = elementalDamage * (1.0f - Math.min(0.95f, percentageReduction));
+
+        // Apply flat reduction
+        float finalDamage = Math.max(0.1f, afterPercentageReduction - flatReduction);
+
+        debugLog("Elemental damage: %.2f, Percentage reduction: %.2f, After percentage: %.2f, Flat reduction: %.2f, Final: %.2f",
+                elementalDamage, percentageReduction, afterPercentageReduction, flatReduction, finalDamage);
         debugLog("====RESISTANCE MODIFIER END====");
 
         return finalDamage;
     }
 
     // Keep armor and other utility methods unchanged
-    public static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
+    private static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
                                                   DamageSource source, float flatArmor) {
         debugLog("====START====");
-        float armorReduction = flatArmor / (flatArmor + 20.0f);
+        float armorReduction = getArmorDamageReduction(flatArmor);
         float damageAfterArmor = originalDamage * (1.0f - armorReduction);
         debugLog("Armor: %.1f → %.1f%% reduction → %.1f damage",
                 flatArmor, armorReduction * 100, damageAfterArmor);
@@ -185,6 +238,6 @@ public final class DamageUtil {
     }
 
     public static float getArmorDamageReduction(float armor) {
-        return (armor / (armor + 20.0f)) * 100f;
+        return armor / (armor + 20.0f);
     }
 }
