@@ -89,11 +89,11 @@ public final class ElementalDamageParticle extends Particle {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer textRenderer = client.textRenderer;
         var vertexConsumers = client.getBufferBuilders().getEntityVertexConsumers();
-
+        // Idk testing in benchmark and it 3 time faster
         Matrix4f matrix = new Matrix4f()
                 .translation(particleX, particleY, particleZ)
-                .rotate(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()))
-                .rotate(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()))
+                .rotate(camera.getRotation())
+                .rotate((float) Math.PI, 0.0F, 1.0F, 0.0F)
                 .scale(-0.03f, -0.03f, 0.03f);
 
         // Create separate components
