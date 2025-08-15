@@ -34,7 +34,6 @@ public class Mamy implements ModInitializer {
         ModEntityTypes.init();
         ModParticles.init();
         ModCustomParticles.init();
-        ModDataComponents.init();
         SkillRegistry.registerSkills();
         // EVENT
         InitDamageTrackerEvent.register();

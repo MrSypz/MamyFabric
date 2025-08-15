@@ -18,6 +18,8 @@
     "core.stats.dexterity.RangedWeaponItemMixin",
     "core.stats.vitality.HungerManagerMixin",
     "core.stats.vitality.LivingEntityMixin",
+    "core.weight.ServerPlayerEntityMixin",
+    "core.weight.PlayerInventoryMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
     "vanilla.changeattributerange.EntityAttributesMixin",
     "vanilla.disableitemtooltip.ItemStackMixin",
@@ -28,7 +30,7 @@
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
     "core.classes.theif.PlayerEntityMixin",
-    "core.stats.dexterity.ClientPlayerEntityMixin",
+    "core.stats.dexterity.ClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
