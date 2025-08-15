@@ -42,7 +42,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
 
         // Damage element types
         translate.add("damage_element.physical", "Physical");
-        translate.add("damage_element.heat", "Fire");
+        translate.add("damage_element.fire", "Fire");
         translate.add("damage_element.cold", "Cold");
         translate.add("damage_element.electric", "Electric");
         translate.add("damage_element.water", "Water");
@@ -51,7 +51,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
 
         // Resistance element types
         translate.add("resistance_element.physical", "Physical Resistance");
-        translate.add("resistance_element.heat", "Fire Resistance");
+        translate.add("resistance_element.fire", "Fire Resistance");
         translate.add("resistance_element.cold", "Cold Resistance");
         translate.add("resistance_element.electric", "Electric Resistance");
         translate.add("resistance_element.water", "Water Resistance");
