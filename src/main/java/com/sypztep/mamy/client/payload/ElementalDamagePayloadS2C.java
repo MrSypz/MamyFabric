@@ -2,7 +2,7 @@ package com.sypztep.mamy.client.payload;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ElementalDamageDisplay;
-import com.sypztep.mamy.common.util.ElementalDamageSystem.ElementType;
+import com.sypztep.mamy.common.util.ElementType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public record ElementalDamagePayloadS2C(
         int targetEntityId,
-        Map<String, Float> elementalDamage, // Use String instead of ElementType for easier codec
+        Map<String, Float> elementalDamage,
         boolean showBreakdown
 ) implements CustomPayload {
 
@@ -36,37 +36,34 @@ public record ElementalDamagePayloadS2C(
     }
 
     public static void send(ServerPlayerEntity player, int targetEntityId, Map<ElementType, Float> elementalDamage, boolean showBreakdown) {
-        // Convert ElementType to String for serialization
         Map<String, Float> stringDamage = new HashMap<>();
-        elementalDamage.forEach((element, damage) -> stringDamage.put(element.name, damage));
-
+        elementalDamage.forEach((element, damage) -> stringDamage.put(element.name(), damage));
         ServerPlayNetworking.send(player, new ElementalDamagePayloadS2C(targetEntityId, stringDamage, showBreakdown));
     }
 
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<ElementalDamagePayloadS2C> {
         @Override
         public void receive(ElementalDamagePayloadS2C payload, ClientPlayNetworking.Context context) {
-            Entity target = context.player().getWorld().getEntityById(payload.targetEntityId());
-            if (target != null) {
-                // Convert String back to ElementType
-                Map<ElementType, Float> elementalDamage = new HashMap<>();
-                payload.elementalDamage().forEach((elementName, damage) -> {
-                    try {
-                        ElementType element = ElementType.valueOf(elementName.toUpperCase());
-                        elementalDamage.put(element, damage);
-                    } catch (IllegalArgumentException e) {
-                        // Skip unknown element types
-                    }
-                });
-
-                if (payload.showBreakdown()) {
-                    ElementalDamageDisplay.showElementalDamageBreakdown(target, elementalDamage);
-                } else {
-                    // Show single largest damage type
-                    elementalDamage.entrySet().stream()
-                            .max(Map.Entry.comparingByValue())
-                            .ifPresent(entry -> ElementalDamageDisplay.showElementalDamage(target, entry.getKey(), entry.getValue()));
+            Entity target = context.client().world.getEntityById(payload.targetEntityId());
+            if (target == null) return;
+            // Convert string back to ElementType using Java 21 pattern matching
+            Map<ElementType, Float> elementalDamage = new HashMap<>();
+            payload.elementalDamage().forEach((elementName, damage) -> {
+                try {
+                    ElementType element = ElementType.valueOf(elementName.toUpperCase());
+                    if (damage > 0) elementalDamage.put(element, damage);
+                } catch (IllegalArgumentException e) {
+                    // Ignore unknown element types
                 }
+            });
+            if (elementalDamage.isEmpty()) return;
+
+            if (payload.showBreakdown()) {
+                ElementalDamageDisplay.showElementalDamageSmart(target, elementalDamage);
+            } else {
+                elementalDamage.entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .ifPresent(entry -> ElementalDamageDisplay.showElementalDamage(target, entry.getKey(), entry.getValue()));
             }
         }
     }

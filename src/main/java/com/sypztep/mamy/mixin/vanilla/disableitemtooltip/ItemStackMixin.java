@@ -1,7 +1,6 @@
 package com.sypztep.mamy.mixin.vanilla.disableitemtooltip;
 
-import com.sypztep.mamy.client.event.tooltip.CustomArmorTooltip;
-import com.sypztep.mamy.client.event.tooltip.CustomSwordTooltip;
+import com.sypztep.mamy.client.event.tooltip.ElementalTooltipHelper;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,9 +32,9 @@ public abstract class ItemStackMixin {
         ci.cancel();
 
         if (itemStack.getItem() instanceof ArmorItem) {
-            CustomArmorTooltip.appendCustomArmorTooltip(itemStack, textConsumer, player);
+            ElementalTooltipHelper.appendArmorTooltip(itemStack, textConsumer, player);
         } else {
-            CustomSwordTooltip.appendCustomAttributeTooltip(itemStack, textConsumer, player);
+            ElementalTooltipHelper.appendWeaponTooltip(itemStack, textConsumer, player);
         }
     }
 }
