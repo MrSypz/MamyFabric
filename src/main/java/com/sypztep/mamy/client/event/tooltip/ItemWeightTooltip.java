@@ -2,7 +2,6 @@ package com.sypztep.mamy.client.event.tooltip;
 
 import java.util.List;
 
-import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,20 +23,16 @@ public class ItemWeightTooltip implements ItemTooltipCallback {
 
     @Override
     public void getTooltip(ItemStack stack, Item.TooltipContext tooltipContext, TooltipType tooltipType, List<Text> lines) {
-        if (ItemWeightEntry.hasWeight(stack)) {
-            float rawWeight = ItemWeightEntry.getWeight(stack);
-
-            // Convert to best SI unit
-            NumberUtil.WeightUnit unit = NumberUtil.WeightUnit.bestFit(rawWeight);
-            double displayValue = unit.convertFromKg(rawWeight); // assuming weight is stored in kg
+//        if (ItemWeightEntry.getWeight(stack)) {
+            double displayValue = ItemWeightEntry.getWeight(stack); // assuming weight is stored in kg
 
             MutableText line = Text.empty();
             line.append(Text.literal(WEIGHT_ICON).setStyle(ICONS));
             line.append(Text.literal(" Weight: ").formatted(Formatting.GRAY));
-            line.append(Text.literal(String.format("%.2f", displayValue)).formatted(Formatting.YELLOW));
-            line.append(Text.literal(" " + unit.getSymbol()).formatted(Formatting.DARK_GRAY));
+            line.append(Text.literal(String.format("%.1f", displayValue)).formatted(Formatting.YELLOW));
+            line.append(Text.literal(" LT").formatted(Formatting.DARK_GRAY));
 
             lines.add(line);
-        }
+//        }
     }
 }

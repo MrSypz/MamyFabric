@@ -8,10 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public record ItemWeightEntry(float weight) {
     public static final Map<Item, ItemWeightEntry> ITEM_DATA_MAP = new ConcurrentHashMap<>();
+
+    private static final float DEFAULT_WEIGHT = 0.1f;
+
     public static float getWeight(ItemStack item) {
-        return ItemWeightEntry.ITEM_DATA_MAP.get(item.getItem()).weight();
+        ItemWeightEntry entry = ITEM_DATA_MAP.get(item.getItem());
+        return entry != null ? entry.weight() : DEFAULT_WEIGHT;
     }
-    public static boolean hasWeight(ItemStack item) {
-        return ItemWeightEntry.ITEM_DATA_MAP.containsKey(item.getItem());
+
+    public static float getTotalWeight(ItemStack item) {
+        return getWeight(item) * item.getCount();
+    }
+
+    public static boolean hasCustomWeight(ItemStack item) {
+        return ITEM_DATA_MAP.containsKey(item.getItem());
     }
 }
