@@ -83,6 +83,7 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> HOLY_RESISTANCE = register("holy_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
     RegistryEntry<EntityAttribute> COLD_RESISTANCE = register("cold_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
 
+    RegistryEntry<EntityAttribute> MAX_WEIGHT = register("max_weight", 400, 0D, 1000000);
 
     RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
     RegistryEntry<EntityAttribute> DOUBLE_ATTACK_CHANCE = register("double_attack_chance", 0, 0, 1);
