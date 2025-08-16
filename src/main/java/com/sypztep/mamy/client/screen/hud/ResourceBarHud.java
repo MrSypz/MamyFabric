@@ -24,9 +24,9 @@ import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class ResourceBarHud {
-    // UI Constants - matching LevelHudRenderer style
+    // UI Constants - positioning changed to top left
     private static final int HUD_X = 5;
-    private static final int HUD_Y_OFFSET = 45;
+    private static final int HUD_Y = 5; // Changed from bottom offset to top offset
     private static final int BAR_WIDTH = 140;
     private static final int BAR_HEIGHT = 8;
     private static final int PADDING = 6;
@@ -80,6 +80,10 @@ public class ResourceBarHud {
 
     // Particle system
     private final List<ResourceParticle> particles = new ArrayList<>();
+
+    // Static visibility state for other HUD components to access
+    private static boolean isResourceBarVisible = false;
+    private static int resourceBarHeight = 0;
 
     /**
      * Floating number particle class
@@ -195,16 +199,18 @@ public class ResourceBarHud {
         // Update particles
         updateParticles(deltaTime);
 
-        // Don't render if fully hidden
-        if (slideOffset >= 1.0f && !shouldBeVisible) return;
-
         // Update animations
         updateAnimations(deltaTime, manager);
 
+        // Update static visibility state for other HUD components
+        updateVisibilityState();
+
+        // Don't render if fully hidden
+        if (slideOffset >= 1.0f && !shouldBeVisible) return;
+
         // Calculate position
-        int screenHeight = client.getWindow().getScaledHeight();
-        int hudY = screenHeight - HUD_Y_OFFSET;
         int currentHudX = calculateHudX();
+        int hudY = HUD_Y; // Top position
 
         // Render the enhanced resource bar
         renderEnhancedResourceBar(drawContext, client, manager, currentHudX, hudY, resourceType);
@@ -214,13 +220,40 @@ public class ResourceBarHud {
     }
 
     /**
+     * Update static visibility state for other HUD components to access
+     */
+    private void updateVisibilityState() {
+        isResourceBarVisible = shouldBeVisible && slideOffset < 1.0f;
+
+        if (isResourceBarVisible) {
+            int textHeight = MinecraftClient.getInstance().textRenderer.fontHeight;
+            resourceBarHeight = textHeight + BAR_HEIGHT + LINE_HEIGHT + (PADDING * 3) + 4;
+        } else {
+            resourceBarHeight = 0;
+        }
+    }
+
+    /**
+     * Get the current visibility state for other HUD components
+     */
+    public static boolean isVisible() {
+        return isResourceBarVisible;
+    }
+
+    /**
+     * Get the height of the resource bar when visible (for positioning other HUDs)
+     */
+    public static int getResourceBarHeight() {
+        return resourceBarHeight;
+    }
+
+    /**
      * Spawn a resource usage particle
      */
     private void spawnResourceParticle(float amount, ResourceType resourceType) {
         // Calculate spawn position (center of the resource bar)
-        int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
         int barCenterX = calculateHudX() + PADDING + BAR_WIDTH / 2;
-        int barCenterY = screenHeight - HUD_Y_OFFSET + PADDING +
+        int barCenterY = HUD_Y + PADDING +
                 MinecraftClient.getInstance().textRenderer.fontHeight + LINE_HEIGHT + 4 + BAR_HEIGHT / 2;
 
         // Determine color based on gain/loss and resource type

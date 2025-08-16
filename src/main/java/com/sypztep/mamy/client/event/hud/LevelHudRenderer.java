@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.event.hud;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.client.screen.hud.ResourceBarHud;
 import com.sypztep.mamy.client.util.BlendMode;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
@@ -25,7 +26,7 @@ import java.util.*;
 
 public final class LevelHudRenderer implements HudRenderCallback {
     // Layout settings - base dimensions (not scaled)
-    private static final int BASE_HUD_X = 2;
+    private static final int BASE_HUD_X = 3;
     private static final int BASE_HUD_Y = 2;
     private static final int BASE_HUD_WIDTH = 260;
     private static final int BASE_PLAYER_HEAD_SIZE = 32;
@@ -38,14 +39,17 @@ public final class LevelHudRenderer implements HudRenderCallback {
     private static final int BASE_ICON_SIZE = 12; // Size for texture icons
     private static final int BASE_ICON_TEXT_SPACING = 4; // Space between icon and text
 
+    // Resource bar offset animation constants
+    private static final float RESOURCE_BAR_OFFSET_DURATION = 0.4f; // Duration for Y offset animation
+    private static final int RESOURCE_BAR_MARGIN = -14; // Extra margin between resource bar and level HUD
+
     // GUI Texture identifiers (modern 1.21.1 approach)
     private static final Identifier BALANCE_ICON = Mamy.id("hud/level/balance");
     private static final Identifier XP_ICON = Mamy.id("hud/level/xp");
     private static final Identifier CLASS_ICON = Mamy.id("hud/level/class");
     private static final Identifier STATS_ICON = Mamy.id("hud/level/stats");
-    // It a custom part
+
     private static final Identifier BACKGROUND_TEXTURE = Mamy.id("textures/gui/hud/level/card.png");
-    // Custom sky texture for portal effect
     private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/sky_night.png");
 
     // Animation settings
@@ -105,6 +109,10 @@ public final class LevelHudRenderer implements HudRenderCallback {
     private static float hideTimer = 0.0f;
     private static boolean shouldBeVisible = false;
 
+    // Resource bar offset animation state
+    private static float resourceBarOffsetProgress = 0.0f;
+    private static boolean lastResourceBarVisible = false;
+
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -134,33 +142,33 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // Check if Alt key is being held down
         boolean forceShow = InputUtil.isKeyPressed(client.getWindow().getHandle(), InputUtil.GLFW_KEY_LEFT_ALT);
 
-// Detect changes and trigger appropriate effects
+        // Detect changes and trigger appropriate effects
         boolean baseXpGained = currentXp > lastXp;
         boolean baseLevelUp = level > lastLevel;
         boolean classXpGained = currentClassXp > lastClassXp;
         boolean classLevelUp = classLevel > lastClassLevel;
 
-// Trigger base XP glow only when base XP is gained
+        // Trigger base XP glow only when base XP is gained
         if (baseXpGained || baseLevelUp) {
             baseXpGlowTimer = XP_GLOW_DURATION;
             shouldBeVisible = true;
             hideTimer = AUTO_HIDE_DELAY;
         }
 
-// Trigger class XP glow only when class XP is gained
+        // Trigger class XP glow only when class XP is gained
         if (classXpGained || classLevelUp) {
             classXpGlowTimer = XP_GLOW_DURATION;
             shouldBeVisible = true;
             hideTimer = AUTO_HIDE_DELAY;
         }
 
-// Trigger shake animation on level ups
+        // Trigger shake animation on level ups
         if (baseLevelUp || classLevelUp) {
             shakeTimer = SHAKE_DURATION;
             isLevelUpShaking = true;
         }
 
-// Handle Alt key override visibility
+        // Handle Alt key override visibility
         if (forceShow) {
             shouldBeVisible = true;
             hideTimer = 0; // Stop auto-hide timer while Alt is held
@@ -175,6 +183,9 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // Calculate slide position
         int currentHudX = calculateHudX();
 
+        // Calculate Y offset based on resource bar visibility
+        int currentHudY = calculateHudY(deltaTime);
+
         // Calculate shake offset
         int shakeOffsetX = 0;
         int shakeOffsetY = 0;
@@ -186,7 +197,8 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
         // Only render if HUD is at least partially visible
         if (slideOffset < 1.0f) {
-            renderLevelHud(drawContext, client, levelComponent, classComponent, currentHudX + shakeOffsetX, shakeOffsetY);
+            renderLevelHud(drawContext, client, levelComponent, classComponent,
+                    currentHudX + shakeOffsetX, currentHudY + shakeOffsetY);
         }
 
         // Update last values
@@ -205,6 +217,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         float targetClassProgress = isMaxClassLevel ? 1.0f : (float) ((double) currentClassXp / (double) classXpToNext);
         animatedClassProgress = MathHelper.lerp(lerpSpeed, animatedClassProgress, targetClassProgress);
         if (animatedXpProgress == 0) clearSparks();
+
         // Base XP glow timer
         if (baseXpGlowTimer > 0) {
             baseXpGlowTimer -= deltaTime;
@@ -248,17 +261,50 @@ public final class LevelHudRenderer implements HudRenderCallback {
         }
     }
 
-    private void renderLevelHud(DrawContext drawContext, MinecraftClient client, LivingLevelComponent levelData, PlayerClassComponent classData, int hudX, int shakeOffsetY) {
+    /**
+     * Calculate HUD Y position with resource bar offset animation
+     */
+    private int calculateHudY(float deltaTime) {
+        // Check if resource bar visibility has changed
+        boolean currentResourceBarVisible = ResourceBarHud.isVisible();
+
+        if (currentResourceBarVisible != lastResourceBarVisible) {
+            lastResourceBarVisible = currentResourceBarVisible;
+        }
+
+        // Animate the offset progress
+        float targetOffsetProgress = currentResourceBarVisible ? 1.0f : 0.0f;
+        float offsetSpeed = 1.0f / RESOURCE_BAR_OFFSET_DURATION;
+
+        if (resourceBarOffsetProgress != targetOffsetProgress) {
+            float direction = targetOffsetProgress > resourceBarOffsetProgress ? 1.0f : -1.0f;
+            resourceBarOffsetProgress += direction * offsetSpeed * deltaTime;
+
+            if (direction > 0 && resourceBarOffsetProgress > targetOffsetProgress) {
+                resourceBarOffsetProgress = targetOffsetProgress;
+            } else if (direction < 0 && resourceBarOffsetProgress < targetOffsetProgress) {
+                resourceBarOffsetProgress = targetOffsetProgress;
+            }
+        }
+
+        // Calculate the offset with smooth easing
+        float easedProgress = DrawContextUtils.enhancedEaseInOut(resourceBarOffsetProgress);
+        int resourceBarOffset = (int) (easedProgress * (ResourceBarHud.getResourceBarHeight() + RESOURCE_BAR_MARGIN));
+
+        return BASE_HUD_Y + resourceBarOffset;
+    }
+
+    private void renderLevelHud(DrawContext drawContext, MinecraftClient client, LivingLevelComponent levelData, PlayerClassComponent classData, int hudX, int hudY) {
         float scale = ModConfig.lvbarscale;
 
-        DrawContextUtils.withScaleAt(drawContext, scale, hudX, BASE_HUD_Y + shakeOffsetY, () -> {
-            renderHudContent(drawContext, client, levelData, classData);
+        DrawContextUtils.withScaleAt(drawContext, scale, hudX, hudY, () -> {
+            renderHudContent(drawContext, client, levelData, classData, hudY);
         });
     }
 
-    private void renderHudContent(DrawContext drawContext, MinecraftClient client, LivingLevelComponent levelData, PlayerClassComponent classData) {
+    private void renderHudContent(DrawContext drawContext, MinecraftClient client, LivingLevelComponent levelData, PlayerClassComponent classData, int baseY) {
         TextRenderer textRenderer = client.textRenderer;
-        int currentY = BASE_HUD_Y;
+        int currentY = baseY;
 
         // Calculate total height
         int totalHeight = calculateTotalHeight(textRenderer);
