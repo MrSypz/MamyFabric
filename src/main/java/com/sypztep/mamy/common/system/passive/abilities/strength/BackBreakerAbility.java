@@ -41,6 +41,6 @@ public class BackBreakerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Punish the weak. +15% Back Attack Damage, +25% Crit Damage");
+        return TextStyleHelper.autoStyle("Punish the weak. +15% Back Attack Damage, +25% Crit Damage. Deal 50% more damage to enemies below 25% health");
     }
 }
