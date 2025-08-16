@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.util;
+package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.attribute.EntityAttribute;

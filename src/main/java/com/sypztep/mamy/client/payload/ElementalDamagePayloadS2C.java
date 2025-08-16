@@ -2,7 +2,7 @@ package com.sypztep.mamy.client.payload;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ElementalDamageDisplay;
-import com.sypztep.mamy.common.util.ElementType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;

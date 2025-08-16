@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.util;
 
 import com.sypztep.mamy.client.particle.ElementalDamageParticle;
-import com.sypztep.mamy.common.util.ElementType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

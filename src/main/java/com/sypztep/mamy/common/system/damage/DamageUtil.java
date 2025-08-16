@@ -1,10 +1,11 @@
-package com.sypztep.mamy.common.util;
+package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.init.ModCustomParticles;
 import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.particle.ParticleTypes;

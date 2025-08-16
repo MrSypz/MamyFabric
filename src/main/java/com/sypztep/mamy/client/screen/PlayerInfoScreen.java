@@ -8,7 +8,7 @@ import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
-import com.sypztep.mamy.common.util.DamageUtil;
+import com.sypztep.mamy.common.system.damage.DamageUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

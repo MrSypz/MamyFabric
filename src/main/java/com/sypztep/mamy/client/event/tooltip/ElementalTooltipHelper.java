@@ -3,7 +3,7 @@ package com.sypztep.mamy.client.event.tooltip;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
-import com.sypztep.mamy.common.util.ElementType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;

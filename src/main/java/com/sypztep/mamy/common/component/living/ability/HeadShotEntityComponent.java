@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.component.living;
+package com.sypztep.mamy.common.component.living.ability;
 
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.LivingEntity;

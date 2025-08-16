@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.core.damage;
 
-import com.sypztep.mamy.common.util.DamageUtil;
+import com.sypztep.mamy.common.system.damage.DamageUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;

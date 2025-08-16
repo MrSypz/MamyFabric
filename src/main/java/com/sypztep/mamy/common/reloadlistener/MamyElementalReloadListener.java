@@ -3,7 +3,7 @@ package com.sypztep.mamy.common.reloadlistener;
 import com.google.gson.JsonObject;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
-import com.sypztep.mamy.common.util.ElementType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import com.sypztep.mamy.common.util.ReloadHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.entity.attribute.EntityAttribute;

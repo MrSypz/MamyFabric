@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.util;
+package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.client.payload.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;

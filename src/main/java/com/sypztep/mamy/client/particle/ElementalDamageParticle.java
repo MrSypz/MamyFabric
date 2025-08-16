@@ -2,7 +2,7 @@ package com.sypztep.mamy.client.particle;
 
 import com.sypztep.mamy.client.event.tooltip.ElementalTooltipHelper;
 import com.sypztep.mamy.client.util.DrawContextUtils;
-import com.sypztep.mamy.common.util.ElementType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.particle.Particle;
@@ -13,7 +13,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 
