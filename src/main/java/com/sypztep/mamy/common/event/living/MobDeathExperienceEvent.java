@@ -13,7 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import java.util.Map;
 import java.util.UUID;
 
-public class MobDeathExperienceEvent implements ServerLivingEntityEvents.AfterDeath {
+public final class MobDeathExperienceEvent implements ServerLivingEntityEvents.AfterDeath {
     public static void register() {
         ServerLivingEntityEvents.AFTER_DEATH.register(new MobDeathExperienceEvent());
     }
