@@ -64,6 +64,11 @@ public final class LivingEntityUtil {
 
         return (!entity.isTouchingWater() && !entity.isSwimming());
     }
+    public static float getBerserkerDamageBonus(LivingEntity living) {
+        float healthPercent = getHealthPercentage(living);
+        float missingPercent = 1.0f - healthPercent;
+        return missingPercent * 0.2f;
+    }
 
     // PLAYER CLASS //
     public static void updateClassModifierBonus(LivingEntity livingEntity) {
@@ -72,5 +77,17 @@ public final class LivingEntityUtil {
             playerClass.getClassManager().getCurrentClass().removeAttributeModifiers(livingEntity);
             playerClass.getClassManager().getCurrentClass().applyAttributeModifiers(livingEntity);
         });
+    }
+
+    public static float getHealthPercentage(LivingEntity living) {
+        return living.getHealth() / living.getMaxHealth();
+    }
+
+    public static boolean isHealthBelow(LivingEntity living, float threshold) {
+        return getHealthPercentage(living) < threshold;
+    }
+
+    public static boolean isHealthAbove(LivingEntity living, float threshold) {
+        return getHealthPercentage(living) > threshold;
     }
 }
