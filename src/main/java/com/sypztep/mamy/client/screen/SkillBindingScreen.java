@@ -151,8 +151,6 @@ public final class SkillBindingScreen extends Screen {
         // Full screen background like PassiveAbilityScreen
     }
 
-
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
