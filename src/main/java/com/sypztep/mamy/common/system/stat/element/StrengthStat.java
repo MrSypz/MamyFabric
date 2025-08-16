@@ -16,6 +16,7 @@ public final class StrengthStat extends Stat {
     // Static constants for clean calculations
     private static final double MELEE_DAMAGE_SCALING = 0.05; // 5% per point
     private static final double PROJECTILE_DAMAGE_SCALING = 0.002; // 0.2% per point
+    private static final double WEIGHT_SCALE = 30; // 0.2% per point
 
     public StrengthStat(short baseValue) {
         super(baseValue);
@@ -37,6 +38,11 @@ public final class StrengthStat extends Stat {
                         ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
                         getSecondaryId(),
                         baseValue -> (PROJECTILE_DAMAGE_SCALING * this.getEffective())
+                ),
+                AttributeModification.addValue(
+                        ModEntityAttributes.MAX_WEIGHT,
+                        getSecondaryId(),
+                        baseValue -> (WEIGHT_SCALE * this.getEffective())
                 )
         );
         applyEffects(living, modifications);
@@ -58,6 +64,10 @@ public final class StrengthStat extends Stat {
         double currentProjectileDamage = Math.max(0, currentTotal * PROJECTILE_DAMAGE_SCALING * 100);
         double futureProjectileDamage = Math.max(0, futureTotal * PROJECTILE_DAMAGE_SCALING * 100);
         double projectileDamageIncrease = futureProjectileDamage - currentProjectileDamage;
+
+        int currentMaxWeight = (int) Math.max(0, currentTotal * WEIGHT_SCALE * 100);
+        int futureMaxWeight = (int) Math.max(0, futureTotal * WEIGHT_SCALE * 100);
+        int maxWeightIncrease = futureMaxWeight - currentMaxWeight;
 
         List<Text> description = new ArrayList<>();
 
@@ -85,17 +95,20 @@ public final class StrengthStat extends Stat {
                     .append(Text.literal(String.valueOf(futureTotal)).formatted(Formatting.GREEN)));
         }
 
-        description.add(Text.literal(""));
+        description.add(Text.empty());
         description.add(Text.literal("Primary Effects").formatted(Formatting.GOLD));
         description.add(Text.literal("  Melee Damage: ").formatted(Formatting.GRAY)
                 .append(Text.literal(String.format("+%.1f%%", meleeDamageIncrease)).formatted(Formatting.GREEN))
                 .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentMeleeDamage, futureMeleeDamage)).formatted(Formatting.DARK_GRAY)));
 
-        description.add(Text.literal(""));
+        description.add(Text.empty());
         description.add(Text.literal("Secondary Effects").formatted(Formatting.GOLD));
         description.add(Text.literal("  Projectile Damage: ").formatted(Formatting.GRAY)
                 .append(Text.literal(String.format("+%.1f%%", projectileDamageIncrease)).formatted(Formatting.GREEN))
                 .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentProjectileDamage, futureProjectileDamage)).formatted(Formatting.DARK_GRAY)));
+        description.add(Text.literal("  Max Weight: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("+%d%%", maxWeightIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%d%% → %d%%)", currentMaxWeight, futureMaxWeight)).formatted(Formatting.DARK_GRAY)));
 
         return description;
     }
