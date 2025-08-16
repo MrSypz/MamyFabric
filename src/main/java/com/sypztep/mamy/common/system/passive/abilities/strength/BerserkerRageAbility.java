@@ -41,6 +41,6 @@ public class BerserkerRageAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Fury in battle. +12 Melee Damage, +15% Double Attack Chance");
+        return TextStyleHelper.autoStyle("Fury in battle. +12 Melee Damage, +15% Double Attack Chance. Gain 1% damage per 5% missing health");
     }
 }
