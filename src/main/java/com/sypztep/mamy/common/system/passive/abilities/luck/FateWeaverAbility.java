@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.passive.abilities.dexterity;
+package com.sypztep.mamy.common.system.passive.abilities.luck;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -12,35 +12,41 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// DEX 50: +55 Accuracy (13.75% hit boost) - Keep existing iframe bypass logic
-public class MarksmanAbility extends PassiveAbility {
-    public MarksmanAbility(String id, Map<StatTypes, Integer> requirements) {
+// LUK 99: +25% Crit Chance, +10 Accuracy (2.5% hit boost) + Utility
+public class FateWeaverAbility extends PassiveAbility {
+    public FateWeaverAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.ACCURACY,
-                Mamy.id("marksman_accuracy"),
+                ModEntityAttributes.CRIT_CHANCE,
+                Mamy.id("fate_weaver_crit"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 55.0
+                baseValue -> 0.25
         ));
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
-                Mamy.id("marksman_projectile"),
+                ModEntityAttributes.ACCURACY,
+                Mamy.id("fate_weaver_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 6.0
+                baseValue -> 10.0
+        ));
+        addAttributeEffect(new AttributeModification(
+                ModEntityAttributes.CRIT_DAMAGE,
+                Mamy.id("fate_weaver_crit_dmg"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 0.30
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Marksman").formatted(Formatting.GOLD);
+        return Text.literal("Fate Weaver").formatted(Formatting.DARK_PURPLE);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Expert shooter. +55 Accuracy (13.75% hit rate), +6 Projectile Damage. Bypass target immunity frames");
+        return TextStyleHelper.autoStyle("Weave the threads of destiny. +25% Crit Chance, +30% Crit Damage, +10 Accuracy");
     }
 }

@@ -1,46 +1,46 @@
-package com.sypztep.mamy.common.system.passive.abilities.dexterity;
+package com.sypztep.mamy.common.system.passive.abilities.intelligence;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 
-// DEX 20: +25 Accuracy (6.25% hit boost) - Keep existing headshot logic
-public class HeadhunterAbility extends PassiveAbility {
-    public HeadhunterAbility(String id, Map<StatTypes, Integer> requirements) {
+// INT 50: +10 Magic Damage, +15% Magic Resistance
+public class SpellPenetrationAbility extends PassiveAbility {
+    public SpellPenetrationAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.ACCURACY,
-                Mamy.id("headhunter_accuracy"),
+                ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT,
+                Mamy.id("spell_penetration_magic"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 25.0
+                baseValue -> 10.0
         ));
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.HEADSHOT_DAMAGE,
-                Mamy.id("headhunter_headshot"),
+                ModEntityAttributes.MAGIC_RESISTANCE,
+                Mamy.id("spell_penetration_resist"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 2.0
+                baseValue -> 0.15
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Headhunter").formatted(Formatting.RED);
+        return Text.literal("Spell Penetration").formatted(Formatting.DARK_PURPLE);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Precision shots to the head. +25 Accuracy (6.25% hit rate), +2x Headshot Damage");
+        return TextStyleHelper.autoStyle("Pierce magical defenses. +10 Magic Damage, +15% Magic Resistance");
     }
 }

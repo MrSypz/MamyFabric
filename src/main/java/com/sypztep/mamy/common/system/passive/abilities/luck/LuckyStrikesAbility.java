@@ -1,50 +1,52 @@
-package com.sypztep.mamy.common.system.passive.abilities.dexterity;
+package com.sypztep.mamy.common.system.passive.abilities.luck;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
+
 // =====================================
-// DEXTERITY PASSIVES (ACCURACY FOCUS)
-// Total: +245 Accuracy across all 6 passives (matches AGI evasion)
+// LUCK PASSIVES (CRITICAL HITS + BALANCE)
+// Total: +122 Accuracy across all 6 passives (half of DEX for balance)
 // =====================================
 
-// DEX 10: +15 Accuracy (3.75% hit boost)
-public class PrecisionStrikesAbility extends PassiveAbility {
-    public PrecisionStrikesAbility(String id, Map<StatTypes, Integer> requirements) {
+// LUK 10: +5% Crit Chance, +12 Accuracy (3% hit boost)
+public class LuckyStrikesAbility extends PassiveAbility {
+    public LuckyStrikesAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.ACCURACY,
-                Mamy.id("precision_strikes_accuracy"),
+                ModEntityAttributes.CRIT_CHANCE,
+                Mamy.id("lucky_strikes_crit"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 15.0
+                baseValue -> 0.05
         ));
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.CRIT_CHANCE,
-                Mamy.id("precision_strikes_crit"),
+                ModEntityAttributes.ACCURACY,
+                Mamy.id("lucky_strikes_accuracy"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.02
+                baseValue -> 12.0
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Precision Strikes").formatted(Formatting.YELLOW);
+        return Text.literal("Lucky Strikes").formatted(Formatting.YELLOW);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Accurate attacks. +15 Accuracy (3.75% hit rate), +2% Crit Chance");
+        return TextStyleHelper.autoStyle("Fortune favors the bold. +5% Crit Chance, +12 Accuracy (3% hit rate)");
     }
 }
+

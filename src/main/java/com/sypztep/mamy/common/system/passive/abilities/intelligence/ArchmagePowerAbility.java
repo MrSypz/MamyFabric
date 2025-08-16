@@ -1,46 +1,46 @@
-package com.sypztep.mamy.common.system.passive.abilities.dexterity;
+package com.sypztep.mamy.common.system.passive.abilities.intelligence;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 
-// DEX 20: +25 Accuracy (6.25% hit boost) - Keep existing headshot logic
-public class HeadhunterAbility extends PassiveAbility {
-    public HeadhunterAbility(String id, Map<StatTypes, Integer> requirements) {
+// INT 99: +25 Magic Damage, +50% Resource
+public class ArchmagePowerAbility extends PassiveAbility {
+    public ArchmagePowerAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.ACCURACY,
-                Mamy.id("headhunter_accuracy"),
+                ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT,
+                Mamy.id("archmage_power_magic"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
                 baseValue -> 25.0
         ));
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.HEADSHOT_DAMAGE,
-                Mamy.id("headhunter_headshot"),
-                EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 2.0
+                ModEntityAttributes.RESOURCE,
+                Mamy.id("archmage_power_resource"),
+                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
+                baseValue -> 0.50
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Headhunter").formatted(Formatting.RED);
+        return Text.literal("Archmage Power").formatted(Formatting.DARK_PURPLE);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Precision shots to the head. +25 Accuracy (6.25% hit rate), +2x Headshot Damage");
+        return TextStyleHelper.autoStyle("Supreme magical mastery. +25 Magic Damage, +50% Max Resource");
     }
 }

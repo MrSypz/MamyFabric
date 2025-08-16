@@ -1,50 +1,51 @@
-package com.sypztep.mamy.common.system.passive.abilities.dexterity;
+package com.sypztep.mamy.common.system.passive.abilities.vitality;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.AttributeModification;
 import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 // =====================================
-// DEXTERITY PASSIVES (ACCURACY FOCUS)
-// Total: +245 Accuracy across all 6 passives (matches AGI evasion)
+// VITALITY PASSIVES (SURVIVABILITY)
 // =====================================
 
-// DEX 10: +15 Accuracy (3.75% hit boost)
-public class PrecisionStrikesAbility extends PassiveAbility {
-    public PrecisionStrikesAbility(String id, Map<StatTypes, Integer> requirements) {
+// VIT 10: +50 Health, +1 Health Regen
+public class HardyConstitutionAbility extends PassiveAbility {
+    public HardyConstitutionAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
 
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.ACCURACY,
-                Mamy.id("precision_strikes_accuracy"),
+                EntityAttributes.GENERIC_MAX_HEALTH,
+                Mamy.id("hardy_constitution_health"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 15.0
+                baseValue -> 50.0
         ));
         addAttributeEffect(new AttributeModification(
-                ModEntityAttributes.CRIT_CHANCE,
-                Mamy.id("precision_strikes_crit"),
+                ModEntityAttributes.HEALTH_REGEN,
+                Mamy.id("hardy_constitution_regen"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.02
+                baseValue -> 1.0
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Precision Strikes").formatted(Formatting.YELLOW);
+        return Text.literal("Hardy Constitution").formatted(Formatting.GREEN);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Accurate attacks. +15 Accuracy (3.75% hit rate), +2% Crit Chance");
+        return TextStyleHelper.autoStyle("Robust health. +50 Max Health, +1 Health Regen/sec");
     }
 }
+

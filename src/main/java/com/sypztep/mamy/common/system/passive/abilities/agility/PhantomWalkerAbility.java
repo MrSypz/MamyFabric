@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.passive.abilities.agility;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.AttributeModification;
@@ -12,8 +13,8 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
+// AGI 75: +60 Evasion (15% dodge boost) - Keep existing +1 jump logic
 public class PhantomWalkerAbility extends PassiveAbility {
-
     public PhantomWalkerAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
@@ -21,20 +22,20 @@ public class PhantomWalkerAbility extends PassiveAbility {
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                Mamy.id("phantom_walker"),
-                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.25 // +25% movement speed
+                ModEntityAttributes.EVASION,
+                Mamy.id("phantom_walker_evasion"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 60.0
         ));
     }
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Phantom Walker").formatted(Formatting.AQUA);
+        return Text.literal("Phantom Walker").formatted(Formatting.GRAY);
     }
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your speed surges by 25%, and you can perform an extra leap while airborne");
+        return TextStyleHelper.autoStyle("Ghostly mobility. +60 Evasion (15% dodge). Enhanced jump height, otherworldly movement");
     }
 }

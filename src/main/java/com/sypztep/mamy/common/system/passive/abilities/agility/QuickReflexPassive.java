@@ -12,8 +12,8 @@ import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 
+// AGI 20: +25 Evasion (6.25% dodge boost) - Keep existing evasion logic
 public class QuickReflexPassive extends PassiveAbility {
-
     public QuickReflexPassive(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
     }
@@ -22,9 +22,9 @@ public class QuickReflexPassive extends PassiveAbility {
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.EVASION,
-                Mamy.id("quick_reflex"),
+                Mamy.id("quick_reflex_evasion"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 80 // +20% Evasion
+                baseValue -> 25.0
         ));
     }
 
@@ -35,6 +35,6 @@ public class QuickReflexPassive extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Lightning-fast reflexes grant +80 Evasion, making you harder to hit");
+        return TextStyleHelper.autoStyle("Lightning reflexes. +25 Evasion (6.25% dodge)");
     }
 }

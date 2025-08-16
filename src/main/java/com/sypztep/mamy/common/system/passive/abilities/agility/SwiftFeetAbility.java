@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.passive.abilities.agility;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.TextStyleHelper;
@@ -12,6 +13,12 @@ import com.sypztep.mamy.common.util.AttributeModification;
 
 import java.util.Map;
 
+// =====================================
+// AGILITY PASSIVES (EVASION FOCUS)
+// Total: +245 Evasion across all 6 passives
+// =====================================
+
+// AGI 10: +15 Evasion (3.75% dodge boost)
 public class SwiftFeetAbility extends PassiveAbility {
     public SwiftFeetAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -20,10 +27,10 @@ public class SwiftFeetAbility extends PassiveAbility {
     @Override
     protected void initializeEffects() {
         addAttributeEffect(new AttributeModification(
-                EntityAttributes.GENERIC_MOVEMENT_SPEED,
-                Mamy.id("swift_feet_speed"),
-                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                baseValue -> 0.5 // +5% movement speed
+                ModEntityAttributes.EVASION,
+                Mamy.id("swift_feet_evasion"),
+                EntityAttributeModifier.Operation.ADD_VALUE,
+                baseValue -> 15.0
         ));
     }
 
@@ -34,6 +41,6 @@ public class SwiftFeetAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Your nimble steps grant +5% Movement Speed, letting you outrun the wind");
+        return TextStyleHelper.autoStyle("Nimble movement. +15 Evasion (3.75% dodge)");
     }
 }
