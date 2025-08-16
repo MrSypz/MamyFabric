@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.text.Text;
@@ -48,6 +49,6 @@ public class CombatVeteranAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Battle-hardened warrior. +3 Attack Damage, +3 Armor, +10% Crit Chance");
+        return TextStyleHelper.autoStyle("Battle-hardened warrior. +3 Attack Damage, +3 Armor, +10% Crit Chance");
     }
 }

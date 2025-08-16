@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.passive.PassiveAbility;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.TextStyleHelper;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -22,7 +23,7 @@ public class ElementalImmunityAbility extends PassiveAbility {
                 ModEntityAttributes.MAGIC_RESISTANCE,
                 Mamy.id("elemental_immunity_magic_resist"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.50 // +50% magic resistance
+                baseValue -> 0.07 // +7% magic resistance
         ));
     }
 
@@ -33,6 +34,6 @@ public class ElementalImmunityAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return Text.literal("Immunity to fire damage and high elemental resistance. +50% Magic Resistance");
+        return TextStyleHelper.autoStyle("Immunity to fire damage and high elemental resistance. +7% Magic Resistance");
     }
 }
