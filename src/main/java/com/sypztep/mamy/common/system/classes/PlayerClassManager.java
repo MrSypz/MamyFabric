@@ -5,6 +5,7 @@ import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.system.level.ClassLevelSystem;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
