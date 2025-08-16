@@ -288,8 +288,8 @@ public class ClassSkillManager {
         }
         nbt.put("BoundSkills", boundSkillsNbt);
     }
-
-    public void readFromNbt(NbtCompound nbt) {
+    @Deprecated
+    public void oldreadFromNbt(NbtCompound nbt) {
         // Read skill levels
         skillLevels.clear();
         if (nbt.contains("SkillLevels")) {
@@ -314,6 +314,55 @@ public class ClassSkillManager {
                 if (!skillIdStr.isEmpty()) {
                     try {
                         boundSkills[i] = Identifier.of(skillIdStr);
+                    } catch (Exception e) {
+                        // Skip invalid entries
+                    }
+                }
+            }
+        }
+
+        // Ensure basic attack is still learned
+        if (!hasLearnedSkill(SkillRegistry.FIRSTAID)) {
+            learnSkill(SkillRegistry.FIRSTAID, true);
+        }
+    }
+    //TODO: find better solution to return classlevel point
+    public void readFromNbt(NbtCompound nbt) {
+        // Read skill levels
+        skillLevels.clear();
+        if (nbt.contains("SkillLevels")) {
+            NbtCompound skillLevelsNbt = nbt.getCompound("SkillLevels");
+            for (String key : skillLevelsNbt.getKeys()) {
+                try {
+                    Identifier skillId = Identifier.of(key);
+                    int level = skillLevelsNbt.getInt(key);
+
+                    if (SkillRegistry.getSkill(skillId) != null) {
+                        skillLevels.put(skillId, level);
+                    } else {
+                        System.out.println("[ClassSkillManager] Skipped unknown skill: " + skillId);
+                    }
+                } catch (Exception e) {
+                    // Skip invalid entries
+                }
+            }
+        }
+
+        // Read bound skills
+        Arrays.fill(boundSkills, null);
+        if (nbt.contains("BoundSkills")) {
+            NbtList boundSkillsNbt = nbt.getList("BoundSkills", 8);
+            for (int i = 0; i < Math.min(boundSkillsNbt.size(), boundSkills.length); i++) {
+                String skillIdStr = boundSkillsNbt.getString(i);
+                if (!skillIdStr.isEmpty()) {
+                    try {
+                        Identifier skillId = Identifier.of(skillIdStr);
+
+                        if (SkillRegistry.getSkill(skillId) != null && hasLearnedSkill(skillId)) {
+                            boundSkills[i] = skillId;
+                        } else {
+                            System.out.println("[ClassSkillManager] Removed invalid bound skill: " + skillId);
+                        }
                     } catch (Exception e) {
                         // Skip invalid entries
                     }
