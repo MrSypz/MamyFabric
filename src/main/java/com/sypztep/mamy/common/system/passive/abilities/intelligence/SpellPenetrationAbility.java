@@ -30,7 +30,7 @@ public class SpellPenetrationAbility extends PassiveAbility {
                 ModEntityAttributes.MAGIC_RESISTANCE,
                 Mamy.id("spell_penetration_resist"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.15
+                baseValue -> 0.05
         ));
     }
 
@@ -41,6 +41,6 @@ public class SpellPenetrationAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Pierce magical defenses. +10 Magic Damage, +15% Magic Resistance");
+        return TextStyleHelper.autoStyle("Pierce magical defenses. +10 Magic Damage, +5% Magic Resistance. 20% chance spells cost no mana");
     }
 }
