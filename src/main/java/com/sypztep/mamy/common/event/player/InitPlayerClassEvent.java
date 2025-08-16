@@ -32,7 +32,5 @@ public final class InitPlayerClassEvent implements ServerPlayerEvents.AfterRespa
 
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
         classComponent.initialize();
-
-        player.setHealth(player.getMaxHealth());
     }
 }

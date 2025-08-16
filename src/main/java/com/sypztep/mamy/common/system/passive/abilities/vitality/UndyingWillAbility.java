@@ -42,6 +42,6 @@ public class UndyingWillAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Refuse to die. +150 Max Health, +5 Health Regen/sec");
+        return TextStyleHelper.autoStyle("Refuse to die. +150 Max Health, +5 Health Regen/sec. Survive fatal damage once every 60 seconds");
     }
 }
