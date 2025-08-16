@@ -54,21 +54,14 @@ public class SkillManager {
         float currentResource = classManager.getCurrentResource();
 
         if (currentResource < resourceCost) {
-            player.sendMessage(Text.literal(String.format("Not enough %s! Need %.1f, have %.1f",
-                            classManager.getResourceType().getDisplayName(), resourceCost, currentResource))
-                    .formatted(Formatting.RED), true);
             return;
         }
 
         if (!skill.canUse(player, skillLevel)) {
-            player.sendMessage(Text.literal("Cannot use skill right now!")
-                    .formatted(Formatting.RED), true);
             return;
         }
 
         if (!classComponent.useResource(resourceCost)) {
-            player.sendMessage(Text.literal("Failed to consume resource!")
-                    .formatted(Formatting.RED), true);
             return;
         }
 
@@ -78,10 +71,6 @@ public class SkillManager {
             float cooldown = skill.getCooldown(skillLevel);
             setCooldown(player, skillId, cooldown);
         }
-
-        // Success message with skill level
-        player.sendMessage(Text.literal("Used " + skill.getName() + " (Level " + skillLevel + ")")
-                .formatted(Formatting.GREEN), true);
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
@@ -103,11 +92,6 @@ public class SkillManager {
             }
             return false;
         }
-
-        // Convert remaining milliseconds to seconds for display
-        float remainingSeconds = (endTime - currentTime) / 1000.0f;
-        player.sendMessage(Text.literal(String.format("Skill on cooldown for %.1f seconds",
-                remainingSeconds)).formatted(Formatting.YELLOW), true);
         return true;
     }
 
