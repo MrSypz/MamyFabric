@@ -1,7 +1,7 @@
-package com.sypztep.mamy.common.system.classes;
+package com.sypztep.mamy.common.system.level;
 
 import com.sypztep.mamy.ModConfig;
-import com.sypztep.mamy.common.system.level.LevelSystem;
+import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
