@@ -28,6 +28,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playC2S().register(ClassEvolutionPayloadC2S.ID, ClassEvolutionPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(AirHikePayloadC2S.ID, AirHikePayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(MultiHitPayloadC2S.ID, MultiHitPayloadC2S.CODEC);
+        PayloadTypeRegistry.playC2S().register(WallPhasePayloadC2S.ID, WallPhasePayloadC2S.CODEC);
 
         registerPayloads();
     }
@@ -41,6 +42,7 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(ClassEvolutionPayloadC2S.ID, new ClassEvolutionPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(AirHikePayloadC2S.ID, new AirHikePayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(MultiHitPayloadC2S.ID, new MultiHitPayloadC2S.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(WallPhasePayloadC2S.ID, new WallPhasePayloadC2S.Receiver());
     }
     @Environment(EnvType.CLIENT)
     public static class Client {

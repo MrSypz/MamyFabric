@@ -12,6 +12,8 @@
     "core.passive.dexterity.headhunter.PersistentProjectileEntityMixin",
     "core.passive.dexterity.marksman.LivingEntityMixin",
     "core.passive.dexterity.ricochet.ProjectileEntityMixin",
+    "core.passive.intelligence.waterwalk.LivingEntityMixin",
+    "core.passive.intelligence.waterwalk.PlayerEntityMixin",
     "core.registry.attribute.LivingEntityMixin",
     "core.stats.agility.projectileclip.PersistentProjectileEntityMixin",
     "core.stats.agility.projectileclip.TridentEntityMixin",
@@ -30,6 +32,8 @@
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
     "core.classes.theif.PlayerEntityMixin",
+    "core.passive.intelligence.waterwalk.client.ClientPlayerEntityMixin",
+    "core.passive.intelligence.xray.client.MinecraftClientMixin",
     "core.stats.dexterity.ClientPlayerEntityMixin"
   ],
   "injectors": {

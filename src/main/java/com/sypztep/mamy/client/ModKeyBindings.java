@@ -6,8 +6,10 @@ import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
 import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
+import com.sypztep.mamy.common.payload.WallPhasePayloadC2S;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -19,6 +21,7 @@ public class ModKeyBindings {
     // UI Keys
     public static KeyBinding SWITCH_STANCE;
     public static KeyBinding CLASS_SELECTOR;
+    public static KeyBinding WALL_PHASE_KEY ;
 
     // Skill Slots
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -74,13 +77,22 @@ public class ModKeyBindings {
                 "category.mamy.skills"
         ));
 
+        WALL_PHASE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.wall_phase",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_G,
+                "category.mamy.abilities")
+        );
+
         ClientTickEvents.END_CLIENT_TICK.register(ModKeyBindings::handleKeyInputs);
     }
 
     private static void handleKeyInputs(MinecraftClient client) {
         if (client.player == null) return;
         if (client.currentScreen != null) return;
-
+        if (WALL_PHASE_KEY.wasPressed() && client.player != null) {
+            WallPhasePayloadC2S.send();
+        }
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
         }
