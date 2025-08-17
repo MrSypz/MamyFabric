@@ -41,6 +41,6 @@ public class ArchmagePowerAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Supreme magical mastery. +25 Magic Damage, +50% Max Resource");
+        return TextStyleHelper.autoStyle("Ultimate arcane ascension. +25 Magic Damage, +50% Max Resource. Why part seas when you can walk across?");
     }
 }

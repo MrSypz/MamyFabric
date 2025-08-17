@@ -72,6 +72,6 @@ public class ElementalAffinityAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Harmony with elements. +3 Magic Damage, +5% to all Elemental Damage");
+        return TextStyleHelper.autoStyle("Harmony with elements. +3 Magic Damage, +5% to all Elemental Damage, Magical sight reveals enemy though the wall");
     }
 }
