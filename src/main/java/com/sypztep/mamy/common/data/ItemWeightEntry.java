@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public record ItemWeightEntry(float weight) {
     public static final Map<Item, ItemWeightEntry> ITEM_DATA_MAP = new ConcurrentHashMap<>();
 
-    private static final float DEFAULT_WEIGHT = 0.1f;
+    private static final float DEFAULT_WEIGHT = 0.01f;
 
     public static float getWeight(ItemStack item) {
         ItemWeightEntry entry = ITEM_DATA_MAP.get(item.getItem());

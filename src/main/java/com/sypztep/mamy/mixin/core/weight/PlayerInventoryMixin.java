@@ -1,6 +1,5 @@
 package com.sypztep.mamy.mixin.core.weight;
 
-import com.sypztep.mamy.common.component.living.PlayerWeightComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -23,20 +22,26 @@ public abstract class PlayerInventoryMixin {
 
     @Unique
     private void recalcWeight() {
-        ModEntityComponents.PLAYERWEIGHT.get(player).recalculateWeight();
+        if (!player.getWorld().isClient) {
+            ModEntityComponents.PLAYERWEIGHT.get(player).recalculateWeight();
+        }
     }
 
     @Inject(method = "setStack", at = @At("HEAD"))
     private void onSetStackPre(int slot, ItemStack stack, CallbackInfo ci) {
-        this.oldStack = player.getInventory().getStack(slot).copy();
+        if (!player.getWorld().isClient) {
+            this.oldStack = player.getInventory().getStack(slot).copy();
+        }
     }
     /**
      * Called whenever a slot is set.
      */
     @Inject(method = "setStack", at = @At("RETURN"))
     private void onSetStackPost(int slot, ItemStack stack, CallbackInfo ci) {
-        ModEntityComponents.PLAYERWEIGHT.get(player).updateWeightDelta(oldStack, stack);
-        this.oldStack = ItemStack.EMPTY; // cleanup
+        if (!player.getWorld().isClient) {
+            ModEntityComponents.PLAYERWEIGHT.get(player).updateWeightDelta(oldStack, stack);
+            this.oldStack = ItemStack.EMPTY; // cleanup
+        }
     }
 
     /**

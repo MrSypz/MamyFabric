@@ -28,6 +28,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.beginRegistration(PlayerEntity.class, PLAYERCLASS).respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(PlayerClassComponent::new);
         registry.registerFor(MobEntity.class, DAMAGETRACKER, entity -> new DamageTrackerComponent());
         registry.registerForPlayers(PLAYERSTANCE, PlayerStanceComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+
         registry.registerForPlayers(PLAYERWEIGHT, PlayerWeightComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 
         registry.registerFor(LivingEntity.class, HEADSHOT, HeadShotEntityComponent::new);

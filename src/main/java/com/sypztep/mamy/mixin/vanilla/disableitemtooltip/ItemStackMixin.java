@@ -32,7 +32,7 @@ public abstract class ItemStackMixin {
         ci.cancel();
 
         if (itemStack.getItem() instanceof ArmorItem) {
-            ElementalTooltipHelper.appendArmorTooltip(itemStack, textConsumer, player);
+            ElementalTooltipHelper.appendArmorTooltip(itemStack, textConsumer);
         } else {
             ElementalTooltipHelper.appendWeaponTooltip(itemStack, textConsumer, player);
         }
