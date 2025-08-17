@@ -22,7 +22,6 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<HeadShotEntityComponent> HEADSHOT = ComponentRegistry.getOrCreate(Mamy.id("headshot"), HeadShotEntityComponent.class);
     public static final ComponentKey<PhantomWalkerComponent> PHANTOMWALKER = ComponentRegistry.getOrCreate(Mamy.id("phantomwalker"), PhantomWalkerComponent.class);
 
-
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.beginRegistration(LivingEntity.class, LIVINGLEVEL).respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(LivingLevelComponent::new);
