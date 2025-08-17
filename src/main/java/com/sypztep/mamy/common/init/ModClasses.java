@@ -12,99 +12,100 @@ import java.util.Map;
 public interface ModClasses {
     Map<String, PlayerClass> CLASSES = new HashMap<>();
 
-    // ===== TIER 0 (Starting Class) =====
+    // ===== TIER 0 (Starting Class) - EXTREME CHALLENGE =====
     PlayerClass NOVICE = register(PlayerClass
             .create("novice", 0, 0, "Novice", Formatting.GRAY, ResourceType.MANA,
-                    "A beginning adventurer with no specialized skills")
+                    "A beginning adventurer with no specialized skills - fragile but determined")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 30.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 8.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.0),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(2.0),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.15)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.5),  // Grows faster
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(3.0),         // Better scaling
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.2)
             ))
-            .resource(200)
+            .resource(200)  // Base resource for scaling
             .maxLevel(10)
             .build());
 
-    // ===== TIER 1 (First Job Classes) =====
+    // ===== TIER 1 (First Job Classes) - BALANCED CHALLENGE =====
+
     PlayerClass SWORDMAN = register(PlayerClass
             .create("swordman", 1, 1, "Swordman", Formatting.RED, ResourceType.RAGE,
-                    "A warrior who has chosen the path of the sword")
+                    "A warrior who trades magic for martial prowess")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 80.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 44.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(3.0),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(1.5),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.1)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(3.5),  // Best health growth
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(1.8),         // Moderate rage growth
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.12)
             ))
-            .resource(150)
+            .resource(260)  // 1.3x base - lowest but adequate for melee
             .jobBonuses((short)7, (short)2, (short)4, (short)0, (short)3, (short)2)
             .build()
             .addRequirement(NOVICE, 10));
 
     PlayerClass MAGE = register(PlayerClass
             .create("mage", 1, 2, "Mage", Formatting.BLUE, ResourceType.MANA,
-                    "A spellcaster who manipulates arcane energies")
+                    "A glass cannon wielding devastating arcane power")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 40.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 32.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.0),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(6.0),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.5)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.2),  // Slow health growth
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(8.0),         // Massive mana growth
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.6)
             ))
-            .resource(350)
+            .resource(1340)  // 6.7x base - MAXIMUM resource pool
             .jobBonuses((short)0, (short)4, (short)0, (short)8, (short)3, (short)3)
             .build()
             .addRequirement(NOVICE, 10));
 
     PlayerClass ARCHER = register(PlayerClass
             .create("archer", 1, 3, "Archer", Formatting.GREEN, ResourceType.MANA,
-                    "A ranged combatant skilled with bow and arrow")
+                    "A ranged specialist with mobility and precision")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 60.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 36.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(2.0),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(3.0),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.25)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(2.2),  // Moderate growth
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(3.5),         // Good mana for skills
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.3)
             ))
-            .resource(250)
+            .resource(520)  // 2.6x base - medium resource needs
             .jobBonuses((short)3, (short)3, (short)1, (short)2, (short)7, (short)2)
             .build()
             .addRequirement(NOVICE, 10));
 
     PlayerClass ACOLYTE = register(PlayerClass
             .create("acolyte", 1, 4, "Acolyte", Formatting.GOLD, ResourceType.MANA,
-                    "A holy servant dedicated to helping others")
+                    "A divine hybrid balancing healing magic and survivability")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 50.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 38.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.5),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(4.0),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.4)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(2.0),  // Balanced growth
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(5.5),         // High mana for healing
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.45)
             ))
-            .resource(300)
+            .resource(1000)  // 5.0x base - high mana for healing/support
             .jobBonuses((short)3, (short)2, (short)3, (short)3, (short)3, (short)4)
             .build()
             .addRequirement(NOVICE, 10));
 
     PlayerClass THIEF = register(PlayerClass
             .create("thief", 1, 5, "Thief", Formatting.DARK_GRAY, ResourceType.RAGE,
-                    "A nimble rogue who strikes from the shadows")
+                    "An agile assassin who relies on speed over brute force")
             .attributes(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, 45.0
+                    EntityAttributes.GENERIC_MAX_HEALTH, 34.0
             ))
             .growthFactors(Map.of(
-                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.2),
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(2.0),
-                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.3)
+                    EntityAttributes.GENERIC_MAX_HEALTH, GrowthFactor.flat(1.5),  // Slowest growth
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(2.5),         // Moderate rage for skills
+                    ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.35)   // Fast regen for combos
             ))
-            .resource(180)
+            .resource(340)  // 1.7x base - enough for ability chains
             .jobBonuses((short)4, (short)4, (short)2, (short)1, (short)4, (short)3)
             .build()
             .addRequirement(NOVICE, 10));
