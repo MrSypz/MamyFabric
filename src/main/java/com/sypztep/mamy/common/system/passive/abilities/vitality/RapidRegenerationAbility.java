@@ -12,7 +12,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// VIT 20: +15% Heal Effectiveness, +3% Damage Reduction
+// VIT 20: +2% Damage Reduction, +15% Heal Effectiveness - RECOVERY FOCUS
 public class RapidRegenerationAbility extends PassiveAbility {
     public RapidRegenerationAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -24,13 +24,13 @@ public class RapidRegenerationAbility extends PassiveAbility {
                 ModEntityAttributes.HEAL_EFFECTIVE,
                 Mamy.id("rapid_regeneration_heal"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.15
+                baseValue -> 0.15  // Better healing from all sources
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.DAMAGE_REDUCTION,
                 Mamy.id("rapid_regeneration_dr"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.03
+                baseValue -> 0.02  // Small but noticeable
         ));
     }
 
@@ -41,6 +41,7 @@ public class RapidRegenerationAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Enhanced recovery. +15% Heal Effectiveness, +3% Damage Reduction");
+        return TextStyleHelper.autoStyle("Enhanced recovery. +15% Heal Effectiveness, +2% Damage Reduction, immunity to hunger/poison");
     }
 }
+

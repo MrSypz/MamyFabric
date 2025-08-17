@@ -13,7 +13,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// VIT 99: +200 Health, +10% Damage Reduction, +8 Health Regen
+// VIT 99: +12 Health, +6% Damage Reduction, +0.5 Health Regen - ULTIMATE DEFENSE
 public class ImmortalFortressAbility extends PassiveAbility {
     public ImmortalFortressAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -25,19 +25,19 @@ public class ImmortalFortressAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 Mamy.id("immortal_fortress_health"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 200.0
+                baseValue -> 12.0  // +6 hearts - respectable endgame bonus
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.DAMAGE_REDUCTION,
                 Mamy.id("immortal_fortress_dr"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.10
+                baseValue -> 0.06  // Strong defensive capstone
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.HEALTH_REGEN,
                 Mamy.id("immortal_fortress_regen"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 8.0
+                baseValue -> 0.5  // Complete the regen package
         ));
     }
 
@@ -48,6 +48,6 @@ public class ImmortalFortressAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Legendary vitality. +200 Max Health, +10% Damage Reduction, +8 Health Regen/sec");
+        return TextStyleHelper.autoStyle("Ultimate vitality. +12 Max Health, +6% Damage Reduction, +0.5 Health Regen/sec, share damage with allies");
     }
 }

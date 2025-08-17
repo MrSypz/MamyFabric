@@ -13,7 +13,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// VIT 50: +100 Health, +7% Damage Reduction
+// VIT 50: +18 Health, +5% Damage Reduction - MID-GAME POWER SPIKE
 public class GuardianSpiritAbility extends PassiveAbility {
     public GuardianSpiritAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -25,13 +25,13 @@ public class GuardianSpiritAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 Mamy.id("guardian_spirit_health"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 100.0
+                baseValue -> 18.0  // +9 hearts - significant but not broken
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.DAMAGE_REDUCTION,
                 Mamy.id("guardian_spirit_dr"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.07
+                baseValue -> 0.05  // Meaningful defensive upgrade
         ));
     }
 
@@ -42,6 +42,6 @@ public class GuardianSpiritAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Spiritual protection. +100 Max Health, +7% Damage Reduction");
+        return TextStyleHelper.autoStyle("Spiritual protection. +18 Max Health, +5% Damage Reduction, immunity to instant death effects");
     }
 }

@@ -12,7 +12,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// VIT 30: +5% Damage Reduction, +3 Health Regen
+// VIT 30: +3% Damage Reduction, +1 Health Regen - DEFENSIVE FOUNDATION
 public class IronSkinAbility extends PassiveAbility {
     public IronSkinAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -24,13 +24,13 @@ public class IronSkinAbility extends PassiveAbility {
                 ModEntityAttributes.DAMAGE_REDUCTION,
                 Mamy.id("iron_skin_dr"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 0.05
+                baseValue -> 0.03  // Steady defense improvement
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.HEALTH_REGEN,
                 Mamy.id("iron_skin_regen"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 3.0
+                baseValue -> 1.0  // Doubled base regen
         ));
     }
 
@@ -41,6 +41,6 @@ public class IronSkinAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Tough as metal. +5% Damage Reduction, +3 Health Regen/sec");
+        return TextStyleHelper.autoStyle("Tough as metal. +3% Damage Reduction, +1 Health Regen/sec, fire/poison damage becomes healing");
     }
 }

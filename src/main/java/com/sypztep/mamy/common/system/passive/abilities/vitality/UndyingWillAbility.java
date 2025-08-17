@@ -13,7 +13,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
-// VIT 75: +150 Health, +5 Health Regen
+// VIT 75: +22 Health, +1.5 Health Regen - LATE GAME TANK
 public class UndyingWillAbility extends PassiveAbility {
     public UndyingWillAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -25,13 +25,13 @@ public class UndyingWillAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 Mamy.id("undying_will_health"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 150.0
+                baseValue -> 22.0  // +11 hearts - strong endgame bonus
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.HEALTH_REGEN,
                 Mamy.id("undying_will_regen"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 5.0
+                baseValue -> 1.5  // Strong regeneration
         ));
     }
 
@@ -42,6 +42,6 @@ public class UndyingWillAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Refuse to die. +150 Max Health, +5 Health Regen/sec. Survive fatal damage once every 60 seconds");
+        return TextStyleHelper.autoStyle("Legendary endurance. +22 Max Health, +1.5 Health Regen/sec, survive fatal damage once per 60s");
     }
 }

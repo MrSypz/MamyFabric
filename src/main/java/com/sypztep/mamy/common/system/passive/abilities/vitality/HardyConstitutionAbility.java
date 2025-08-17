@@ -16,7 +16,7 @@ import java.util.Map;
 // VITALITY PASSIVES (SURVIVABILITY)
 // =====================================
 
-// VIT 10: +50 Health, +1 Health Regen
+// VIT 10: +8 Health, +0.5 Health Regen - EARLY SURVIVABILITY
 public class HardyConstitutionAbility extends PassiveAbility {
     public HardyConstitutionAbility(String id, Map<StatTypes, Integer> requirements) {
         super(id, requirements);
@@ -28,13 +28,13 @@ public class HardyConstitutionAbility extends PassiveAbility {
                 EntityAttributes.GENERIC_MAX_HEALTH,
                 Mamy.id("hardy_constitution_health"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 50.0
+                baseValue -> 8.0  // +4 hearts - doubles Novice health
         ));
         addAttributeEffect(new AttributeModification(
                 ModEntityAttributes.HEALTH_REGEN,
                 Mamy.id("hardy_constitution_regen"),
                 EntityAttributeModifier.Operation.ADD_VALUE,
-                baseValue -> 1.0
+                baseValue -> 0.5  // Gentle regeneration
         ));
     }
 
@@ -45,7 +45,7 @@ public class HardyConstitutionAbility extends PassiveAbility {
 
     @Override
     public Text getDescription() {
-        return TextStyleHelper.autoStyle("Robust health. +50 Max Health, +1 Health Regen/sec");
+        return TextStyleHelper.autoStyle("Robust health. +8 Max Health, +0.5 Health Regen/sec, bypass damage timer for regeneration");
     }
 }
 
