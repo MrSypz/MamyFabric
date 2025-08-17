@@ -45,29 +45,4 @@ public class ClassRegistry {
     public static PlayerClass getDefaultClass() {
         return ModClasses.NOVICE;
     }
-
-    public static String getClassTree() {
-        StringBuilder sb = new StringBuilder();
-        for (int tier = 0; tier <= 3; tier++) {
-            sb.append("=== TIER ").append(tier);
-            if (tier == 3) sb.append(" (TRANSCENDENT)");
-            sb.append(" ===\n");
-
-            for (PlayerClass clazz : getClassesByTier(tier)) {
-                sb.append(clazz.getClassCode()).append(" ").append(clazz.getDisplayName());
-                sb.append(" (Max Lv.").append(clazz.getMaxLevel()).append(")");
-
-                if (!clazz.getRequirements().isEmpty()) {
-                    sb.append(" (Requires: ");
-                    for (var req : clazz.getRequirements()) {
-                        sb.append(req.previousClass().getDisplayName()).append(" Lv.").append(req.requiredLevel()).append(" ");
-                    }
-                    sb.append(")");
-                }
-                sb.append("\n");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
 }
