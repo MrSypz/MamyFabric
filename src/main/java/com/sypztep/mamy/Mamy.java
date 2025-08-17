@@ -26,7 +26,6 @@ public class Mamy implements ModInitializer {
         return Identifier.of(MODID, path);
     }
 
-
     @Override
     public void onInitialize() {
         ModPayloads.init();
