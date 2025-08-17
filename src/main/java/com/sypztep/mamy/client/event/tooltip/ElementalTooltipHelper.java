@@ -8,9 +8,11 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -42,13 +44,13 @@ public final class ElementalTooltipHelper {
         hasShownHeader = appendAttackSpeed(stack, textConsumer, player, hasShownHeader);
 
         if (ItemElementDataEntry.hasEntry(stack.getItem())) {
-            hasShownHeader = appendElementalDamage(stack, textConsumer, player, hasShownHeader);
+            appendElementalDamage(stack, textConsumer, player, hasShownHeader);
         }
 
-        appendOtherAttributes(stack, textConsumer, player, AttributeModifierSlot.MAINHAND);
+        appendOtherAttributes(stack, textConsumer);
     }
 
-    public static void appendArmorTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
+    public static void appendArmorTooltip(ItemStack stack, Consumer<Text> textConsumer) {
         var modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
         if (!modifiers.showInTooltip()) return;
 
@@ -69,7 +71,7 @@ public final class ElementalTooltipHelper {
                 } else if (attribute.equals(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE)) {
                     appendCustomKnockbackResistance(textConsumer, modifier.value());
                 } else {
-                    appendVanillaAttributeModifier(textConsumer, player, attribute, modifier);
+                    appendVanillaAttributeModifier(textConsumer, attribute, modifier);
                 }
             });
 
@@ -81,7 +83,7 @@ public final class ElementalTooltipHelper {
 
     // Private helper methods
     private static boolean appendMeleeDamage(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
-        var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE, AttributeModifierSlot.MAINHAND);
+        var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
         if (attackDamageModifier == null || player == null) return hasShownHeader;
 
         if (!hasShownHeader) {
@@ -112,7 +114,7 @@ public final class ElementalTooltipHelper {
     }
 
     private static boolean appendAttackSpeed(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
-        var attackSpeedModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_SPEED, AttributeModifierSlot.MAINHAND);
+        var attackSpeedModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_SPEED);
         if (attackSpeedModifier == null || player == null) return hasShownHeader;
 
         if (!hasShownHeader) {
@@ -133,22 +135,20 @@ public final class ElementalTooltipHelper {
         return hasShownHeader;
     }
 
-    private static boolean appendElementalDamage(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
+    private static void appendElementalDamage(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
         if (!hasShownHeader) {
             textConsumer.accept(ScreenTexts.EMPTY);
             textConsumer.accept(Text.translatable("item.modifiers.mainhand").formatted(Formatting.GRAY));
-            hasShownHeader = true;
         }
 
-        var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE, AttributeModifierSlot.MAINHAND);
+        var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
         double baseDamage = 0;
         if (attackDamageModifier != null && player != null) {
             baseDamage = attackDamageModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         }
 
-        appendElementalSection(stack, textConsumer, "tooltip.mamy.elemental_damage", "tooltip.mamy.power_budget",
-                "damage_element.", baseDamage, true);
-        return hasShownHeader;
+        appendElementalSection(stack, textConsumer,
+                baseDamage);
     }
 
     private static void appendCustomArmorValue(Consumer<Text> textConsumer, double armorValue) {
@@ -188,18 +188,18 @@ public final class ElementalTooltipHelper {
         comp.append(Text.translatable("tooltip.mamy.elemental_resistances").formatted(Formatting.WHITE));
         textConsumer.accept(comp);
 
-        appendResistanceSection(stack, textConsumer, "tooltip.mamy.resistance_budget");
+        appendResistanceSection(stack, textConsumer);
     }
 
-    private static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, String sectionKey,
-                                               String budgetKey, String elementKeyPrefix, double baseDamage, boolean showAmount) {
+    private static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer,
+                                               double baseDamage) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(ScreenTexts.space()
                     .append(Text.literal("  "))
                     .append(createIconText(POWER_ICON).formatted(Formatting.GOLD))
-                    .append(Text.translatable(budgetKey, String.format("%.1f%%", itemData.powerBudget() * 100)))
+                    .append(Text.translatable("tooltip.mamy.power_budget", String.format("%.1f%%", itemData.powerBudget() * 100)))
                     .formatted(Formatting.YELLOW));
         }
 
@@ -214,10 +214,10 @@ public final class ElementalTooltipHelper {
 
                     MutableText elementComp = Text.literal("  ")
                             .append(createIconText(element.icon))
-                            .append(Text.translatable(elementKeyPrefix + element.name).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(element.color))))
+                            .append(Text.translatable("damage_element." + element.name).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(element.color))))
                             .append(Text.literal(": " + percentage).formatted(Formatting.GRAY));
 
-                    if (showAmount && baseDamage > 0) {
+                    if (baseDamage > 0) {
                         double amount = ratio * powerRatio * baseDamage;
                         elementComp.append(Text.literal(" (").formatted(Formatting.DARK_GRAY))
                                 .append(Text.literal(format(amount)).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(element.color))))
@@ -228,13 +228,13 @@ public final class ElementalTooltipHelper {
                 });
     }
 
-    private static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer, String budgetKey) {
+    private static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(ScreenTexts.space()
                     .append(createIconText(POWER_ICON))
-                    .append(Text.translatable(budgetKey, String.format("%.1f%%", itemData.powerBudget() * 100)))
+                    .append(Text.translatable("tooltip.mamy.resistance_budget", String.format("%.1f%%", itemData.powerBudget() * 100)))
                     .formatted(Formatting.YELLOW));
         }
 
@@ -261,10 +261,10 @@ public final class ElementalTooltipHelper {
                 });
     }
 
-    private static void appendOtherAttributes(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, AttributeModifierSlot slot) {
+    private static void appendOtherAttributes(ItemStack stack, Consumer<Text> textConsumer) {
         AtomicBoolean hasShownOtherHeader = new AtomicBoolean(false);
 
-        stack.applyAttributeModifier(slot, (attribute, modifier) -> {
+        stack.applyAttributeModifier(AttributeModifierSlot.MAINHAND, (attribute, modifier) -> {
             if (attribute.equals(EntityAttributes.GENERIC_ATTACK_DAMAGE) || attribute.equals(EntityAttributes.GENERIC_ATTACK_SPEED)) {
                 return;
             }
@@ -275,7 +275,7 @@ public final class ElementalTooltipHelper {
                 hasShownOtherHeader.set(true);
             }
 
-            appendVanillaAttributeModifier(textConsumer, player, attribute, modifier);
+            appendVanillaAttributeModifier(textConsumer, attribute, modifier);
         });
     }
 
@@ -288,7 +288,8 @@ public final class ElementalTooltipHelper {
         return ScreenTexts.space()
                 .append(Text.literal("  " + indent).formatted(Formatting.DARK_GRAY))
                 .append(Text.translatable(translationKey).formatted(Formatting.GRAY))
-                .append(Text.literal(": " + format(value)).formatted(color));
+                .append(Text.literal(": ").formatted(Formatting.WHITE))
+                .append(Text.literal(format(value)).formatted(color));
     }
 
     private static String format(double value) {
@@ -301,18 +302,18 @@ public final class ElementalTooltipHelper {
     }
 
     private static net.minecraft.entity.attribute.EntityAttributeModifier getAttributeModifier(
-            ItemStack stack, net.minecraft.registry.entry.RegistryEntry<net.minecraft.entity.attribute.EntityAttribute> attribute, AttributeModifierSlot slot) {
+            ItemStack stack, RegistryEntry<EntityAttribute> attribute) {
         AttributeModifiersComponent modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
 
         for (var entry : modifiers.modifiers()) {
-            if (entry.attribute().equals(attribute) && entry.slot() == slot) {
+            if (entry.attribute().equals(attribute) && entry.slot() == AttributeModifierSlot.MAINHAND) {
                 return entry.modifier();
             }
         }
         return null;
     }
 
-    private static void appendVanillaAttributeModifier(Consumer<Text> textConsumer, PlayerEntity player,
+    private static void appendVanillaAttributeModifier(Consumer<Text> textConsumer,
                                                        net.minecraft.registry.entry.RegistryEntry<net.minecraft.entity.attribute.EntityAttribute> attribute,
                                                        net.minecraft.entity.attribute.EntityAttributeModifier modifier) {
         double value = modifier.value();
