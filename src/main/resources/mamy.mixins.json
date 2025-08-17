@@ -20,6 +20,7 @@
     "core.stats.dexterity.RangedWeaponItemMixin",
     "core.stats.vitality.HungerManagerMixin",
     "core.stats.vitality.LivingEntityMixin",
+    "core.weight.ItemEntityMixin",
     "core.weight.PlayerInventoryMixin",
     "core.weight.ServerPlayerEntityMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
@@ -34,7 +35,8 @@
     "core.classes.theif.PlayerEntityMixin",
     "core.passive.intelligence.waterwalk.client.ClientPlayerEntityMixin",
     "core.passive.intelligence.xray.client.MinecraftClientMixin",
-    "core.stats.dexterity.ClientPlayerEntityMixin"
+    "core.stats.dexterity.ClientPlayerEntityMixin",
+    "core.weight.client.InventoryScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
