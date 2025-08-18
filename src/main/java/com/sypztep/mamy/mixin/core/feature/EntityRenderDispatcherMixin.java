@@ -21,7 +21,7 @@ public class EntityRenderDispatcherMixin {
                                              float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                                              int light, CallbackInfo ci) {
         if (entity instanceof PlayerEntity player) {
-            MaxLevelPlayerFeatureRenderer.render(matrices, vertexConsumers, player, light);
+            MaxLevelPlayerFeatureRenderer.render(matrices, vertexConsumers, player);
         }
     }
 }
