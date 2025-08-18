@@ -4,6 +4,12 @@
   "package": "com.sypztep.mamy.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "core.broken.ItemStackMixin",
+    "core.classes.correctequipment.BowItemMixin",
+    "core.classes.correctequipment.CrossbowItemMixin",
+    "core.classes.correctequipment.DispenserBlockMixin",
+    "core.classes.correctequipment.PlayerEntityMixin",
+    "core.classes.correctequipment.PlayerScreenHandlerMixin",
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
     "core.damage.LivingEntityMixin",

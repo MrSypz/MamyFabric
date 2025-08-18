@@ -1,10 +1,9 @@
 package com.sypztep.mamy.client.event.tooltip;
 
-import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
+import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.TagKey;
@@ -14,20 +13,22 @@ import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * Helper class for adding class restriction tooltips to items
+ */
 public class ClassRestrictionTooltipHelper {
-    private static final java.util.Map<String, TagKey<Item>> CLASS_TAGS = java.util.Map.of(
-            ModClasses.NOVICE.getId(), ModTags.Items.NOVICE_EQUIPMENT,
-            ModClasses.SWORDMAN.getId(), ModTags.Items.SWORDMAN_EQUIPMENT,
-            ModClasses.MAGE.getId(), ModTags.Items.MAGE_EQUIPMENT,
-            ModClasses.ARCHER.getId(), ModTags.Items.ARCHER_EQUIPMENT,
-            ModClasses.ACOLYTE.getId(), ModTags.Items.ACOLYTE_EQUIPMENT,
-            ModClasses.THIEF.getId(), ModTags.Items.THIEF_EQUIPMENT
-    );
 
+    /**
+     * Append class restriction information to item tooltips
+     * @param itemStack The item being examined
+     * @param textConsumer Consumer to add tooltip lines
+     * @param player The player viewing the tooltip
+     */
     public static void appendClassRestrictions(ItemStack itemStack, Consumer<Text> textConsumer, PlayerEntity player) {
-        if (itemStack.isIn(ModTags.Items.ALL_CLASSES)) return; // Tools can be used by everyone
+        if (itemStack.isIn(ModTags.Items.ALL_CLASSES)) return;
 
         List<String> allowedClasses = getClassesThatCanUse(itemStack);
 
@@ -36,12 +37,10 @@ public class ClassRestrictionTooltipHelper {
         // Check if player can use this item
         boolean playerCanUse = false;
         if (player != null) {
-            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-            PlayerClass playerClass = classComponent.getClassManager().getCurrentClass();
-            playerCanUse = allowedClasses.contains(playerClass.getId());
+            playerCanUse = ClassEquipmentUtil.canPlayerUseItem(player, itemStack);
         }
 
-        // Build class names using YOUR ModClasses.CLASSES map
+        // Build class names using ModClasses.CLASSES map
         List<String> displayNames = allowedClasses.stream()
                 .map(classId -> {
                     PlayerClass clazz = ModClasses.CLASSES.get(classId);
@@ -54,19 +53,28 @@ public class ClassRestrictionTooltipHelper {
         // Add empty line before restriction
         textConsumer.accept(Text.empty());
 
-        // Simple tooltip as requested
         if (playerCanUse)
             textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.GRAY));
-         else
+        else
             textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.RED));
 
+        // Show broken status if item is broken
+        if (ClassEquipmentUtil.isBroken(itemStack)) {
+            textConsumer.accept(Text.empty());
+            textConsumer.accept(Text.literal(" - BROKEN (Cannot be used)")
+                    .formatted(Formatting.DARK_RED));
+        }
     }
 
+    /**
+     * Get the list of class IDs that can use this item
+     */
     private static List<String> getClassesThatCanUse(ItemStack itemStack) {
         List<String> allowedClasses = new ArrayList<>();
 
-        for (java.util.Map.Entry<String, TagKey<Item>> entry : CLASS_TAGS.entrySet())
+        for (Map.Entry<String, TagKey<Item>> entry : ClassEquipmentUtil.getClassEquipmentMap().entrySet())
             if (itemStack.isIn(entry.getValue())) allowedClasses.add(entry.getKey());
+
         return allowedClasses;
     }
 }
