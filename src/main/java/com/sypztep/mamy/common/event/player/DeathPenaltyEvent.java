@@ -8,7 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class DeathPenaltyEvent implements ServerLivingEntityEvents.AfterDeath {
+public final class DeathPenaltyEvent implements ServerLivingEntityEvents.AfterDeath {
     private static final DeathPenaltyEvent INSTANCE = new DeathPenaltyEvent();
 
     public static void register() {
