@@ -15,5 +15,6 @@ public class MamyDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider(ModDamageTypeTagProvider::new);
         pack.addProvider(ModEntityTypeTagProvider::new);
         pack.addProvider(ModItemWeightProvider::new);
+        pack.addProvider(ModItemTagProvider::new);
     }
 }
