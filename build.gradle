@@ -69,7 +69,7 @@ dependencies {
     modRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-    modImplementation 'com.github.MrSypz:Architect-CombatModule:0.1.0'
+//    modImplementation 'com.github.MrSypz:Architect-CombatModule:0.1.1'
 
     modImplementation "maven.modrinth:jade:${project.jade_version}"
 }
