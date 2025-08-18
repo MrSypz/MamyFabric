@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.BloodLustEntity;
+import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
