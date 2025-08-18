@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.event.tooltip;
 
 import com.sypztep.mamy.common.init.ModClasses;
+import com.sypztep.mamy.common.init.ModDataComponents;
 import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
@@ -28,8 +29,6 @@ public class ClassRestrictionTooltipHelper {
      * @param player The player viewing the tooltip
      */
     public static void appendClassRestrictions(ItemStack itemStack, Consumer<Text> textConsumer, PlayerEntity player) {
-        if (itemStack.isIn(ModTags.Items.ALL_CLASSES)) return;
-
         List<String> allowedClasses = getClassesThatCanUse(itemStack);
 
         if (allowedClasses.isEmpty()) return; // No restrictions found
@@ -39,6 +38,7 @@ public class ClassRestrictionTooltipHelper {
         if (player != null) {
             playerCanUse = ClassEquipmentUtil.canPlayerUseItem(player, itemStack);
         }
+        boolean everyOne = itemStack.isIn(ModTags.Items.ALL_CLASSES);
 
         // Build class names using ModClasses.CLASSES map
         List<String> displayNames = allowedClasses.stream()
@@ -55,6 +55,8 @@ public class ClassRestrictionTooltipHelper {
 
         if (playerCanUse)
             textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.GRAY));
+        else if (everyOne)
+            textConsumer.accept(Text.literal(" - EveryOne").formatted(Formatting.GRAY));
         else
             textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.RED));
 
@@ -63,6 +65,10 @@ public class ClassRestrictionTooltipHelper {
             textConsumer.accept(Text.empty());
             textConsumer.accept(Text.literal(" - BROKEN (Cannot be used)")
                     .formatted(Formatting.DARK_RED));
+        }
+
+        if (itemStack.contains(ModDataComponents.CRAFT_BY)) {
+            textConsumer.accept(Text.literal(" Craft By: ").formatted(Formatting.GRAY).append(Text.literal(itemStack.get(ModDataComponents.CRAFT_BY)).formatted(Formatting.WHITE)));
         }
     }
 
