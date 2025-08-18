@@ -8,6 +8,7 @@
     "core.classes.correctequipment.BowItemMixin",
     "core.classes.correctequipment.CrossbowItemMixin",
     "core.classes.correctequipment.DispenserBlockMixin",
+    "core.classes.correctequipment.LivingEntityMixin",
     "core.classes.correctequipment.PlayerEntityMixin",
     "core.classes.correctequipment.PlayerScreenHandlerMixin",
     "core.critevasion.LivingEntityMixin",
@@ -33,11 +34,14 @@
     "vanilla.changeattributerange.EntityAttributesMixin",
     "vanilla.disableitemtooltip.ItemStackMixin",
     "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin",
-    "vanilla.fixprojectileserde.PersistentProjectileEntityMixin"
+    "vanilla.fixprojectileserde.PersistentProjectileEntityMixin",
+    "vanilla.freerepair.AnvilScreenHandlerMixin",
+    "vanilla.itemcraftsignature.ItemMixin"
   ],
   "client": [
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
+    "core.broken.client.DrawContextMixin",
     "core.classes.theif.PlayerEntityMixin",
     "core.feature.EntityRenderDispatcherMixin",
     "core.passive.intelligence.waterwalk.client.ClientPlayerEntityMixin",

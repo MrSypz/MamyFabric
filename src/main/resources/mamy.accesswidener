@@ -2,3 +2,4 @@ accessWidener v2 named
 
 accessible field net/minecraft/entity/LivingEntity jumping Z
 accessible method net/minecraft/client/font/TextRenderer tweakTransparency (I)I
+accessible method net/minecraft/entity/LivingEntity spawnItemParticles (Lnet/minecraft/item/ItemStack;I)V
