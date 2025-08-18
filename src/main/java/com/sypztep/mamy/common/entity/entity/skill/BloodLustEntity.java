@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.entity;
+package com.sypztep.mamy.common.entity.entity.skill;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

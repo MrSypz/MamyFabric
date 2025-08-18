@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.entity;
+package com.sypztep.mamy.common.entity.entity.skill;
 
 import com.google.common.collect.Sets;
 import net.minecraft.entity.EntityType;
