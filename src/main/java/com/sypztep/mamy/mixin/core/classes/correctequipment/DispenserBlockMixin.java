@@ -23,7 +23,7 @@ import java.util.List;
 public class DispenserBlockMixin {
 
     /**
-     * Alternative approach: Check before dispenser activates
+     * Check before dispenser activates
      */
     @Inject(method = "dispense", at = @At("HEAD"), cancellable = true)
     private void checkArmorDispenseRestrictions(ServerWorld world, BlockState state, BlockPos pos, CallbackInfo ci) {
@@ -36,25 +36,12 @@ public class DispenserBlockMixin {
             return; // Not armor, let normal dispensing continue
         }
 
-        // Find players in front of the dispenser
         BlockPos frontPos = pos.offset(state.get(DispenserBlock.FACING));
         Box searchBox = new Box(frontPos).expand(0.5);
         List<PlayerEntity> players = world.getEntitiesByClass(PlayerEntity.class, searchBox, player -> true);
 
         for (PlayerEntity player : players) {
-            // Check if item is broken
-            if (ClassEquipmentUtil.isBroken(stack)) {
-                player.sendMessage(Text.literal("Dispenser cannot equip broken items!")
-                        .formatted(Formatting.RED), true);
-                ci.cancel();
-                return;
-            }
-
-            // Check if player can use this armor
-            if (!ClassEquipmentUtil.canPlayerUseItem(player, stack)) {
-                String className = ClassEquipmentUtil.getPlayerClassName(player);
-                player.sendMessage(Text.literal("Dispenser cannot equip armor that " + className + " cannot use!")
-                        .formatted(Formatting.RED), true);
+            if (ClassEquipmentUtil.handleRestriction(player, stack, "be equipped by dispenser on")) {
                 ci.cancel();
                 return;
             }

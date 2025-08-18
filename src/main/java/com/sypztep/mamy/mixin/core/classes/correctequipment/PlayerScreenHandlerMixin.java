@@ -32,23 +32,13 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler {
 
         if (stack.isEmpty()) return;
 
-        // Check if this item would go to an armor slot when shift-clicked
         if (isArmorItem(stack) || isShieldItem(stack)) {
-            if (ClassEquipmentUtil.isBroken(stack)) {
-                player.sendMessage(Text.literal("Cannot equip broken items!")
-                        .formatted(Formatting.RED), true);
-                cir.setReturnValue(ItemStack.EMPTY);
-                return;
-            }
-
-            if (!ClassEquipmentUtil.canPlayerUseItem(player, stack)) {
-                String className = ClassEquipmentUtil.getPlayerClassName(player);
-                player.sendMessage(Text.literal(className + " cannot use this equipment!")
-                        .formatted(Formatting.RED), true);
+            if (ClassEquipmentUtil.handleRestriction(player, stack, "equip via shift-click")) {
                 cir.setReturnValue(ItemStack.EMPTY);
             }
         }
     }
+
     private boolean isArmorItem(ItemStack stack) {
         return stack.getItem() instanceof net.minecraft.item.ArmorItem;
     }

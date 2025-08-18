@@ -5,10 +5,13 @@ import com.sypztep.mamy.common.init.ModDataComponents;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ToolComponent;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.item.Item;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.Map;
 
@@ -27,25 +30,33 @@ public class ClassEquipmentUtil {
             "thief", ModTags.Items.THIEF_EQUIPMENT
     );
 
+    // Restriction reasons
+    public enum RestrictionReason {
+        NONE,           // Can use item
+        BROKEN,         // Item is broken
+        CLASS_RESTRICTED, // Class cannot use item
+        UNIVERSAL_TOOL  // Universal tool (can always use)
+    }
+
     /**
-     * Check if a player can use a specific item based on their class
+     * Check if a player can use an item and get the reason if they can't
      * @param player The player to check
      * @param itemStack The item to check
-     * @return true if the player can use the item, false otherwise
+     * @return RestrictionReason indicating why the item can't be used
      */
-    public static boolean canPlayerUseItem(PlayerEntity player, ItemStack itemStack) {
+    public static RestrictionReason getRestrictionReason(PlayerEntity player, ItemStack itemStack) {
         if (player == null || itemStack.isEmpty()) {
-            return true;
+            return RestrictionReason.NONE;
         }
 
         // All players can use tools (items in ALL_CLASSES tag)
         if (itemStack.isIn(ModTags.Items.ALL_CLASSES)) {
-            return true;
+            return RestrictionReason.UNIVERSAL_TOOL;
         }
 
-        // Check if item is broken - broken items cannot be used
+        // Check if item is broken first
         if (isBroken(itemStack)) {
-            return false;
+            return RestrictionReason.BROKEN;
         }
 
         // Get player's current class
@@ -55,15 +66,88 @@ public class ClassEquipmentUtil {
         // Get the equipment tag for this class
         TagKey<Item> allowedEquipment = CLASS_EQUIPMENT_MAP.get(playerClass.getId());
         if (allowedEquipment == null) {
-            return false; // Unknown class
+            return RestrictionReason.CLASS_RESTRICTED; // Unknown class
         }
 
         // Check if the item is in the allowed equipment list for this class
-        return itemStack.isIn(allowedEquipment);
+        if (!itemStack.isIn(allowedEquipment)) {
+            return RestrictionReason.CLASS_RESTRICTED;
+        }
+
+        return RestrictionReason.NONE;
     }
+
     /**
-     * Get the display name of the player's current class
+     * Simple boolean check if player can use item
+     * @param player The player to check
+     * @param itemStack The item to check
+     * @return true if the player can use the item, false otherwise
      */
+    public static boolean canPlayerUseItem(PlayerEntity player, ItemStack itemStack) {
+        RestrictionReason reason = getRestrictionReason(player, itemStack);
+        return reason == RestrictionReason.NONE || reason == RestrictionReason.UNIVERSAL_TOOL;
+    }
+
+    /**
+     * Centralized method to handle restriction enforcement and messaging
+     * @param player The player
+     * @param itemStack The item
+     * @param actionName The action being attempted (e.g., "use", "equip", "attack with")
+     * @return true if action should be prevented, false if allowed
+     */
+    public static boolean handleRestriction(PlayerEntity player, ItemStack itemStack, String actionName) {
+        RestrictionReason reason = getRestrictionReason(player, itemStack);
+
+        switch (reason) {
+            case NONE:
+            case UNIVERSAL_TOOL:
+                return false; // Allow action
+
+            case BROKEN:
+                if (!player.getWorld().isClient) {
+                    sendBrokenItemMessage(player, itemStack, actionName);
+                }
+                return true; // Prevent action
+
+            case CLASS_RESTRICTED:
+                if (!player.getWorld().isClient) {
+                    sendClassRestrictionMessage(player, itemStack, actionName);
+                }
+                return true; // Prevent action
+        }
+
+        return false;
+    }
+
+    private static void sendBrokenItemMessage(PlayerEntity player, ItemStack itemStack, String action) {
+        String itemName = getItemTypeName(itemStack);
+        player.sendMessage(Text.literal("This " + itemName + " is broken and cannot be " + action + "!")
+                .formatted(Formatting.RED), true);
+    }
+
+    private static void sendClassRestrictionMessage(PlayerEntity player, ItemStack itemStack, String action) {
+        String className = getPlayerClassName(player);
+        String itemName = getItemTypeName(itemStack);
+        player.sendMessage(Text.literal(className + " cannot " + action + " this " + itemName + "!")
+                .formatted(Formatting.RED), true);
+    }
+
+    private static String getItemTypeName(ItemStack itemStack) {
+        if (itemStack.getItem() instanceof ArmorItem) {
+            return "armor";
+        } else if (itemStack.getItem() instanceof ToolItem) {
+            return "tool";
+        } else if (itemStack.getItem() instanceof SwordItem) {
+            return "weapon";
+        } else if (itemStack.getItem() instanceof BowItem) {
+            return "bow";
+        } else if (itemStack.getItem() instanceof CrossbowItem) {
+            return "crossbow";
+        } else {
+            return "item";
+        }
+    }
+
     public static String getPlayerClassName(PlayerEntity player) {
         if (player == null) return "Unknown";
 
@@ -72,34 +156,38 @@ public class ClassEquipmentUtil {
         return playerClass.getDisplayName();
     }
 
-    /**
-     * Mark an item as broken (cannot be used but won't disappear)
-     */
     public static void setBroken(ItemStack itemStack) {
         itemStack.set(ModDataComponents.BROKEN_FLAG, true);
+
+        // Remove tool component to disable mining
+        if (itemStack.getItem() instanceof ToolItem && itemStack.contains(DataComponentTypes.TOOL)) {
+            // Store the original tool component before removing it
+            ToolComponent originalTool = itemStack.get(DataComponentTypes.TOOL);
+            if (originalTool != null) {
+                itemStack.set(ModDataComponents.ORIGINAL_TOOL, originalTool);
+            }
+            itemStack.remove(DataComponentTypes.TOOL);
+        }
     }
 
-    /**
-     * Check if an item is marked as broken
-     */
     public static boolean isBroken(ItemStack itemStack) {
         Boolean broken = itemStack.get(ModDataComponents.BROKEN_FLAG);
         return broken != null && broken;
     }
 
-    /**
-     * Repair a broken item (remove broken flag)
-     */
     public static void repair(ItemStack itemStack) {
         itemStack.remove(ModDataComponents.BROKEN_FLAG);
+
+        // Restore tool component if it was a tool
+        if (itemStack.getItem() instanceof ToolItem) {
+            ToolComponent originalTool = itemStack.get(ModDataComponents.ORIGINAL_TOOL);
+            if (originalTool != null) {
+                itemStack.set(DataComponentTypes.TOOL, originalTool);
+                itemStack.remove(ModDataComponents.ORIGINAL_TOOL);
+            }
+        }
     }
 
-    /**
-     * Prevent item from being damaged if it would break
-     * @param itemStack The item being damaged
-     * @param damageAmount The amount of damage
-     * @return true if damage should be prevented, false if normal damage should occur
-     */
     public static boolean shouldPreventDamage(ItemStack itemStack, int damageAmount) {
         if (itemStack.isEmpty() || !itemStack.isDamageable()) {
             return false;

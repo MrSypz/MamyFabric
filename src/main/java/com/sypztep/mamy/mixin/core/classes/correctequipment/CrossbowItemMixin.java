@@ -18,29 +18,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CrossbowItemMixin {
 
     /**
-     * Prevent crossbow usage (starting to charge or shooting) if player can't use it or if it's broken
+     * Prevent crossbow usage if player can't use it or if it's broken
      */
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
     private void preventUseIfRestricted(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
         ItemStack stack = user.getStackInHand(hand);
 
-        // Check if item is broken
-        if (ClassEquipmentUtil.isBroken(stack)) {
-            if (!world.isClient) {
-                user.sendMessage(Text.literal("This crossbow is broken and cannot be used!")
-                        .formatted(Formatting.RED), true);
-            }
-            cir.setReturnValue(TypedActionResult.fail(stack));
-            return;
-        }
-
-        // Check if player can use this crossbow
-        if (!ClassEquipmentUtil.canPlayerUseItem(user, stack)) {
-            if (!world.isClient) {
-                String className = ClassEquipmentUtil.getPlayerClassName(user);
-                user.sendMessage(Text.literal(className + " cannot use this weapon!")
-                        .formatted(Formatting.RED), true);
-            }
+        if (ClassEquipmentUtil.handleRestriction(user, stack, "use")) {
             cir.setReturnValue(TypedActionResult.fail(stack));
         }
     }

@@ -2,6 +2,7 @@ package com.sypztep.mamy.mixin.core.broken;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.component.ComponentHolder;
 import net.minecraft.entity.EquipmentSlot;
@@ -13,8 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
@@ -41,56 +40,33 @@ public abstract class ItemStackMixin implements ComponentHolder {
     @Unique
     private ItemStack stack = (ItemStack) (Object) this;
 
-    /**
-     * Prevent attribute modifiers from being applied if the item is broken or the player can't use it
-     */
     @Inject(method = "applyAttributeModifiers", at = @At("HEAD"), cancellable = true)
     public void preventAttributeModifiersIfBroken(EquipmentSlot slot, BiConsumer<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifierConsumer, CallbackInfo ci) {
         if (ClassEquipmentUtil.isBroken(stack)) {
             ci.cancel();
         }
     }
+
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
     public void preventUse(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
-        if (ClassEquipmentUtil.isBroken(stack)) {
-            if (!world.isClient) {
-                player.sendMessage(Text.literal("This item is broken and cannot be used!")
-                        .formatted(Formatting.RED), true);
-            }
-            cir.setReturnValue(TypedActionResult.fail(stack));
-            return;
-        }
-
-        if (!ClassEquipmentUtil.canPlayerUseItem(player, player.getMainHandStack())) {
-            if (!player.getWorld().isClient) {
-                String className = ClassEquipmentUtil.getPlayerClassName(player);
-                player.sendMessage(Text.literal(className + " cannot used with this item!")
-                        .formatted(Formatting.RED), true);
-            }
+        if (ClassEquipmentUtil.handleRestriction(player, stack, "use")) {
             cir.setReturnValue(TypedActionResult.fail(stack));
         }
     }
 
-    /**
-     * Handle item damage and prevent breaking by marking as broken instead
-     */
-    @Inject(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"),
-            cancellable = true)
+    @Inject(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"), cancellable = true)
     public void preventBreaking(int amount, ServerWorld world, ServerPlayerEntity player, Consumer<Item> breakCallback, CallbackInfo ci) {
         if (ClassEquipmentUtil.shouldPreventDamage(stack, amount)) {
             ci.cancel(); // Prevent the normal damage/breaking process
         }
     }
 
-    /**
-     * Override damage setting to implement broken system
-     */
-    @WrapOperation(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;setDamage(I)V"))
-    private void handleBrokenItems(ItemStack stack, int damage, Operation<Void> original) {
+    @WrapOperation(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;setDamage(I)V"))
+    private void handleBrokenItems(ItemStack instance, int damage, Operation<Void> original, @Local(argsOnly = true) ServerPlayerEntity player) {
         if (damage >= this.getMaxDamage()) {
             ClassEquipmentUtil.setBroken(stack);
+            player.getWorld().playSound(player.getX(), player.getY(), player.getZ(), stack.getBreakSound(), player.getSoundCategory(), 0.8F, 0.8F + player.getWorld().random.nextFloat() * 0.4F, false);
+            player.spawnItemParticles(stack, 5);
             original.call(stack, this.getMaxDamage() - 1);
         } else {
             original.call(stack, damage);
