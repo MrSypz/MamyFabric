@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.skill.swordman;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.BloodLustEntity;
+import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.classes.PlayerClass;

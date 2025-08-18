@@ -1,12 +1,10 @@
 package com.sypztep.mamy.client.render.entity;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.BloodLustEntity;
+import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
