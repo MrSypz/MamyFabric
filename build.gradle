@@ -60,8 +60,6 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "curse.maven:modern-keybinding-fabric-695433:6016136"
-
     modImplementation include("org.ladysnake.cardinal-components-api:cardinal-components-base:${cardinal_components_version}")
     modImplementation include("org.ladysnake.cardinal-components-api:cardinal-components-entity:${cardinal_components_version}")
 
@@ -70,6 +68,8 @@ dependencies {
     }
     modRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+    modImplementation 'com.github.MrSypz:Architect-CombatModule:0.1.0'
 
     modImplementation "maven.modrinth:jade:${project.jade_version}"
 }
