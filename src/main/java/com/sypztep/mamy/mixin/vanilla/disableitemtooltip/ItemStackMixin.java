@@ -1,6 +1,8 @@
 package com.sypztep.mamy.mixin.vanilla.disableitemtooltip;
 
+import com.sypztep.mamy.client.event.tooltip.ClassRestrictionTooltipHelper;
 import com.sypztep.mamy.client.event.tooltip.ElementalTooltipHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -36,5 +38,6 @@ public abstract class ItemStackMixin {
         } else {
             ElementalTooltipHelper.appendWeaponTooltip(itemStack, textConsumer, player);
         }
+        ClassRestrictionTooltipHelper.appendClassRestrictions(itemStack, textConsumer, player);
     }
 }
