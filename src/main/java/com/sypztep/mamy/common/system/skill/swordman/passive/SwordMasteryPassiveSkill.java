@@ -34,7 +34,7 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
                 AttributeModification.addValue(
                         ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT,
                         Mamy.id("sword_mastery_damage"),
-                        skillLevel -> skillLevel * 1.5 // +1.5 damage per level
+                        skillLevel -> skillLevel * .5f // +0.5 damage per level
                 )
         );
     }
