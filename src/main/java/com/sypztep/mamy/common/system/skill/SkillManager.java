@@ -84,9 +84,7 @@ public class SkillManager {
 
         long currentTime = System.currentTimeMillis();
         if (currentTime >= endTime) {
-            // Auto cleanup when cooldown expires
             playerCooldowns.remove(skillId);
-            // Clean up empty player map
             if (playerCooldowns.isEmpty()) {
                 PLAYER_COOLDOWNS.remove(playerId);
             }
