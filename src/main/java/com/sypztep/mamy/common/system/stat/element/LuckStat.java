@@ -35,7 +35,7 @@ public final class LuckStat extends Stat {
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
                 AttributeModification.addValue(
-                        ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT,
+                        ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT,
                         getSecondaryId(),
                         baseValue -> (MAGIC_DAMAGE_SCALING * this.getEffective())
                 ),

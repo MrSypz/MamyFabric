@@ -14,7 +14,7 @@ import java.util.List;
 
 public final class StrengthStat extends Stat {
     // Static constants for clean calculations
-    private static final double MELEE_DAMAGE_SCALING = 0.05; // 5% per point
+    private static final double MELEE_DAMAGE_SCALING = 0.01; // 1% per point
     private static final double PROJECTILE_DAMAGE_SCALING = 0.002; // 0.2% per point
     private static final double WEIGHT_SCALE = 30; // 0.2% per point
 
@@ -25,7 +25,7 @@ public final class StrengthStat extends Stat {
     @Override
     public void applyPrimaryEffect(LivingEntity living) {
         applyEffect(living,
-                ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT,
+                ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT,
                 getPrimaryId(),
                 baseValue -> (MELEE_DAMAGE_SCALING * this.getEffective())
         );
@@ -35,7 +35,7 @@ public final class StrengthStat extends Stat {
     public void applySecondaryEffect(LivingEntity living) {
         List<AttributeModification> modifications = List.of(
                 AttributeModification.addValue(
-                        ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT,
+                        ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT,
                         getSecondaryId(),
                         baseValue -> (PROJECTILE_DAMAGE_SCALING * this.getEffective())
                 ),
