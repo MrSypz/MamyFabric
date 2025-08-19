@@ -22,15 +22,16 @@ public final class ModTags {
         public static final TagKey<DamageType> HOLY_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("holy_damage"));
         public static final TagKey<DamageType> COLD_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id("cold_damage"));
     }
+
     public static class EntityTypes {
         public static final TagKey<EntityType<?>> CANNOT_HEADSHOT = TagKey.of(RegistryKeys.ENTITY_TYPE, Mamy.id("cannot_headshot"));
     }
     // ==========================================
-    // ITEM TAGS FOR CLASS EQUIPMENT SYSTEM
+    // ITEM TAGS FOR CLASS RESTRICTION SYSTEM
     // ==========================================
     public static class Items {
 
-        // === WEAPON CATEGORIES (Clear and Specific) ===
+        // === WEAPON CATEGORIES (For organization/reference) ===
         public static final TagKey<Item> ONE_HAND_SWORDS = TagKey.of(RegistryKeys.ITEM, Mamy.id("one_hand_swords"));
         public static final TagKey<Item> TWO_HAND_SWORDS = TagKey.of(RegistryKeys.ITEM, Mamy.id("two_hand_swords"));
         public static final TagKey<Item> SPEARS = TagKey.of(RegistryKeys.ITEM, Mamy.id("spears"));
@@ -50,17 +51,5 @@ public final class ModTags {
         // === SPECIAL ITEMS ===
         public static final TagKey<Item> HOLY_ITEMS = TagKey.of(RegistryKeys.ITEM, Mamy.id("holy_items"));
         public static final TagKey<Item> MAGIC_ITEMS = TagKey.of(RegistryKeys.ITEM, Mamy.id("magic_items"));
-
-        // === CLASS EQUIPMENT SETS ===
-        // These combine weapons and armor that each class can use
-        public static final TagKey<Item> NOVICE_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("novice_equipment"));
-        public static final TagKey<Item> SWORDMAN_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("swordman_equipment"));
-        public static final TagKey<Item> MAGE_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("mage_equipment"));
-        public static final TagKey<Item> ARCHER_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("archer_equipment"));
-        public static final TagKey<Item> ACOLYTE_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("acolyte_equipment"));
-        public static final TagKey<Item> THIEF_EQUIPMENT = TagKey.of(RegistryKeys.ITEM, Mamy.id("thief_equipment"));
-
-        // === UNIVERSAL TOOLS (All classes can use these) ===
-        public static final TagKey<Item> ALL_CLASSES = TagKey.of(RegistryKeys.ITEM, Mamy.id("all_classes"));
     }
 }

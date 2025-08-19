@@ -65,8 +65,8 @@ public final class StrengthStat extends Stat {
         double futureProjectileDamage = Math.max(0, futureTotal * PROJECTILE_DAMAGE_SCALING * 100);
         double projectileDamageIncrease = futureProjectileDamage - currentProjectileDamage;
 
-        int currentMaxWeight = (int) Math.max(0, currentTotal * WEIGHT_SCALE * 100);
-        int futureMaxWeight = (int) Math.max(0, futureTotal * WEIGHT_SCALE * 100);
+        int currentMaxWeight = (int) Math.max(0, currentTotal * WEIGHT_SCALE);
+        int futureMaxWeight = (int) Math.max(0, futureTotal * WEIGHT_SCALE);
         int maxWeightIncrease = futureMaxWeight - currentMaxWeight;
 
         List<Text> description = new ArrayList<>();
@@ -107,8 +107,8 @@ public final class StrengthStat extends Stat {
                 .append(Text.literal(String.format("+%.1f%%", projectileDamageIncrease)).formatted(Formatting.GREEN))
                 .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentProjectileDamage, futureProjectileDamage)).formatted(Formatting.DARK_GRAY)));
         description.add(Text.literal("  Max Weight: ").formatted(Formatting.GRAY)
-                .append(Text.literal(String.format("+%d%%", maxWeightIncrease)).formatted(Formatting.GREEN))
-                .append(Text.literal(String.format(" (%d%% → %d%%)", currentMaxWeight, futureMaxWeight)).formatted(Formatting.DARK_GRAY)));
+                .append(Text.literal(String.format("+%d", maxWeightIncrease)).formatted(Formatting.GREEN))
+                .append(Text.literal(String.format(" (%d → %d)", currentMaxWeight, futureMaxWeight)).formatted(Formatting.DARK_GRAY)));
 
         return description;
     }

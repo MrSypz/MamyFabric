@@ -13,45 +13,154 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Centralized utility for handling class-based equipment restrictions
+ * Matrix-style equipment system using equipment categories and class permissions
  */
 public class ClassEquipmentUtil {
 
-    // Mapping of class IDs to their allowed equipment tags
-    private static final Map<String, TagKey<Item>> CLASS_EQUIPMENT_MAP = Map.of(
-            "novice", ModTags.Items.NOVICE_EQUIPMENT,
-            "swordman", ModTags.Items.SWORDMAN_EQUIPMENT,
-            "mage", ModTags.Items.MAGE_EQUIPMENT,
-            "archer", ModTags.Items.ARCHER_EQUIPMENT,
-            "acolyte", ModTags.Items.ACOLYTE_EQUIPMENT,
-            "thief", ModTags.Items.THIEF_EQUIPMENT
-    );
+    // Equipment categories
+    public enum EquipmentCategory {
+        ONE_HAND_SWORD,
+        TWO_HAND_SWORD,
+        SPEAR,
+        DAGGER,
+        STAFF,
+        MACE,
+        KNUCKLE,
+        BOW,
+        SHORT_BOW,
+        SHIELD,
+        LIGHT_ARMOR,
+        MEDIUM_ARMOR,
+        HEAVY_ARMOR,
+        MAGIC_ITEM,
+        HOLY_ITEM,
+        UNIVERSAL_TOOL
+    }
+
+    // Class permissions matrix
+    private static final Map<String, Set<EquipmentCategory>> CLASS_PERMISSIONS = new HashMap<>();
+
+    static {
+        // NOVICE: One Hand Sword, Shield, Light Armor, Medium Armor
+        CLASS_PERMISSIONS.put("novice", EnumSet.of(
+                EquipmentCategory.ONE_HAND_SWORD,
+                EquipmentCategory.SHIELD,
+                EquipmentCategory.LIGHT_ARMOR,
+                EquipmentCategory.MEDIUM_ARMOR,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+
+        // SWORDMAN: Spear, Shield, Two Hand Sword, One Hand Sword, Medium Armor, Heavy Armor
+        CLASS_PERMISSIONS.put("swordman", EnumSet.of(
+                EquipmentCategory.SPEAR,
+                EquipmentCategory.SHIELD,
+                EquipmentCategory.TWO_HAND_SWORD,
+                EquipmentCategory.ONE_HAND_SWORD,
+                EquipmentCategory.MEDIUM_ARMOR,
+                EquipmentCategory.HEAVY_ARMOR,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+
+        // MAGE: Dagger, Staff, Light Armor
+        CLASS_PERMISSIONS.put("mage", EnumSet.of(
+                EquipmentCategory.DAGGER,
+                EquipmentCategory.STAFF,
+                EquipmentCategory.LIGHT_ARMOR,
+                EquipmentCategory.MAGIC_ITEM,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+
+        // ARCHER: Bow, Dagger, Light Armor
+        CLASS_PERMISSIONS.put("archer", EnumSet.of(
+                EquipmentCategory.BOW,
+                EquipmentCategory.DAGGER,
+                EquipmentCategory.LIGHT_ARMOR,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+
+        // ACOLYTE: Mace, Shield, Knuckle, Light Armor, Medium Armor
+        CLASS_PERMISSIONS.put("acolyte", EnumSet.of(
+                EquipmentCategory.MACE,
+                EquipmentCategory.SHIELD,
+                EquipmentCategory.KNUCKLE,
+                EquipmentCategory.LIGHT_ARMOR,
+                EquipmentCategory.MEDIUM_ARMOR,
+                EquipmentCategory.HOLY_ITEM,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+
+        // THIEF: Dagger, Short Bow, Light Armor
+        CLASS_PERMISSIONS.put("thief", EnumSet.of(
+                EquipmentCategory.DAGGER,
+                EquipmentCategory.SHORT_BOW,
+                EquipmentCategory.LIGHT_ARMOR,
+                EquipmentCategory.UNIVERSAL_TOOL
+        ));
+    }
+
+    // Equipment category detection map
+    private static final Map<TagKey<Item>, EquipmentCategory> TAG_TO_CATEGORY = new HashMap<>();
+
+    static {
+        TAG_TO_CATEGORY.put(ModTags.Items.ONE_HAND_SWORDS, EquipmentCategory.ONE_HAND_SWORD);
+        TAG_TO_CATEGORY.put(ModTags.Items.TWO_HAND_SWORDS, EquipmentCategory.TWO_HAND_SWORD);
+        TAG_TO_CATEGORY.put(ModTags.Items.SPEARS, EquipmentCategory.SPEAR);
+        TAG_TO_CATEGORY.put(ModTags.Items.DAGGERS, EquipmentCategory.DAGGER);
+        TAG_TO_CATEGORY.put(ModTags.Items.STAFFS, EquipmentCategory.STAFF);
+        TAG_TO_CATEGORY.put(ModTags.Items.MACES, EquipmentCategory.MACE);
+        TAG_TO_CATEGORY.put(ModTags.Items.KNUCKLES, EquipmentCategory.KNUCKLE);
+        TAG_TO_CATEGORY.put(ModTags.Items.BOWS, EquipmentCategory.BOW);
+        TAG_TO_CATEGORY.put(ModTags.Items.SHORT_BOWS, EquipmentCategory.SHORT_BOW);
+        TAG_TO_CATEGORY.put(ModTags.Items.SHIELDS, EquipmentCategory.SHIELD);
+        TAG_TO_CATEGORY.put(ModTags.Items.LIGHT_ARMOR, EquipmentCategory.LIGHT_ARMOR);
+        TAG_TO_CATEGORY.put(ModTags.Items.MEDIUM_ARMOR, EquipmentCategory.MEDIUM_ARMOR);
+        TAG_TO_CATEGORY.put(ModTags.Items.HEAVY_ARMOR, EquipmentCategory.HEAVY_ARMOR);
+        TAG_TO_CATEGORY.put(ModTags.Items.MAGIC_ITEMS, EquipmentCategory.MAGIC_ITEM);
+        TAG_TO_CATEGORY.put(ModTags.Items.HOLY_ITEMS, EquipmentCategory.HOLY_ITEM);
+    }
 
     // Restriction reasons
     public enum RestrictionReason {
         NONE,           // Can use item
         BROKEN,         // Item is broken
-        CLASS_RESTRICTED, // Class cannot use item
-        UNIVERSAL_TOOL  // Universal tool (can always use)
+        CLASS_RESTRICTED // Class cannot use item
+    }
+
+    /**
+     * Get equipment category for an item
+     */
+    private static EquipmentCategory getEquipmentCategory(ItemStack itemStack) {
+        // Check universal tools first (tools, pickaxes, etc.)
+        if (itemStack.getItem() instanceof ShovelItem ||
+                itemStack.getItem() instanceof PickaxeItem ||
+                itemStack.getItem() instanceof AxeItem ||
+                itemStack.getItem() instanceof HoeItem) {
+            return EquipmentCategory.UNIVERSAL_TOOL;
+        }
+
+        // Check tagged categories
+        for (Map.Entry<TagKey<Item>, EquipmentCategory> entry : TAG_TO_CATEGORY.entrySet()) {
+            if (itemStack.isIn(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+
+        // If no specific category found, treat as universal (allow by default)
+        return EquipmentCategory.UNIVERSAL_TOOL;
     }
 
     /**
      * Check if a player can use an item and get the reason if they can't
-     * @param player The player to check
-     * @param itemStack The item to check
-     * @return RestrictionReason indicating why the item can't be used
      */
     public static RestrictionReason getRestrictionReason(PlayerEntity player, ItemStack itemStack) {
         if (player == null || itemStack.isEmpty()) {
             return RestrictionReason.NONE;
-        }
-
-        // All players can use tools (items in ALL_CLASSES tag)
-        if (itemStack.isIn(ModTags.Items.ALL_CLASSES)) {
-            return RestrictionReason.UNIVERSAL_TOOL;
         }
 
         // Check if item is broken first
@@ -59,18 +168,21 @@ public class ClassEquipmentUtil {
             return RestrictionReason.BROKEN;
         }
 
+        // Get equipment category
+        EquipmentCategory category = getEquipmentCategory(itemStack);
+
+        // Universal tools can always be used
+        if (category == EquipmentCategory.UNIVERSAL_TOOL) {
+            return RestrictionReason.NONE;
+        }
+
         // Get player's current class
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
         PlayerClass playerClass = classComponent.getClassManager().getCurrentClass();
 
-        // Get the equipment tag for this class
-        TagKey<Item> allowedEquipment = CLASS_EQUIPMENT_MAP.get(playerClass.getId());
-        if (allowedEquipment == null) {
-            return RestrictionReason.CLASS_RESTRICTED; // Unknown class
-        }
-
-        // Check if the item is in the allowed equipment list for this class
-        if (!itemStack.isIn(allowedEquipment)) {
+        // Check if class can use this category
+        Set<EquipmentCategory> allowedCategories = CLASS_PERMISSIONS.get(playerClass.getId());
+        if (allowedCategories == null || !allowedCategories.contains(category)) {
             return RestrictionReason.CLASS_RESTRICTED;
         }
 
@@ -79,28 +191,20 @@ public class ClassEquipmentUtil {
 
     /**
      * Simple boolean check if player can use item
-     * @param player The player to check
-     * @param itemStack The item to check
-     * @return true if the player can use the item, false otherwise
      */
     public static boolean canPlayerUseItem(PlayerEntity player, ItemStack itemStack) {
         RestrictionReason reason = getRestrictionReason(player, itemStack);
-        return reason == RestrictionReason.NONE || reason == RestrictionReason.UNIVERSAL_TOOL;
+        return reason == RestrictionReason.NONE;
     }
 
     /**
      * Centralized method to handle restriction enforcement and messaging
-     * @param player The player
-     * @param itemStack The item
-     * @param actionName The action being attempted (e.g., "use", "equip", "attack with")
-     * @return true if action should be prevented, false if allowed
      */
     public static boolean handleRestriction(PlayerEntity player, ItemStack itemStack, String actionName) {
         RestrictionReason reason = getRestrictionReason(player, itemStack);
 
         switch (reason) {
             case NONE:
-            case UNIVERSAL_TOOL:
                 return false; // Allow action
 
             case BROKEN:
@@ -159,9 +263,7 @@ public class ClassEquipmentUtil {
     public static void setBroken(ItemStack itemStack) {
         itemStack.set(ModDataComponents.BROKEN_FLAG, true);
 
-        // Remove tool component to disable mining
         if (itemStack.getItem() instanceof ToolItem && itemStack.contains(DataComponentTypes.TOOL)) {
-            // Store the original tool component before removing it
             ToolComponent originalTool = itemStack.get(DataComponentTypes.TOOL);
             if (originalTool != null) {
                 itemStack.set(ModDataComponents.ORIGINAL_TOOL, originalTool);
@@ -178,7 +280,6 @@ public class ClassEquipmentUtil {
     public static void repair(ItemStack itemStack) {
         itemStack.remove(ModDataComponents.BROKEN_FLAG);
 
-        // Restore tool component if it was a tool
         if (itemStack.getItem() instanceof ToolItem) {
             ToolComponent originalTool = itemStack.get(ModDataComponents.ORIGINAL_TOOL);
             if (originalTool != null) {
@@ -193,16 +294,18 @@ public class ClassEquipmentUtil {
             return false;
         }
 
-        // If the damage would break the item, mark it as broken instead
         if (itemStack.getDamage() + damageAmount >= itemStack.getMaxDamage()) {
             setBroken(itemStack);
-            return true; // Prevent the damage
+            return true;
         }
-
-        return false; // Allow normal damage
+        return false;
     }
 
-    public static Map<String, TagKey<Item>> getClassEquipmentMap() {
-        return CLASS_EQUIPMENT_MAP;
+    public static Set<EquipmentCategory> getClassPermissions(String classId) {
+        return CLASS_PERMISSIONS.getOrDefault(classId, EnumSet.noneOf(EquipmentCategory.class));
+    }
+
+    public static EquipmentCategory getItemCategory(ItemStack itemStack) {
+        return getEquipmentCategory(itemStack);
     }
 }

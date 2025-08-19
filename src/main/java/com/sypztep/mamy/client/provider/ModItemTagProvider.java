@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,21 +19,10 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider {
     protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
 
         // ==========================================
-        // UNIVERSAL TOOLS - ALL CLASSES CAN USE
-        // ==========================================
-        getOrCreateTagBuilder(ModTags.Items.ALL_CLASSES)
-                .addOptionalTag(ItemTags.AXES)          // Axes for chopping/tools
-                .addOptionalTag(ItemTags.PICKAXES)      // Mining tools
-                .addOptionalTag(ItemTags.SHOVELS)       // Digging tools
-                .addOptionalTag(ItemTags.HOES)          // Farming tools
-                .add(Items.FISHING_ROD, Items.SHEARS)
-                .add(Items.FLINT_AND_STEEL, Items.BUCKET, Items.WATER_BUCKET, Items.LAVA_BUCKET);
-
-        // ==========================================
-        // WEAPON CATEGORIES (Clear Organization)
+        // WEAPON CATEGORIES (For organization/reference)
         // ==========================================
 
-        // One-handed swords (most swords)
+        // One-handed swords
         getOrCreateTagBuilder(ModTags.Items.ONE_HAND_SWORDS)
                 .add(Items.WOODEN_SWORD, Items.STONE_SWORD, Items.IRON_SWORD)
                 .add(Items.GOLDEN_SWORD, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
@@ -42,9 +30,9 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider {
         // Two-handed swords (placeholder for custom weapons)
         getOrCreateTagBuilder(ModTags.Items.TWO_HAND_SWORDS);
 
-        // Spears (placeholder for custom weapons)
+        // Spears
         getOrCreateTagBuilder(ModTags.Items.SPEARS)
-                .add(Items.TRIDENT); // Trident can act as a spear
+                .add(Items.TRIDENT);
 
         // Daggers (placeholder for custom weapons)
         getOrCreateTagBuilder(ModTags.Items.DAGGERS);
@@ -58,7 +46,7 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider {
         // Knuckles (placeholder for custom weapons)
         getOrCreateTagBuilder(ModTags.Items.KNUCKLES);
 
-        // Regular bows
+        // Bows
         getOrCreateTagBuilder(ModTags.Items.BOWS)
                 .add(Items.BOW, Items.CROSSBOW);
 
@@ -90,60 +78,5 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider {
         // ==========================================
         getOrCreateTagBuilder(ModTags.Items.HOLY_ITEMS);
         getOrCreateTagBuilder(ModTags.Items.MAGIC_ITEMS);
-
-        // ==========================================
-        // CLASS EQUIPMENT SETS
-        // Based on: "Novice: One Hand Sword, Shield, Light Armor, Medium Armor"
-        // ==========================================
-
-        // NOVICE: One Hand Sword, Shield, Light Armor, Medium Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.NOVICE_EQUIPMENT)
-                .addTag(ModTags.Items.ONE_HAND_SWORDS)
-                .addTag(ModTags.Items.SHIELDS)
-                .addTag(ModTags.Items.LIGHT_ARMOR)
-                .addTag(ModTags.Items.MEDIUM_ARMOR)
-                .addTag(ModTags.Items.ALL_CLASSES);
-
-        // SWORDMAN: Spear, Shield, Two Hand Sword, One Hand Sword, Medium Armor, Heavy Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.SWORDMAN_EQUIPMENT)
-                .addTag(ModTags.Items.SPEARS)
-                .addTag(ModTags.Items.SHIELDS)
-                .addTag(ModTags.Items.TWO_HAND_SWORDS)
-                .addTag(ModTags.Items.ONE_HAND_SWORDS)
-                .addTag(ModTags.Items.MEDIUM_ARMOR)
-                .addTag(ModTags.Items.HEAVY_ARMOR)
-                .addTag(ModTags.Items.ALL_CLASSES);
-
-        // MAGE: Dagger, Staff, Light Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.MAGE_EQUIPMENT)
-                .addTag(ModTags.Items.DAGGERS)
-                .addTag(ModTags.Items.STAFFS)
-                .addTag(ModTags.Items.LIGHT_ARMOR)
-                .addTag(ModTags.Items.MAGIC_ITEMS)
-                .addTag(ModTags.Items.ALL_CLASSES);
-
-        // ARCHER: Bow, Dagger, Light Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.ARCHER_EQUIPMENT)
-                .addTag(ModTags.Items.BOWS)
-                .addTag(ModTags.Items.DAGGERS)
-                .addTag(ModTags.Items.LIGHT_ARMOR)
-                .addTag(ModTags.Items.ALL_CLASSES);
-
-        // ACOLYTE: Mace, Shield, Knuckle, Light Armor, Medium Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.ACOLYTE_EQUIPMENT)
-                .addTag(ModTags.Items.MACES)
-                .addTag(ModTags.Items.SHIELDS)
-                .addTag(ModTags.Items.KNUCKLES)
-                .addTag(ModTags.Items.LIGHT_ARMOR)
-                .addTag(ModTags.Items.MEDIUM_ARMOR)
-                .addTag(ModTags.Items.HOLY_ITEMS)
-                .addTag(ModTags.Items.ALL_CLASSES);
-
-        // THIEF: Dagger, Short Bow, Light Armor + Tools
-        getOrCreateTagBuilder(ModTags.Items.THIEF_EQUIPMENT)
-                .addTag(ModTags.Items.DAGGERS)
-                .addTag(ModTags.Items.SHORT_BOWS)
-                .addTag(ModTags.Items.LIGHT_ARMOR)
-                .addTag(ModTags.Items.ALL_CLASSES);
     }
 }

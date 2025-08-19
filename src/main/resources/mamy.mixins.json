@@ -46,6 +46,8 @@
     "core.feature.EntityRenderDispatcherMixin",
     "core.passive.intelligence.waterwalk.client.ClientPlayerEntityMixin",
     "core.passive.intelligence.xray.client.MinecraftClientMixin",
+    "core.skillcast.KeyboardInputMixin",
+    "core.skillcast.LivingEntityMixin",
     "core.stats.dexterity.ClientPlayerEntityMixin",
     "core.weight.client.InventoryScreenMixin"
   ],

@@ -2,19 +2,16 @@ package com.sypztep.mamy.client.event.tooltip;
 
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDataComponents;
-import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -29,36 +26,45 @@ public class ClassRestrictionTooltipHelper {
      * @param player The player viewing the tooltip
      */
     public static void appendClassRestrictions(ItemStack itemStack, Consumer<Text> textConsumer, PlayerEntity player) {
-        List<String> allowedClasses = getClassesThatCanUse(itemStack);
-
-        if (allowedClasses.isEmpty()) return; // No restrictions found
-
-        // Check if player can use this item
         boolean playerCanUse = false;
         if (player != null) {
             playerCanUse = ClassEquipmentUtil.canPlayerUseItem(player, itemStack);
         }
-        boolean everyOne = itemStack.isIn(ModTags.Items.ALL_CLASSES);
 
-        // Build class names using ModClasses.CLASSES map
-        List<String> displayNames = allowedClasses.stream()
-                .map(classId -> {
-                    PlayerClass clazz = ModClasses.CLASSES.get(classId);
-                    return clazz != null ? clazz.getDisplayName() : classId;
-                })
-                .toList();
+        ClassEquipmentUtil.EquipmentCategory itemCategory = ClassEquipmentUtil.getItemCategory(itemStack);
 
-        String classText = String.join(", ", displayNames);
+        // If it's a universal tool, show that
+        if (itemCategory == ClassEquipmentUtil.EquipmentCategory.UNIVERSAL_TOOL) {
+            textConsumer.accept(Text.empty());
+            textConsumer.accept(Text.literal(" - Universal Tool").formatted(Formatting.GRAY));
+        } else {
+            List<String> allowedClasses = getClassesThatCanUseCategory(itemCategory);
 
-        // Add empty line before restriction
-        textConsumer.accept(Text.empty());
+            if (allowedClasses.isEmpty()) {
+                textConsumer.accept(Text.empty());
+                textConsumer.accept(Text.literal(" - No Class Can Use").formatted(Formatting.DARK_RED));
+            } else if (allowedClasses.size() == ModClasses.CLASSES.size()) {
+                textConsumer.accept(Text.empty());
+                textConsumer.accept(Text.literal(" - All Classes").formatted(Formatting.GRAY));
+            } else {
+                List<String> displayNames = allowedClasses.stream()
+                        .map(classId -> {
+                            PlayerClass clazz = ModClasses.CLASSES.get(classId);
+                            return clazz != null ? clazz.getDisplayName() : classId;
+                        })
+                        .toList();
 
-        if (playerCanUse)
-            textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.GRAY));
-        else if (everyOne)
-            textConsumer.accept(Text.literal(" - EveryOne").formatted(Formatting.GRAY));
-        else
-            textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.RED));
+                String classText = String.join(", ", displayNames);
+
+                textConsumer.accept(Text.empty());
+
+                // Show in different colors based on whether player can use it
+                if (playerCanUse)
+                    textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.GREEN));
+                 else
+                    textConsumer.accept(Text.literal(" - " + classText + " Exclusive").formatted(Formatting.RED));
+            }
+        }
 
         // Show broken status if item is broken
         if (ClassEquipmentUtil.isBroken(itemStack)) {
@@ -73,13 +79,17 @@ public class ClassRestrictionTooltipHelper {
     }
 
     /**
-     * Get the list of class IDs that can use this item
+     * Get the list of class IDs that can use the given equipment category
      */
-    private static List<String> getClassesThatCanUse(ItemStack itemStack) {
+    private static List<String> getClassesThatCanUseCategory(ClassEquipmentUtil.EquipmentCategory category) {
         List<String> allowedClasses = new ArrayList<>();
 
-        for (Map.Entry<String, TagKey<Item>> entry : ClassEquipmentUtil.getClassEquipmentMap().entrySet())
-            if (itemStack.isIn(entry.getValue())) allowedClasses.add(entry.getKey());
+        for (String classId : ModClasses.CLASSES.keySet()) {
+            Set<ClassEquipmentUtil.EquipmentCategory> classPermissions = ClassEquipmentUtil.getClassPermissions(classId);
+            if (classPermissions.contains(category)) {
+                allowedClasses.add(classId);
+            }
+        }
 
         return allowedClasses;
     }

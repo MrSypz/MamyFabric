@@ -26,11 +26,6 @@ public class PlayerEntityMixin {
             return;
         }
 
-        // Skip universal tools
-        if (mainHandStack.isIn(ModTags.Items.ALL_CLASSES)) {
-            return;
-        }
-
         if (ClassEquipmentUtil.handleRestriction(player, mainHandStack, "attack with")) {
             ci.cancel();
         }
