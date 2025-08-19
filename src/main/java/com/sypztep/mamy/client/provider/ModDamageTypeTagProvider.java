@@ -25,32 +25,23 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 
 		// Bypasses Armor - Damage that ignores armor completely
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR)
-				.addOptional(ModDamageTypes.PRECISE_STRIKE)  // Precise Strike ignores armor
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH); // Whirlwind ignores armor
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR);
 
 		// Bypasses Shield - Damage that goes through shields
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD)
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH); // AOE attacks go through shields
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD);
 
 		// Bypasses Enchantments - Damage that ignores Protection enchants
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS)
-				.addOptional(ModDamageTypes.PRECISE_STRIKE); // Perfect technique bypasses protection
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS);
 
 		// Bypasses Cooldown - Damage that doesn't trigger hurt immunity
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN)
-				.addOptional(ModDamageTypes.PRECISE_STRIKE)
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
-				.addOptional(ModDamageTypes.PRECISE_STRIKE)
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH)       // Already in your file
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK);  // Already in your file
 
 		// Is Projectile - Makes your skills count as projectile damage
@@ -93,8 +84,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(ModTags.DamageTags.WIND_DAMAGE)
 				.add(DamageTypes.WIND_CHARGE)
 				.add(DamageTypes.SONIC_BOOM)
-				.add(DamageTypes.DRY_OUT)
-				.addOptional(ModDamageTypes.WHIRLWIND_SLASH);
+				.add(DamageTypes.DRY_OUT);
 
 		// ==========================================
 		// MELEE DAMAGE - Add vanilla player attack + close combat
@@ -108,8 +98,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.SWEET_BERRY_BUSH)
 				.add(DamageTypes.CACTUS)
 				// ADD YOUR SKILL DAMAGE TYPES TO MELEE TAG
-				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.PRECISE_STRIKE);
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
 
 		// ==========================================
 		// HOLY DAMAGE - Pure magical/supernatural (no vanilla equivalent)
