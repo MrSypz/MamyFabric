@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.provider;
 
+import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
@@ -19,6 +20,44 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 
 	@Override
 	protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
+		// ==========================================
+		// ADDITIONAL USEFUL VANILLA TAGS
+		// ==========================================
+
+		// Bypasses Armor - Damage that ignores armor completely
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR)
+				.addOptional(ModDamageTypes.PRECISE_STRIKE)  // Precise Strike ignores armor
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH); // Whirlwind ignores armor
+
+		// Bypasses Shield - Damage that goes through shields
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD)
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH); // AOE attacks go through shields
+
+		// Bypasses Enchantments - Damage that ignores Protection enchants
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS)
+				.addOptional(ModDamageTypes.PRECISE_STRIKE); // Perfect technique bypasses protection
+
+		// Bypasses Cooldown - Damage that doesn't trigger hurt immunity
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN)
+				.addOptional(ModDamageTypes.PRECISE_STRIKE)
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH);
+
+		// No Impact - Damage that doesn't cause knockback/hitstun
+		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
+				.addOptional(ModDamageTypes.PRECISE_STRIKE)
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH)
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
+
+		// No Knockback - Damage that doesn't push entities
+		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH)       // Already in your file
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK);  // Already in your file
+
+		// Is Projectile - Makes your skills count as projectile damage
+		getOrCreateTagBuilder(DamageTypeTags.IS_PROJECTILE);
+//				.addOptional(ModDamageTypes.Add new);
+
+
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
 		// ==========================================
@@ -54,19 +93,23 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(ModTags.DamageTags.WIND_DAMAGE)
 				.add(DamageTypes.WIND_CHARGE)
 				.add(DamageTypes.SONIC_BOOM)
-				.add(DamageTypes.DRY_OUT);
+				.add(DamageTypes.DRY_OUT)
+				.addOptional(ModDamageTypes.WHIRLWIND_SLASH);
 
 		// ==========================================
 		// MELEE DAMAGE - Add vanilla player attack + close combat
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.MELEE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_PLAYER_ATTACK)  // DRY: Use vanilla player attack
-				.add(DamageTypes.MOB_ATTACK)                      // ADD: Mob melee
-				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)             // ADD: Passive mob attacks
-				.add(DamageTypes.STING)                           // ADD: Bee stings
-				.add(DamageTypes.THORNS)                          // ADD: Thorns enchantment
-				.add(DamageTypes.SWEET_BERRY_BUSH)                // ADD: Contact damage
-				.add(DamageTypes.CACTUS);                         // ADD: Cactus damage
+				.addOptionalTag(DamageTypeTags.IS_PLAYER_ATTACK)
+				.add(DamageTypes.MOB_ATTACK)
+				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)
+				.add(DamageTypes.STING)
+				.add(DamageTypes.THORNS)
+				.add(DamageTypes.SWEET_BERRY_BUSH)
+				.add(DamageTypes.CACTUS)
+				// ADD YOUR SKILL DAMAGE TYPES TO MELEE TAG
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
+				.addOptional(ModDamageTypes.PRECISE_STRIKE);
 
 		// ==========================================
 		// HOLY DAMAGE - Pure magical/supernatural (no vanilla equivalent)
