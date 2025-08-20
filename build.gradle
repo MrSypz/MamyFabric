@@ -50,6 +50,13 @@ repositories {
         name = "My Library"
         url = "https://jitpack.io"
     }
+
+    maven {
+        name = "Kosmx's maven"
+        url = "https://maven.kosmx.dev/"
+    }
+    mavenCentral()
+
 }
 
 dependencies {
@@ -68,7 +75,8 @@ dependencies {
     }
     modRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
-
+    include modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim}")
+    include modImplementation("io.github.kosmx.bendy-lib:bendy-lib-fabric:${project.bendylib_version}")
 //    modImplementation 'com.github.MrSypz:Architect-CombatModule:0.1.1'
 
     modImplementation "maven.modrinth:jade:${project.jade_version}"

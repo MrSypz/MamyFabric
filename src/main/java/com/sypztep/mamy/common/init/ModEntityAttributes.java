@@ -88,6 +88,19 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
     RegistryEntry<EntityAttribute> DOUBLE_ATTACK_CHANCE = register("double_attack_chance", 0, 0, 1);
 
+    // ========== CASTING SYSTEM ATTRIBUTES ==========
+
+    // VCT (Variable Cast Time) reductions
+    RegistryEntry<EntityAttribute> VCT_REDUCTION_FLAT = register("vct_reduction_flat", 0, 0.0, 1000.0);
+    RegistryEntry<EntityAttribute> VCT_REDUCTION_PERCENT = register("vct_reduction_percent", 0, 0.0, 100.0);
+
+    // FCT (Fixed Cast Time) reductions
+    RegistryEntry<EntityAttribute> FCT_REDUCTION_FLAT = register("fct_reduction_flat", 0, 0.0, 1000.0);
+    RegistryEntry<EntityAttribute> FCT_REDUCTION_PERCENT = register("fct_reduction_percent", 0, 0.0, 100.0);
+
+    // Skill-specific VCT reduction (from passive skills)
+    RegistryEntry<EntityAttribute> SKILL_VCT_REDUCTION = register("skill_vct_reduction", 0, 0.0, 100.0);
+
     private static RegistryEntry<EntityAttribute> register(String id, double fallback, double min, double max) {
         RegistryEntry<EntityAttribute> entry = Registry.registerReference(Registries.ATTRIBUTE, Mamy.id(id), new ClampedEntityAttribute("attribute.name." + id, fallback, min, max).setTracked(true));
         ENTRIES.add(entry);

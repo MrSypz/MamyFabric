@@ -22,13 +22,23 @@ public class FirstAidSkill extends Skill implements CastableSkill {
     }
 
     @Override
-    public int getCastTime(int skillLevel) {
-        return 40; // 2 seconds
+    public int getBaseVCT(int skillLevel) {
+        return 30; // Minimum 1 second VCT
+    }
+
+    @Override
+    public int getBaseFCT(int skillLevel) {
+        return 10;
     }
 
     @Override
     public boolean shouldLockMovement() {
         return true;
+    }
+
+    @Override
+    public Identifier getCastAnimation() {
+        return Mamy.id("pray");
     }
 
     @Override
@@ -38,6 +48,7 @@ public class FirstAidSkill extends Skill implements CastableSkill {
         data.baseDamage = 2.0f + (skillLevel * 1.5f);
         data.damageType = DamageType.HEAL;
         data.maxHits = 1;
+
         return data;
     }
 

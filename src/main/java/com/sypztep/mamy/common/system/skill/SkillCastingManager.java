@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
+import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -10,7 +11,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import com.sypztep.mamy.client.animation.SkillAnimationManager;
 
 @Environment(EnvType.CLIENT)
 public class SkillCastingManager {
@@ -20,44 +20,40 @@ public class SkillCastingManager {
     private Identifier currentSkillId;
     private int castTicks = 0;
     private int maxCastTicks = 0;
+    private boolean hasAnimation = false;
 
     public static SkillCastingManager getInstance() {
         if (instance == null) instance = new SkillCastingManager();
         return instance;
     }
 
-    public boolean startCasting(Identifier skillId, int skillLevel) {
+    // Replace your startCasting method with this:
+    public void startCasting(Identifier skillId, int skillLevel) {
         PlayerEntity player = MinecraftClient.getInstance().player;
-        if (player == null) return false;
+        if (player == null) return;
 
         // Check for cooldown FIRST
         float remainingCooldown = ClientSkillCooldowns.getRemaining(skillId);
         if (remainingCooldown > 0) {
-            return false;
+            return;
         }
 
         Skill skill = SkillRegistry.getSkill(skillId);
         if (skill == null) {
             player.sendMessage(Text.literal("Unknown skill!")
                     .formatted(Formatting.RED), true);
-            return false;
+            return;
         }
 
         // If already casting this skill, cancel it
         if (isCasting && skillId.equals(currentSkillId)) {
             cancelCast();
-            return true;
+            return;
         }
 
         if (!(skill instanceof CastableSkill castable)) {
-            // Check cooldown for instant skills too
-            if (remainingCooldown > 0) {
-                player.sendMessage(Text.literal("Skill is on cooldown (" + String.format("%.1f", remainingCooldown) + "s)")
-                        .formatted(Formatting.RED), true);
-                return false;
-            }
             UseSkillPayloadC2S.send(skillId); // Instant skill
-            return true;
+            return;
         }
 
         if (isCasting) cancelCast(); // Cancel current cast
@@ -65,17 +61,27 @@ public class SkillCastingManager {
         this.isCasting = true;
         this.currentSkillId = skillId;
         this.castTicks = 0;
-        this.maxCastTicks = castable.getCastTime(skillLevel);
+        // NEW: Calculate actual cast time with VCT/FCT system
+        this.maxCastTicks = CastingCalculator.calculateTotalCastTime(player, castable, skillLevel);
+        this.hasAnimation = false;
 
-        // Start casting animation
-        SkillAnimationManager.startCastingAnimation(skill);
+        // Start casting animation if available
+        if (castable.hasCastAnimation()) {
+            this.hasAnimation = SkillAnimationManager.startCastAnimation(castable.getCastAnimation());
+        }
 
         // Play cast start sound
         player.getWorld().playSound(player, player.getBlockPos(),
                 SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS,
                 0.3f, 1.2f);
 
-        return true;
+        // Optional: Show casting breakdown in chat for debugging
+        if (player.isSneaking()) { // Only when sneaking for debug
+            var breakdown = CastingCalculator.getCastingBreakdown(player, castable, skillLevel);
+            player.sendMessage(Text.literal(String.format("Cast: VCT %d->%d, FCT %d->%d, Total: %d ticks",
+                            breakdown.baseVCT, breakdown.finalVCT, breakdown.baseFCT, breakdown.finalFCT, breakdown.totalCastTime))
+                    .formatted(Formatting.GRAY), true);
+        }
     }
 
     public void tick() {
@@ -110,12 +116,15 @@ public class SkillCastingManager {
                     0.5f, 1.5f);
         }
 
+        // Stop animation before sending skill use
+        if (hasAnimation) {
+            SkillAnimationManager.stopCastAnimation();
+        }
+
         UseSkillPayloadC2S.send(currentSkillId);
 
-        // Stop casting animation
-        SkillAnimationManager.stopCastingAnimation();
-
         isCasting = false;
+        hasAnimation = false;
     }
 
     public void interruptCast() {
@@ -131,10 +140,13 @@ public class SkillCastingManager {
                     0.3f, 0.8f);
         }
 
-        // Stop casting animation
-        SkillAnimationManager.stopCastingAnimation();
+        // Stop animation on interrupt
+        if (hasAnimation) {
+            SkillAnimationManager.stopCastAnimation();
+        }
 
         isCasting = false;
+        hasAnimation = false;
     }
 
     public void cancelCast() {
@@ -150,10 +162,13 @@ public class SkillCastingManager {
                     0.5f, 1.0f);
         }
 
-        // Stop casting animation
-        SkillAnimationManager.stopCastingAnimation();
+        // Stop animation on cancel
+        if (hasAnimation) {
+            SkillAnimationManager.stopCastAnimation();
+        }
 
         isCasting = false;
+        hasAnimation = false;
     }
 
     public boolean isCasting() { return isCasting; }
@@ -165,4 +180,5 @@ public class SkillCastingManager {
     public float getCastProgress() { return isCasting ? (float) castTicks / maxCastTicks : 0f; }
     public Identifier getCurrentCastingSkill() { return currentSkillId; }
     public int getRemainingTicks() { return isCasting ? maxCastTicks - castTicks : 0; }
+    public boolean hasCastAnimation() { return hasAnimation; }
 }

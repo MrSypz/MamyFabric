@@ -1,8 +1,8 @@
 package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
-import com.sypztep.mamy.client.animation.SkillAnimationRegistry;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
+import com.sypztep.mamy.client.event.animation.PlayerAnimRegistry;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
@@ -25,6 +25,7 @@ public class MamyClient implements ClientModInitializer {
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
         config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
+        PlayerAnimRegistry.register();
         ModParticles.Client.init();
 
         EntityRendererRegistry.register(ModEntityTypes.BLOOD_LUST, BloodLustEntityRenderer::new);
@@ -45,7 +46,6 @@ public class MamyClient implements ClientModInitializer {
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
-        SkillAnimationRegistry.registerAnimations();
 
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
