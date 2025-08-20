@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.screen.hud;
+package com.sypztep.mamy.client.event.hud;
 
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;

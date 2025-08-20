@@ -13,7 +13,7 @@
     "core.classes.correctequipment.PlayerScreenHandlerMixin",
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
-    "core.damage.LivingEntityMixin",
+    "core.damage.PlayerEntityMixin",
     "core.passive.agility.shadowstep.PlayerEntityMixin",
     "core.passive.agility.windwalker.LivingEntityMixin",
     "core.passive.dexterity.headhunter.PersistentProjectileEntityMixin",

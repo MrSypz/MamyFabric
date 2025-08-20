@@ -7,7 +7,6 @@ import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
-import com.sypztep.mamy.client.screen.hud.CastingHudRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;

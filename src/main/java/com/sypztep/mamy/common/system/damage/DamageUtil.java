@@ -2,12 +2,14 @@ package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ParticleHandler;
-import com.sypztep.mamy.common.init.ModCustomParticles;
-import com.sypztep.mamy.common.init.ModTags;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
+import com.sypztep.mamy.common.init.*;
+import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.util.math.MathHelper;
@@ -136,8 +138,40 @@ public final class DamageUtil {
      * Handles damage increases (attacker bonuses)
      */
     public static float damageModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
+        if (target.getWorld().isClient()) return amount;
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
 
+        // Handle projectile critical sound
+        if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) {
+            LivingEntityUtil.playCriticalSound(projectile);
+        }
+
+        // Handle headshot damage
+        if (ModEntityComponents.HEADSHOT.get(target).isHeadShot() &&
+                source.getSource() instanceof PersistentProjectileEntity &&
+                source.getAttacker() instanceof LivingEntity headshotAttacker) {
+
+            amount *= (float) headshotAttacker.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE);
+            ModEntityComponents.HEADSHOT.get(target).setHeadShot(false);
+            ParticleHandler.sendToAll(target, source.getSource(), ModCustomParticles.HEADSHOT);
+        }
+
+        // Handle Back Breaker passive (50% more damage to low health enemies)
+        if (LivingEntityUtil.isHealthBelow(target, 0.25f) &&
+                source.getAttacker() instanceof PlayerEntity backBreakerAttacker &&
+                PassiveAbilityManager.isActive(backBreakerAttacker, ModPassiveAbilities.BACK_BREAKER)) {
+
+            amount *= 1.5f; // 50% bonus
+        }
+
+        // Handle Berserker Rage passive
+        if (source.getAttacker() instanceof PlayerEntity berserkerAttacker &&
+                PassiveAbilityManager.isActive(berserkerAttacker, ModPassiveAbilities.BERSERKER_RAGE)) {
+
+            amount = LivingEntityUtil.getBerserkerDamageBonus(berserkerAttacker);
+        }
+
+        // Apply combat modifiers (existing logic)
         float additiveBonus = 0.0f;
         float multiplicativeMultiplier = 1.0f;
 
@@ -155,6 +189,7 @@ public final class DamageUtil {
 
         debugLog("Damage calculation: base %.1f × %.2fx + %.1f → final %.1f", amount, multiplicativeMultiplier, additiveBonus, finalDamage);
 
+        DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(target, source, finalDamage);
         return finalDamage;
     }
 
@@ -164,10 +199,8 @@ public final class DamageUtil {
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
         debugLog("====RESISTANCE MODIFIER START====");
 
-        // Step 1: Apply elemental damage calculations (handles all elemental resistances)
         float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
 
-        // Step 2: Apply NON-ELEMENTAL flat reductions (after elemental processing)
         float flatReduction = 0.0f;
 
         // Combat type flat reductions
@@ -200,7 +233,6 @@ public final class DamageUtil {
             debugLog("Magic resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE));
         }
 
-        // Apply percentage resistance (cap at 95%)
         float afterPercentageReduction = elementalDamage * (1.0f - Math.min(0.95f, percentageReduction));
 
         // Apply flat reduction
@@ -213,9 +245,8 @@ public final class DamageUtil {
         return finalDamage;
     }
 
-    // Keep armor and other utility methods unchanged
     private static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
-                                                  DamageSource source, float flatArmor) {
+                                                   float flatArmor) {
         debugLog("====START====");
         float armorReduction = getArmorDamageReduction(flatArmor);
         float damageAfterArmor = originalDamage * (1.0f - armorReduction);
@@ -233,7 +264,7 @@ public final class DamageUtil {
     public static float getDamageAfterArmor(LivingEntity self, DamageSource source, float amount) {
         if (!source.isIn(DamageTypeTags.BYPASSES_ARMOR)) {
             self.damageArmor(source, amount);
-            return calculateDamageAfterArmor(self, amount, source, self.getArmor());
+            return calculateDamageAfterArmor(self, amount, self.getArmor());
         }
         return amount;
     }

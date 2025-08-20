@@ -170,7 +170,6 @@ public final class ElementalDamageSystem {
 
             debugLog("%s: %.2f × (1 - %.3f total) = %.2f - %.2f flat = %.2f", element.name(), elementDamage, totalResistance, afterResistance, flatReduction, finalElementDamage);
         }
-
         sendDamageNumbers(defender, breakdown);
         return Math.max(0.1f, totalFinalDamage);
     }

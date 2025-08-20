@@ -3,7 +3,7 @@ package com.sypztep.mamy.mixin.core.critevasion;
 import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.MissingAccessor;
-import com.sypztep.mamy.common.api.entity.DominatusLivingEntityEvents;
+import com.sypztep.mamy.common.system.damage.DamageUtil;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.init.ModCustomParticles;
 import net.minecraft.entity.Entity;
@@ -46,13 +46,18 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
     private float applyPreArmorDamageModification(float amount, DamageSource source) {
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
         isCrit = LivingEntityUtil.isCrit(attacker);
-        return DominatusLivingEntityEvents.PRE_ARMOR_DAMAGE.invoker().preModifyDamage(target, source, amount, isCrit);
+        return DamageUtil.damageModifier(target, amount, source, isCrit);
     }
-    @ModifyVariable(method = "modifyAppliedDamage", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/enchantment/EnchantmentHelper;getProtectionAmount(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/damage/DamageSource;)F"), argsOnly = true)
-    private float applyPostArmorDamageModification(float amount, DamageSource source) {
-        if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
-        isCrit = LivingEntityUtil.isCrit(attacker);
-        return DominatusLivingEntityEvents.POST_ARMOR_DAMAGE.invoker().postModifyDamage(target, source, amount, isCrit);
+
+    @Inject(method = "applyArmorToDamage", at = @At("HEAD"), cancellable = true)
+    private void replaceArmorCalculation(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
+        cir.setReturnValue(DamageUtil.getDamageAfterArmor((LivingEntity) (Object) this, source, amount));
+    }
+
+    // Inject code after get Enchantment Protection
+    @Inject(method = "modifyAppliedDamage", at = @At(value = "RETURN", ordinal = 3), cancellable = true)
+    private void replaceModifyAppliedDamage(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
+        cir.setReturnValue(DamageUtil.damageResistanceModifier((LivingEntity) (Object) this, cir.getReturnValue(), source));
     }
 
     @Override

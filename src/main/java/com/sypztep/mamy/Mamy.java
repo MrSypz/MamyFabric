@@ -3,7 +3,6 @@ package com.sypztep.mamy;
 import com.sypztep.mamy.common.event.living.InitDamageTrackerEvent;
 import com.sypztep.mamy.common.event.living.MobDeathExperienceEvent;
 import com.sypztep.mamy.common.event.living.MobSpawnStatsEvent;
-import com.sypztep.mamy.common.event.living.ModifyLivingDamageEvent;
 import com.sypztep.mamy.common.event.player.*;
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.reloadlistener.MamyElementalReloadListener;
@@ -38,7 +37,6 @@ public class Mamy implements ModInitializer {
 
         // EVENT
         InitDamageTrackerEvent.register();
-        ModifyLivingDamageEvent.register();
         MobSpawnStatsEvent.register();
         MobDeathExperienceEvent.register();
         MarkDamageTrackerEvent.register();
