@@ -1,13 +1,17 @@
 package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.client.animation.SkillAnimationRegistry;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.passive.dexterity.BowItemEvent;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
+import com.sypztep.mamy.client.screen.hud.CastingHudRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
-import com.sypztep.mamy.common.init.*;
+import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModParticles;
+import com.sypztep.mamy.common.init.ModPayloads;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
@@ -30,8 +34,10 @@ public class MamyClient implements ClientModInitializer {
         LevelHudRenderer.register();
         ToastHudRenderer.register();
         ResourceBarHudRenderer.register();
+
         SkillHudOverlayRenderer.register();
         HotbarIconOverlayRenderer.register();
+        CastingHudRenderer.init();
 
         BowItemEvent.register();
         SkillCooldownCleanUpEvent.register();
@@ -39,6 +45,7 @@ public class MamyClient implements ClientModInitializer {
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
+        SkillAnimationRegistry.registerAnimations();
 
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {

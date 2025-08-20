@@ -5,7 +5,7 @@ import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
-import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
+import com.sypztep.mamy.common.system.skill.SkillCastingManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
@@ -80,6 +80,8 @@ public class ModKeyBindings {
     private static void handleKeyInputs(MinecraftClient client) {
         if (client.player == null) return;
         if (client.currentScreen != null) return;
+
+        SkillCastingManager.getInstance().tick();
 
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
@@ -164,7 +166,13 @@ public class ModKeyBindings {
 
     private static void useSkillSlot(PlayerClassComponent classComponent, int slot) {
         Identifier skillId = classComponent.getBoundSkill(slot);
-        if (skillId != null) UseSkillPayloadC2S.send(skillId);
+        if (skillId != null) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.player != null) {
+                int skillLevel = classComponent.getClassManager().getSkillManager().getSkillLevel(skillId);
+                SkillCastingManager.getInstance().startCasting(skillId, skillLevel);
+            }
+        }
     }
 
     public static KeyBinding getSkillKeybinding(int slotIndex) {
