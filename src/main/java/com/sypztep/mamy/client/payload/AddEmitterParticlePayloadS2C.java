@@ -13,9 +13,10 @@ import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public record AddEmitterParticlePayloadS2C(int entityId, ParticleType<?> particleType) implements CustomPayload{
+public record AddEmitterParticlePayloadS2C(int entityId, ParticleType<?> particleType) implements CustomPayload {
     public static final Id<AddEmitterParticlePayloadS2C> ID = new Id<>(Mamy.id("add_emitter_particle"));
-    public static final PacketCodec<RegistryByteBuf, AddEmitterParticlePayloadS2C> CODEC = PacketCodec.tuple(PacketCodecs.VAR_INT,
+    public static final PacketCodec<RegistryByteBuf, AddEmitterParticlePayloadS2C> CODEC = PacketCodec.tuple(
+            PacketCodecs.VAR_INT,
             AddEmitterParticlePayloadS2C::entityId,
             PacketCodecs.registryCodec(Registries.PARTICLE_TYPE.getCodec()),
             AddEmitterParticlePayloadS2C::particleType,
