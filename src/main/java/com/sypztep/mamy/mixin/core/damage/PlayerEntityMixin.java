@@ -19,6 +19,6 @@ public class PlayerEntityMixin {
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
 
         boolean isCrit = LivingEntityUtil.isCrit(attacker);
-        return DamageUtil.damageModifier(player,amount, source, isCrit);
+        return DamageUtil.damageMonsterModifier(player, amount, source, isCrit); // player this one is target is player
     }
 }

@@ -8,6 +8,7 @@ import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.gearscore.PlayerGearscore;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -357,7 +358,28 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // === INFO LINE: [Level-SubLevel] Class + Stats ===
         renderInfoLine(drawContext, textRenderer, levelData, classData, currentY);
     }
+    private String formatGearscore(int gearscore) {
+        if (gearscore >= 1000) {
+            return String.format("%,d", gearscore); // Adds commas: 1,234
+        }
+        return String.valueOf(gearscore);
+    }
+    private static final int GEARSCORE_COLOR_LOW = 0xFF808080;      // Gray for low gearscore
+    private static final int GEARSCORE_COLOR_NORMAL = 0xFFFFFFFF;   // White for normal
+    private static final int GEARSCORE_COLOR_HIGH = 0xFF00FF00;     // Green for high
+    private static final int GEARSCORE_COLOR_EPIC = 0xFF9932CC;     // Purple for epic
+    private static final int GEARSCORE_COLOR_LEGENDARY = 0xFFFFD700; // Gold for legendary
 
+    /**
+     * Get color based on gearscore tier
+     */
+    private int getGearscoreColor(int gearscore) {
+        if (gearscore < 1000) return GEARSCORE_COLOR_LOW;        // 0-999 (early game)
+        if (gearscore < 3000) return GEARSCORE_COLOR_NORMAL;     // 1000-2999 (mid game)
+        if (gearscore < 6000) return GEARSCORE_COLOR_HIGH;       // 3000-5999 (late game)
+        if (gearscore < 9000) return GEARSCORE_COLOR_EPIC;       // 6000-8999 (endgame)
+        return GEARSCORE_COLOR_LEGENDARY;                        // 9000+ (maxed out)
+    }
     private int renderHeaderLine(DrawContext drawContext, TextRenderer textRenderer, MinecraftClient client, LivingLevelComponent levelData, int y) {
         // Render player head
         if (client.player != null) {
@@ -371,7 +393,10 @@ public final class LevelHudRenderer implements HudRenderCallback {
         int nameY = y + (BASE_PLAYER_HEAD_SIZE - textRenderer.fontHeight) / 2;
         drawContext.drawTextWithShadow(textRenderer, playerName.orElse("Unknown"), nameX, nameY, HEADER_TEXT_COLOR);
 
-        // Level (right aligned) - Add shake effect to level text during level up
+        // Calculate gearscore for display
+        int gearscore = client.player != null ? PlayerGearscore.calculateGearscore(client.player) : 0;
+
+        // Level and Gearscore (right aligned) - Stack them vertically
         int level = levelData.getLevel();
         boolean isMaxLevel = levelData.getLevelSystem().isMaxLevel();
         String levelText = isMaxLevel ? "MAX" : "Base Lv." + level;
@@ -386,8 +411,25 @@ public final class LevelHudRenderer implements HudRenderCallback {
                     0);
         }
 
-        int levelX = BASE_HUD_X + BASE_HUD_WIDTH - textRenderer.getWidth(levelText) - BASE_PADDING;
+        // Gearscore text and formatting
+        String gearscoreText = "GS: " + formatGearscore(gearscore);
+        int gearscoreColor = getGearscoreColor(gearscore);
+
+        // Calculate right-aligned positions
+        int levelTextWidth = textRenderer.getWidth(levelText);
+        int gearscoreTextWidth = textRenderer.getWidth(gearscoreText);
+        int maxTextWidth = Math.max(levelTextWidth, gearscoreTextWidth);
+
+        int rightAlignX = BASE_HUD_X + BASE_HUD_WIDTH - maxTextWidth - BASE_PADDING;
+
+        // Draw level text (top line)
+        int levelX = rightAlignX + (maxTextWidth - levelTextWidth); // Right align within the space
         drawContext.drawTextWithShadow(textRenderer, levelText, levelX, nameY, levelColor);
+
+        // Draw gearscore text (bottom line)
+        int gearscoreX = rightAlignX + (maxTextWidth - gearscoreTextWidth); // Right align within the space
+        int gearscoreY = nameY + textRenderer.fontHeight + 2; // 2px spacing between lines
+        drawContext.drawTextWithShadow(textRenderer, gearscoreText, gearscoreX, gearscoreY, gearscoreColor);
 
         return y + BASE_PLAYER_HEAD_SIZE + BASE_SPACING;
     }

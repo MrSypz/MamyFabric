@@ -353,6 +353,10 @@ public class PlayerClass {
         }
     }
 
+    public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {
+        return growthFactors;
+    }
+
     public String getGrowthDescription(RegistryEntry<EntityAttribute> attribute) {
         GrowthFactor growth = growthFactors.get(attribute);
         if (growth == null) return "";
