@@ -32,16 +32,6 @@ public record MobExpEntry(
                 StatTypes.LUCK, 0
         );
     }
-    // Convenience constructor with level-based stats
-    public static MobExpEntry withLevelStats(int expReward, int classReward, int baseLevel) {
-        var stats = Arrays.stream(StatTypes.values())
-                .collect(Collectors.toMap(
-                        stat -> stat,
-                        stat -> baseLevel,
-                        (existing, replacement) -> replacement
-                ));
-        return new MobExpEntry(expReward, classReward, baseLevel, stats);
-    }
 
     // Easy access method for stats
     public int getStat(StatTypes statType) {
