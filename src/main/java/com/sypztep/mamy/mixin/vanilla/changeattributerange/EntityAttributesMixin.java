@@ -18,11 +18,11 @@ public class EntityAttributesMixin {
     private static void maxRange(String id, EntityAttribute attribute, CallbackInfoReturnable<RegistryEntry<EntityAttribute>> info) {
         switch (id) {
             case "generic.max_health" -> info.setReturnValue(
-                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.max_health", 20.0, 1.0, 10000000.0).setTracked(true)));
+                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.max_health", 20.0, 1.0, Double.MAX_VALUE).setTracked(true)));
             case "generic.armor" -> info.setReturnValue(
-                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.armor", 0.0, 0.0, 512.0).setTracked(true)));
+                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.armor", 0.0, 0.0, Double.MAX_VALUE).setTracked(true)));
             case "generic.attack_damage" -> info.setReturnValue(
-                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.attack_damage", 2.0, 0.0, 10000000.0).setTracked(true)));
+                    Registry.registerReference(Registries.ATTRIBUTE, Identifier.ofVanilla(id), new ClampedEntityAttribute("attribute.name.generic.attack_damage", 2.0, 0.0, Double.MAX_VALUE).setTracked(true)));
         }
     }
 }
