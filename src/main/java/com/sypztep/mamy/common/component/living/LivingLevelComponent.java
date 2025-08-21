@@ -27,6 +27,9 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         }
     }
 
+    public LivingEntity getLiving() {
+        return living;
+    }
 
     // ====================
     // CORE GETTERS - Keep only what's actually used
