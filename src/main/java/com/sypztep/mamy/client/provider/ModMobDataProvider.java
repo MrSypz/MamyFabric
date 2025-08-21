@@ -2,8 +2,6 @@ package com.sypztep.mamy.client.provider;
 
 import com.google.gson.JsonObject;
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.data.MobExpEntry;
-import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.DataWriter;
@@ -29,127 +27,134 @@ public class ModMobDataProvider implements DataProvider {
 
     private CompletableFuture<?> generateMobExp(DataWriter writer) {
         CompletableFuture<?>[] futures = new CompletableFuture[]{
-                // === PASSIVE MOBS (Level 1-8) - No penalty, easy targets ===
-                createMobExpFile(writer, EntityType.ALLAY, MobExpEntry.withLevelStats(1, 1, 1)),
-                createMobExpFile(writer, EntityType.ARMADILLO, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.AXOLOTL, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpFile(writer, EntityType.BAT, MobExpEntry.withLevelStats(1, 1, 1)),
-                createMobExpFile(writer, EntityType.CAMEL, MobExpEntry.withLevelStats(2, 1, 4)),
-                createMobExpFile(writer, EntityType.CAT, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.CHICKEN, MobExpEntry.withLevelStats(1, 1, 1)),
-                createMobExpFile(writer, EntityType.COD, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.COW, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpFile(writer, EntityType.DONKEY, MobExpEntry.withLevelStats(2, 1, 5)),
-                createMobExpFile(writer, EntityType.FROG, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.GLOW_SQUID, MobExpEntry.withLevelStats(1, 1, 4)),
-                createMobExpFile(writer, EntityType.SQUID, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpFile(writer, EntityType.HORSE, MobExpEntry.withLevelStats(2, 1, 5)),
-                createMobExpFile(writer, EntityType.MOOSHROOM, MobExpEntry.withLevelStats(2, 1, 4)),
-                createMobExpFile(writer, EntityType.MULE, MobExpEntry.withLevelStats(2, 1, 5)),
-                createMobExpFile(writer, EntityType.OCELOT, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpFile(writer, EntityType.PARROT, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.PIG, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpFile(writer, EntityType.PUFFERFISH, MobExpEntry.withLevelStats(2, 1, 3)),
-                createMobExpFile(writer, EntityType.RABBIT, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.SALMON, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.SHEEP, MobExpEntry.withLevelStats(1, 1, 3)),
-                createMobExpEntry(writer, EntityType.SKELETON_HORSE, 1500, 1200, 25, 20, 50, 30, 15, 100, 10),
-                createMobExpFile(writer, EntityType.SNIFFER, MobExpEntry.withLevelStats(3, 2, 8)),
-                createMobExpFile(writer, EntityType.SNOW_GOLEM, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.STRIDER, MobExpEntry.withLevelStats(2, 1, 4)),
-                createMobExpFile(writer, EntityType.TADPOLE, MobExpEntry.withLevelStats(1, 1, 1)),
-                createMobExpFile(writer, EntityType.TROPICAL_FISH, MobExpEntry.withLevelStats(1, 1, 2)),
-                createMobExpFile(writer, EntityType.TURTLE, MobExpEntry.withLevelStats(2, 1, 5)),
-                createMobExpFile(writer, EntityType.VILLAGER, MobExpEntry.withLevelStats(1, 1, 1)),
-                createMobExpFile(writer, EntityType.WANDERING_TRADER, MobExpEntry.withLevelStats(2, 1, 4)),
-                createMobExpFile(writer, EntityType.ZOMBIE_HORSE, MobExpEntry.withLevelStats(5, 3, 8)),
+                // ===== PASSIVE MOBS (Level 1-5) - Tutorial Tier =====
+                // These should be harmless and give minimal EXP to encourage fighting real mobs
+                createMobEntry(writer, EntityType.ALLAY, 8, 6, 1, 1, 5, 3, 1, 2, 1),
+                createMobEntry(writer, EntityType.ARMADILLO, 12, 8, 2, 2, 3, 8, 1, 1, 1),
+                createMobEntry(writer, EntityType.AXOLOTL, 15, 10, 2, 2, 8, 5, 2, 3, 2),
+                createMobEntry(writer, EntityType.BAT, 5, 3, 1, 1, 12, 2, 1, 5, 3),
+                createMobEntry(writer, EntityType.CAMEL, 25, 15, 3, 3, 2, 15, 1, 2, 1),
+                createMobEntry(writer, EntityType.CAT, 12, 8, 2, 2, 15, 5, 2, 8, 3),
+                createMobEntry(writer, EntityType.CHICKEN, 8, 5, 1, 1, 18, 3, 1, 5, 2),
+                createMobEntry(writer, EntityType.COD, 10, 6, 1, 1, 12, 4, 1, 8, 3),
+                createMobEntry(writer, EntityType.COW, 18, 12, 2, 2, 5, 10, 1, 3, 2),
+                createMobEntry(writer, EntityType.DONKEY, 35, 25, 3, 3, 3, 18, 2, 4, 2),
+                createMobEntry(writer, EntityType.FROG, 12, 8, 2, 2, 12, 6, 3, 10, 4),
+                createMobEntry(writer, EntityType.GLOW_SQUID, 20, 15, 2, 2, 8, 8, 8, 6, 5),
+                createMobEntry(writer, EntityType.SQUID, 15, 12, 2, 2, 6, 6, 4, 6, 3),
+                createMobEntry(writer, EntityType.HORSE, 45, 35, 4, 4, 5, 20, 3, 6, 3),
+                createMobEntry(writer, EntityType.MOOSHROOM, 30, 20, 3, 3, 3, 15, 4, 3, 3),
+                createMobEntry(writer, EntityType.MULE, 40, 30, 3, 3, 4, 18, 2, 4, 2),
+                createMobEntry(writer, EntityType.OCELOT, 25, 18, 3, 3, 18, 8, 4, 12, 6),
+                createMobEntry(writer, EntityType.PARROT, 12, 8, 2, 2, 20, 5, 6, 10, 8),
+                createMobEntry(writer, EntityType.PIG, 20, 15, 2, 2, 5, 10, 2, 4, 2),
+                createMobEntry(writer, EntityType.PUFFERFISH, 25, 18, 3, 4, 8, 6, 4, 10, 5),
+                createMobEntry(writer, EntityType.RABBIT, 15, 10, 2, 2, 20, 5, 3, 15, 6),
+                createMobEntry(writer, EntityType.SALMON, 18, 12, 2, 2, 15, 6, 2, 10, 4),
+                createMobEntry(writer, EntityType.SHEEP, 18, 15, 2, 2, 3, 12, 1, 3, 2),
+                createMobEntry(writer, EntityType.SKELETON_HORSE, 280, 200, 15, 8, 15, 25, 8, 20, 12),
+                createMobEntry(writer, EntityType.SNIFFER, 80, 60, 5, 5, 2, 30, 4, 5, 5),
+                createMobEntry(writer, EntityType.SNOW_GOLEM, 30, 20, 3, 4, 6, 15, 8, 8, 4),
+                createMobEntry(writer, EntityType.STRIDER, 35, 25, 4, 3, 5, 18, 6, 6, 4),
+                createMobEntry(writer, EntityType.TADPOLE, 5, 3, 1, 1, 5, 2, 1, 3, 2),
+                createMobEntry(writer, EntityType.TROPICAL_FISH, 12, 8, 2, 1, 15, 4, 4, 8, 5),
+                createMobEntry(writer, EntityType.TURTLE, 45, 35, 4, 3, 2, 25, 4, 4, 4),
+                createMobEntry(writer, EntityType.VILLAGER, 18, 15, 2, 2, 3, 8, 8, 5, 6),
+                createMobEntry(writer, EntityType.WANDERING_TRADER, 30, 22, 3, 3, 5, 12, 12, 8, 10),
+                createMobEntry(writer, EntityType.ZOMBIE_HORSE, 150, 120, 8, 10, 8, 20, 3, 8, 5),
 
-                // === NEUTRAL MOBS (Level 8-15) - Early game challenges ===
-                createMobExpFile(writer, EntityType.BEE, MobExpEntry.withLevelStats(1, 1, 8)),
-                createMobExpFile(writer, EntityType.DOLPHIN, MobExpEntry.withLevelStats(1, 1, 10)),
-                createMobExpFile(writer, EntityType.FOX, MobExpEntry.withLevelStats(1, 1, 9)),
-                createMobExpFile(writer, EntityType.GOAT, MobExpEntry.withLevelStats(1, 1, 12)),
-                createMobExpEntry(writer, EntityType.IRON_GOLEM, 5000, 7500, 25, 33, 15, 45, 25, 120, 28), // Village defender
-                createMobExpFile(writer, EntityType.LLAMA, MobExpEntry.withLevelStats(1, 1, 10)),
-                createMobExpFile(writer, EntityType.PANDA, MobExpEntry.withLevelStats(1, 1, 14)),
-                createMobExpFile(writer, EntityType.POLAR_BEAR, MobExpEntry.withLevelStats(1, 1, 15)),
-                createMobExpFile(writer, EntityType.TRADER_LLAMA, MobExpEntry.withLevelStats(1, 1, 10)),
-                createMobExpFile(writer, EntityType.WOLF, MobExpEntry.withLevelStats(1, 1, 12)),
-                createMobExpFile(writer, EntityType.ZOMBIFIED_PIGLIN, MobExpEntry.withLevelStats(950, 850, 18)),
+                // ===== NEUTRAL MOBS (Level 5-15) - Early Game Practice =====
+                // Slightly tougher but still manageable for new players
+                createMobEntry(writer, EntityType.BEE, 35, 25, 5, 4, 25, 8, 8, 18, 10),
+                createMobEntry(writer, EntityType.DOLPHIN, 65, 50, 8, 6, 30, 15, 12, 25, 15),
+                createMobEntry(writer, EntityType.FOX, 55, 40, 7, 5, 35, 12, 8, 28, 18),
+                createMobEntry(writer, EntityType.GOAT, 85, 65, 10, 10, 20, 25, 6, 15, 8),
+                createMobEntry(writer, EntityType.IRON_GOLEM, 1200, 900, 25, 20, 8, 60, 12, 12, 15), // Village defender - tough but fair
+                createMobEntry(writer, EntityType.LLAMA, 70, 55, 8, 8, 8, 22, 10, 10, 6),
+                createMobEntry(writer, EntityType.PANDA, 95, 75, 12, 12, 15, 30, 8, 12, 10),
+                createMobEntry(writer, EntityType.POLAR_BEAR, 140, 110, 15, 18, 18, 35, 5, 15, 10),
+                createMobEntry(writer, EntityType.TRADER_LLAMA, 75, 60, 9, 8, 10, 24, 12, 12, 8),
+                createMobEntry(writer, EntityType.WOLF, 85, 65, 10, 10, 28, 18, 6, 22, 12),
+                createMobEntry(writer, EntityType.ZOMBIFIED_PIGLIN, 180, 140, 15, 15, 12, 25, 8, 18, 15),
 
-                // === OVERWORLD HOSTILE MOBS (Level 10-65) - Main progression ===
-                // Basic overworld (Level 10-15)
-                createMobExpEntry(writer, EntityType.ZOMBIE, 850, 550, 10, 10, 32, 10, 10, 64, 10),
-                createMobExpEntry(writer, EntityType.ZOMBIE_VILLAGER, 850, 550, 10, 10, 32, 10, 10, 64, 10),
-                createMobExpEntry(writer, EntityType.SKELETON, 1200, 980, 12, 12, 40, 12, 12, 80, 27), // Archer
-                createMobExpEntry(writer, EntityType.SPIDER, 1700, 1250, 11, 11, 35, 11, 11, 70, 11),
-                createMobExpEntry(writer, EntityType.CREEPER, 2100, 2300, 13, 15, 30, 15, 13, 65, 13),
-                createMobExpEntry(writer, EntityType.SLIME, 480, 330, 10, 8, 25, 8, 8, 60, 8),
-                createMobExpEntry(writer, EntityType.SILVERFISH, 550, 480, 10, 8, 45, 8, 8, 55, 8),
+                // ===== EARLY GAME HOSTILES (Level 10-25) - Learning Curve =====
+                // These should teach players about stat requirements and hit rates
+                // Target: 50-65% hit rate for new players (0-25 DEX)
+                createMobEntry(writer, EntityType.ZOMBIE, 120, 90, 12, 15, 8, 35, 2, 5, 3),           // 65% hit rate vs 0 DEX
+                createMobEntry(writer, EntityType.ZOMBIE_VILLAGER, 130, 100, 12, 15, 8, 35, 4, 5, 5),  // Same stats, slightly more INT/LUK
+                createMobEntry(writer, EntityType.SKELETON, 140, 110, 15, 8, 25, 25, 8, 35, 45),       // HIGH CRIT - Korean style!
+                createMobEntry(writer, EntityType.SPIDER, 160, 120, 18, 12, 30, 30, 5, 28, 8),         // Fast, evasive
+                createMobEntry(writer, EntityType.CREEPER, 180, 140, 20, 5, 15, 20, 25, 12, 12),       // Tanky, magical
+                createMobEntry(writer, EntityType.SLIME, 100, 75, 10, 8, 12, 45, 3, 8, 5),            // Tanky but weak
+                createMobEntry(writer, EntityType.SILVERFISH, 80, 60, 8, 6, 25, 15, 4, 18, 8),        // Fast, annoying
+                createMobEntry(writer, EntityType.ENDERMITE, 220, 170, 22, 10, 35, 25, 15, 25, 15),     // Teleporter - evasive
 
-                // Mid-tier overworld (Level 15-30)
-                createMobExpEntry(writer, EntityType.CAVE_SPIDER, 2850, 1800, 18, 18, 50, 18, 18, 90, 33), // Archer spider
-                createMobExpEntry(writer, EntityType.DROWNED, 1500, 1250, 16, 16, 35, 16, 16, 75, 16),
-                createMobExpEntry(writer, EntityType.HUSK, 2100, 1500, 20, 20, 30, 22, 20, 70, 20),
-                createMobExpEntry(writer, EntityType.STRAY, 3000, 1800, 22, 22, 45, 22, 22, 95, 37), // Cold archer
-                createMobExpEntry(writer, EntityType.PHANTOM, 3500, 2000, 25, 25, 55, 25, 25, 85, 25),
-                createMobExpEntry(writer, EntityType.WITCH, 4500, 8500, 28, 26, 45, 28, 40, 75, 40), // Mage
+                // ===== MID GAME HOSTILES (Level 25-45) - Stat Check Begins =====
+                // Target: 40-55% hit rate for balanced players (25-50 DEX)
+                // Mobs get 15-35 evasion to challenge accuracy builds
+                createMobEntry(writer, EntityType.CAVE_SPIDER, 240, 180, 25, 18, 40, 35, 12, 45, 15),   // Fast + poisonous
+                createMobEntry(writer, EntityType.DROWNED, 200, 150, 22, 15, 20, 40, 15, 25, 10),       // Balanced but tanky
+                createMobEntry(writer, EntityType.HUSK, 260, 200, 28, 20, 12, 50, 8, 15, 8),          // Slow tank
+                createMobEntry(writer, EntityType.STRAY, 280, 210, 30, 12, 35, 35, 12, 40, 35),         // Archer with crit
+                createMobEntry(writer, EntityType.PHANTOM, 320, 240, 35, 20, 50, 30, 18, 35, 20),       // Flying menace
+                createMobEntry(writer, EntityType.WITCH, 420, 320, 40, 8, 18, 35, 45, 20, 25),         // Magical threat
 
-                // High-tier overworld (Level 30-45)
-                createMobExpEntry(writer, EntityType.PILLAGER, 4000, 2500, 32, 32, 50, 32, 32, 100, 47), // Archer
-                createMobExpEntry(writer, EntityType.GUARDIAN, 7850, 12000, 35, 35, 40, 35, 45, 85, 45), // Ocean mage
-                createMobExpEntry(writer, EntityType.RAVAGER, 8000, 5000, 38, 46, 20, 58, 38, 120, 41), // Tank
-                createMobExpEntry(writer, EntityType.VEX, 17500, 15250, 40, 40, 60, 40, 40, 95, 40),
-                createMobExpEntry(writer, EntityType.VINDICATOR, 45850, 28785, 42, 47, 30, 50, 42, 105, 47), // Warrior
+                // ===== HIGH-TIER OVERWORLD (Level 45-65) - Serious Business =====
+                // Target: 30-45% hit rate for specialized players (50-75 DEX)
+                // Mobs get 35-65 evasion, serious stat requirements
+                createMobEntry(writer, EntityType.PILLAGER, 580, 450, 50, 15, 22, 45, 12, 55, 15),      // Accurate ranged
+                createMobEntry(writer, EntityType.GUARDIAN, 750, 580, 55, 18, 15, 60, 40, 30, 20),      // Tanky magical
+                createMobEntry(writer, EntityType.RAVAGER, 1100, 850, 65, 45, 8, 85, 5, 12, 8),        // Pure physical tank
+                createMobEntry(writer, EntityType.VEX, 920, 700, 60, 25, 45, 30, 25, 40, 25),           // Evasive magical
+                createMobEntry(writer, EntityType.VINDICATOR, 1200, 900, 70, 35, 15, 55, 8, 20, 12),    // Strong melee
 
-                // Elite overworld (Level 45-65)
-                createMobExpEntry(writer, EntityType.EVOKER, 60752, 40794, 50, 48, 50, 50, 62, 90, 62), // Elite mage
-                createMobExpEntry(writer, EntityType.ILLUSIONER, 55750, 35218, 48, 46, 48, 48, 60, 88, 60), // Rare mage
-                createMobExpEntry(writer, EntityType.BOGGED, 28795, 16785, 45, 45, 55, 45, 45, 110, 60), // Trial archer
-                createMobExpEntry(writer, EntityType.BREEZE, 50175, 30148, 52, 52, 65, 52, 72, 95, 72), // Trial mage
-                createMobExpEntry(writer, EntityType.ELDER_GUARDIAN, 185000, 85000, 58, 68, 60, 78, 68, 175, 68), // Ocean boss
+                // ===== ELITE OVERWORLD (Level 65-85) - Korean MMO Difficulty =====
+                // Target: 20-35% hit rate for high-level players (75-99 DEX)
+                // Mobs get 65-100 evasion, require serious builds
+                createMobEntry(writer, EntityType.EVOKER, 1800, 1400, 80, 12, 25, 50, 55, 35, 35),      // Magical boss-tier
+                createMobEntry(writer, EntityType.ILLUSIONER, 1650, 1300, 78, 15, 30, 45, 50, 40, 40),  // Illusion master
+                createMobEntry(writer, EntityType.BOGGED, 1050, 800, 68, 18, 35, 50, 22, 50, 30),       // Swamp sniper
+                createMobEntry(writer, EntityType.BREEZE, 1450, 1100, 75, 20, 45, 40, 45, 50, 35),      // Wind elemental
+                createMobEntry(writer, EntityType.ELDER_GUARDIAN, 5500, 4200, 90, 30, 20, 95, 65, 40, 30), // Mini-boss tier
+                createMobEntry(writer, EntityType.ENDERMAN, 3200, 2500, 85, 25, 55, 60, 35, 75, 40),    // End mob in overworld - very dangerous
 
-                // Special rare spawns (High level for rarity)
-                createMobExpEntry(writer, EntityType.ENDERMITE, 19000, 17000, 45, 45, 70, 45, 45, 105, 45), // Rare spawn
-                createMobExpEntry(writer, EntityType.ENDERMAN, 120000, 65850, 65, 75, 112, 115, 75, 176, 75), // Overworld enderman
+                // ===== NETHER MOBS (Level 70-95) - Hell Incarnate =====
+                // Target: 15-30% hit rate even for max DEX players
+                // Mobs get 80-120 evasion, Korean MMO hellish difficulty
+                createMobEntry(writer, EntityType.PIGLIN, 1500, 1150, 75, 20, 18, 50, 8, 25, 15),       // Basic nether mob but tough
+                createMobEntry(writer, EntityType.HOGLIN, 1900, 1450, 80, 35, 15, 70, 5, 12, 8),        // Charging tank
+                createMobEntry(writer, EntityType.MAGMA_CUBE, 1100, 850, 70, 15, 22, 55, 18, 15, 12),   // Fire elemental
+                createMobEntry(writer, EntityType.ZOGLIN, 2100, 1600, 82, 40, 18, 75, 6, 15, 10),       // Undead hoglin - stronger
+                createMobEntry(writer, EntityType.PIGLIN_BRUTE, 2600, 2000, 88, 45, 12, 85, 8, 18, 15), // Elite guard
+                createMobEntry(writer, EntityType.BLAZE, 2200, 1700, 85, 15, 25, 45, 45, 35, 25),       // Flying fire demon
+                createMobEntry(writer, EntityType.WITHER_SKELETON, 2800, 2200, 90, 35, 18, 60, 15, 28, 18), // Undead warrior
+                createMobEntry(writer, EntityType.GHAST, 3200, 2500, 95, 12, 30, 50, 50, 40, 30),       // Flying artillery
+                createMobEntry(writer, EntityType.WITHER, 25000, 20000, 110, 35, 25, 95, 65, 40, 45),   // Boss - requires raid group
 
-                // === DEEP DARK/ANCIENT CITY MOBS (Level 95+) ===
-                createMobExpEntry(writer, EntityType.WARDEN, 258850, 185575, 110, 135, 95, 210, 135, 250, 135), // Ultimate challenge
+                // ===== END MOBS (Level 85-135) - Endgame Hell =====
+                // Target: 10-25% hit rate, these should feel impossible
+                // Massive evasion values, Korean MMO endgame difficulty
+                createMobEntry(writer, EntityType.SHULKER, 4500, 3500, 100, 18, 12, 100, 40, 25, 25),    // Teleporting fortress
+                createMobEntry(writer, EntityType.ENDER_DRAGON, 80000, 65000, 135, 45, 35, 150, 55, 50, 50), // Raid boss - impossible solo
 
-                // === NETHER MOBS (Level 66-95) - Mid-game progression ===
-                createMobExpEntry(writer, EntityType.PIGLIN, 45850, 28718, 68, 73, 82, 73, 73, 120, 73),
-                createMobExpEntry(writer, EntityType.HOGLIN, 50715, 32258, 70, 75, 75, 75, 70, 115, 70),
-                createMobExpEntry(writer, EntityType.MAGMA_CUBE, 8518, 6580, 66, 66, 70, 71, 71, 110, 66),
-                createMobExpEntry(writer, EntityType.ZOGLIN, 55775, 35122, 72, 77, 78, 77, 72, 125, 72),
-                createMobExpEntry(writer, EntityType.PIGLIN_BRUTE, 60347, 40785, 75, 85, 75, 87, 75, 130, 85), // Warrior
-                createMobExpEntry(writer, EntityType.BLAZE, 70985, 45578, 78, 78, 90, 81, 98, 100, 98), // Mage
-                createMobExpEntry(writer, EntityType.WITHER_SKELETON, 75153, 48128, 82, 92, 75, 94, 82, 130, 92), // Warrior
-                createMobExpEntry(writer, EntityType.GHAST, 80175, 50152, 85, 85, 90, 88, 105, 100, 105), // Flying mage
-                createMobExpEntry(writer, EntityType.WITHER, 801200, 685400, 88, 113, 95, 203, 113, 150, 113), // Nether boss
-
-                // === END MOBS (Level 95-135) - End game ===
-                createMobExpEntry(writer, EntityType.SHULKER, 185000, 120995, 105, 120, 100, 135, 110, 200, 115), // End tank
-                createMobExpEntry(writer, EntityType.ENDER_DRAGON, 900000, 700000, 135, 165, 120, 270, 165, 220, 160) // Final boss
+                // ===== DEEP DARK (Level 110+) - Korean MMO Ultimate Challenge =====
+                // Target: 5-15% hit rate, absolute endgame
+                createMobEntry(writer, EntityType.WARDEN, 65000, 52000, 125, 70, 25, 200, 50, 35, 40)  // THE ultimate challenge
         };
 
         return CompletableFuture.allOf(futures);
     }
 
-    private CompletableFuture<?> createMobExpFile(DataWriter writer, EntityType<?> entityType, MobExpEntry mobEntry) {
-        return createMobExpFile(writer, entityType, mobEntry.expReward(),mobEntry.classReward(), mobEntry.baseLevel(),
-                mobEntry.getStat(StatTypes.STRENGTH), mobEntry.getStat(StatTypes.AGILITY),
-                mobEntry.getStat(StatTypes.VITALITY), mobEntry.getStat(StatTypes.INTELLIGENCE),
-                mobEntry.getStat(StatTypes.DEXTERITY), mobEntry.getStat(StatTypes.LUCK));
-    }
+    // PROGRESSION GATES:
+    // Level 1-25: Learn basics, 50-70% hit rates
+    // Level 25-50: Stat planning required, 35-55% hit rates
+    // Level 50-75: Specialized builds needed, 20-40% hit rates
+    // Level 75-99: Perfect optimization required, 10-30% hit rates
+    // End Game: Group content only, 5-20% hit rates
 
-    private CompletableFuture<?> createMobExpEntry(DataWriter writer, EntityType<?> entityType,
-                                                   int expReward,int classReward, int baseLevel, int str, int agi, int vit, int intel, int dex, int luck) {
-        return createMobExpFile(writer, entityType, expReward, classReward, baseLevel, str, agi, vit, intel, dex, luck);
-    }
-
-    private CompletableFuture<?> createMobExpFile(DataWriter writer, EntityType<?> entityType,
-                                                  int expReward,int classReward, int baseLevel, int strength, int agility, int vitality,
-                                                  int intelligence, int dexterity, int luck) {
+    private CompletableFuture<?> createMobEntry(DataWriter writer, EntityType<?> entityType,
+                                                int expReward, int classReward, int baseLevel,
+                                                int strength, int agility, int vitality, int intelligence, int dexterity, int luck) {
 
         Identifier entityId = Registries.ENTITY_TYPE.getId(entityType);
         String namespace = entityId.getNamespace();
