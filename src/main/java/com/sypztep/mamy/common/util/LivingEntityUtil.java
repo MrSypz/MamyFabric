@@ -9,6 +9,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 
 public final class LivingEntityUtil {
     private static final float BASE_HIT_RATE = 0.67f, POINT_EFICENT = 0.0025f;
@@ -81,6 +83,14 @@ public final class LivingEntityUtil {
 
     public static float getHealthPercentage(LivingEntity living) {
         return living.getHealth() / living.getMaxHealth();
+    }
+
+    public static boolean isPlayerWetInRain(PlayerEntity player) {
+        World world = player.getWorld();
+        return world.isRaining() &&
+                player.isWet() &&
+                world.isSkyVisible(player.getBlockPos()) &&
+                world.getBiome(player.getBlockPos()).value().getPrecipitation(player.getBlockPos()) == Biome.Precipitation.RAIN;
     }
 
     public static boolean isHealthBelow(LivingEntity living, float threshold) {

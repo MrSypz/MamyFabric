@@ -133,17 +133,62 @@ public final class DamageUtil {
         }
     }
 
-
     /**
-     * Handles damage increases (attacker bonuses)
+     * Monster attack player with environmental modifiers
      */
-    public static float damageModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
+    public static float damageMonsterModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
         if (target.getWorld().isClient()) return amount;
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
 
         // Handle projectile critical sound
         if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) {
             LivingEntityUtil.playCriticalSound(projectile);
+        }
+
+        // ===== ENVIRONMENTAL DAMAGE CONDITIONS FOR MONSTERS =====
+        // Night damage multiplier for monsters
+        if (attacker.getWorld().isNight() && !LivingEntityUtil.isPlayer(attacker)) {
+            amount *= 2.0f;
+            debugLog("Night monster damage: %.1f → %.1f (×2.0)", amount / 2.0f, amount);
+        }
+
+        // Apply combat modifiers (existing logic)
+        float additiveBonus = 0.0f;
+        float multiplicativeMultiplier = 1.0f;
+
+        for (CombatModifierType modifierType : CombatModifierType.values()) {
+            float value = modifierType.getModifierValue(attacker, target, source, isCrit);
+
+            if (modifierType.getOperationType() == ModifierOperationType.ADD) {
+                additiveBonus += value;
+            } else if (modifierType.getOperationType() == ModifierOperationType.MULTIPLY) {
+                multiplicativeMultiplier *= (1.0f + value);
+            }
+        }
+
+        float finalDamage = (amount * multiplicativeMultiplier) + additiveBonus;
+
+        debugLog("Monster damage calculation: base %.1f × %.2fx + %.1f → final %.1f",
+                amount, multiplicativeMultiplier, additiveBonus, finalDamage);
+
+        DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(target, source, finalDamage);
+        return finalDamage;
+    }
+
+    /**
+     * Player attack monster with environmental modifiers
+     */
+    public static float damageModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
+        if (target.getWorld().isClient()) return amount;
+        if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
+
+        if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) {
+            LivingEntityUtil.playCriticalSound(projectile);
+        }
+
+        if (LivingEntityUtil.isPlayer(attacker) && LivingEntityUtil.isPlayerWetInRain((PlayerEntity) attacker)) {
+            amount = Math.max(0.1f, amount - 2.0f);
+            debugLog("Rain wet player damage reduction: %.1f → %.1f (-2.0)", amount + 2.0f, amount);
         }
 
         // Handle headshot damage
@@ -187,7 +232,8 @@ public final class DamageUtil {
 
         float finalDamage = (amount * multiplicativeMultiplier) + additiveBonus;
 
-        debugLog("Damage calculation: base %.1f × %.2fx + %.1f → final %.1f", amount, multiplicativeMultiplier, additiveBonus, finalDamage);
+        debugLog("Player damage calculation: base %.1f × %.2fx + %.1f → final %.1f",
+                amount, multiplicativeMultiplier, additiveBonus, finalDamage);
 
         DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(target, source, finalDamage);
         return finalDamage;
