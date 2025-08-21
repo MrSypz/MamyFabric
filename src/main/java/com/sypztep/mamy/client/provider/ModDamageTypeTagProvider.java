@@ -34,7 +34,10 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS);
 
 		// Bypasses Cooldown - Damage that doesn't trigger hurt immunity
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN)
+				.add(DamageTypes.MOB_ATTACK)
+				.add(DamageTypes.MOB_PROJECTILE)
+				.add(DamageTypes.MOB_ATTACK_NO_AGGRO);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
