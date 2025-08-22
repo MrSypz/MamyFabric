@@ -4,7 +4,6 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.NumberUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -68,12 +67,7 @@ public class PlayerClass {
     }
 
     // Legacy constructors for backward compatibility
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
-                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors,
-                       ResourceType primaryResource, double resourceAmount,
-                       JobBonuses jobBonuses, String description,
-                       int maxLevel, boolean isTranscendent) {
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, ResourceType primaryResource, double resourceAmount, JobBonuses jobBonuses, String description, int maxLevel, boolean isTranscendent) {
         this.id = id;
         this.tier = tier;
         this.branch = branch;
@@ -96,31 +90,17 @@ public class PlayerClass {
     }
 
     // Overloaded constructor without growth factors (for backward compatibility)
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
-                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, double resourceAmount,
-                       JobBonuses jobBonuses, String description,
-                       int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers,
-                new HashMap<>(), primaryResource, resourceAmount, jobBonuses, description, maxLevel, isTranscendent);
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, ResourceType primaryResource, double resourceAmount, JobBonuses jobBonuses, String description, int maxLevel, boolean isTranscendent) {
+        this(id, tier, branch, displayName, color, attributeModifiers, new HashMap<>(), primaryResource, resourceAmount, jobBonuses, description, maxLevel, isTranscendent);
     }
 
     // Keep existing constructors for backward compatibility
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
-                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors,
-                       ResourceType primaryResource, String description,
-                       int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers, growthFactors,
-                primaryResource, 0, null, description, maxLevel, isTranscendent);
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, ResourceType primaryResource, String description, int maxLevel, boolean isTranscendent) {
+        this(id, tier, branch, displayName, color, attributeModifiers, growthFactors, primaryResource, 0, null, description, maxLevel, isTranscendent);
     }
 
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color,
-                       Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers,
-                       ResourceType primaryResource, String description,
-                       int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers,
-                new HashMap<>(), primaryResource, 0, null, description, maxLevel, isTranscendent);
+    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, ResourceType primaryResource, String description, int maxLevel, boolean isTranscendent) {
+        this(id, tier, branch, displayName, color, attributeModifiers, new HashMap<>(), primaryResource, 0, null, description, maxLevel, isTranscendent);
     }
 
     // Builder class
@@ -142,8 +122,7 @@ public class PlayerClass {
         private int maxLevel = 50;
         private boolean isTranscendent = false;
 
-        public Builder(String id, int tier, int branch, String displayName, Formatting color,
-                       ResourceType primaryResource, String description) {
+        public Builder(String id, int tier, int branch, String displayName, Formatting color, ResourceType primaryResource, String description) {
             this.id = id;
             this.tier = tier;
             this.branch = branch;
@@ -204,20 +183,8 @@ public class PlayerClass {
     }
 
     // Static factory method for cleaner API
-    public static Builder create(String id, int tier, int branch, String displayName,
-                                 Formatting color, ResourceType primaryResource, String description) {
+    public static Builder create(String id, int tier, int branch, String displayName, Formatting color, ResourceType primaryResource, String description) {
         return new Builder(id, tier, branch, displayName, color, primaryResource, description);
-    }
-    @Deprecated
-    public void applyJobBonuses(LivingLevelComponent statsComponent) {
-        if (jobBonuses != null) {
-            statsComponent.getStatByType(StatTypes.STRENGTH).setClassBonus(jobBonuses.str());
-            statsComponent.getStatByType(StatTypes.AGILITY).setClassBonus(jobBonuses.agi());
-            statsComponent.getStatByType(StatTypes.VITALITY).setClassBonus(jobBonuses.vit());
-            statsComponent.getStatByType(StatTypes.INTELLIGENCE).setClassBonus(jobBonuses.intel());
-            statsComponent.getStatByType(StatTypes.DEXTERITY).setClassBonus(jobBonuses.dex());
-            statsComponent.getStatByType(StatTypes.LUCK).setClassBonus(jobBonuses.luk());
-        }
     }
 
     public PlayerClass addRequirement(PlayerClass previousClass, int requiredLevel) {
@@ -265,9 +232,7 @@ public class PlayerClass {
     }
 
     public List<PlayerClass> getTranscendentEvolutions() {
-        return nextClasses.stream()
-                .filter(PlayerClass::isTranscendent)
-                .toList();
+        return nextClasses.stream().filter(PlayerClass::isTranscendent).toList();
     }
 
     /**
@@ -323,11 +288,7 @@ public class PlayerClass {
                 }
 
                 // Use ADD_VALUE for all class bonuses (flat amounts)
-                attribute.addPersistentModifier(new EntityAttributeModifier(
-                        modifierId,
-                        effectValue,
-                        EntityAttributeModifier.Operation.ADD_VALUE
-                ));
+                attribute.addPersistentModifier(new EntityAttributeModifier(modifierId, effectValue, EntityAttributeModifier.Operation.ADD_VALUE));
             }
         }
 
@@ -351,6 +312,29 @@ public class PlayerClass {
             float healthPercentage = currentHealth / oldMaxHealth;
             player.setHealth(healthPercentage * newMaxHealth);
         }
+    }
+
+    public JobBonuses getProgressiveJobBonuses(int currentClassLevel) {
+        if (jobBonuses == null || currentClassLevel <= 0) {
+            return JobBonuses.NONE;
+        }
+
+        int maxLevel = getMaxLevel();
+        int level = Math.min(currentClassLevel, maxLevel);
+
+        // Calculate progression percentage (0.0 to 1.0)
+        double progression = (double) level / maxLevel;
+
+        // Apply progression to each stat
+        short progressiveStr = (short) Math.floor(jobBonuses.str() * progression);
+        short progressiveAgi = (short) Math.floor(jobBonuses.agi() * progression);
+        short progressiveVit = (short) Math.floor(jobBonuses.vit() * progression);
+        short progressiveInt = (short) Math.floor(jobBonuses.intel() * progression);
+        short progressiveDex = (short) Math.floor(jobBonuses.dex() * progression);
+        short progressiveLuk = (short) Math.floor(jobBonuses.luk() * progression);
+
+        return new JobBonuses(progressiveStr, progressiveAgi, progressiveVit,
+                progressiveInt, progressiveDex, progressiveLuk);
     }
 
     public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {

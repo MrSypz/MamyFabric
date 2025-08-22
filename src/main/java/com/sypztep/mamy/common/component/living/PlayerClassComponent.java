@@ -48,6 +48,7 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
         performBatchUpdate(() -> {
             classManager.getClassLevelSystem().setLevel(level);
             classManager.getClassLevelSystem().setExperience(0);
+            classManager.applyJobBonusesToStats(player);
         });
     }
 
