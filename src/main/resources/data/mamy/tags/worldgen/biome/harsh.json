@@ -1,0 +1,23 @@
+{
+  "values": [
+    "minecraft:taiga",
+    "minecraft:old_growth_pine_taiga",
+    "minecraft:old_growth_spruce_taiga",
+    "minecraft:snowy_taiga",
+    "minecraft:windswept_hills",
+    "minecraft:windswept_forest",
+    "minecraft:windswept_gravelly_hills",
+    "minecraft:ocean",
+    "minecraft:deep_ocean",
+    "minecraft:cold_ocean",
+    "minecraft:deep_cold_ocean",
+    "minecraft:lukewarm_ocean",
+    "minecraft:deep_lukewarm_ocean",
+    "minecraft:warm_ocean",
+    "minecraft:frozen_ocean",
+    "minecraft:deep_frozen_ocean",
+    "minecraft:jungle",
+    "minecraft:sparse_jungle",
+    "minecraft:bamboo_jungle"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:forest",
+    "minecraft:birch_forest",
+    "minecraft:dark_forest",
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp",
+    "minecraft:river",
+    "minecraft:beach",
+    "minecraft:mushroom_fields"
+  ]
+}

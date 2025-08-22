@@ -6,6 +6,7 @@ import net.minecraft.entity.damage.DamageType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.world.biome.Biome;
 
 public final class ModTags {
     public static class DamageTags {
@@ -51,5 +52,14 @@ public final class ModTags {
         // === SPECIAL ITEMS ===
         public static final TagKey<Item> HOLY_ITEMS = TagKey.of(RegistryKeys.ITEM, Mamy.id("holy_items"));
         public static final TagKey<Item> MAGIC_ITEMS = TagKey.of(RegistryKeys.ITEM, Mamy.id("magic_items"));
+    }
+
+    // ==================== BIOME TAG KEYS ====================
+    public static class BiomeTags {
+        public static final TagKey<Biome> PEACEFUL_BIOMES = TagKey.of(RegistryKeys.BIOME, Mamy.id("peaceful"));
+        public static final TagKey<Biome> MODERATE_BIOMES = TagKey.of(RegistryKeys.BIOME, Mamy.id("moderate"));
+        public static final TagKey<Biome> HARSH_BIOMES = TagKey.of(RegistryKeys.BIOME, Mamy.id("harsh"));
+        public static final TagKey<Biome> EXTREME_BIOMES = TagKey.of(RegistryKeys.BIOME, Mamy.id("extreme"));
+        public static final TagKey<Biome> HELLISH_BIOMES = TagKey.of(RegistryKeys.BIOME, Mamy.id("hellish"));
     }
 }
