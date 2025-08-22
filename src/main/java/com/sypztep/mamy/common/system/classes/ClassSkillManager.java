@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.classes;
 
+import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -16,22 +17,11 @@ import java.util.stream.Collectors;
 
 public class ClassSkillManager {
     private final PlayerEntity player;
-    private final Map<Identifier, Integer> skillLevels = new HashMap<>(); // Skill ID -> Level
+    private final Map<Identifier, Integer> skillLevels = new HashMap<>(); // Skill ID, Skill Level
     private final Identifier[] boundSkills = new Identifier[8]; // 8 skill slots
 
     public ClassSkillManager(PlayerEntity player) {
         this.player = player;
-        initializeBasicSkills();
-    }
-
-    // ====================
-    // INITIALIZATION
-    // ====================
-
-    private void initializeBasicSkills() {
-        // Auto-learn basic attack for all players (free skill)
-        learnSkill(SkillRegistry.FIRSTAID, true);
-//        bindSkill(0, SkillRegistry.FIRSTAID);
     }
 
     // ====================
@@ -64,7 +54,6 @@ public class ClassSkillManager {
             int cost = skill.getBaseClassPointCost();
             if (classManager.getClassStatPoints() < cost) return;
 
-            // Spend class points
             classManager.getClassLevelSystem().subtractStatPoints((short) cost);
         }
 
@@ -73,25 +62,9 @@ public class ClassSkillManager {
         // Apply passive effects if it's a passive skill
         if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, 1);
 
-        if (player instanceof ServerPlayerEntity serverPlayer && !free) {
+        if (player instanceof ServerPlayerEntity serverPlayer && !free)
             SendToastPayloadS2C.sendInfo(serverPlayer, "Learned: " + skill.getName());
-        }
-    }
 
-    /**
-     * Free learning method for basic skills
-     */
-    private void learnSkill(Identifier skillId, boolean free) {
-        if (hasLearnedSkill(skillId)) return;
-        if (free) {
-            skillLevels.put(skillId, 1);
-
-            // Apply passive effects if it's a passive skill
-            Skill skill = SkillRegistry.getSkill(skillId);
-            if (skill instanceof PassiveSkill passiveSkill) {
-                passiveSkill.applyPassiveEffects(player, 1);
-            }
-        }
     }
 
     public void unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
@@ -102,25 +75,26 @@ public class ClassSkillManager {
 
         if (skill == null) return;
 
-        if (skill.isDefaultSkill() && currentLevel <= 1) {
-            return; // Can't unlearn default skills completely
+        // PREVENT UNLEARNING BASIC SKILL - BUT ONLY IF IT'S LEARNED
+        if (skillId.equals(SkillRegistry.BASICSKILL)) {
+            if (player instanceof ServerPlayerEntity serverPlayer) SendToastPayloadS2C.sendInfo(serverPlayer, "Basic Skill cannot be unlearned!");
+            return;
         }
 
+        if (skill.isDefaultSkill() && currentLevel <= 1)
+            return; // Can't unlearn default skills completely
+
+
         if (currentLevel <= 1) {
-            // Remove passive effects before removing skill
-            if (skill instanceof PassiveSkill passiveSkill) {
+            if (skill instanceof PassiveSkill passiveSkill)
                 passiveSkill.removePassiveEffects(player);
-            }
 
             // Remove skill completely if at level 1
             skillLevels.remove(skillId);
 
             // Unbind from all slots
-            for (int i = 0; i < boundSkills.length; i++) {
-                if (skillId.equals(boundSkills[i])) {
-                    boundSkills[i] = null;
-                }
-            }
+            for (int i = 0; i < boundSkills.length; i++)
+                if (skillId.equals(boundSkills[i])) boundSkills[i] = null;
 
             // Return the base learning cost
             classManager.getClassLevelSystem().addStatPoints((short) skill.getBaseClassPointCost());
@@ -131,18 +105,13 @@ public class ClassSkillManager {
 
             if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, newLevel);
 
-
             // Return the upgrade cost
             classManager.getClassLevelSystem().addStatPoints((short) skill.getUpgradeClassPointCost());
         }
 
         if (player instanceof ServerPlayerEntity serverPlayer) {
-            if (currentLevel <= 1) {
-                SendToastPayloadS2C.sendInfo(serverPlayer, "Unlearned: " + skill.getName());
-            } else {
-                SendToastPayloadS2C.sendInfo(serverPlayer,
-                        skill.getName() + " downgraded to level " + (currentLevel - 1));
-            }
+            if (currentLevel <= 1) SendToastPayloadS2C.sendInfo(serverPlayer, "Unlearned: " + skill.getName());
+             else SendToastPayloadS2C.sendInfo(serverPlayer, skill.getName() + " downgraded to level " + (currentLevel - 1));
         }
     }
 
@@ -169,19 +138,16 @@ public class ClassSkillManager {
         // Reapply passive effects with new level
         if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, newLevel);
 
-
         if (player instanceof ServerPlayerEntity serverPlayer) {
-            SendToastPayloadS2C.sendInfo(serverPlayer,
-                    "Upgraded " + skill.getName() + " to level " + newLevel);
+            SendToastPayloadS2C.sendInfo(serverPlayer, "Upgraded " + skill.getName() + " to level " + newLevel);
         }
     }
     @Deprecated
     public void reapplyPassiveSkills() {
         for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet()) {
             Skill skill = SkillRegistry.getSkill(entry.getKey());
-            if (skill instanceof PassiveSkill passiveSkill) {
+            if (skill instanceof PassiveSkill passiveSkill)
                 passiveSkill.applyPassiveEffects(player, entry.getValue());
-            }
         }
     }
 
@@ -206,12 +172,10 @@ public class ClassSkillManager {
         if (allowPassive) {
             return new HashSet<>(skillLevels.keySet());
         } else {
-            return skillLevels.keySet().stream()
-                    .filter(skillId -> {
-                        Skill skill = SkillRegistry.getSkill(skillId);
-                        return skill != null && !(skill instanceof PassiveSkill);
-                    })
-                    .collect(Collectors.toSet());
+            return skillLevels.keySet().stream().filter(skillId -> {
+                Skill skill = SkillRegistry.getSkill(skillId);
+                return skill != null && !(skill instanceof PassiveSkill);
+            }).collect(Collectors.toSet());
         }
     }
 
@@ -251,6 +215,7 @@ public class ClassSkillManager {
 
     /**
      * Custom logic to add the class skill
+     *
      * @param newClassId
      * @param level
      */
@@ -261,8 +226,7 @@ public class ClassSkillManager {
 
     public void onTranscendence() {
         clearAllSkillSlots();
-        // Re-bind basic attack
-        bindSkill(0, SkillRegistry.FIRSTAID);
+        // No auto-rebinding
     }
 
     // ====================
@@ -272,61 +236,22 @@ public class ClassSkillManager {
     public void writeToNbt(NbtCompound nbt) {
         // Save skill levels
         NbtCompound skillLevelsNbt = new NbtCompound();
-        for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet()) {
+        for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet())
             skillLevelsNbt.putInt(entry.getKey().toString(), entry.getValue());
-        }
+
         nbt.put("SkillLevels", skillLevelsNbt);
 
         // Save bound skills
         NbtList boundSkillsNbt = new NbtList();
         for (Identifier skillId : boundSkills) {
-            if (skillId != null) {
+            if (skillId != null)
                 boundSkillsNbt.add(NbtString.of(skillId.toString()));
-            } else {
+             else
                 boundSkillsNbt.add(NbtString.of(""));
-            }
         }
         nbt.put("BoundSkills", boundSkillsNbt);
     }
-    @Deprecated
-    public void oldreadFromNbt(NbtCompound nbt) {
-        // Read skill levels
-        skillLevels.clear();
-        if (nbt.contains("SkillLevels")) {
-            NbtCompound skillLevelsNbt = nbt.getCompound("SkillLevels");
-            for (String key : skillLevelsNbt.getKeys()) {
-                try {
-                    Identifier skillId = Identifier.of(key);
-                    int level = skillLevelsNbt.getInt(key);
-                    skillLevels.put(skillId, level);
-                } catch (Exception e) {
-                    // Skip invalid entries
-                }
-            }
-        }
 
-        // Read bound skills
-        Arrays.fill(boundSkills, null);
-        if (nbt.contains("BoundSkills")) {
-            NbtList boundSkillsNbt = nbt.getList("BoundSkills", 8);
-            for (int i = 0; i < Math.min(boundSkillsNbt.size(), boundSkills.length); i++) {
-                String skillIdStr = boundSkillsNbt.getString(i);
-                if (!skillIdStr.isEmpty()) {
-                    try {
-                        boundSkills[i] = Identifier.of(skillIdStr);
-                    } catch (Exception e) {
-                        // Skip invalid entries
-                    }
-                }
-            }
-        }
-
-        // Ensure basic attack is still learned
-        if (!hasLearnedSkill(SkillRegistry.FIRSTAID)) {
-            learnSkill(SkillRegistry.FIRSTAID, true);
-        }
-    }
-    //TODO: find better solution to return classlevel point
     public void readFromNbt(NbtCompound nbt) {
         // Read skill levels
         skillLevels.clear();
@@ -337,17 +262,16 @@ public class ClassSkillManager {
                     Identifier skillId = Identifier.of(key);
                     int level = skillLevelsNbt.getInt(key);
 
-                    if (SkillRegistry.getSkill(skillId) != null) {
+                    if (SkillRegistry.getSkill(skillId) != null)
                         skillLevels.put(skillId, level);
-                    } else {
-                        System.out.println("[ClassSkillManager] Skipped unknown skill: " + skillId);
-                    }
+                     else
+                        Mamy.LOGGER.info("[ClassSkillManager] Skipped unknown skill: {}", skillId);
+
                 } catch (Exception e) {
                     // Skip invalid entries
                 }
             }
         }
-
         // Read bound skills
         Arrays.fill(boundSkills, null);
         if (nbt.contains("BoundSkills")) {
@@ -358,21 +282,16 @@ public class ClassSkillManager {
                     try {
                         Identifier skillId = Identifier.of(skillIdStr);
 
-                        if (SkillRegistry.getSkill(skillId) != null && hasLearnedSkill(skillId)) {
+                        if (SkillRegistry.getSkill(skillId) != null && hasLearnedSkill(skillId))
                             boundSkills[i] = skillId;
-                        } else {
-                            System.out.println("[ClassSkillManager] Removed invalid bound skill: " + skillId);
-                        }
+                         else
+                            Mamy.LOGGER.info("[ClassSkillManager] Removed invalid bound skill: {}", skillId);
+
                     } catch (Exception e) {
                         // Skip invalid entries
                     }
                 }
             }
-        }
-
-        // Ensure basic attack is still learned
-        if (!hasLearnedSkill(SkillRegistry.FIRSTAID)) {
-            learnSkill(SkillRegistry.FIRSTAID, true);
         }
     }
 }

@@ -2,10 +2,7 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
-import com.sypztep.mamy.common.system.skill.novice.FirstAidSkill;
-import com.sypztep.mamy.common.system.skill.swordman.BloodlustSkill;
-import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
-import com.sypztep.mamy.common.system.skill.thief.passive.DoubleAttackPassiveSkill;
+import com.sypztep.mamy.common.system.skill.novice.BasicSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -13,7 +10,7 @@ import java.util.*;
 public class SkillRegistry {
     private static final Map<Identifier, Skill> SKILLS = new HashMap<>();
 
-    // Static skill IDs
+    public static final Identifier BASICSKILL = Mamy.id("basic_skill");
     public static final Identifier FIRSTAID = Mamy.id("first_aid");
 //    public static final Identifier BLOODLUST = Mamy.id("bloodlust");
 //    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
@@ -28,7 +25,8 @@ public class SkillRegistry {
 //    public static final Identifier DIVINE_JUDGMENT = Mamy.id("divine_judgment");
 
     public static void registerSkills() {
-        register(new FirstAidSkill(FIRSTAID));
+        register(new BasicSkill(BASICSKILL));
+//        register(new FirstAidSkill(FIRSTAID));
 //        register(new BloodlustSkill(BLOODLUST));
 //        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
 //        register(new DoubleAttackPassiveSkill(DOUBLE_ATTACK));
