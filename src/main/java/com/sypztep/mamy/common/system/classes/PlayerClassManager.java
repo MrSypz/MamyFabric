@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.system.level.ClassLevelSystem;
+import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.Set;
@@ -29,13 +29,6 @@ public class PlayerClassManager {
     private float currentResource;
     private int resourceRegenTick = 0;
 
-    // NEW: Idle detection for faster regen
-    private Vec3d lastPosition;
-    private float lastYaw, lastPitch;
-    private int idleTicks = 0;
-    private static final int IDLE_THRESHOLD = 100; // 5 seconds
-    private boolean isIdle = false;
-
     private final ClassSkillManager skillManager;
 
     public PlayerClassManager(PlayerEntity player) {
@@ -45,11 +38,6 @@ public class PlayerClassManager {
         this.currentResource = currentClass.getBaseMaxResource();
         this.hasTranscended = false;
         this.skillManager = new ClassSkillManager(player);
-
-        // Initialize idle tracking
-        this.lastPosition = player.getPos();
-        this.lastYaw = player.getYaw();
-        this.lastPitch = player.getPitch();
     }
 
     // ====================
@@ -95,7 +83,17 @@ public class PlayerClassManager {
     }
 
     public boolean canEvolveTo(PlayerClass targetClass) {
-        return targetClass.canEvolveFrom(currentClass, getClassLevel());
+        if (!targetClass.canEvolveFrom(currentClass, getClassLevel())) {
+            return false;
+        }
+
+        if (currentClass.getTier() == 0) {
+            return getClassLevel() == currentClass.getMaxLevel() // Max lvl = 10
+                    && getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
+        } else {
+            return getClassLevel() >= 45
+                    && getClassStatPoints() == 0;
+        }
     }
 
     public List<PlayerClass> getAvailableEvolutions() {
@@ -110,21 +108,26 @@ public class PlayerClassManager {
         return !getAvailableTranscendence().isEmpty();
     }
 
-    private void applyJobBonusesToStats(PlayerEntity player) {
+    public void applyJobBonusesToStats(PlayerEntity player) {
         LivingLevelComponent statsComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
         if (statsComponent == null) return;
-        statsComponent.performBatchUpdate(()-> {
+
+        statsComponent.performBatchUpdate(() -> {
             if (currentClass != null) {
-                statsComponent.getStatByType(StatTypes.STRENGTH).setClassBonus(currentClass.getJobBonuses().str());
-                statsComponent.getStatByType(StatTypes.AGILITY).setClassBonus(currentClass.getJobBonuses().agi());
-                statsComponent.getStatByType(StatTypes.VITALITY).setClassBonus(currentClass.getJobBonuses().vit());
-                statsComponent.getStatByType(StatTypes.INTELLIGENCE).setClassBonus(currentClass.getJobBonuses().intel());
-                statsComponent.getStatByType(StatTypes.DEXTERITY).setClassBonus(currentClass.getJobBonuses().dex());
-                statsComponent.getStatByType(StatTypes.LUCK).setClassBonus(currentClass.getJobBonuses().luk());
+                PlayerClass.JobBonuses progressiveBonuses = currentClass.getProgressiveJobBonuses(getClassLevel());
+
+                statsComponent.getStatByType(StatTypes.STRENGTH).setClassBonus(progressiveBonuses.str());
+                statsComponent.getStatByType(StatTypes.AGILITY).setClassBonus(progressiveBonuses.agi());
+                statsComponent.getStatByType(StatTypes.VITALITY).setClassBonus(progressiveBonuses.vit());
+                statsComponent.getStatByType(StatTypes.INTELLIGENCE).setClassBonus(progressiveBonuses.intel());
+                statsComponent.getStatByType(StatTypes.DEXTERITY).setClassBonus(progressiveBonuses.dex());
+                statsComponent.getStatByType(StatTypes.LUCK).setClassBonus(progressiveBonuses.luk());
+
                 statsComponent.refreshAllStatEffectsInternal();
             }
         });
     }
+
 
     public boolean evolveToClass(PlayerClass newClass) {
         if (!canEvolveTo(newClass)) return false;
@@ -257,8 +260,21 @@ public class PlayerClassManager {
     }
 
     private void onClassLevelUp(int newLevel) {
-        if (player instanceof ServerPlayerEntity serverPlayer)
+        applyJobBonusesToStats(player);
+
+        if (player instanceof ServerPlayerEntity serverPlayer) {
             SendToastPayloadS2C.sendClassLevelUp(serverPlayer, newLevel, currentClass.getDisplayName());
+
+            // Optional: Show job bonus increase notification
+            if (newLevel > 1) {
+                PlayerClass.JobBonuses oldBonuses = currentClass.getProgressiveJobBonuses(newLevel - 1);
+                PlayerClass.JobBonuses newBonuses = currentClass.getProgressiveJobBonuses(newLevel);
+
+                if (!oldBonuses.equals(newBonuses)) {
+                    SendToastPayloadS2C.sendInfo(serverPlayer, "Job bonuses increased!");
+                }
+            }
+        }
     }
 
     // ====================
@@ -342,19 +358,13 @@ public class PlayerClassManager {
      * Handle resource regeneration - called from component tick
      */
     public void tickResourceRegeneration() {
-        // Update idle detection
-        updateIdleDetection();
-
         resourceRegenTick++;
 
         // Get regen rate from attributes (in seconds)
-        double baseRegenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE);
-
-        // Apply idle bonus (faster regen when idle)
-        double effectiveRegenRateSeconds = isIdle ? baseRegenRateSeconds * 0.5 : baseRegenRateSeconds; // 50% faster when idle
+        double regenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE);
 
         // Convert to ticks
-        int regenIntervalTicks = (int)(effectiveRegenRateSeconds * 20);
+        int regenIntervalTicks = (int)(regenRateSeconds * 20);
 
         if (resourceRegenTick >= regenIntervalTicks) {
             resourceRegenTick = 0;
@@ -362,48 +372,9 @@ public class PlayerClassManager {
             float maxResource = getMaxResource();
             if (currentResource < maxResource) {
                 double regenAmount = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN);
-
-                addResource((float)(regenAmount));
-
-                // Debug message (remove in production)
-                if (player instanceof ServerPlayerEntity serverPlayer) {
-                    String idleText = isIdle ? " (Idle Bonus)" : "";
-                    serverPlayer.sendMessage(Text.literal(String.format("Regenerated %.1f %s%s",
-                            regenAmount,
-                            currentClass.getPrimaryResource().getDisplayName(),
-                            idleText)).formatted(Formatting.GREEN), true);
-                }
+                addResource((float)regenAmount);
             }
         }
-    }
-
-    /**
-     * Track player movement and actions to detect idle state
-     */
-    private void updateIdleDetection() {
-        Vec3d currentPos = player.getPos();
-        float currentYaw = player.getYaw();
-        float currentPitch = player.getPitch();
-
-        // Check if player moved or rotated
-        boolean hasMoved = !currentPos.equals(lastPosition);
-        boolean hasRotated = Math.abs(currentYaw - lastYaw) > 1.0f || Math.abs(currentPitch - lastPitch) > 1.0f;
-
-        if (hasMoved || hasRotated) {
-            // Player is active
-            idleTicks = 0;
-            isIdle = false;
-        } else {
-            idleTicks++;
-            if (idleTicks >= IDLE_THRESHOLD && !isIdle)
-                isIdle = true;
-
-        }
-
-        // Update tracking variables
-        lastPosition = currentPos;
-        lastYaw = currentYaw;
-        lastPitch = currentPitch;
     }
 
     // ====================
@@ -434,9 +405,6 @@ public class PlayerClassManager {
         nbt.putFloat("CurrentResource", currentResource);
         nbt.putInt("ResourceRegenTick", resourceRegenTick);
 
-        nbt.putInt("IdleTicks", idleTicks);
-        nbt.putBoolean("IsIdle", isIdle);
-
         // Save class skills
         NbtCompound skillsTag = new NbtCompound();
         skillManager.writeToNbt(skillsTag);
@@ -456,9 +424,6 @@ public class PlayerClassManager {
         // Load resource state - DON'T clamp yet!
         currentResource = nbt.getFloat("CurrentResource");
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
-
-        idleTicks = nbt.getInt("IdleTicks");
-        isIdle = nbt.getBoolean("IsIdle");
 
         // REMOVE THIS LINE - clamp later after attributes are loaded
         // currentResource = Math.min(currentResource, getMaxResource());
@@ -480,28 +445,82 @@ public class PlayerClassManager {
     }
 
     public boolean isReadyForEvolution() {
-        int requiredLevel = getEvolutionRequiredLevel();
-        return getClassLevel() >= requiredLevel && !getAvailableEvolutions().isEmpty();
+        // Novice class has special requirements
+        if (currentClass.getTier() == 0) {
+            // Novice requirements: Level 10 + Basic Skill Level 10
+            boolean levelReady = getClassLevel() >= 10;
+            boolean basicSkillReady = getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
+            boolean hasEvolutions = !getAvailableEvolutions().isEmpty();
+
+            return levelReady && basicSkillReady && hasEvolutions;
+        } else {
+            // Other classes: Level 45 + All skill points spent (= 0)
+            boolean levelReady = getClassLevel() >= 45;
+            boolean skillPointsSpent = getClassStatPoints() == 0;
+            boolean hasEvolutions = !getAvailableEvolutions().isEmpty();
+
+            return levelReady && skillPointsSpent && hasEvolutions;
+        }
     }
 
     public boolean isReadyForTranscendence() {
-        int requiredLevel = getEvolutionRequiredLevel();
-        return getClassLevel() >= requiredLevel && !getAvailableTranscendence().isEmpty();
+        // Similar logic for transcendence
+        if (currentClass.getTier() == 0) {
+            // Novice shouldn't be able to transcend directly
+            return false;
+        } else {
+            // Other classes: Level 45 + All skill points spent (= 0)
+            boolean levelReady = getClassLevel() >= 45;
+            boolean skillPointsSpent = getClassStatPoints() == 0;
+            boolean hasTranscendence = !getAvailableTranscendence().isEmpty();
+
+            return levelReady && skillPointsSpent && hasTranscendence;
+        }
     }
 
     public int getEvolutionRequiredLevel() {
-        if (currentClass.getTier() == 0)  // Tier 0 = Novice
-            return currentClass.getMaxLevel();
-
-        return 45;
+        if (currentClass.getTier() == 0) {  // Novice
+            return currentClass.getMaxLevel(); // novice max lvl are 10
+        }
+        return 45; // All other classes
     }
+
+
     public boolean reachCap() {
         return currentClass.getTier() != 0;
     }
 
-    public float getClassProgressPercentage() {
-        return classLevelSystem.getExperiencePercentage();
+    public String getEvolutionStatusMessage() {
+        if (currentClass.getTier() == 0) { // Novice
+            boolean levelReady = getClassLevel() >= 10;
+            boolean basicSkillReady = getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
+
+            if (!levelReady && !basicSkillReady) {
+                return "Requires Level 10 and Basic Skill Level 10";
+            } else if (!levelReady) {
+                return "Requires Level 10";
+            } else if (!basicSkillReady) {
+                return "Requires Basic Skill Level 10";
+            } else {
+                return "Ready to evolve!";
+            }
+        } else {
+            // For other classes
+            boolean levelReady = getClassLevel() >= 45;
+            boolean skillPointsSpent = getClassStatPoints() == 0;
+
+            if (!levelReady && skillPointsSpent) {
+                return "Requires Level 45 and spending all skill points";
+            } else if (!levelReady) {
+                return "Requires Level 45";
+            } else if (skillPointsSpent) {
+                return "Must spend all " + getClassStatPoints() + " skill points";
+            } else {
+                return "Ready to evolve!";
+            }
+        }
     }
+
 
     // Future getter for class skills
     public ClassSkillManager getSkillManager() {
