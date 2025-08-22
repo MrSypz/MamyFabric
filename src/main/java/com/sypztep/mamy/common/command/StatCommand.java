@@ -239,7 +239,7 @@ public class StatCommand {
         for (StatTypes statType : StatTypes.values()) {
             Stat stat = component.getStatByType(statType);
             stats.append(String.format("§6%s §8(§7%s§8):\n", statType.getName().toUpperCase(), statType.getAka()));
-            stats.append(String.format("  §7Current Value: §f%d\n", stat.getValue()));
+            stats.append(String.format("  §7Current Value: §f%d\n", stat.getCurrentValue()));
             stats.append(String.format("  §7Base Value: §f%d\n", stat.getBaseValue()));
             stats.append(String.format("  §7Points Used: §e%d\n", stat.getTotalPointsUsed()));
             stats.append(String.format("  §7Next Upgrade Cost: §e%d\n\n", stat.getIncreasePerPoint()));
@@ -260,7 +260,7 @@ public class StatCommand {
         LivingLevelComponent component = ModEntityComponents.LIVINGLEVEL.get(player);
         Stat stat = component.getStatByType(statType);
 
-        short oldValue = stat.getValue();
+        short oldValue = stat.getCurrentValue();
 
         component.performBatchUpdate(() -> {
             stat.setPoints((short) value);
@@ -294,7 +294,7 @@ public class StatCommand {
         LivingLevelComponent component = ModEntityComponents.LIVINGLEVEL.get(player);
         Stat stat = component.getStatByType(statType);
 
-        short oldValue = stat.getValue();
+        short oldValue = stat.getCurrentValue();
         short newValue = (short) Math.min(oldValue + value, ModConfig.maxStatValue);
 
         if (newValue == oldValue) {
@@ -371,7 +371,7 @@ public class StatCommand {
                         "§7Available points: §e%d\n" +
                         "§7Can afford: §%s",
                 player.getName().getString(), statType.getAka(),
-                stat.getValue(),
+                stat.getCurrentValue(),
                 stat.getIncreasePerPoint(),
                 component.getAvailableStatPoints(),
                 component.canIncreaseStat(statType) ? "aYes" : "cNo"

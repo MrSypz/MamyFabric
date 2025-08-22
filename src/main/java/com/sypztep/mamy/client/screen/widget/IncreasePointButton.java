@@ -38,7 +38,7 @@ public final class IncreasePointButton extends ActionWidgetButton {
             return;
         }
 
-        if (stat.getValue() >= ModConfig.maxStatValue) {
+        if (stat.getCurrentValue() >= ModConfig.maxStatValue) {
             return;
         }
 
@@ -75,7 +75,7 @@ public final class IncreasePointButton extends ActionWidgetButton {
 
         if (stats != null) {
             Stat stat = stats.getStatByType(statType);
-            if (stat != null) isMaxed = stat.getValue() >= ModConfig.maxStatValue;
+            if (stat != null) isMaxed = stat.getCurrentValue() >= ModConfig.maxStatValue;
         }
 
         setEnabled(canAfford && !isMaxed);
@@ -99,7 +99,7 @@ public final class IncreasePointButton extends ActionWidgetButton {
     private List<Text> buildCompleteTooltip(Stat stat) {
         List<Text> tooltip = new ArrayList<>();
 
-        boolean isMaxed = stat.getValue() >= ModConfig.maxStatValue;
+        boolean isMaxed = stat.getCurrentValue() >= ModConfig.maxStatValue;
 
         if (isMaxed) {
             tooltip.add(Text.of("§6§l" + statType.getAka() + " §c§l(MAX)"));
@@ -121,7 +121,7 @@ public final class IncreasePointButton extends ActionWidgetButton {
             tooltip.add(Text.of("§6§l" + statType.getAka()));
             tooltip.add(Text.literal("♣  ").formatted(Formatting.DARK_GREEN)
                     .append(Text.literal("Current: ").formatted(Formatting.GRAY))
-                    .append(Text.literal(String.valueOf(stat.getValue())).formatted(Formatting.WHITE))
+                    .append(Text.literal(String.valueOf(stat.getCurrentValue())).formatted(Formatting.WHITE))
                     .append(Text.literal("/").formatted(Formatting.DARK_GRAY))
                     .append(Text.literal(String.valueOf(ModConfig.maxStatValue)).formatted(Formatting.GRAY)));
 

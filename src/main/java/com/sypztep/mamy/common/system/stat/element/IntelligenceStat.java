@@ -59,7 +59,7 @@ public final class IntelligenceStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int currentPlayerStat = getValue();
+        int currentPlayerStat = getCurrentValue();
         int currentClassBonus = getClassBonus();
         int currentTotal = getEffective();
 

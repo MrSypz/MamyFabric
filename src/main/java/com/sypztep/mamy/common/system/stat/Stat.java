@@ -51,7 +51,7 @@ public abstract class Stat {
         return baseValue;
     }
 
-    public short getValue() {
+    public short getCurrentValue() {
         return currentValue;
     }
 

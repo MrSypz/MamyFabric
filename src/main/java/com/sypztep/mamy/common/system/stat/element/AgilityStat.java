@@ -37,7 +37,7 @@ public final class AgilityStat extends Stat {
 
     @Override
     public List<Text> getEffectDescription(int additionalPoints) {
-        int currentPlayerStat = getValue(); // Player-invested points
+        int currentPlayerStat = getCurrentValue(); // Player-invested points
         int currentClassBonus = getClassBonus(); // Class bonus
         int currentTotal = getEffective(); // Total effective
 

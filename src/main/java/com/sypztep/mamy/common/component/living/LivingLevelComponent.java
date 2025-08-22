@@ -72,7 +72,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
     }
 
     public short getStatValue(StatTypes types) {
-        return getStatByType(types).getValue();
+        return getStatByType(types).getCurrentValue();
     }
 
     public int getStatCost(StatTypes types) {
