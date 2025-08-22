@@ -19,6 +19,7 @@ public class ModKeyBindings {
     // UI Keys
     public static KeyBinding SWITCH_STANCE;
     public static KeyBinding CLASS_SELECTOR;
+    public static KeyBinding TEST;
 
     // Skill Slots
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -38,6 +39,13 @@ public class ModKeyBindings {
                 GLFW.GLFW_KEY_R,
                 "category.mamy.combat"
         ));
+        TEST = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.mamy.test",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_O,
+                "category.mamy.combat"
+        ));
+
 
         CLASS_SELECTOR = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mamy.class_selector",
@@ -88,6 +96,8 @@ public class ModKeyBindings {
         }
         if (CLASS_SELECTOR.wasPressed()) {
             client.setScreen(new ClassEvolutionScreen(client));
+        }
+        if (TEST.wasPressed()) {
         }
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);

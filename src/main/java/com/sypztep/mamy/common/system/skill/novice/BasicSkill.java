@@ -75,12 +75,6 @@ public class BasicSkill extends PassiveSkill {
         return true; // All Classes
     }
 
-    @Override
-    public boolean isDefaultSkill() {
-        return true;
-    }
-    // Helper methods for other systems to check basic skill requirements
-
     /**
      * Check if player can join parties (requires Basic Skill level 5+)
      */
