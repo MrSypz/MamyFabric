@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.event.living;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.data.MobExpEntry;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.difficulty.NameBasedBonusSystem;
 import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
@@ -34,33 +35,33 @@ public final class MobSpawnStatsEvent implements ServerEntityEvents.Load {
             return;
         }
 
+        // === ENHANCED PROGRESSIVE MONSTER GENERATION ===
+
         // STEP 1: Apply base stats from datapack
         applyBasicMobStats(livingEntity, mobEntry);
 
-        // STEP 2: Generate enhanced variant with name keywords
+        // STEP 2: Generate ENHANCED variant with ALL new systems:
+        // - Local difficulty integration (0-6)
+        // - Dynamic level scaling (no cap!)
+        // - Biome stat multipliers
+        // - Armor scaling by tier
         String baseName = livingEntity.getType().getName().getString();
         ProgressiveDifficultySystem.MonsterVariant variant =
-                ProgressiveDifficultySystem.generateMonsterVariant(livingEntity.getRandom(), baseName);
+                ProgressiveDifficultySystem.generateEnhancedMonsterVariant(
+                        livingEntity.getRandom(),
+                        baseName,
+                        mobEntry.baseLevel(),
+                        world,
+                        livingEntity.getBlockPos()
+                );
 
-        // STEP 3: Apply rarity multipliers + name-based bonuses
+        // STEP 3: Apply ALL enhancements
         ProgressiveDifficultySystem.applyMonsterVariant(livingEntity, variant);
-
-        // STEP 4: Debug logging for complex monsters
-//        if (variant.rarity != ProgressiveDifficultySystem.MonsterRarity.COMMON) {
-//            System.out.printf("[RareSpawn] %s %s spawned! (Rarity: ×%.1f, Name: '%s')\n",
-//                    variant.rarity.name(), baseName,
-//                    variant.totalStatMultiplier, variant.enhancedName);
-//        }
-//
-//        // Log name bonuses if present
-//        if (com.sypztep.mamy.common.system.difficulty.NameBasedBonusSystem.hasNameBonuses(variant.enhancedName)) {
-//            System.out.printf("[NameBonuses] %s has enhanced name: '%s'\n",
-//                    baseName, variant.enhancedName);
-//        }
     }
 
     /**
-     * Apply static stats with dynamic scaling
+     * STEP 1: Apply base mob stats from datapack (foundation)
+     * FIXED: Now uses correct stat API calls
      */
     private void applyBasicMobStats(LivingEntity entity, MobExpEntry mobEntry) {
         LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(entity);
@@ -73,9 +74,7 @@ public final class MobSpawnStatsEvent implements ServerEntityEvents.Load {
                 int baseValue = mobEntry.getStat(statType);
                 if (baseValue > 0) {
                     var stat = levelComponent.getStatByType(statType);
-                    if (stat != null) {
-                        stat.setPoints((short) baseValue);
-                    }
+                    if (stat != null) stat.setPoints((short) baseValue);
                 }
             }
             levelComponent.refreshAllStatEffectsInternal();
@@ -84,23 +83,41 @@ public final class MobSpawnStatsEvent implements ServerEntityEvents.Load {
         entity.setHealth(entity.getMaxHealth());
     }
 
+    /**
+     * UNIFIED rarity detection - no more redundant code!
+     * Uses NameBasedBonusSystem for consistency
+     */
     public static int getRarityLevel(LivingEntity entity) {
-        if (!entity.hasCustomName()) return 0;
+        return NameBasedBonusSystem.getRarityLevel(entity);
+    }
 
-        String name = entity.getCustomName().getString();
+    /**
+     * Get rarity enum for other systems
+     */
+    public static ProgressiveDifficultySystem.MonsterRarity getRarity(LivingEntity entity) {
+        return NameBasedBonusSystem.getRarityFromName(entity);
+    }
 
-        if (name.contains("Void") || name.contains("Avatar") || name.contains("Cosmic")) {
-            return 5; // Mythic
-        } else if (name.contains("Primordial") || name.contains("Dimensional") || name.contains("Bane")) {
-            return 4; // Legendary
-        } else if (name.contains("Nightmare") || name.contains("Abyssal") || name.contains("Eternal")) {
-            return 3; // Epic
-        } else if (name.contains("Bloodthirsty") || name.contains("Corrupted") || name.contains("Fierce")) {
-            return 2; // Rare
-        } else if (name.contains("Strong") || name.contains("Angry") || name.contains("Wild")) {
-            return 1; // Uncommon
-        }
+    /**
+     * Check if monster has enhanced stats (for loot systems, etc.)
+     * For future version 0.6.0
+     */
+    public static boolean hasEnhancedStats(LivingEntity entity) {
+        return getRarityLevel(entity) > 0 || NameBasedBonusSystem.hasNameBonuses(entity.getCustomName().getString());
+    }
 
-        return 0; // Common
+    /**
+     * Get total stat multiplier for a monster (for damage calculations)
+     */
+    @Deprecated
+    public static float getStatMultiplier(LivingEntity entity) {
+        ProgressiveDifficultySystem.MonsterRarity rarity = getRarity(entity);
+        float baseMultiplier = rarity.statMultiplier;
+
+        // Factor in biome multiplier if available
+        float biomeMultiplier = ProgressiveDifficultySystem.getBiomeStatMultiplier(
+                entity.getWorld(), entity.getBlockPos());
+
+        return baseMultiplier * biomeMultiplier;
     }
 }

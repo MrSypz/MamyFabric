@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -12,13 +13,19 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.World;
 
 /**
- * Korean MMORPG-style Progressive Difficulty System
- * Enhanced with name-based stat bonuses and colorful server-side names
+ * ENHANCED Korean MMORPG Progressive Difficulty System
+ * - Integrates local difficulty (0-6) for progressive spawn rates
+ * - Dynamic level scaling over time (no cap)
+ * - Biome stat multipliers during spawn
+ * - Armor scaling by tier
+ * - Unified rarity detection (no redundant code)
  */
 public class ProgressiveDifficultySystem {
+
     // ==================== PROGRESSION SCALING ====================
 
     private static final float PROGRESSION_BASE = 1.0f;
@@ -33,13 +40,27 @@ public class ProgressiveDifficultySystem {
     private static final float UNDERGROUND_MULTIPLIER = 1.3f;
     private static final float DEEP_UNDERGROUND_MULTIPLIER = 2.2f;
 
-    // ==================== BIOME DIFFICULTY MULTIPLIERS ====================
+    // ==================== BIOME STAT MULTIPLIERS (NEW!) ====================
+    // These multiply monster stats during spawn, not just damage
 
-    private static final float PEACEFUL_MULTIPLIER = 1.0f;
-    private static final float MODERATE_MULTIPLIER = 1.2f;
-    private static final float HARSH_MULTIPLIER = 1.5f;
-    private static final float EXTREME_MULTIPLIER = 2.5f;
-    private static final float HELLISH_MULTIPLIER = 4.0f;
+    private static final float PEACEFUL_STAT_MULT = 1.0f;    // Plains - vanilla gameplay
+    private static final float MODERATE_STAT_MULT = 1.2f;    // Forest - slight boost
+    private static final float HARSH_STAT_MULT = 1.5f;       // Mountains - noticeable boost
+    private static final float EXTREME_STAT_MULT = 2.0f;     // Desert - serious boost
+    private static final float HELLISH_STAT_MULT = 3.0f;     // Badlands - hellish boost
+
+    // ==================== LOCAL DIFFICULTY INTEGRATION ====================
+    // Minecraft local difficulty goes from 0 to 6+ over time
+
+    private static final float[] LOCAL_DIFFICULTY_SPAWN_MULTIPLIERS = {
+            1.0f,   // 0 - Fresh world
+            1.2f,   // 1 - Early game
+            1.5f,   // 2 - Progressing
+            2.0f,   // 3 - Mid game
+            3.0f,   // 4 - Late game
+            4.0f,   // 5 - End game
+            6.0f    // 6+ - Hellish mode
+    };
 
     // ==================== MONSTER RARITY SYSTEM ====================
 
@@ -51,16 +72,29 @@ public class ProgressiveDifficultySystem {
         LEGENDARY(0.0001f, 10.0f, 15.0f, "Apex"),
         MYTHIC(0.000001f, 15.0f, 25.0f, "Godlike");
 
-        public final float spawnChance;
+        public final float baseSpawnChance;
         public final float statMultiplier;
         public final float expMultiplier;
         public final String defaultPrefix;
 
-        MonsterRarity(float spawnChance, float statMultiplier, float expMultiplier, String defaultPrefix) {
-            this.spawnChance = spawnChance;
+        MonsterRarity(float baseSpawnChance, float statMultiplier, float expMultiplier, String defaultPrefix) {
+            this.baseSpawnChance = baseSpawnChance;
             this.statMultiplier = statMultiplier;
             this.expMultiplier = expMultiplier;
             this.defaultPrefix = defaultPrefix;
+        }
+
+        /**
+         * Get spawn chance modified by local difficulty
+         */
+        public float getAdjustedSpawnChance(float localDifficultyMultiplier) {
+            if (this == COMMON) return baseSpawnChance; // Common always common
+
+            // Rare monsters become more likely with higher local difficulty
+            float adjustedChance = baseSpawnChance * localDifficultyMultiplier;
+
+            // Cap increases to prevent too many rare spawns
+            return Math.min(adjustedChance, baseSpawnChance * 10.0f);
         }
     }
 
@@ -144,46 +178,57 @@ public class ProgressiveDifficultySystem {
         public final MonsterPrefix prefix;
         public final MonsterSuffix suffix;
         public final String enhancedName;
+        public final int dynamicLevel;
+        public final int baseArmor;
+        public final float biomeStatMultiplier;
         public final float totalStatMultiplier;
         public final float totalExpMultiplier;
 
-        public MonsterVariant(MonsterRarity rarity, MonsterPrefix prefix, MonsterSuffix suffix, String baseName, Random random) {
+        public MonsterVariant(MonsterRarity rarity, MonsterPrefix prefix, MonsterSuffix suffix,
+                              String baseName, Random random, int baseLevel,
+                              float localDifficultyMult, float biomeStatMult) {
             this.rarity = rarity;
             this.prefix = prefix;
             this.suffix = suffix;
+            this.biomeStatMultiplier = biomeStatMult;
 
             // Generate enhanced name with stat keywords
             this.enhancedName = NameBasedBonusSystem.generateEnhancedName(baseName, rarity, random);
 
-            // Multiplicatively stack all bonuses
-            this.totalStatMultiplier = rarity.statMultiplier * prefix.statMultiplier * suffix.statMultiplier;
+            // DYNAMIC LEVEL SCALING - grows with local difficulty
+            int levelBonus = Math.round((localDifficultyMult - 1.0f) * 10); // 0-50 bonus levels
+            int rarityLevelBonus = rarity.ordinal() * 3; // 0-15 bonus levels by rarity
+            this.dynamicLevel = baseLevel + levelBonus + rarityLevelBonus;
+
+            // ARMOR SCALING - base 2 + random + rarity bonus, cap 30
+            int rarityArmorBonus = rarity.ordinal() * 2; // 0-10 bonus armor
+            int randomArmor = random.nextInt(6); // 0-5 random armor
+            this.baseArmor = Math.min(30, 2 + randomArmor + rarityArmorBonus);
+
+            // Multiplicatively stack all bonuses (including biome!)
+            this.totalStatMultiplier = rarity.statMultiplier * prefix.statMultiplier *
+                    suffix.statMultiplier * biomeStatMult;
             this.totalExpMultiplier = rarity.expMultiplier * prefix.expMultiplier * suffix.expMultiplier;
         }
 
         /**
-         * Create enhanced display name with colored level styling - SERVER SIDE ONLY
+         * Create enhanced display name with colored level styling
          */
-        public Text getEnhancedDisplayName(int level) {
-            // Create level display with enhanced styling and colors
-            Text levelText = createStyledLevelDisplay(level, rarity);
+        public Text getEnhancedDisplayName() {
+            Text levelText = createStyledLevelDisplay(dynamicLevel, rarity);
 
-            // Create name parts
             MutableText nameText = Text.empty();
 
-            // Add prefix if present
             if (!prefix.name.isEmpty()) {
                 nameText = nameText.append(Text.literal(prefix.name + " ").formatted(getRarityColor()));
             }
 
-            // Add enhanced base name (with keywords)
             nameText = nameText.append(Text.literal(enhancedName).formatted(getRarityColor()));
 
-            // Add suffix if present
             if (!suffix.name.isEmpty()) {
                 nameText = nameText.append(Text.literal(" " + suffix.name).formatted(getRarityColor()));
             }
 
-            // Combine level and name
             return Text.empty()
                     .append(levelText)
                     .append(Text.literal(" "))
@@ -238,81 +283,96 @@ public class ProgressiveDifficultySystem {
                 case MYTHIC -> Formatting.RED;
             };
         }
-
-        /**
-         * Legacy method for string-based names (fallback)
-         */
-        public String getDisplayNameString(int level) {
-            StringBuilder name = new StringBuilder();
-
-            // Level prefix with enhanced styling
-            String levelPrefix = switch (rarity) {
-                case COMMON -> "[Lv." + level + "]";
-                case UNCOMMON -> "⟨Lv." + level + "⟩";
-                case RARE -> "⟪Lv." + level + "⟫";
-                case EPIC -> "◆Lv." + level + "◆";
-                case LEGENDARY -> "★Lv." + level + "★";
-                case MYTHIC -> "⚡Lv." + level + "⚡";
-            };
-
-            name.append(levelPrefix).append(" ");
-
-            // Prefix
-            if (!prefix.name.isEmpty()) {
-                name.append(prefix.name).append(" ");
-            }
-
-            // Enhanced name (includes stat keywords)
-            name.append(enhancedName);
-
-            // Suffix
-            if (!suffix.name.isEmpty()) {
-                name.append(" ").append(suffix.name);
-            }
-
-            return name.toString();
-        }
     }
 
     // ==================== MAIN CALCULATION METHODS ====================
 
     /**
-     * Generate enhanced monster variant with name-based bonuses
+     * ENHANCED monster generation with local difficulty and biome integration
      */
-    public static MonsterVariant generateMonsterVariant(Random random, String baseName) {
-        float roll = random.nextFloat();
-        MonsterRarity rarity = MonsterRarity.COMMON;
+    public static MonsterVariant generateEnhancedMonsterVariant(Random random, String baseName,
+                                                                int baseLevel, World world, BlockPos pos) {
+        // Get local difficulty (0-6+)
+        LocalDifficulty localDiff = world.getLocalDifficulty(pos);
+        float localDifficultyValue = localDiff.getLocalDifficulty(); // 0.0 to 6.0+
 
-        // Fixed cumulative probability
-        if (roll <= MonsterRarity.MYTHIC.spawnChance) {
-            rarity = MonsterRarity.MYTHIC;
-        } else if (roll <= MonsterRarity.MYTHIC.spawnChance + MonsterRarity.LEGENDARY.spawnChance) {
-            rarity = MonsterRarity.LEGENDARY;
-        } else if (roll <= MonsterRarity.MYTHIC.spawnChance + MonsterRarity.LEGENDARY.spawnChance + MonsterRarity.EPIC.spawnChance) {
-            rarity = MonsterRarity.EPIC;
-        } else if (roll <= MonsterRarity.MYTHIC.spawnChance + MonsterRarity.LEGENDARY.spawnChance +
-                MonsterRarity.EPIC.spawnChance + MonsterRarity.RARE.spawnChance) {
-            rarity = MonsterRarity.RARE;
-        } else if (roll <= MonsterRarity.MYTHIC.spawnChance + MonsterRarity.LEGENDARY.spawnChance +
-                MonsterRarity.EPIC.spawnChance + MonsterRarity.RARE.spawnChance + MonsterRarity.UNCOMMON.spawnChance) {
-            rarity = MonsterRarity.UNCOMMON;
-        }
+        // Cap and convert to multiplier index
+        int difficultyIndex = Math.min(6, (int) localDifficultyValue);
+        float localDifficultyMult = LOCAL_DIFFICULTY_SPAWN_MULTIPLIERS[difficultyIndex];
+
+        // Get biome stat multiplier
+        float biomeStatMult = getBiomeStatMultiplier(world, pos);
+
+        // Generate rarity with adjusted spawn chances
+        MonsterRarity rarity = generateRarityWithLocalDifficulty(random, localDifficultyMult);
 
         MonsterPrefix prefix = MonsterPrefix.getRandom(random, rarity);
         MonsterSuffix suffix = MonsterSuffix.getRandom(random, rarity);
 
-        return new MonsterVariant(rarity, prefix, suffix, baseName, random);
+        // Debug local difficulty effects
+        if (localDifficultyValue > 3.0f) {
+            System.out.printf("[LocalDifficulty] %.1f difficulty → ×%.1f spawn rates, ×%.1f biome stats\n",
+                    localDifficultyValue, localDifficultyMult, biomeStatMult);
+        }
+
+        return new MonsterVariant(rarity, prefix, suffix, baseName, random,
+                baseLevel, localDifficultyMult, biomeStatMult);
     }
 
     /**
-     * Apply enhanced monster variant with BOTH rarity multipliers AND name bonuses
-     * SETS SERVER-SIDE CUSTOM NAME with colors and styling
+     * Generate rarity with local difficulty affecting spawn rates
+     */
+    private static MonsterRarity generateRarityWithLocalDifficulty(Random random, float localDifficultyMult) {
+        float roll = random.nextFloat();
+
+        // Check from rarest to most common with adjusted chances
+        for (MonsterRarity rarity : MonsterRarity.values()) {
+            if (rarity == MonsterRarity.COMMON) continue; // Skip common for now
+
+            float adjustedChance = rarity.getAdjustedSpawnChance(localDifficultyMult);
+            if (roll <= adjustedChance) {
+                System.out.printf("[RareSpawn] %s spawned! (Chance: %.6f, Local Difficulty: ×%.1f)\n",
+                        rarity.name(), adjustedChance, localDifficultyMult);
+                return rarity;
+            }
+        }
+
+        return MonsterRarity.COMMON; // Default
+    }
+
+    /**
+     * Get biome stat multiplier for monster stats during spawn
+     */
+    public static float getBiomeStatMultiplier(World world, BlockPos pos) {
+        var biomeHolder = world.getBiome(pos);
+
+        if (biomeHolder.isIn(ModTags.BiomeTags.HELLISH_BIOMES)) {
+            return HELLISH_STAT_MULT; // 3.0x - Badlands are hellish
+        }
+        if (biomeHolder.isIn(ModTags.BiomeTags.EXTREME_BIOMES)) {
+            return EXTREME_STAT_MULT; // 2.0x - Desert is tough
+        }
+        if (biomeHolder.isIn(ModTags.BiomeTags.HARSH_BIOMES)) {
+            return HARSH_STAT_MULT; // 1.5x - Mountains are challenging
+        }
+        if (biomeHolder.isIn(ModTags.BiomeTags.MODERATE_BIOMES)) {
+            return MODERATE_STAT_MULT; // 1.2x - Forest is slightly dangerous
+        }
+
+        return PEACEFUL_STAT_MULT; // 1.0x - Plains are vanilla
+    }
+
+    /**
+     * ENHANCED monster variant application with all new systems
      */
     public static void applyMonsterVariant(LivingEntity entity, MonsterVariant variant) {
         LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(entity);
         if (levelComponent == null) return;
 
-        // STEP 1: Apply rarity multipliers to base stats
+        // STEP 1: Set dynamic level
+        levelComponent.getLevelSystem().setLevel((short) variant.dynamicLevel);
+
+        // STEP 2: Apply stat multipliers (includes biome multiplier!)
         for (StatTypes statType : StatTypes.values()) {
             var stat = levelComponent.getStatByType(statType);
             if (stat != null) {
@@ -320,17 +380,24 @@ public class ProgressiveDifficultySystem {
                 if (currentValue > 0) {
                     int newValue = Math.round(currentValue * variant.totalStatMultiplier);
                     stat.setPoints((short) Math.min(newValue, Short.MAX_VALUE));
+
+                    if (variant.totalStatMultiplier > 2.0f) {
+                        System.out.printf("[StatBoost] %s %s: %d → %d (×%.1f total)\n",
+                                entity.getType().getName().getString(), statType.name(),
+                                currentValue, newValue, variant.totalStatMultiplier);
+                    }
                 }
             }
         }
 
+        entity.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(variant.baseArmor);
+        System.out.printf("[ArmorBoost] %s armor: %d (base 4 + rarity + random)\n",
+                entity.getType().getName().getString(), variant.baseArmor);
+
         levelComponent.refreshAllStatEffectsInternal();
 
-        int level = levelComponent.getLevel();
-        Text enhancedName = variant.getEnhancedDisplayName(level);
-
+        Text enhancedName = variant.getEnhancedDisplayName();
         entity.setCustomName(enhancedName);
-//        entity.setCustomNameVisible(true);
 
         NameBasedBonusSystem.applyNameBasedBonuses(entity);
 
@@ -340,14 +407,31 @@ public class ProgressiveDifficultySystem {
             entity.setGlowing(true);
         }
 
-        // Debug log
-//        if (variant.rarity != MonsterRarity.COMMON) {
-//            System.out.printf("[EnhancedSpawn] %s spawned with enhanced name: %s\n",
-//                    variant.rarity.name(), variant.getDisplayNameString(level));
-//        }
+        // Debug summary for rare monsters
+        if (variant.rarity != MonsterRarity.COMMON) {
+            System.out.printf("[EnhancedSpawn] %s Lv.%d: ×%.1f stats, %d armor, ×%.1f biome\n",
+                    variant.rarity.name(), variant.dynamicLevel, variant.totalStatMultiplier,
+                    variant.baseArmor, variant.biomeStatMultiplier);
+        }
     }
 
-    // [All other methods remain the same - calculateProgressionAmplification, etc.]
+    // ==================== DAMAGE CALCULATION (SIMPLIFIED) ====================
+
+    public static float calculateAmplifiedDamage(LivingEntity monster, float baseDamage, LivingEntity nearestPlayer) {
+        if (monster.getWorld().isClient()) return baseDamage;
+
+        BlockPos pos = monster.getBlockPos();
+        World world = monster.getWorld();
+
+        float progressionAmp = calculateProgressionAmplification(monster, nearestPlayer);
+        float environmentalAmp = calculateEnvironmentalAmplification(world, pos);
+        float variantAmp = getVariantDamageMultiplier(monster);
+
+        float totalAmplification = progressionAmp * environmentalAmp * variantAmp;
+        totalAmplification = MathHelper.clamp(totalAmplification, 0.5f, 50.0f);
+
+        return baseDamage * totalAmplification;
+    }
 
     public static float calculateProgressionAmplification(LivingEntity monster, LivingEntity nearestPlayer) {
         if (nearestPlayer == null) return PROGRESSION_BASE;
@@ -387,81 +471,25 @@ public class ProgressiveDifficultySystem {
         return envAmp;
     }
 
-    public static float calculateBiomeAmplification(World world, BlockPos pos) {
-        var biomeHolder = world.getBiome(pos);
-
-        if (biomeHolder.isIn(ModTags.BiomeTags.HELLISH_BIOMES)) {
-            return HELLISH_MULTIPLIER;
-        }
-        if (biomeHolder.isIn(ModTags.BiomeTags.EXTREME_BIOMES)) {
-            return EXTREME_MULTIPLIER;
-        }
-        if (biomeHolder.isIn(ModTags.BiomeTags.HARSH_BIOMES)) {
-            return HARSH_MULTIPLIER;
-        }
-        if (biomeHolder.isIn(ModTags.BiomeTags.MODERATE_BIOMES)) {
-            return MODERATE_MULTIPLIER;
-        }
-
-        return PEACEFUL_MULTIPLIER;
-    }
-
+    /**
+     * Use unified rarity detection (no more redundant code!)
+     */
     public static float getVariantExpMultiplier(LivingEntity entity) {
-        if (!entity.hasCustomName()) return 1.0f;
-
-        String name = entity.getCustomName().getString();
-
-        if (name.contains("Void") || name.contains("Cosmic") || name.contains("Avatar")) {
-            return MonsterRarity.MYTHIC.expMultiplier;
-        } else if (name.contains("Primordial") || name.contains("Dimensional") || name.contains("Bane")) {
-            return MonsterRarity.LEGENDARY.expMultiplier;
-        } else if (name.contains("Nightmare") || name.contains("Abyssal") || name.contains("Eternal")) {
-            return MonsterRarity.EPIC.expMultiplier;
-        } else if (name.contains("Bloodthirsty") || name.contains("Corrupted") || name.contains("Hunter")) {
-            return MonsterRarity.RARE.expMultiplier;
-        } else if (name.contains("Strong") || name.contains("Angry") || name.contains("Wild")) {
-            return MonsterRarity.UNCOMMON.expMultiplier;
-        }
-
-        return MonsterRarity.COMMON.expMultiplier;
-    }
-
-    public static float calculateAmplifiedDamage(LivingEntity monster, float baseDamage, LivingEntity nearestPlayer) {
-        if (monster.getWorld().isClient()) return baseDamage;
-
-        BlockPos pos = monster.getBlockPos();
-        World world = monster.getWorld();
-
-        float progressionAmp = calculateProgressionAmplification(monster, nearestPlayer);
-        float environmentalAmp = calculateEnvironmentalAmplification(world, pos);
-        float biomeAmp = calculateBiomeAmplification(world, pos);
-        float variantAmp = getVariantDamageMultiplier(monster);
-
-        float totalAmplification = progressionAmp * environmentalAmp * biomeAmp * variantAmp;
-        totalAmplification = MathHelper.clamp(totalAmplification, 0.5f, 50.0f);
-
-        return baseDamage * totalAmplification;
+        MonsterRarity rarity = NameBasedBonusSystem.getRarityFromName(entity);
+        return rarity.expMultiplier;
     }
 
     private static float getVariantDamageMultiplier(LivingEntity entity) {
-        if (!entity.hasCustomName()) return 1.0f;
-        String name = entity.getCustomName().getString();
+        MonsterRarity rarity = NameBasedBonusSystem.getRarityFromName(entity);
 
-        if (name.contains("Void") || name.contains("Avatar")) {
-            return 25.0f;
-        } else if (name.contains("Cosmic") || name.contains("Bane")) {
-            return 15.0f;
-        } else if (name.contains("Primordial") || name.contains("Dimensional")) {
-            return 10.0f;
-        } else if (name.contains("Nightmare") || name.contains("Abyssal")) {
-            return 6.0f;
-        } else if (name.contains("Bloodthirsty") || name.contains("Corrupted")) {
-            return 3.0f;
-        } else if (name.contains("Strong") || name.contains("Angry")) {
-            return 1.5f;
-        }
-
-        return 1.0f;
+        return switch (rarity) {
+            case COMMON -> 1.0f;
+            case UNCOMMON -> 1.5f;
+            case RARE -> 3.0f;
+            case EPIC -> 6.0f;
+            case LEGENDARY -> 10.0f;
+            case MYTHIC -> 25.0f;
+        };
     }
 
     public static PlayerEntity findNearestPlayer(LivingEntity monster, double maxDistance) {
