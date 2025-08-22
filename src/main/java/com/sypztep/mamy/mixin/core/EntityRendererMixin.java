@@ -1,8 +1,10 @@
 package com.sypztep.mamy.mixin.core;
 
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.event.living.MobSpawnStatsEvent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.system.stat.StatTypes;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -26,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Environment(EnvType.CLIENT)
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin<T extends Entity> {
     @Shadow
@@ -60,31 +63,31 @@ public abstract class EntityRendererMixin<T extends Entity> {
         int j = (int) (f * 255.0f) << 24;
         TextRenderer textRenderer = this.getTextRenderer();
 
-        // Calculate monster info
+        // Get monster info
         LivingEntity livingEntity = (LivingEntity) entity;
         LivingLevelComponent levelComp = ModEntityComponents.LIVINGLEVEL.getNullable(livingEntity);
 
-        String monsterName = entity.getDisplayName().getString();
-        String levelText = "";
-        String gearscoreText = "";
-        int gearscoreColor = Colors.WHITE;
-
-        if (levelComp != null) {
-            int level = levelComp.getLevel();
-            int gearscore = calculateMonsterGearscore(levelComp);
-            gearscoreColor = getMonsterGearscoreColor(gearscore);
-
-            levelText = " [Lv." + level + "]";
-            gearscoreText = " (GS: " + formatGearscore(gearscore) + ")";
+        if (levelComp == null) {
+            matrices.pop();
+            return;
         }
 
-        // Create display texts
-        Text nameText = Text.literal(monsterName).formatted(Formatting.RED);
-        Text levelDisplay = Text.literal(levelText).formatted(Formatting.YELLOW);
-        Text gearscoreDisplay = Text.literal(gearscoreText).withColor(gearscoreColor);
+        // Get level and rarity info
+        int level = levelComp.getLevel();
+        int rarityLevel = MobSpawnStatsEvent.getRarityLevel(livingEntity);
 
-        // Combine texts
-        Text combinedText = Text.empty().append(nameText).append(levelDisplay).append(gearscoreDisplay);
+        // Create enhanced level display
+        Text levelText = createEnhancedLevelDisplay(level, rarityLevel);
+
+        // Get monster name (without the level prefix if it exists)
+        String fullName = entity.getDisplayName().getString();
+        String monsterName = cleanMonsterName(fullName);
+
+        // Create name text with rarity color
+        Text nameText = Text.literal(monsterName).formatted(getRarityNameColor(rarityLevel));
+
+        // Combine level and name
+        Text combinedText = Text.empty().append(levelText).append(" ").append(nameText);
 
         float g = (float) -textRenderer.getWidth(combinedText) / 2;
 
@@ -101,46 +104,81 @@ public abstract class EntityRendererMixin<T extends Entity> {
     }
 
     @Unique
-    private int calculateMonsterGearscore(LivingLevelComponent levelComp) {
-        int totalScore = 0;
+    private Text createEnhancedLevelDisplay(int level, int rarityLevel) {
+        // Choose level bracket style and color based on rarity
+        String prefix, suffix;
+        Formatting levelColor;
 
-        // Calculate base stat score (same formula as player)
-        for (StatTypes statType : StatTypes.values()) {
-            int statValue = levelComp.getStatValue(statType);
-            int statScore = statValue * getStatMultiplier(statType);
-            totalScore += statScore;
+        switch (rarityLevel) {
+            case 0 -> { // Common
+                prefix = "[Lv.";
+                suffix = "]";
+                levelColor = Formatting.GREEN;
+            }
+            case 1 -> { // Uncommon
+                prefix = "⟨Lv.";
+                suffix = "⟩";
+                levelColor = Formatting.YELLOW;
+            }
+            case 2 -> { // Rare
+                prefix = "⟪Lv.";
+                suffix = "⟫";
+                levelColor = Formatting.BLUE;
+            }
+            case 3 -> { // Epic
+                prefix = "◆Lv.";
+                suffix = "◆";
+                levelColor = Formatting.LIGHT_PURPLE;
+            }
+            case 4 -> { // Legendary
+                prefix = "★Lv.";
+                suffix = "★";
+                levelColor = Formatting.GOLD;
+            }
+            case 5 -> { // Mythic
+                prefix = "⚡Lv.";
+                suffix = "⚡";
+                levelColor = Formatting.RED;
+            }
+            default -> {
+                prefix = "[Lv.";
+                suffix = "]";
+                levelColor = Formatting.WHITE;
+            }
         }
 
-        return totalScore;
+        return Text.literal(prefix + level + suffix).formatted(levelColor, Formatting.BOLD);
     }
 
     @Unique
-    private int getStatMultiplier(StatTypes statType) {
-        return switch (statType) {
-            case STRENGTH -> 12;     // High damage impact
-            case DEXTERITY -> 10;    // Accuracy + projectile damage
-            case VITALITY -> 8;      // Survivability
-            case INTELLIGENCE -> 11; // Magic damage + resources
-            case AGILITY -> 9;       // Evasion + attack speed
-            case LUCK -> 7;          // Crit chance + hybrid bonuses
+    private String cleanMonsterName(String fullName) {
+        // Remove level prefix if it exists (e.g., "[Lv.15] Zombie" → "Zombie")
+        if (fullName.contains("] ")) {
+            return fullName.substring(fullName.indexOf("] ") + 2);
+        } else if (fullName.contains("⟩ ")) {
+            return fullName.substring(fullName.indexOf("⟩ ") + 2);
+        } else if (fullName.contains("⟫ ")) {
+            return fullName.substring(fullName.indexOf("⟫ ") + 2);
+        } else if (fullName.contains("◆ ") && fullName.indexOf("◆ ") > 0) {
+            return fullName.substring(fullName.indexOf("◆ ") + 2);
+        } else if (fullName.contains("★ ") && fullName.indexOf("★ ") > 0) {
+            return fullName.substring(fullName.indexOf("★ ") + 2);
+        } else if (fullName.contains("⚡ ") && fullName.indexOf("⚡ ") > 0) {
+            return fullName.substring(fullName.indexOf("⚡ ") + 2);
+        }
+        return fullName;
+    }
+
+    @Unique
+    private Formatting getRarityNameColor(int rarityLevel) {
+        return switch (rarityLevel) {
+            case 0 -> Formatting.WHITE;         // Common
+            case 1 -> Formatting.GREEN;         // Uncommon
+            case 2 -> Formatting.BLUE;          // Rare
+            case 3 -> Formatting.LIGHT_PURPLE;  // Epic
+            case 4 -> Formatting.GOLD;          // Legendary
+            case 5 -> Formatting.RED;           // Mythic
+            default -> Formatting.WHITE;
         };
-    }
-
-    @Unique
-    private String formatGearscore(int gearscore) {
-        if (gearscore >= 1000) {
-            return String.format("%,d", gearscore);
-        }
-        return String.valueOf(gearscore);
-    }
-
-    @Unique
-    private int getMonsterGearscoreColor(int gearscore) {
-        if (gearscore < 500) return 0xFF808080;      // Gray - Weak
-        if (gearscore < 1500) return 0xFFFFFFFF;     // White - Normal
-        if (gearscore < 3000) return 0xFF00FF00;     // Green - Strong
-        if (gearscore < 5000) return 0xFF0080FF;     // Blue - Elite
-        if (gearscore < 8000) return 0xFF9932CC;     // Purple - Boss
-        return 0xFFFFD700;                           // Gold - Legendary
     }
 }
