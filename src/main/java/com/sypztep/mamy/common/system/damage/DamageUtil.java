@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
+import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
@@ -16,10 +17,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
-        if (DEBUG) Mamy.LOGGER.info("[CombatUtil] {}", String.format(message, args));
+        if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));
     }
 
     @FunctionalInterface
@@ -133,90 +134,75 @@ public final class DamageUtil {
         }
     }
 
-    /**
-     * Monster attack player with environmental modifiers
-     */
-    public static float damageMonsterModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
+    public static float calculateDamage(LivingEntity target, LivingEntity attacker, DamageSource source, float amount, boolean isCrit) {
         if (target.getWorld().isClient()) return amount;
-        if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
 
-        // Handle projectile critical sound
+        debugLog("=== DAMAGE CALCULATION START ===");
+        debugLog("Target: %s, Attacker: %s, Base Damage: %.1f, Critical: %s",
+                target.getClass().getSimpleName(), attacker.getClass().getSimpleName(), amount, isCrit);
+
+        // ===== 1. HANDLE PROJECTILE CRITICAL SOUND =====
         if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) {
             LivingEntityUtil.playCriticalSound(projectile);
         }
 
-        // ===== ENVIRONMENTAL DAMAGE CONDITIONS FOR MONSTERS =====
-        // Night damage multiplier for monsters
-        if (attacker.getWorld().isNight() && !LivingEntityUtil.isPlayer(attacker)) {
-            amount *= 2.0f;
-            debugLog("Night monster damage: %.1f → %.1f (×2.0)", amount / 2.0f, amount);
-        }
-
-        // Apply combat modifiers (existing logic)
-        float additiveBonus = 0.0f;
-        float multiplicativeMultiplier = 1.0f;
-
-        for (CombatModifierType modifierType : CombatModifierType.values()) {
-            float value = modifierType.getModifierValue(attacker, target, source, isCrit);
-
-            if (modifierType.getOperationType() == ModifierOperationType.ADD) {
-                additiveBonus += value;
-            } else if (modifierType.getOperationType() == ModifierOperationType.MULTIPLY) {
-                multiplicativeMultiplier *= (1.0f + value);
-            }
-        }
-
-        float finalDamage = (amount * multiplicativeMultiplier) + additiveBonus;
-
-        debugLog("Monster damage calculation: base %.1f × %.2fx + %.1f → final %.1f",
-                amount, multiplicativeMultiplier, additiveBonus, finalDamage);
-
-        DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(target, source, finalDamage);
-        return finalDamage;
-    }
-
-    /**
-     * Player attack monster with environmental modifiers
-     */
-    public static float damageModifier(LivingEntity target, float amount, DamageSource source, boolean isCrit) {
-        if (target.getWorld().isClient()) return amount;
-        if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
-
-        if (source.getSource() instanceof PersistentProjectileEntity projectile && isCrit) {
-            LivingEntityUtil.playCriticalSound(projectile);
-        }
-
-        if (LivingEntityUtil.isPlayer(attacker) && LivingEntityUtil.isPlayerWetInRain((PlayerEntity) attacker)) {
-            amount = Math.max(0.1f, amount - 2.0f);
-            debugLog("Rain wet player damage reduction: %.1f → %.1f (-2.0)", amount + 2.0f, amount);
-        }
-
-        // Handle headshot damage
+        // ===== 2. HANDLE HEADSHOT DAMAGE =====
         if (ModEntityComponents.HEADSHOT.get(target).isHeadShot() &&
-                source.getSource() instanceof PersistentProjectileEntity &&
-                source.getAttacker() instanceof LivingEntity headshotAttacker) {
+                source.getSource() instanceof PersistentProjectileEntity) {
 
-            amount *= (float) headshotAttacker.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE);
+            float headshotMultiplier = (float) attacker.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE);
+            amount *= headshotMultiplier;
             ModEntityComponents.HEADSHOT.get(target).setHeadShot(false);
             ParticleHandler.sendToAll(target, source.getSource(), ModCustomParticles.HEADSHOT);
+            debugLog("Headshot damage applied: ×%.2f → %.1f", headshotMultiplier, amount);
         }
 
-        // Handle Back Breaker passive (50% more damage to low health enemies)
-        if (LivingEntityUtil.isHealthBelow(target, 0.25f) &&
-                source.getAttacker() instanceof PlayerEntity backBreakerAttacker &&
-                PassiveAbilityManager.isActive(backBreakerAttacker, ModPassiveAbilities.BACK_BREAKER)) {
+        // ===== 3. ENVIRONMENTAL & DIFFICULTY MODIFIERS =====
+        boolean attackerIsPlayer = LivingEntityUtil.isPlayer(attacker);
+        boolean targetIsPlayer = LivingEntityUtil.isPlayer(target);
 
-            amount *= 1.5f; // 50% bonus
+        if (attackerIsPlayer) {
+            PlayerEntity playerAttacker = (PlayerEntity) attacker;
+
+            // Rain wet player damage reduction
+            if (LivingEntityUtil.isPlayerWetInRain(playerAttacker)) {
+                amount = Math.max(0.1f, amount - 2.0f);
+                debugLog("Rain wet player damage reduction: %.1f → %.1f (-2.0)", amount + 2.0f, amount);
+            }
+
+            // Handle Back Breaker passive (50% more damage to low health enemies)
+            if (LivingEntityUtil.isHealthBelow(target, 0.25f) &&
+                    PassiveAbilityManager.isActive(playerAttacker, ModPassiveAbilities.BACK_BREAKER)) {
+                amount *= 1.5f; // 50% bonus
+                debugLog("Back Breaker passive applied: %.1f → %.1f (×1.5)", amount / 1.5f, amount);
+            }
+
+            // Handle Berserker Rage passive
+            if (PassiveAbilityManager.isActive(playerAttacker, ModPassiveAbilities.BERSERKER_RAGE)) {
+                amount = LivingEntityUtil.getBerserkerDamageBonus(playerAttacker);
+                debugLog("Berserker Rage passive applied: final damage %.1f", amount);
+            }
+        } else {
+            // Monster attacking something
+            if (targetIsPlayer) {
+                // Monster attacking player - apply progressive difficulty
+                amount = ProgressiveDifficultySystem.applyProgressiveDifficulty(attacker, amount);
+                debugLog("Progressive difficulty applied (monster → player): %.1f", amount);
+            } else {
+                // Monster attacking another monster - apply difficulty based on nearest player
+                PlayerEntity nearestPlayer = ProgressiveDifficultySystem.findNearestPlayer(attacker, 64.0);
+                amount = ProgressiveDifficultySystem.calculateAmplifiedDamage(attacker, amount, nearestPlayer);
+                debugLog("Progressive difficulty applied (monster → monster): %.1f", amount);
+            }
+
+            // Night damage multiplier for monsters
+            if (attacker.getWorld().isNight()) {
+                amount *= 2.0f;
+                debugLog("Night monster damage: %.1f → %.1f (×2.0)", amount / 2.0f, amount);
+            }
         }
 
-        // Handle Berserker Rage passive
-        if (source.getAttacker() instanceof PlayerEntity berserkerAttacker &&
-                PassiveAbilityManager.isActive(berserkerAttacker, ModPassiveAbilities.BERSERKER_RAGE)) {
-
-            amount = LivingEntityUtil.getBerserkerDamageBonus(berserkerAttacker);
-        }
-
-        // Apply combat modifiers (existing logic)
+        // ===== 4. APPLY UNIVERSAL COMBAT MODIFIERS =====
         float additiveBonus = 0.0f;
         float multiplicativeMultiplier = 1.0f;
 
@@ -232,16 +218,15 @@ public final class DamageUtil {
 
         float finalDamage = (amount * multiplicativeMultiplier) + additiveBonus;
 
-        debugLog("Player damage calculation: base %.1f × %.2fx + %.1f → final %.1f",
+        debugLog("Combat modifiers: base %.1f × %.2fx + %.1f → final %.1f",
                 amount, multiplicativeMultiplier, additiveBonus, finalDamage);
 
         DominatusPlayerEntityEvents.DAMAGE_DEALT.invoker().onDamageDealt(target, source, finalDamage);
+
+        debugLog("=== DAMAGE CALCULATION END: %.1f ===", finalDamage);
         return finalDamage;
     }
 
-    /**
-     * UPDATED: Handle elemental damage system + ALL non-elemental flat reductions
-     */
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
         debugLog("====RESISTANCE MODIFIER START====");
 
@@ -291,19 +276,20 @@ public final class DamageUtil {
         return finalDamage;
     }
 
-    private static float calculateDamageAfterArmor(LivingEntity self, float originalDamage,
-                                                   float flatArmor) {
-        debugLog("====START====");
+    private static float calculateDamageAfterArmor(LivingEntity self, float originalDamage, float flatArmor) {
+        debugLog("====ARMOR CALCULATION START====");
         float armorReduction = getArmorDamageReduction(flatArmor);
         float damageAfterArmor = originalDamage * (1.0f - armorReduction);
         debugLog("Armor: %.1f → %.1f%% reduction → %.1f damage",
                 flatArmor, armorReduction * 100, damageAfterArmor);
+
         float percentageReduction = (float) self.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION);
         debugLog("Raw attribute value: %.3f", percentageReduction);
+
         float finalDamage = damageAfterArmor * (1.0f - percentageReduction);
         debugLog("Calculation: %.3f × (1 - %.3f) = %.3f", damageAfterArmor, percentageReduction, finalDamage);
 
-        debugLog("====END====");
+        debugLog("====ARMOR CALCULATION END====");
         return Math.max(0.1f, finalDamage);
     }
 
