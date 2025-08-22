@@ -5,7 +5,9 @@ import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.data.MobExpEntry;
+import com.sypztep.mamy.common.event.living.MobSpawnStatsEvent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -30,7 +32,6 @@ public final class ExpUtil {
 
         String killerName = getKillerName(damageSource);
         SendToastPayloadS2C.sendDeathPenalty(player, penaltyAmount, killerName);
-
     }
     private static String getKillerName(DamageSource damageSource) {
         if (damageSource.getAttacker() instanceof LivingEntity attacker) {
@@ -58,7 +59,10 @@ public final class ExpUtil {
         int targetLevel = ModEntityComponents.LIVINGLEVEL.get(target).getLevel();
 
         float levelMultiplier = calculateLevelPenalty(playerLevel, targetLevel);
-        int finalExp = Math.round(expFromDamage * levelMultiplier);
+
+        float rarityMultiplier = ProgressiveDifficultySystem.getVariantExpMultiplier(target);
+
+        int finalExp = Math.round(expFromDamage * levelMultiplier * rarityMultiplier);
 
         return Math.max(0, finalExp);
     }
@@ -78,7 +82,10 @@ public final class ExpUtil {
         int targetLevel = ModEntityComponents.LIVINGLEVEL.get(target).getLevel();
 
         float levelMultiplier = calculateLevelPenalty(playerClassLevel, targetLevel);
-        int finalClassExp = Math.round(classExpFromDamage * levelMultiplier);
+
+        float rarityMultiplier = ProgressiveDifficultySystem.getVariantExpMultiplier(target);
+
+        int finalClassExp = Math.round(classExpFromDamage * levelMultiplier * rarityMultiplier);
 
         return Math.max(0, finalClassExp);
     }
@@ -107,18 +114,15 @@ public final class ExpUtil {
         if (classComponent != null) {
             int oldClassLevel = classComponent.getClassManager().getClassLevel();
 
-            // Use batch update for sync
             classComponent.addClassExperience(amount);
 
             int newClassLevel = classComponent.getClassManager().getClassLevel();
 
             if (showMessage) {
-                // Send class level up notification
                 if (newClassLevel > oldClassLevel && player instanceof ServerPlayerEntity serverPlayer) {
                     SendToastPayloadS2C.sendLevelUp(serverPlayer, newClassLevel - oldClassLevel);
                 }
 
-                // Send class experience notification
                 if (player instanceof ServerPlayerEntity serverPlayer) {
                     String classSource = "Class: " + source;
                     SendToastPayloadS2C.sendExperience(serverPlayer, amount, classSource);
@@ -130,6 +134,18 @@ public final class ExpUtil {
     public static void awardCombinedExperience(PlayerEntity player, LivingEntity target, float damagePercentage, String source) {
         int mainExp = calculateExpReward(player, target, damagePercentage);
         int classExp = calculateClassReward(player, target, damagePercentage);
+
+        // Check for rare kill bonus message
+        float rarityMultiplier = ProgressiveDifficultySystem.getVariantExpMultiplier(target);
+        boolean isRareKill = rarityMultiplier > 1.0f;
+
+        // Add rarity info to source if it's a rare kill
+        String finalSource = source;
+        if (isRareKill) {
+            int rarityLevel = MobSpawnStatsEvent.getRarityLevel(target);
+            String[] rarityNames = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"};
+            finalSource = source + " (" + rarityNames[Math.min(rarityLevel, 5)] + " ×" + String.format("%.1f", rarityMultiplier) + ")";
+        }
 
         // Track level changes for combined toast
         int oldMainLevel = 0;
@@ -153,11 +169,11 @@ public final class ExpUtil {
         }
 
         if (shouldReceiveMain && mainExp > 0) {
-            awardExperience(player, mainExp, source, false); // No toast
+            awardExperience(player, mainExp, finalSource, false);
         }
 
         if (shouldReceiveClass && classExp > 0) {
-            awardClassExperience(player, classExp, source, false); // No toast
+            awardClassExperience(player, classExp, finalSource, false);
         }
 
         int newMainLevel = oldMainLevel;
@@ -180,7 +196,7 @@ public final class ExpUtil {
             long actualClassExp = shouldReceiveClass ? classExp : 0;
 
             if (actualMainExp > 0 || actualClassExp > 0) {
-                SendToastPayloadS2C.sendCombinedExperience(serverPlayer, actualMainExp, actualClassExp, source);
+                SendToastPayloadS2C.sendCombinedExperience(serverPlayer, actualMainExp, actualClassExp, finalSource);
             }
 
             // Send combined level up toast if any levels were gained
@@ -188,7 +204,6 @@ public final class ExpUtil {
             int classLevelsGained = newClassLevel - oldClassLevel;
 
             if (mainLevelsGained > 0 || classLevelsGained > 0) SendToastPayloadS2C.sendCombinedLevelUp(serverPlayer, mainLevelsGained, classLevelsGained);
-
         }
     }
 
@@ -218,16 +233,14 @@ public final class ExpUtil {
             default -> {
                 if (levelDiff > 16) yield 0.40f;
                 if (levelDiff < -31) yield 0.10f;
-                yield 1.00f; // Safety fallback
+                yield 1.00f;
             }
         };
     }
 
-    // player are not have exp by default but for safty
     public static boolean shouldReceiveExperience(PlayerEntity player, LivingEntity target) {
         if (target instanceof PlayerEntity) return false;
 
-        // Don't give exp if player is at max level
         LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
         return levelComponent == null || !levelComponent.getLevelSystem().isMaxLevel();
     }
@@ -235,7 +248,6 @@ public final class ExpUtil {
     public static boolean shouldReceiveClassExperience(PlayerEntity player, LivingEntity target) {
         if (target instanceof PlayerEntity) return false;
 
-        // Don't give class exp if player is at max class level
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.getNullable(player);
         return classComponent == null || !classComponent.getClassManager().getClassLevelSystem().isMaxLevel();
     }
