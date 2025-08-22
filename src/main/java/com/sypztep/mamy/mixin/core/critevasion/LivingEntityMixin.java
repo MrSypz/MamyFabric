@@ -42,11 +42,11 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
         }
     }
 
-    @ModifyVariable(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V",at = @At("HEAD"),argsOnly = true)
+    @ModifyVariable(method = "applyDamage", at = @At("HEAD"), argsOnly = true)
     private float applyPreArmorDamageModification(float amount, DamageSource source) {
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
         isCrit = LivingEntityUtil.isCrit(attacker);
-        return DamageUtil.damageModifier(target, amount, source, isCrit);
+        return DamageUtil.calculateDamage(target, attacker, source, amount, isCrit);
     }
 
     @Inject(method = "applyArmorToDamage", at = @At("HEAD"), cancellable = true)

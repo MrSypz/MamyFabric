@@ -12,13 +12,13 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(value = PlayerEntity.class, priority = 1500)
 public class PlayerEntityMixin {
 
-    @ModifyVariable(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "applyDamage", at = @At("HEAD"), argsOnly = true)
     private float applyPreArmorDamageModification(float amount, DamageSource source) {
         PlayerEntity player = (PlayerEntity) (Object) this;
 
         if (!(source.getAttacker() instanceof LivingEntity attacker)) return amount;
 
         boolean isCrit = LivingEntityUtil.isCrit(attacker);
-        return DamageUtil.damageMonsterModifier(player, amount, source, isCrit); // player this one is target is player
+        return DamageUtil.calculateDamage(player, attacker, source, amount, isCrit);
     }
 }
