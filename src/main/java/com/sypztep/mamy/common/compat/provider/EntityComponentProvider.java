@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.compat.provider;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,6 +25,8 @@ import net.minecraft.util.math.BlockPos;
 public enum EntityComponentProvider implements IEntityComponentProvider {
     INSTANCE;
 
+    private static final boolean IS_DEV_MODE = FabricLoader.getInstance().isDevelopmentEnvironment();
+
     @Override
     public void appendTooltip(ITooltip iTooltip, EntityAccessor entityAccessor, IPluginConfig iPluginConfig) {
         Entity target = entityAccessor.getEntity();
@@ -31,29 +34,43 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
 
         if (!(target instanceof LivingEntity livingTarget) || viewer == null) return;
 
-        // === UNIVERSAL STATS (for all living entities) ===
-        addBasicStats(iTooltip, livingTarget, viewer);
+        // === PRODUCTION MODE: Simple hit rate only ===
+        if (!IS_DEV_MODE) {
+            if (livingTarget instanceof PlayerEntity) return; // Don't show for players in production
 
-        // === PLAYER-SPECIFIC STATS ===
-        if (livingTarget instanceof PlayerEntity playerTarget) {
-            addPlayerStats(iTooltip, playerTarget);
+            float hitRate = LivingEntityUtil.hitRate(viewer, livingTarget) * 100;
+            iTooltip.add(Text.translatable("mamy.hitchance", String.format("%.2f", hitRate)));
+            return;
         }
-        // === MONSTER-SPECIFIC STATS ===
-        else {
-            addMonsterStats(iTooltip, livingTarget, viewer);
-        }
+
+        // === DEVELOPMENT MODE: Detailed stats with clear names ===
+        addDevModeStats(iTooltip, livingTarget, viewer);
     }
 
-    private void addBasicStats(ITooltip tooltip, LivingEntity target, PlayerEntity viewer) {
+    private void addDevModeStats(ITooltip tooltip, LivingEntity target, PlayerEntity viewer) {
         LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(target);
         if (levelComponent == null) return;
 
-        // Level and Health
+        // === BASIC INFO ===
+        addBasicDevStats(tooltip, target, viewer, levelComponent);
+
+        // === PLAYER-SPECIFIC STATS ===
+        if (target instanceof PlayerEntity playerTarget) {
+            addPlayerDevStats(tooltip, playerTarget, levelComponent);
+        }
+        // === MONSTER-SPECIFIC STATS ===
+        else {
+            addMonsterDevStats(tooltip, target, viewer);
+        }
+    }
+
+    private void addBasicDevStats(ITooltip tooltip, LivingEntity target, PlayerEntity viewer, LivingLevelComponent levelComponent) {
+        int level = levelComponent.getLevel();
         float currentHealth = target.getHealth();
         float maxHealth = target.getMaxHealth();
 
-        tooltip.add(Text.literal("Health: ").formatted(Formatting.RED)
-                .append(Text.literal(String.format("%.1f/%.1f", currentHealth, maxHealth)).formatted(Formatting.WHITE)));
+        tooltip.add(Text.literal("Lv." + level + " | HP: ").formatted(Formatting.GREEN)
+                .append(Text.literal(String.format("%.0f/%.0f", currentHealth, maxHealth)).formatted(Formatting.WHITE)));
 
         // Hit Rate (viewer attacking target)
         float hitRate = LivingEntityUtil.hitRate(viewer, target) * 100;
@@ -63,20 +80,15 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
                 .append(Text.literal(String.format("%.1f%%", hitRate)).formatted(hitRateColor)));
     }
 
-    private void addPlayerStats(ITooltip tooltip, PlayerEntity player) {
-        LivingLevelComponent levelComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
+    private void addPlayerDevStats(ITooltip tooltip, PlayerEntity player, LivingLevelComponent levelComponent) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.getNullable(player);
 
-        if (levelComponent == null) return;
-
-        // Experience
         long currentExp = levelComponent.getExperience();
         long expToNext = levelComponent.getExperienceToNextLevel();
 
-        tooltip.add(Text.literal("Exp: ").formatted(Formatting.AQUA)
+        tooltip.add(Text.literal("EXP: ").formatted(Formatting.AQUA)
                 .append(Text.literal(String.format("%,d/%,d", currentExp, currentExp + expToNext)).formatted(Formatting.WHITE)));
 
-        // Class Information
         if (classComponent != null) {
             String className = classComponent.getClassManager().getCurrentClass().getDisplayName();
             int classLevel = classComponent.getClassManager().getClassLevel();
@@ -85,21 +97,16 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
                     .append(Text.literal(className + " Lv." + classLevel).formatted(Formatting.WHITE)));
         }
 
-        // Combat Stats
         addCombatStats(tooltip, player);
     }
 
-    private void addMonsterStats(ITooltip tooltip, LivingEntity monster, PlayerEntity viewer) {
-        // Rarity Information
+    private void addMonsterDevStats(ITooltip tooltip, LivingEntity monster, PlayerEntity viewer) {
         addRarityInfo(tooltip, monster);
 
-        // Biome Danger
         addBiomeDanger(tooltip, monster);
 
-        // Combat Stats
         addCombatStats(tooltip, monster);
 
-        // Experience Reward Preview
         addExpReward(tooltip, monster, viewer);
     }
 
@@ -120,103 +127,109 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
 
             float expMult = ProgressiveDifficultySystem.getVariantExpMultiplier(monster);
 
-            tooltip.add(Text.literal("Rarity: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(rarityName).formatted(rarityColor))
-                    .append(Text.literal(" (×" + String.format("%.1f", expMult) + " EXP)").formatted(Formatting.YELLOW)));
+            tooltip.add(Text.literal(rarityName).formatted(rarityColor)
+                    .append(Text.literal(" (×" + String.format("%.1f", expMult) + ")").formatted(Formatting.YELLOW)));
         }
     }
 
     private void addBiomeDanger(ITooltip tooltip, LivingEntity monster) {
         BlockPos pos = monster.getBlockPos();
-        float biomeMultiplier = ProgressiveDifficultySystem.calculateBiomeAmplification(monster.getWorld(), pos);
+        float biomeMultiplier = ProgressiveDifficultySystem.getBiomeStatMultiplier(monster.getWorld(), pos);
 
         if (biomeMultiplier > 1.0f) {
             String dangerLevel = getDangerLevel(biomeMultiplier);
             Formatting dangerColor = getDangerColor(biomeMultiplier);
 
             tooltip.add(Text.literal("Biome: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(dangerLevel).formatted(dangerColor))
-                    .append(Text.literal(" (×" + String.format("%.1f", biomeMultiplier) + ")").formatted(Formatting.GRAY)));
+                    .append(Text.literal(dangerLevel + " ×" + String.format("%.1f", biomeMultiplier)).formatted(dangerColor)));
         }
     }
 
     private void addCombatStats(ITooltip tooltip, LivingEntity entity) {
-        // Accuracy & Evasion
         double accuracy = entity.getAttributeValue(ModEntityAttributes.ACCURACY);
         double evasion = entity.getAttributeValue(ModEntityAttributes.EVASION);
 
-        tooltip.add(Text.literal("Accuracy: ").formatted(Formatting.GOLD)
-                .append(Text.literal(String.format("%.0f", accuracy)).formatted(Formatting.WHITE))
-                .append(Text.literal(" | Evasion: ").formatted(Formatting.GOLD))
-                .append(Text.literal(String.format("%.0f", evasion)).formatted(Formatting.WHITE)));
+        if (accuracy > 0 || evasion > 0) {
+            tooltip.add(Text.literal("ACC: ").formatted(Formatting.GOLD)
+                    .append(Text.literal(String.format("%.0f", accuracy)).formatted(Formatting.WHITE))
+                    .append(Text.literal(" | EVA: ").formatted(Formatting.GOLD))
+                    .append(Text.literal(String.format("%.0f", evasion)).formatted(Formatting.WHITE)));
+        }
 
-        // Critical Stats
+        // === CRITICAL STATS (Clear abbreviations) ===
         double critChance = entity.getAttributeValue(ModEntityAttributes.CRIT_CHANCE) * 100;
         double critDamage = entity.getAttributeValue(ModEntityAttributes.CRIT_DAMAGE) * 100;
 
         if (critChance > 0) {
-            tooltip.add(Text.literal("Crit: ").formatted(Formatting.RED)
+            tooltip.add(Text.literal("C.Chance: ").formatted(Formatting.RED)
                     .append(Text.literal(String.format("%.1f%%", critChance)).formatted(Formatting.WHITE))
-                    .append(Text.literal(" | Damage: ").formatted(Formatting.RED))
+                    .append(Text.literal(" | C.Dmg: ").formatted(Formatting.RED))
                     .append(Text.literal(String.format("%.0f%%", critDamage)).formatted(Formatting.WHITE)));
         }
 
-        // Damage Types
+        // === DAMAGE STATS (Clear abbreviations) ===
+        addDamageStats(tooltip, entity);
+
+        // === DEFENSIVE STATS (Clear abbreviations) ===
+        addDefensiveStats(tooltip, entity);
+    }
+
+    private void addDamageStats(ITooltip tooltip, LivingEntity entity) {
+        // Melee
         double meleeFlat = entity.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
         double meleeMult = entity.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT) * 100;
 
         if (meleeFlat > 0 || meleeMult > 0) {
-            tooltip.add(Text.literal("Melee: ").formatted(Formatting.DARK_RED)
+            tooltip.add(Text.literal("STR: ").formatted(Formatting.DARK_RED)
                     .append(Text.literal(String.format("%.0f", meleeFlat)).formatted(Formatting.WHITE))
                     .append(Text.literal(" (+").formatted(Formatting.GRAY))
                     .append(Text.literal(String.format("%.0f%%", meleeMult)).formatted(Formatting.WHITE))
                     .append(Text.literal(")").formatted(Formatting.GRAY)));
         }
 
+        // Magic
         double magicFlat = entity.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         double magicMult = entity.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT) * 100;
 
         if (magicFlat > 0 || magicMult > 0) {
-            tooltip.add(Text.literal("Magic: ").formatted(Formatting.DARK_PURPLE)
+            tooltip.add(Text.literal("INT: ").formatted(Formatting.DARK_PURPLE)
                     .append(Text.literal(String.format("%.0f", magicFlat)).formatted(Formatting.WHITE))
                     .append(Text.literal(" (+").formatted(Formatting.GRAY))
                     .append(Text.literal(String.format("%.0f%%", magicMult)).formatted(Formatting.WHITE))
                     .append(Text.literal(")").formatted(Formatting.GRAY)));
         }
 
+        // Ranged
         double projectileFlat = entity.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
         double projectileMult = entity.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT) * 100;
 
         if (projectileFlat > 0 || projectileMult > 0) {
-            tooltip.add(Text.literal("Ranged: ").formatted(Formatting.DARK_GREEN)
+            tooltip.add(Text.literal("DEX: ").formatted(Formatting.DARK_GREEN)
                     .append(Text.literal(String.format("%.0f", projectileFlat)).formatted(Formatting.WHITE))
                     .append(Text.literal(" (+").formatted(Formatting.GRAY))
                     .append(Text.literal(String.format("%.0f%%", projectileMult)).formatted(Formatting.WHITE))
                     .append(Text.literal(")").formatted(Formatting.GRAY)));
         }
-
-        // Resistances
-        addResistances(tooltip, entity);
     }
 
-    private void addResistances(ITooltip tooltip, LivingEntity entity) {
+    private void addDefensiveStats(ITooltip tooltip, LivingEntity entity) {
         double damageReduction = entity.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100;
 
         if (damageReduction > 0) {
-            tooltip.add(Text.literal("Damage Reduction: ").formatted(Formatting.BLUE)
-                    .append(Text.literal(String.format("%.1f%%", damageReduction)).formatted(Formatting.WHITE)));
+            tooltip.add(Text.literal("VIT: ").formatted(Formatting.BLUE)
+                    .append(Text.literal(String.format("%.1f%% reduction", damageReduction)).formatted(Formatting.WHITE)));
         }
 
-        // Check for significant resistances
+        // Resistances (simplified)
         double magicRes = entity.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100;
         double meleeRes = entity.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE) * 100;
         double rangedRes = entity.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE) * 100;
 
         if (magicRes > 0 || meleeRes > 0 || rangedRes > 0) {
-            tooltip.add(Text.literal("Resistances: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("M:%.0f%% ", magicRes)).formatted(Formatting.DARK_PURPLE))
-                    .append(Text.literal(String.format("P:%.0f%% ", meleeRes)).formatted(Formatting.DARK_RED))
-                    .append(Text.literal(String.format("R:%.0f%%", rangedRes)).formatted(Formatting.DARK_GREEN)));
+            tooltip.add(Text.literal("RES: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("M%.0f%% ", magicRes)).formatted(Formatting.DARK_PURPLE))
+                    .append(Text.literal(String.format("P%.0f%% ", meleeRes)).formatted(Formatting.DARK_RED))
+                    .append(Text.literal(String.format("R%.0f%%", rangedRes)).formatted(Formatting.DARK_GREEN)));
         }
     }
 
@@ -238,7 +251,7 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
                 Formatting expColor = finalExp > baseExp * 2 ? Formatting.GOLD :
                         finalExp > baseExp ? Formatting.YELLOW : Formatting.WHITE;
 
-                tooltip.add(Text.literal("Exp Reward: ").formatted(Formatting.AQUA)
+                tooltip.add(Text.literal("EXP: ").formatted(Formatting.AQUA)
                         .append(Text.literal(String.format("%,d", finalExp)).formatted(expColor)));
             }
         }
@@ -255,16 +268,16 @@ public enum EntityComponentProvider implements IEntityComponentProvider {
     }
 
     private String getDangerLevel(float multiplier) {
-        if (multiplier >= 4.0f) return "Hellish";
-        if (multiplier >= 2.5f) return "Extreme";
+        if (multiplier >= 3.0f) return "Hellish";
+        if (multiplier >= 2.0f) return "Extreme";
         if (multiplier >= 1.5f) return "Harsh";
         if (multiplier >= 1.2f) return "Moderate";
         return "Peaceful";
     }
 
     private Formatting getDangerColor(float multiplier) {
-        if (multiplier >= 4.0f) return Formatting.DARK_RED;
-        if (multiplier >= 2.5f) return Formatting.RED;
+        if (multiplier >= 3.0f) return Formatting.DARK_RED;
+        if (multiplier >= 2.0f) return Formatting.RED;
         if (multiplier >= 1.5f) return Formatting.GOLD;
         if (multiplier >= 1.2f) return Formatting.YELLOW;
         return Formatting.GREEN;
