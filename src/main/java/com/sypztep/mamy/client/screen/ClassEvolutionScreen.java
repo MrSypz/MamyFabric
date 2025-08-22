@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ClassEvolutionPayloadC2S;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
+import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -209,10 +210,9 @@ public final class ClassEvolutionScreen extends Screen {
 
         // Summary text
         String summaryText = String.format("Current: %s (Class Lv.%d)", currentClass.getDisplayName(), level);
-
         context.drawTextWithShadow(textRenderer, Text.literal(summaryText).formatted(Formatting.WHITE), x + 10, y + 8, 0xFFFFFF);
 
-        // Status indicator with correct required level
+        // Simple status indicator
         String statusText;
         int statusColor;
         if (ready) {
@@ -400,7 +400,7 @@ public final class ClassEvolutionScreen extends Screen {
             context.drawTextWithShadow(textRenderer, Text.literal("Requirements:").formatted(Formatting.GOLD), textX, currentY, 0xFFD700);
             currentY += textRenderer.fontHeight + 5;
 
-            // Requirements list - wrapped
+            // Default class requirements from PlayerClass
             for (var req : selectedClass.getRequirements()) {
                 PlayerClass requiredClass = req.previousClass();
                 int requiredLevel = req.requiredLevel();
@@ -417,12 +417,42 @@ public final class ClassEvolutionScreen extends Screen {
                     currentY += textRenderer.fontHeight + 2;
                 }
             }
+
+            // ADDITIONAL CUSTOM REQUIREMENTS based on current class
+            PlayerClass currentClass = classManager.getCurrentClass();
+
+            if (currentClass.getTier() == 0) { // Novice evolving
+                // Basic Skill Level 10 requirement
+                int basicSkillLevel = classManager.getSkillLevel(SkillRegistry.BASICSKILL);
+                boolean basicSkillMet = basicSkillLevel >= 10;
+                Formatting basicSkillColor = basicSkillMet ? Formatting.GREEN : Formatting.RED;
+                String basicSkillText = String.format("  Basic Skill Level 10 (Current: %d)", basicSkillLevel);
+
+                List<String> basicSkillLines = TextUtil.wrapText(textRenderer, basicSkillText, maxWidth);
+                for (String line : basicSkillLines) {
+                    context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(basicSkillColor), textX, currentY, basicSkillColor.getColorValue() != null ? basicSkillColor.getColorValue() : 0xFFFFFF);
+                    currentY += textRenderer.fontHeight + 2;
+                }
+            } else {
+                // Other classes - must spend all skill points
+                int skillPoints = classManager.getClassStatPoints();
+                boolean skillPointsMet = skillPoints == 0;
+                Formatting skillPointsColor = skillPointsMet ? Formatting.GREEN : Formatting.RED;
+                String skillPointsText = skillPointsMet ? "  All skill points spent ✓" : String.format("  Must spend %d remaining skill points", skillPoints);
+
+                List<String> skillPointsLines = TextUtil.wrapText(textRenderer, skillPointsText, maxWidth);
+                for (String line : skillPointsLines) {
+                    context.drawTextWithShadow(textRenderer, Text.literal(line).formatted(skillPointsColor), textX, currentY, skillPointsColor.getColorValue() != null ? skillPointsColor.getColorValue() : 0xFFFFFF);
+                    currentY += textRenderer.fontHeight + 2;
+                }
+            }
+
             currentY += 10;
         }
 
         // Enhanced version of your attribute bonuses display
         if (!selectedClass.getAttributeModifiers().isEmpty()) {
-            context.drawTextWithShadow(textRenderer, Text.translatable("gui.class_selection.attribute_bonuses").formatted(Formatting.GOLD), textX, currentY, 0xFFD700);
+            context.drawTextWithShadow(textRenderer, Text.literal("Class Bonus").formatted(Formatting.GOLD), textX, currentY, 0xFFD700);
             currentY += textRenderer.fontHeight + 5;
 
             for (var entry : selectedClass.getAttributeModifiers().entrySet()) {
