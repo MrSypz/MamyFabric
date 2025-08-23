@@ -15,6 +15,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();
@@ -46,6 +47,7 @@ public class MamyClient implements ClientModInitializer {
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
 
+        // Register mouse event handlers (if you don't have them already)
 //        ClientTickEvents.END_CLIENT_TICK.register(client -> {
 //            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
 //                KeyEntryScreen.keyValidated = true;

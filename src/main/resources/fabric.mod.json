@@ -51,9 +51,7 @@
       "mamy:playerstance",
       "mamy:headshot",
       "mamy:phantomwalker",
-      "mamy:playerweight",
-      "mamy:playerparty",
-      "mamy:worldparty"
+      "mamy:playerweight"
     ]
   }
 }

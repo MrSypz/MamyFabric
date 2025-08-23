@@ -13,7 +13,6 @@ import net.minecraft.server.command.CommandManager;
                     .then(StatCommand.register())
                     .then(PassiveAbilityCommand.register())
                     .then(PlayerClassCommand.register())
-                    .then(PartyCommand.register())  // ADD THIS LINE
             ));
         }
     }

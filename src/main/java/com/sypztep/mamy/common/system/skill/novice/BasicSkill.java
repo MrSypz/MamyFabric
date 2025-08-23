@@ -28,9 +28,6 @@ public class BasicSkill extends PassiveSkill {
         tooltip.add(Text.literal("Essential skills for novice adventurers").formatted(Formatting.GRAY));
         tooltip.add(Text.literal(""));
 
-        if (skillLevel >= 1) {
-            tooltip.add(Text.literal("✓ Novice Class Features").formatted(Formatting.GREEN));
-        }
         if (skillLevel >= 5) {
             tooltip.add(Text.literal("✓ Join a Party").formatted(Formatting.GREEN));
         }
