@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 
 @Environment(EnvType.CLIENT)
-public class CastingHudRenderer {
+public final class CastingHudRenderer {
 
     public static void init() {
         HudRenderCallback.EVENT.register(CastingHudRenderer::renderCastingBar);

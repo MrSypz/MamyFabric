@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /**
  * Helper class for adding class restriction tooltips to items
  */
-public class ClassRestrictionTooltipHelper {
+public final class ClassRestrictionTooltipHelper {
 
     /**
      * Append class restriction information to item tooltips
