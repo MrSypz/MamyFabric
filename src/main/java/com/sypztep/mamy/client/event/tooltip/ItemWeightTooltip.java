@@ -11,7 +11,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
 import com.sypztep.mamy.common.data.ItemWeightEntry;
 
-public class ItemWeightTooltip implements ItemTooltipCallback {
+public final class ItemWeightTooltip implements ItemTooltipCallback {
     public static void register() {
         ItemTooltipCallback.EVENT.register(new ItemWeightTooltip());
     }
