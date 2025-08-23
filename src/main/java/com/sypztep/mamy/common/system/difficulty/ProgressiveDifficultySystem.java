@@ -311,8 +311,8 @@ public class ProgressiveDifficultySystem {
 
         // Debug local difficulty effects
         if (localDifficultyValue > 3.0f) {
-            System.out.printf("[LocalDifficulty] %.1f difficulty → ×%.1f spawn rates, ×%.1f biome stats\n",
-                    localDifficultyValue, localDifficultyMult, biomeStatMult);
+//            System.out.printf("[LocalDifficulty] %.1f difficulty → ×%.1f spawn rates, ×%.1f biome stats\n",
+//                    localDifficultyValue, localDifficultyMult, biomeStatMult);
         }
 
         return new MonsterVariant(rarity, prefix, suffix, baseName, random,
@@ -331,8 +331,8 @@ public class ProgressiveDifficultySystem {
 
             float adjustedChance = rarity.getAdjustedSpawnChance(localDifficultyMult);
             if (roll <= adjustedChance) {
-                System.out.printf("[RareSpawn] %s spawned! (Chance: %.6f, Local Difficulty: ×%.1f)\n",
-                        rarity.name(), adjustedChance, localDifficultyMult);
+//                System.out.printf("[RareSpawn] %s spawned! (Chance: %.6f, Local Difficulty: ×%.1f)\n",
+//                        rarity.name(), adjustedChance, localDifficultyMult);
                 return rarity;
             }
         }
@@ -382,17 +382,17 @@ public class ProgressiveDifficultySystem {
                     stat.setPoints((short) Math.min(newValue, Short.MAX_VALUE));
 
                     if (variant.totalStatMultiplier > 2.0f) {
-                        System.out.printf("[StatBoost] %s %s: %d → %d (×%.1f total)\n",
-                                entity.getType().getName().getString(), statType.name(),
-                                currentValue, newValue, variant.totalStatMultiplier);
+//                        System.out.printf("[StatBoost] %s %s: %d → %d (×%.1f total)\n",
+//                                entity.getType().getName().getString(), statType.name(),
+//                                currentValue, newValue, variant.totalStatMultiplier);
                     }
                 }
             }
         }
 
         entity.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(variant.baseArmor);
-        System.out.printf("[ArmorBoost] %s armor: %d (base 4 + rarity + random)\n",
-                entity.getType().getName().getString(), variant.baseArmor);
+//        System.out.printf("[ArmorBoost] %s armor: %d (base 4 + rarity + random)\n",
+//                entity.getType().getName().getString(), variant.baseArmor);
 
         levelComponent.refreshAllStatEffectsInternal();
 
