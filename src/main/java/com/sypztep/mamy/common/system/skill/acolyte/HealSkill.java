@@ -73,13 +73,8 @@ public class HealSkill extends Skill implements CastableSkill {
         float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
 
-        // Calculate base healing
         float baseHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
-
-        // Apply healing modifiers (1 + RecoveryEffect%)
         float modifiedHealing = baseHealing * (1 + healingEffectiveness);
-
-        // Add MATK
         return modifiedHealing + magicAttack;
     }
 
