@@ -28,7 +28,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ARMOR);
 
 		// Bypasses Shield - Damage that goes through shields
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD)
+				.addOptional(ModDamageTypes.BASHING_BLOW);
 
 		// Bypasses Enchantments - Damage that ignores Protection enchants
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS);
@@ -41,11 +42,13 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
-				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
+				.addOptional(ModDamageTypes.FIRE_DAMAGE);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
-				.addOptional(ModDamageTypes.DOUBLE_ATTACK);  // Already in your file
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
+				.addOptional(ModDamageTypes.FIRE_DAMAGE);
 
 		// Is Projectile - Makes your skills count as projectile damage
 		getOrCreateTagBuilder(DamageTypeTags.IS_PROJECTILE);
@@ -56,19 +59,20 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.FIRE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_FIRE); // DRY: Use vanilla's comprehensive fire tag
+				.addOptionalTag(DamageTypeTags.IS_FIRE)
+				.addOptional(ModDamageTypes.FIRE_DAMAGE);
 
 		// ==========================================
 		// ELECTRIC DAMAGE - Just reference vanilla IS_LIGHTNING tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.ELECTRIC_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_LIGHTNING); // DRY: Use vanilla's lightning tag
+				.addOptionalTag(DamageTypeTags.IS_LIGHTNING);
 
 		// ==========================================
 		// PROJECTILE DAMAGE - Just reference vanilla IS_PROJECTILE tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.PROJECTILE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_PROJECTILE);     // DRY: Use vanilla's projectile tag
+				.addOptionalTag(DamageTypeTags.IS_PROJECTILE);
 
 		// ==========================================
 		// WATER DAMAGE - Combine vanilla water-related tags
@@ -101,7 +105,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.SWEET_BERRY_BUSH)
 				.add(DamageTypes.CACTUS)
 				// ADD YOUR SKILL DAMAGE TYPES TO MELEE TAG
-				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
+				.addOptional(ModDamageTypes.BASHING_BLOW);
 
 		// ==========================================
 		// HOLY DAMAGE - Pure magical/supernatural (no vanilla equivalent)
