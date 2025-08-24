@@ -2,42 +2,35 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
-import com.sypztep.mamy.common.system.skill.novice.BasicSkill;
+import com.sypztep.mamy.common.system.skill.novice.BasicPassiveSkill;
+import com.sypztep.mamy.common.system.skill.swordman.BashingBlowSkill;
+import com.sypztep.mamy.common.system.skill.swordman.EndureSkill;
+import com.sypztep.mamy.common.system.skill.swordman.EnergyBreakSkill;
+import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
 
 public class SkillRegistry {
     private static final Map<Identifier, Skill> SKILLS = new HashMap<>();
-
+    //Novice
     public static final Identifier BASICSKILL = Mamy.id("basic_skill");
-    public static final Identifier FIRSTAID = Mamy.id("first_aid");
-//    public static final Identifier BLOODLUST = Mamy.id("bloodlust");
-//    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
-//    public static final Identifier DOUBLE_ATTACK = Mamy.id("double_attack");
-//    public static final Identifier SHIELD_BASH = Mamy.id("shield_bash");
-//    public static final Identifier FIREBALL = Mamy.id("fireball");
-//    public static final Identifier HEALING_LIGHT = Mamy.id("healing_light");
-//    public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
-//    public static final Identifier SHADOW_STEP = Mamy.id("shadow_step");
-//    public static final Identifier BERSERKER_RAGE = Mamy.id("berserker_rage");
-//    public static final Identifier METEOR_STRIKE = Mamy.id("meteor_strike");
-//    public static final Identifier DIVINE_JUDGMENT = Mamy.id("divine_judgment");
+    //SwordMan
+    public static final Identifier BASHING_BLOW = Mamy.id("bashing_blow");
+    public static final Identifier ENERGY_BREAK = Mamy.id("energy_break");
+    public static final Identifier ENDURE = Mamy.id("endure");
+    public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
 
     public static void registerSkills() {
-        register(new BasicSkill(BASICSKILL));
-//        register(new FirstAidSkill(FIRSTAID));
-//        register(new BloodlustSkill(BLOODLUST));
-//        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
-//        register(new DoubleAttackPassiveSkill(DOUBLE_ATTACK));
-        // register(new ShieldBashSkill());
-        // register(new FireballSkill());
-        // register(new HealingLightSkill());
-        // register(new ArrowShowerSkill());
-        // register(new ShadowStepSkill());
-        // register(new BerserkerRageSkill());
-        // register(new MeteorStrikeSkill());
-        // register(new DivineJudgmentSkill());
+        //Novice
+        register(new BasicPassiveSkill(BASICSKILL));
+
+        //SwordMan
+        register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
+        register(new BashingBlowSkill(BASHING_BLOW));
+        register(new EnergyBreakSkill(ENERGY_BREAK));
+        register(new EndureSkill(ENDURE));
+
     }
 
     private static void register(Skill skill) {

@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.screen;
 
 import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
+import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
@@ -81,7 +82,7 @@ public final class SkillLearningScreen extends Screen {
         DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
         renderTitle(context);
         renderClassPointsSummary(context);
-
+        renderToastsOverScreen(context,delta);
         super.render(context, mouseX, mouseY, delta); // This renders the buttons
     }
 
@@ -132,6 +133,11 @@ public final class SkillLearningScreen extends Screen {
 
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
+    private void renderToastsOverScreen(DrawContext context, float delta) {
+        float deltaTime = delta / 20.0f;
+        ToastRenderer.renderToasts(context, this.width, deltaTime);
     }
 
     @Override

@@ -29,6 +29,15 @@ public abstract class PassiveSkill extends Skill {
         this.passiveEffects = new ArrayList<>();
         initializePassiveEffects();
     }
+    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
+                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+                         Identifier icon) {
+        super(id, name, description, 0.0f, 0.0f, requiredClass, baseClassPointCost,
+                upgradeClassPointCost, maxSkillLevel, false, icon);
+        this.attributeModifications = new ArrayList<>();
+        this.passiveEffects = new ArrayList<>();
+        initializePassiveEffects();
+    }
 
     /**
      * Initialize the passive effects this skill provides
@@ -41,15 +50,6 @@ public abstract class PassiveSkill extends Skill {
      */
     protected void addAttributeModification(AttributeModification modification) {
         attributeModifications.add(modification);
-    }
-
-    /**
-     * Convenience method for adding attribute modifications
-     */
-    protected void addAttributeModification(RegistryEntry<EntityAttribute> attribute, Identifier modifierId,
-                                            EntityAttributeModifier.Operation operation,
-                                            ToDoubleFunction<Double> effectFunction) {
-        attributeModifications.add(new AttributeModification(attribute, modifierId, operation, effectFunction));
     }
 
     /**
@@ -129,9 +129,7 @@ public abstract class PassiveSkill extends Skill {
     /**
      * Override this to populate tooltip data for passive effects
      */
-    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {
-        // Default implementation - override for specific passive effects
-    }
+    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {    }
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
@@ -183,7 +181,6 @@ public abstract class PassiveSkill extends Skill {
     }
 
     private String getAttributeDisplayName(RegistryEntry<EntityAttribute> attribute) {
-        // You might want to create a mapping for better display names
         String name = attribute.value().getTranslationKey();
         return name.substring(name.lastIndexOf('.') + 1).replace('_', ' ');
     }
