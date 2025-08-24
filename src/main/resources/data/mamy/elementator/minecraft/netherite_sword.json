@@ -1,7 +1,6 @@
 {
   "damageRatios": {
-    "physical": 0.3,
-    "fire": 0.7
+    "physical": 1
   },
-  "powerBudget": 1.5
+  "powerBudget": 1
 }

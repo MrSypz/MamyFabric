@@ -15,7 +15,6 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();

@@ -1,6 +1,5 @@
 package com.sypztep.mamy.mixin.core.classes.correctequipment;
 
-import com.sypztep.mamy.common.init.ModTags;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
