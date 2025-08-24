@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Matrix-style equipment system using equipment categories and class permissions
  */
-public class ClassEquipmentUtil {
+public final class ClassEquipmentUtil {
 
     // Equipment categories
     public enum EquipmentCategory {

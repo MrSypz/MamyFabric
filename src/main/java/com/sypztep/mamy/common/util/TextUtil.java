@@ -5,7 +5,7 @@ import net.minecraft.client.font.TextRenderer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TextUtil {
+public final class TextUtil {
     public static List<String> wrapText(TextRenderer textRenderer, String text, int maxWidth) {
         List<String> lines = new ArrayList<>();
 

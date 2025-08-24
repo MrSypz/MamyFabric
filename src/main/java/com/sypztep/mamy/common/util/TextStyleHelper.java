@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Simple utility class for auto-styling text based on common patterns
  */
-public class TextStyleHelper {
+public final class TextStyleHelper {
 
     // Pattern to match: +15% Movement Speed, -10 Health, ×5x damage, etc.
     // More precise pattern that handles word boundaries better

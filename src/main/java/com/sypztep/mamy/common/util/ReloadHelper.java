@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ReloadHelper {
+public final class ReloadHelper {
 
     /**
      * Generic JSON reload helper.
