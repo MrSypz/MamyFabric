@@ -111,13 +111,13 @@ public abstract class Skill {
 
         // Add damage values
         if (damagePercentage > 0) {
-            text.append(Text.literal(String.format("%.0f%%", damagePercentage * 100)).formatted(Formatting.YELLOW));
+            text.append(Text.literal(String.format("%.1f%%", damagePercentage * 100)).formatted(Formatting.YELLOW));
             if (baseDamage > 0) {
                 text.append(Text.literal(" + ").formatted(Formatting.GRAY))
-                        .append(Text.literal(String.format("%.0f", baseDamage)).formatted(Formatting.YELLOW));
+                        .append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
             }
         } else if (baseDamage > 0) {
-            text.append(Text.literal(String.format("%.0f", baseDamage)).formatted(Formatting.YELLOW));
+            text.append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
         }
 
         // Add hits if > 1
@@ -130,7 +130,7 @@ public abstract class Skill {
     private void addRecoveryEffects(List<Text> tooltip, PlayerEntity player, SkillTooltipData data) {
         if (data.healthPerHit > 0) {
             tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", data.healthPerHit)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(String.format("%.1f", data.healthPerHit)).formatted(Formatting.YELLOW))
                     .append(Text.literal(" HP per hit").formatted(Formatting.GRAY)));
         }
 
@@ -138,7 +138,7 @@ public abstract class Skill {
             PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
             ResourceType resourceType = classComponent.getClassManager().getResourceType();
             tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", data.resourcePerHit)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(String.format("%.1f", data.resourcePerHit)).formatted(Formatting.YELLOW))
                     .append(Text.literal(" " + resourceType.getDisplayName() + " per hit").formatted(Formatting.GRAY)));
         }
     }
@@ -208,6 +208,7 @@ public abstract class Skill {
             case MAGIC -> "Magic";
             case PHYSICAL -> "Physical";
             case HEAL -> "Heal";
+            case ELEMENT -> "Element";
             default -> "Attack";
         };
     }
@@ -241,7 +242,7 @@ public abstract class Skill {
     }
 
     public enum DamageType {
-        MELEE, MAGIC, PHYSICAL, HEAL
+        MELEE, MAGIC, PHYSICAL,ELEMENT, HEAL
     }
 
     public enum TooltipContext {

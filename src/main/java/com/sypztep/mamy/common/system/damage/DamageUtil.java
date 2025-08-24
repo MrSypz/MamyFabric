@@ -6,6 +6,9 @@ import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
 import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
+import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.system.skill.acolyte.DemonBanePassiveSkill;
+import com.sypztep.mamy.common.system.skill.acolyte.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -13,11 +16,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));
@@ -110,6 +114,15 @@ public final class DamageUtil {
                 float magicMult = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT);
                 debugLog("Magic Multiplier: %.2fx", magicMult);
                 return magicMult;
+            }
+            return 0.0f;
+        }),
+
+        DEMON_BANE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
+            if (isDemonBaneApplicable(attacker, target)) {
+                PlayerEntity player = (PlayerEntity) attacker;
+                int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DEMON_BANE);
+                return DemonBanePassiveSkill.calculateDamageBonus(player, skillLevel);
             }
             return 0.0f;
         });
@@ -264,6 +277,16 @@ public final class DamageUtil {
             debugLog("Magic resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE));
         }
 
+        if (isDivineProtectionApplicable((LivingEntity) source.getAttacker(), defender)) {
+            PlayerEntity player = (PlayerEntity) defender;
+            int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DIVINE_PROTECTION);
+            if (skillLevel > 0) {
+                float divineReduction = DivineProtectionPassiveSkill.calculateDamageReduction(player, skillLevel);
+                flatReduction += divineReduction;
+                debugLog("Divine Protection flat reduction: %.2f", divineReduction);
+            }
+        }
+
         float afterPercentageReduction = elementalDamage * (1.0f - Math.min(0.95f, percentageReduction));
 
         // Apply flat reduction
@@ -303,5 +326,17 @@ public final class DamageUtil {
 
     public static float getArmorDamageReduction(float armor) {
         return armor / (armor + 20.0f);
+    }
+    public static boolean isDemonBaneApplicable(LivingEntity attacker, LivingEntity target) {
+        if (!(attacker instanceof PlayerEntity)) return false;
+        if (target instanceof PlayerEntity) return false;
+
+        return target.getType().isIn(EntityTypeTags.UNDEAD);
+    }
+    public static boolean isDivineProtectionApplicable(LivingEntity attacker, LivingEntity defender) {
+        if (attacker instanceof PlayerEntity) return false;
+        if (!(defender instanceof PlayerEntity)) return false;
+
+        return attacker.getType().isIn(EntityTypeTags.UNDEAD);
     }
 }

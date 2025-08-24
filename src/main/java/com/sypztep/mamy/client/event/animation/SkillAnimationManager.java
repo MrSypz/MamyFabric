@@ -47,7 +47,7 @@ public class SkillAnimationManager {
             // Stop any current animation with fade
             if (castingLayer.getAnimation() != null) {
                 castingLayer.replaceAnimationWithFade(
-                        AbstractFadeModifier.standardFadeIn(5, Ease.LINEAR), null);
+                        AbstractFadeModifier.standardFadeIn(5, Ease.INOUTCUBIC), null);
             }
 
             // Start the new casting animation
@@ -60,8 +60,8 @@ public class SkillAnimationManager {
                                 .setFirstPersonConfiguration(new FirstPersonConfiguration()
                                         .setShowRightArm(true)
                                         .setShowLeftArm(true)
-                                        .setShowLeftItem(false)
-                                        .setShowRightItem(false))
+                                        .setShowLeftItem(true)
+                                        .setShowRightItem(true))
                 );
                 return true;
             }

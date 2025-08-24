@@ -15,27 +15,14 @@ import java.util.List;
 public class SwordMasteryPassiveSkill extends PassiveSkill {
 
     public SwordMasteryPassiveSkill(Identifier id) {
-        super(
-                id,
-                "Sword Mastery",
-                "Extensive training with bladed weapons increases your melee damage.",
-                ModClasses.SWORDMAN,
-                2, // base cost to learn
-                2, // upgrade cost per level
-                10, // max level (10 levels = +15 damage at max)
-                Mamy.id("skill/sword_mastery") // icon
-        );
+        super(id, "Sword Mastery", "Extensive training with bladed weapons increases your melee damage.",
+                ModClasses.SWORDMAN, 1, 1, 10, Mamy.id("skill/sword_mastery"));
     }
 
     @Override
     protected void initializePassiveEffects() {
-        addAttributeModification(
-                AttributeModification.addValue(
-                        ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT,
-                        Mamy.id("sword_mastery_damage"),
-                        skillLevel -> skillLevel * .5f // +0.5 damage per level
-                )
-        );
+        addAttributeModification(AttributeModification.addValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT, Mamy.id("sword_mastery_damage"), skillLevel -> skillLevel * .5f // +0.5 damage per level
+        ));
     }
 
     @Override
@@ -44,16 +31,14 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
 
         // Show current bonus
         double damageBonus = skillLevel * 1.5D;
-        tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY)
-                .append(Text.literal("+" + String.format("%.1f", damageBonus)).formatted(Formatting.YELLOW)));
+        tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY).append(Text.literal("+" + String.format("%.1f", damageBonus)).formatted(Formatting.YELLOW)));
 
         // Show next level preview if not at max
         if (skillLevel < getMaxSkillLevel()) {
             tooltip.add(Text.literal(""));
             tooltip.add(Text.literal("Next Level:").formatted(Formatting.GOLD));
             double nextDamageBonus = (skillLevel + 1) * 1.5D;
-            tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", nextDamageBonus)).formatted(Formatting.DARK_GREEN)));
+            tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY).append(Text.literal("+" + String.format("%.1f", nextDamageBonus)).formatted(Formatting.DARK_GREEN)));
         }
     }
 

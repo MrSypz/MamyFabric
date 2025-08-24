@@ -12,7 +12,7 @@ public class PlayerGearscore {
         float armor = (float) player.getAttributeValue(EntityAttributes.GENERIC_ARMOR);
 
         // Attack score: base + (melee flat * melee mult)
-        int attackScore = Math.round((baseAttack + meleeFlat) * meleeMult);
+        int attackScore = Math.round((baseAttack + meleeFlat) * (1 + meleeMult));
         int armorScore = Math.round(armor);
 
         return attackScore + armorScore;

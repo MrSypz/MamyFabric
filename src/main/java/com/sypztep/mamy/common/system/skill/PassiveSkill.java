@@ -107,21 +107,17 @@ public abstract class PassiveSkill extends Skill {
 
     @Override
     public boolean canUse(LivingEntity caster, int skillLevel) {
-        // Passive skills are always "usable" since they're automatic
         return true;
     }
 
     @Override
     public boolean use(LivingEntity caster, int skillLevel) {
-        // Passive skills don't have an active use
-        // This method shouldn't be called for passive skills
         return false;
     }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
-        // Passive skills typically don't have damage, but might have healing or other effects
         populatePassiveTooltipData(data, player, skillLevel);
         return data;
     }
@@ -129,7 +125,7 @@ public abstract class PassiveSkill extends Skill {
     /**
      * Override this to populate tooltip data for passive effects
      */
-    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {    }
+    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {}
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {

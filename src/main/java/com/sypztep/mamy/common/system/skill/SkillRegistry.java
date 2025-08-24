@@ -2,10 +2,15 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
+import com.sypztep.mamy.common.system.skill.acolyte.DemonBanePassiveSkill;
+import com.sypztep.mamy.common.system.skill.acolyte.DivineProtectionPassiveSkill;
+import com.sypztep.mamy.common.system.skill.acolyte.HealSkill;
+import com.sypztep.mamy.common.system.skill.acolyte.IncreaseAgilitySkill;
 import com.sypztep.mamy.common.system.skill.novice.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.skill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.skill.swordman.EndureSkill;
 import com.sypztep.mamy.common.system.skill.swordman.EnergyBreakSkill;
+import com.sypztep.mamy.common.system.skill.swordman.passive.HPRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
 import net.minecraft.util.Identifier;
 
@@ -20,6 +25,13 @@ public class SkillRegistry {
     public static final Identifier ENERGY_BREAK = Mamy.id("energy_break");
     public static final Identifier ENDURE = Mamy.id("endure");
     public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
+    public static final Identifier HP_RECOVERY = Mamy.id("hp_recovery");
+
+    //Ac
+    public static final Identifier DEMON_BANE = Mamy.id("demon_bane");
+    public static final Identifier DIVINE_PROTECTION = Mamy.id("divine_protection");
+    public static final Identifier HEAL = Mamy.id("heal");
+    public static final Identifier INCREASE_AGILITY = Mamy.id("increase_agility");
 
     public static void registerSkills() {
         //Novice
@@ -27,9 +39,15 @@ public class SkillRegistry {
 
         //SwordMan
         register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
+        register(new HPRecoveryPassiveSkill(HP_RECOVERY));
         register(new BashingBlowSkill(BASHING_BLOW));
         register(new EnergyBreakSkill(ENERGY_BREAK));
         register(new EndureSkill(ENDURE));
+
+        register(new DemonBanePassiveSkill(DEMON_BANE));
+        register(new DivineProtectionPassiveSkill(DIVINE_PROTECTION));
+        register(new HealSkill(HEAL));
+        register(new IncreaseAgilitySkill(INCREASE_AGILITY));
 
     }
 

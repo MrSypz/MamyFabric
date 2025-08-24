@@ -72,7 +72,6 @@ public enum ElementType {
         this.flatReduction = flatReduction;
     }
 
-    // Pattern matching for attributes (Java 21)
     public static ElementType fromDamageAttribute(RegistryEntry<EntityAttribute> attribute) {
         for (ElementType type : values())
             if (type.damageFlat.equals(attribute)) return type;

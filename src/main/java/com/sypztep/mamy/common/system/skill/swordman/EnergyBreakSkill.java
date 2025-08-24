@@ -31,7 +31,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return 10; // 2 second cast delay (40 ticks)
+        return 10;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         // Base damage + 20% per level
-        float attackFlat = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
+        float attackFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         float attackMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
         float baseMagicDamage = attackFlat * (1 + attackMult);
 
@@ -78,7 +78,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
         // Calculate damage
-        float attackFlat = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
+        float attackFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         float attackMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
         float baseMagicDamage = attackFlat * (1 + attackMult);
         float damageMultiplier = 1.0f + (0.2f * skillLevel);

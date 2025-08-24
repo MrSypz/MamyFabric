@@ -38,17 +38,20 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN)
 				.add(DamageTypes.MOB_ATTACK)
 				.add(DamageTypes.MOB_PROJECTILE)
-				.add(DamageTypes.MOB_ATTACK_NO_AGGRO);
+				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)
+				.addOptional(ModDamageTypes.HOLY);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.FIRE_DAMAGE);
+				.addOptional(ModDamageTypes.FIRE_DAMAGE)
+				.addOptional(ModDamageTypes.HOLY);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.FIRE_DAMAGE);
+				.addOptional(ModDamageTypes.FIRE_DAMAGE)
+				.addOptional(ModDamageTypes.HOLY);
 
 		// Is Projectile - Makes your skills count as projectile damage
 		getOrCreateTagBuilder(DamageTypeTags.IS_PROJECTILE);
@@ -78,7 +81,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// WATER DAMAGE - Combine vanilla water-related tags
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.WATER_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_DROWNING);
+				.addOptionalTag(DamageTypeTags.IS_DROWNING)
+				;
 		// ==========================================
 		// COLD DAMAGE - Combine vanilla cold-related tags
 		// ==========================================
@@ -111,7 +115,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		// HOLY DAMAGE - Pure magical/supernatural (no vanilla equivalent)
 		// ==========================================
-		getOrCreateTagBuilder(ModTags.DamageTags.HOLY_DAMAGE);
+		getOrCreateTagBuilder(ModTags.DamageTags.HOLY_DAMAGE)
+				.addOptional(ModDamageTypes.HOLY);
 
 		// ==========================================
 		// MAGIC DAMAGE - Your custom magic system
