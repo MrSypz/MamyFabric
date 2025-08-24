@@ -27,9 +27,6 @@
     "cardinal-components-entity": [
       "com.sypztep.mamy.common.init.ModEntityComponents"
     ],
-    "cardinal-components-world": [
-      "com.sypztep.mamy.common.init.ModWorldComponents"
-    ],
     "modmenu": [
       "com.sypztep.mamy.common.compat.ModMenuIntegration"
     ]
