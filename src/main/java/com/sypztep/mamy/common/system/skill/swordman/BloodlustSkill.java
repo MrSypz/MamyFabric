@@ -12,7 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.system.skill.config.SkillConfig;
 import net.minecraft.util.Identifier;
-
+@SuppressWarnings("DemoSkill")
 public class BloodlustSkill extends Skill {
 
     public BloodlustSkill(Identifier identifier) {
