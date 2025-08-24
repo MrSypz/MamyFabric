@@ -51,6 +51,7 @@ public final class PlayerInfoScreen extends Screen {
         this.playerInfo.updateValues(values);
     }
 
+
     private Map<String, Object> createPlayerInfoKey(MinecraftClient client) {
         Map<String, Object> values = new HashMap<>();
         assert client.player != null;
@@ -59,9 +60,19 @@ public final class PlayerInfoScreen extends Screen {
         // COMBAT STATS - Offensive Power
         // ==========================================
         values.put("phyd", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
+
+        // Melee damage (flat + multiplier)
         values.put("meleed", client.player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT));
+        values.put("meleem", client.player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT) * 100f);
+
+        // Projectile damage (flat + multiplier)
         values.put("projd", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT));
+        values.put("projm", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT) * 100f);
+
+        // Magic damage (flat + multiplier)
         values.put("mdmg", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT));
+        values.put("mdmgm", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT) * 100f);
+
         values.put("asp", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
 
         // ==========================================
@@ -72,6 +83,8 @@ public final class PlayerInfoScreen extends Screen {
         values.put("cdmg", client.player.getAttributeValue(ModEntityAttributes.CRIT_DAMAGE) * 100f);
         values.put("bkdmg", client.player.getAttributeValue(ModEntityAttributes.BACK_ATTACK) * 100f);
         values.put("spedmg", client.player.getAttributeValue(ModEntityAttributes.SPECIAL_ATTACK) * 100f);
+        values.put("hsdmg", client.player.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE) * 100f);
+        values.put("dblatt", client.player.getAttributeValue(ModEntityAttributes.DOUBLE_ATTACK_CHANCE) * 100f);
 
         // ==========================================
         // DEFENSIVE STATS
@@ -79,18 +92,81 @@ public final class PlayerInfoScreen extends Screen {
         values.put("hp", client.player.getHealth());
         values.put("maxhp", client.player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
         values.put("dp", client.player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
-        values.put("drec", (client.player.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100f) + (DamageUtil.getArmorDamageReduction(client.player.getArmor()) * 100f));
+        values.put("drec", (client.player.getAttributeValue(ModEntityAttributes.DAMAGE_REDUCTION) * 100f) +
+                (DamageUtil.getArmorDamageReduction(client.player.getArmor()) * 100f));
         values.put("eva", client.player.getAttributeValue(ModEntityAttributes.EVASION));
+
+        // Combat resistances
         values.put("mresis", client.player.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE) * 100f);
+        values.put("presis", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE) * 100f);
+        values.put("meleeresis", client.player.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE) * 100f);
+
+        // Flat damage reductions
+        values.put("flatmag", client.player.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION));
+        values.put("flatproj", client.player.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION));
+        values.put("flatmelee", client.player.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION));
 
         // ==========================================
-        // REGENERATION & RECOVERY
+        // ELEMENTAL DAMAGE STATS
+        // ==========================================
+        values.put("fired", client.player.getAttributeValue(ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT));
+        values.put("firem", client.player.getAttributeValue(ModEntityAttributes.FIRE_ATTACK_DAMAGE_MULT) * 100f);
+        values.put("coldd", client.player.getAttributeValue(ModEntityAttributes.COLD_ATTACK_DAMAGE_FLAT));
+        values.put("coldm", client.player.getAttributeValue(ModEntityAttributes.COLD_ATTACK_DAMAGE_MULT) * 100f);
+        values.put("elecd", client.player.getAttributeValue(ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_FLAT));
+        values.put("elecm", client.player.getAttributeValue(ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_MULT) * 100f);
+        values.put("waterd", client.player.getAttributeValue(ModEntityAttributes.WATER_ATTACK_DAMAGE_FLAT));
+        values.put("waterm", client.player.getAttributeValue(ModEntityAttributes.WATER_ATTACK_DAMAGE_MULT) * 100f);
+        values.put("windd", client.player.getAttributeValue(ModEntityAttributes.WIND_ATTACK_DAMAGE_FLAT));
+        values.put("windm", client.player.getAttributeValue(ModEntityAttributes.WIND_ATTACK_DAMAGE_MULT) * 100f);
+        values.put("holyd", client.player.getAttributeValue(ModEntityAttributes.HOLY_ATTACK_DAMAGE_FLAT));
+        values.put("holym", client.player.getAttributeValue(ModEntityAttributes.HOLY_ATTACK_DAMAGE_MULT) * 100f);
+
+        // ==========================================
+        // ELEMENTAL RESISTANCES
+        // ==========================================
+        values.put("fireres", client.player.getAttributeValue(ModEntityAttributes.FIRE_RESISTANCE) * 100f);
+        values.put("coldres", client.player.getAttributeValue(ModEntityAttributes.COLD_RESISTANCE) * 100f);
+        values.put("elecres", client.player.getAttributeValue(ModEntityAttributes.ELECTRIC_RESISTANCE) * 100f);
+        values.put("waterres", client.player.getAttributeValue(ModEntityAttributes.WATER_RESISTANCE) * 100f);
+        values.put("windres", client.player.getAttributeValue(ModEntityAttributes.WIND_RESISTANCE) * 100f);
+        values.put("holyres", client.player.getAttributeValue(ModEntityAttributes.HOLY_RESISTANCE) * 100f);
+
+        // Flat elemental reductions
+        values.put("flatfire", client.player.getAttributeValue(ModEntityAttributes.FLAT_FIRE_REDUCTION));
+        values.put("flatcold", client.player.getAttributeValue(ModEntityAttributes.FLAT_COLD_REDUCTION));
+        values.put("flatelec", client.player.getAttributeValue(ModEntityAttributes.FLAT_ELECTRIC_REDUCTION));
+        values.put("flatwater", client.player.getAttributeValue(ModEntityAttributes.FLAT_WATER_REDUCTION));
+        values.put("flatwind", client.player.getAttributeValue(ModEntityAttributes.FLAT_WIND_REDUCTION));
+        values.put("flatholy", client.player.getAttributeValue(ModEntityAttributes.FLAT_HOLY_REDUCTION));
+
+        // ==========================================
+        // RESOURCE & REGENERATION SYSTEM
         // ==========================================
         values.put("nhrg", client.player.getAttributeValue(ModEntityAttributes.HEALTH_REGEN));
-        values.put("hef", client.player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE));
+        values.put("hef", client.player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE) * 100f);
+
+        // Resource system
+        values.put("resource", client.player.getAttributeValue(ModEntityAttributes.RESOURCE));
+        values.put("resregen", client.player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN));
+        values.put("resrate", client.player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE));
 
         // ==========================================
-        // BASE ATTRIBUTES
+        // CASTING SYSTEM ATTRIBUTES
+        // ==========================================
+        values.put("vctflat", client.player.getAttributeValue(ModEntityAttributes.VCT_REDUCTION_FLAT));
+        values.put("vctpct", client.player.getAttributeValue(ModEntityAttributes.VCT_REDUCTION_PERCENT));
+        values.put("fctflat", client.player.getAttributeValue(ModEntityAttributes.FCT_REDUCTION_FLAT));
+        values.put("fctpct", client.player.getAttributeValue(ModEntityAttributes.FCT_REDUCTION_PERCENT));
+        values.put("skillvct", client.player.getAttributeValue(ModEntityAttributes.SKILL_VCT_REDUCTION));
+
+        // ==========================================
+        // UTILITY STATS
+        // ==========================================
+        values.put("weight", client.player.getAttributeValue(ModEntityAttributes.MAX_WEIGHT));
+
+        // ==========================================
+        // BASE ATTRIBUTES (UNCHANGED)
         // ==========================================
         values.put("str", playerStats.getStatValue(StatTypes.STRENGTH));
         values.put("agi", playerStats.getStatValue(StatTypes.AGILITY));
@@ -108,6 +184,7 @@ public final class PlayerInfoScreen extends Screen {
 
         return values;
     }
+
     private List<ListElement> createListItems() {
         List<ListElement> listElements = new ArrayList<>();
 
@@ -118,8 +195,11 @@ public final class PlayerInfoScreen extends Screen {
                 Mamy.id("hud/icon_sword")));
         listElements.add(new ListElement(Text.translatable("mamy.info.physical")));
         listElements.add(new ListElement(Text.translatable("mamy.info.melee_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.melee_mult")));
         listElements.add(new ListElement(Text.translatable("mamy.info.projectile_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.projectile_mult")));
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.magic_mult")));
         listElements.add(new ListElement(Text.translatable("mamy.info.attack_speed")));
 
         // ==========================================
@@ -132,6 +212,8 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.critical_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.backattack_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.special_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.headshot_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.double_attack")));
 
         // ==========================================
         // DEFENSIVE SECTION
@@ -143,18 +225,86 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.defense")));
         listElements.add(new ListElement(Text.translatable("mamy.info.damage_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.evasion")));
+
+        // Combat resistances
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.projectile_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.melee_resistance")));
+
+        // Flat damage reductions
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_magic_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_projectile_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_melee_reduction")));
 
         // ==========================================
-        // REGENERATION & RECOVERY SECTION
+        // ELEMENTAL DAMAGE SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_elemental_damage"),
+                Mamy.id("hud/icon_fire")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.fire_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.fire_mult")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.cold_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.cold_mult")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.electric_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.electric_mult")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.water_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.water_mult")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.wind_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.wind_mult")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.holy_damage")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.holy_mult")));
+
+        // ==========================================
+        // ELEMENTAL RESISTANCES SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_elemental_resist"),
+                Mamy.id("hud/icon_shield")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.fire_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.cold_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.electric_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.water_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.wind_resistance")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.holy_resistance")));
+
+        // Flat elemental reductions
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_fire_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_cold_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_electric_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_water_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_wind_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.flat_holy_reduction")));
+
+        // ==========================================
+        // RESOURCE & REGENERATION SECTION
         // ==========================================
         listElements.add(new ListElement(Text.translatable("mamy.info.header_recovery"),
                 Mamy.id("hud/recovery")));
         listElements.add(new ListElement(Text.translatable("mamy.info.nature_health_regen")));
         listElements.add(new ListElement(Text.translatable("mamy.info.heal_effective")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.max_resource")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.resource_regen")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.resource_regen_rate")));
 
         // ==========================================
-        // BASE ATTRIBUTES SECTION
+        // CASTING SYSTEM SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_casting"),
+                Mamy.id("hud/icon_cast")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.vct_flat_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.vct_percent_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.fct_flat_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.fct_percent_reduction")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.skill_vct_reduction")));
+
+        // ==========================================
+        // UTILITY SECTION
+        // ==========================================
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_utility"),
+                Mamy.id("hud/icon_utility")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.max_weight")));
+
+        // ==========================================
+        // BASE ATTRIBUTES SECTION (UNCHANGED)
         // ==========================================
         listElements.add(new ListElement(Text.translatable("mamy.info.header_attributes"),
                 Identifier.ofVanilla("icon/accessibility")));
@@ -173,9 +323,9 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.intelligence")));
         listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.dexterity")));
         listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.luck")));
+
         return listElements;
     }
-
     @Override
     protected void init() {
         super.init();

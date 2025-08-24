@@ -70,6 +70,10 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "header_precision", "PRECISION & CRITICAL");
         translator.add(key + "header_defense", "DEFENSIVE STATS");
         translator.add(key + "header_recovery", "REGENERATION");
+        translator.add(key + "header_elemental_damage", "ELEMENTAL DAMAGE");
+        translator.add(key + "header_elemental_resist", "ELEMENTAL RESISTANCES");
+        translator.add(key + "header_casting", "CASTING SYSTEM");
+        translator.add(key + "header_utility", "UTILITY");
         translator.add(key + "header_attributes", "STATS");
         translator.add(key + "header_classbonus", "BONUS STATS");
 
@@ -78,8 +82,11 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         // ==========================================
         translator.add(key + "physical", "Base Attack Power: $phyd");
         translator.add(key + "melee_damage", "Melee Damage Bonus: $meleed");
+        translator.add(key + "melee_mult", "Melee Damage Multiplier: $meleem%");
         translator.add(key + "projectile_damage", "Projectile Damage Bonus: $projd");
+        translator.add(key + "projectile_mult", "Projectile Damage Multiplier: $projm%");
         translator.add(key + "magic_damage", "Magic Attack Power: $mdmg");
+        translator.add(key + "magic_mult", "Magic Damage Multiplier: $mdmgm%");
         translator.add(key + "attack_speed", "Attack Speed: $asp");
 
         // ==========================================
@@ -90,6 +97,8 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "critical_damage", "Critical Hit Damage: $cdmg%");
         translator.add(key + "backattack_damage", "Back Attack Damage: $bkdmg%");
         translator.add(key + "special_damage", "Special Damage: $spedmg%");
+        translator.add(key + "headshot_damage", "Headshot Damage: $hsdmg%");
+        translator.add(key + "double_attack", "Double Attack Chance: $dblatt%");
 
         // ==========================================
         // DEFENSIVE STATS
@@ -100,12 +109,66 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "damage_reduction", "Damage Reduction: $drec%");
         translator.add(key + "evasion", "Evasion Rating: $eva");
         translator.add(key + "magic_resistance", "Magic Resistance: $mresis%");
+        translator.add(key + "projectile_resistance", "Projectile Resistance: $presis%");
+        translator.add(key + "melee_resistance", "Melee Resistance: $meleeresis%");
+        translator.add(key + "flat_magic_reduction", "Flat Magic Reduction: $flatmag");
+        translator.add(key + "flat_projectile_reduction", "Flat Projectile Reduction: $flatproj");
+        translator.add(key + "flat_melee_reduction", "Flat Melee Reduction: $flatmelee");
+
+        // ==========================================
+        // ELEMENTAL DAMAGE SYSTEM
+        // ==========================================
+        translator.add(key + "fire_damage", "Fire Damage: $fired");
+        translator.add(key + "fire_mult", "Fire Damage Multiplier: $firem%");
+        translator.add(key + "cold_damage", "Cold Damage: $coldd");
+        translator.add(key + "cold_mult", "Cold Damage Multiplier: $coldm%");
+        translator.add(key + "electric_damage", "Electric Damage: $elecd");
+        translator.add(key + "electric_mult", "Electric Damage Multiplier: $elecm%");
+        translator.add(key + "water_damage", "Water Damage: $waterd");
+        translator.add(key + "water_mult", "Water Damage Multiplier: $waterm%");
+        translator.add(key + "wind_damage", "Wind Damage: $windd");
+        translator.add(key + "wind_mult", "Wind Damage Multiplier: $windm%");
+        translator.add(key + "holy_damage", "Holy Damage: $holyd");
+        translator.add(key + "holy_mult", "Holy Damage Multiplier: $holym%");
+
+        // ==========================================
+        // ELEMENTAL RESISTANCES SYSTEM
+        // ==========================================
+        translator.add(key + "fire_resistance", "Fire Resistance: $fireres%");
+        translator.add(key + "cold_resistance", "Cold Resistance: $coldres%");
+        translator.add(key + "electric_resistance", "Electric Resistance: $elecres%");
+        translator.add(key + "water_resistance", "Water Resistance: $waterres%");
+        translator.add(key + "wind_resistance", "Wind Resistance: $windres%");
+        translator.add(key + "holy_resistance", "Holy Resistance: $holyres%");
+        translator.add(key + "flat_fire_reduction", "Flat Fire Reduction: $flatfire");
+        translator.add(key + "flat_cold_reduction", "Flat Cold Reduction: $flatcold");
+        translator.add(key + "flat_electric_reduction", "Flat Electric Reduction: $flatelec");
+        translator.add(key + "flat_water_reduction", "Flat Water Reduction: $flatwater");
+        translator.add(key + "flat_wind_reduction", "Flat Wind Reduction: $flatwind");
+        translator.add(key + "flat_holy_reduction", "Flat Holy Reduction: $flatholy");
 
         // ==========================================
         // REGENERATION & RECOVERY
         // ==========================================
         translator.add(key + "nature_health_regen", "Health Regeneration: $nhrg/sec");
         translator.add(key + "heal_effective", "Healing Effectiveness: $hef%");
+        translator.add(key + "max_resource", "Max Resource: $resource");
+        translator.add(key + "resource_regen", "Resource Regen: $resregen");
+        translator.add(key + "resource_regen_rate", "Resource Regen Rate: $resrate sec");
+
+        // ==========================================
+        // CASTING SYSTEM
+        // ==========================================
+        translator.add(key + "vct_flat_reduction", "VCT Flat Reduction: $vctflat ticks");
+        translator.add(key + "vct_percent_reduction", "VCT Percent Reduction: $vctpct%");
+        translator.add(key + "fct_flat_reduction", "FCT Flat Reduction: $fctflat ticks");
+        translator.add(key + "fct_percent_reduction", "FCT Percent Reduction: $fctpct%");
+        translator.add(key + "skill_vct_reduction", "Skill VCT Reduction: $skillvct%");
+
+        // ==========================================
+        // UTILITY
+        // ==========================================
+        translator.add(key + "max_weight", "Max Weight: $weight");
 
         // ==========================================
         // BASE ATTRIBUTES
