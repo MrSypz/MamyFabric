@@ -57,8 +57,6 @@ public class HealSkill extends Skill implements CastableSkill {
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        // Calculate healing amount for tooltip
-
         data.baseDamage = calculateHealingAmount(player, skillLevel);
         data.damageType = DamageType.HEAL;
         data.maxHits = 1;
