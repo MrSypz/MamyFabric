@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill.thief.passive;
+package com.sypztep.mamy.common.system.classkill.thief.passive;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;

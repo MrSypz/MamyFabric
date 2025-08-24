@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill.swordman;
+package com.sypztep.mamy.common.system.classkill.swordman;
 
 
 import com.sypztep.mamy.Mamy;

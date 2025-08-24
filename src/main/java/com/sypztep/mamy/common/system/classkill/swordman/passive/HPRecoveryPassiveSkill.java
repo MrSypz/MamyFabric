@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill.swordman.passive;
+package com.sypztep.mamy.common.system.classkill.swordman.passive;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;

@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill.acolyte;
+package com.sypztep.mamy.common.system.classkill.acolyte;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;

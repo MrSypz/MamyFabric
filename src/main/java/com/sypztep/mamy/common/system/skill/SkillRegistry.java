@@ -2,16 +2,16 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
-import com.sypztep.mamy.common.system.skill.acolyte.DemonBanePassiveSkill;
-import com.sypztep.mamy.common.system.skill.acolyte.DivineProtectionPassiveSkill;
-import com.sypztep.mamy.common.system.skill.acolyte.HealSkill;
-import com.sypztep.mamy.common.system.skill.acolyte.IncreaseAgilitySkill;
-import com.sypztep.mamy.common.system.skill.novice.BasicPassiveSkill;
-import com.sypztep.mamy.common.system.skill.swordman.BashingBlowSkill;
-import com.sypztep.mamy.common.system.skill.swordman.EndureSkill;
-import com.sypztep.mamy.common.system.skill.swordman.EnergyBreakSkill;
-import com.sypztep.mamy.common.system.skill.swordman.passive.HPRecoveryPassiveSkill;
-import com.sypztep.mamy.common.system.skill.swordman.passive.SwordMasteryPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.DemonBanePassiveSkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.DivineProtectionPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.HealSkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.IncreaseAgilitySkill;
+import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.EnergyBreakSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.passive.HPRecoveryPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.passive.SwordMasteryPassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
