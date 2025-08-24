@@ -5,7 +5,6 @@ import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
-import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.system.classkill.acolyte.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.DivineProtectionPassiveSkill;
@@ -159,41 +158,16 @@ public final class DamageUtil {
             LivingEntityUtil.playCriticalSound(projectile);
         }
 
-        // ===== 2. HANDLE HEADSHOT DAMAGE =====
-        if (ModEntityComponents.HEADSHOT.get(target).isHeadShot() &&
-                source.getSource() instanceof PersistentProjectileEntity) {
-
-            float headshotMultiplier = (float) attacker.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE);
-            amount *= headshotMultiplier;
-            ModEntityComponents.HEADSHOT.get(target).setHeadShot(false);
-            ParticleHandler.sendToAll(target, source.getSource(), ModCustomParticles.HEADSHOT);
-            debugLog("Headshot damage applied: ×%.2f → %.1f", headshotMultiplier, amount);
-        }
-
         // ===== 3. ENVIRONMENTAL & DIFFICULTY MODIFIERS =====
         boolean attackerIsPlayer = LivingEntityUtil.isPlayer(attacker);
         boolean targetIsPlayer = LivingEntityUtil.isPlayer(target);
 
         if (attackerIsPlayer) {
             PlayerEntity playerAttacker = (PlayerEntity) attacker;
-
             // Rain wet player damage reduction
             if (LivingEntityUtil.isPlayerWetInRain(playerAttacker)) {
                 amount = Math.max(0.1f, amount - 2.0f);
                 debugLog("Rain wet player damage reduction: %.1f → %.1f (-2.0)", amount + 2.0f, amount);
-            }
-
-            // Handle Back Breaker passive (50% more damage to low health enemies)
-            if (LivingEntityUtil.isHealthBelow(target, 0.25f) &&
-                    PassiveAbilityManager.isActive(playerAttacker, ModPassiveAbilities.BACK_BREAKER)) {
-                amount *= 1.5f; // 50% bonus
-                debugLog("Back Breaker passive applied: %.1f → %.1f (×1.5)", amount / 1.5f, amount);
-            }
-
-            // Handle Berserker Rage passive
-            if (PassiveAbilityManager.isActive(playerAttacker, ModPassiveAbilities.BERSERKER_RAGE)) {
-                amount = LivingEntityUtil.getBerserkerDamageBonus(playerAttacker);
-                debugLog("Berserker Rage passive applied: final damage %.1f", amount);
             }
         } else {
             // Monster attacking something

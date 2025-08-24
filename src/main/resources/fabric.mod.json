@@ -46,8 +46,6 @@
       "mamy:dmgtracker",
       "mamy:playerclass",
       "mamy:playerstance",
-      "mamy:headshot",
-      "mamy:phantomwalker",
       "mamy:playerweight"
     ]
   }

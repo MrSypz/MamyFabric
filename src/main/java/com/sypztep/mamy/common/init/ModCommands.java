@@ -11,7 +11,6 @@ import net.minecraft.server.command.CommandManager;
                     .then(LevelCommand.register())
                     .then(ExpCommand.register())
                     .then(StatCommand.register())
-                    .then(PassiveAbilityCommand.register())
                     .then(PlayerClassCommand.register())
             ));
         }

@@ -1,7 +1,6 @@
 package com.sypztep.mamy.client.event.hud;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.client.screen.PassiveAbilityScreen;
 import com.sypztep.mamy.client.screen.PlayerInfoScreen;
 import com.sypztep.mamy.client.screen.SkillBindingScreen;
 import com.sypztep.mamy.client.screen.SkillLearningScreen;
@@ -38,14 +37,6 @@ public class HotbarIconOverlayRenderer {
                 "Skill Bindings",
                 "Configure skill hotkeys",
                 SkillBindingScreen::new
-        );
-
-        IconOverlayManager.addScreenIcon(
-                HOTBAR_GROUP_ID,
-                Mamy.id("overlay/codex"),
-                "Passive Table",
-                "Check your passive ability",
-                PassiveAbilityScreen::new
         );
     }
 }

@@ -4,8 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.init.ModPassiveAbilities;
-import com.sypztep.mamy.common.system.passive.PassiveAbilityManager;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,10 +25,7 @@ public class RangedWeaponItemMixin {
             Operation<Void> original) {
         float dexterity = 0f;
         float factor = 0;
-        if (shooter instanceof PlayerEntity player) {
-            dexterity = MathHelper.clamp(ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.DEXTERITY), 0, ModConfig.maxStatValue);
-            factor = PassiveAbilityManager.isActive(player, ModPassiveAbilities.PRECISION_STRIKES) ? 15 : 0;
-        }
+        if (shooter instanceof PlayerEntity player) dexterity = MathHelper.clamp(ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.DEXTERITY), 0, ModConfig.maxStatValue);
 
         float newDivergence = 10f * (1f - ((dexterity + factor) / ModConfig.maxStatValue));
         newDivergence = MathHelper.clamp(newDivergence, 0f, 10f);
