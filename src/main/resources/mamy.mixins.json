@@ -30,6 +30,9 @@
     "vanilla.fixprojectileserde.PersistentProjectileEntityMixin",
     "vanilla.freerepair.AnvilScreenHandlerMixin",
     "vanilla.itemcraftsignature.ItemMixin",
+    "vanilla.rebalanceconsumables.EnderPearlEntityMixin",
+    "vanilla.rebalanceconsumables.ItemMixin",
+    "vanilla.rebalanceconsumables.PersistentProjectileEntityMixin",
     "vanilla.rebalancestatuseffects.InstantHealthOrDamageStatusEffectMixin",
     "vanilla.rebalancestatuseffects.StatusEffectMixin",
     "vanilla.rebalancestatuseffects.WitherSkullEntityMixin"
