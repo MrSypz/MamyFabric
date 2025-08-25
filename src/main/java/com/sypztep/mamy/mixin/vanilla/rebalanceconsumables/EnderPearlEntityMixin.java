@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(EnderPearlEntity.class)
 public class EnderPearlEntityMixin {
 	@WrapWithCondition(method = "onCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"))
-	private boolean nodamagePearl(Entity instance, DamageSource source, float amount) {
+	private boolean noDamagePearl(Entity instance, DamageSource source, float amount) {
 		return false;
 	}
 }
