@@ -13,6 +13,7 @@ import com.sypztep.mamy.common.util.MultiHitSystem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class Mamy implements ModInitializer {
     public static Identifier id(String path) {
         return Identifier.of(MODID, path);
     }
-
+    public static boolean isMamyVaultLoaded;
     @Override
     public void onInitialize() {
         ModPayloads.init();
@@ -35,7 +36,7 @@ public class Mamy implements ModInitializer {
         SkillRegistry.registerSkills();
         ModDataComponents.register();
         ModStatusEffects.initEffects();
-
+        isMamyVaultLoaded = FabricLoader.getInstance().isModLoaded(MODID);
         // EVENT
         InitDamageTrackerEvent.register();
         MobSpawnStatsEvent.register();

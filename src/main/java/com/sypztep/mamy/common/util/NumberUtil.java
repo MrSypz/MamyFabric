@@ -1,9 +1,5 @@
 package com.sypztep.mamy.common.util;
 
-import com.mojang.serialization.Codec;
-
-import java.text.DecimalFormat;
-
 public final class NumberUtil {
     public static String formatNumber(long number) {
         if (number >= 1_000_000_000_000L) {

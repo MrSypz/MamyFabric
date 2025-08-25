@@ -56,7 +56,7 @@ repositories {
         url = "https://maven.kosmx.dev/"
     }
     mavenCentral()
-
+    mavenLocal()
 }
 
 dependencies {
@@ -79,6 +79,7 @@ dependencies {
     include modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim}")
     include modImplementation("io.github.kosmx.bendy-lib:bendy-lib-fabric:${project.bendylib_version}")
 //    modImplementation 'com.github.MrSypz:Architect-CombatModule:0.1.1'
+    modImplementation "com.sypztep:mamyvault:0.1.2"
 
     modImplementation "maven.modrinth:jade:${project.jade_version}"
 }

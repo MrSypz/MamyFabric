@@ -11,6 +11,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.gearscore.PlayerGearscore;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.util.NumberUtil;
+import com.sypztep.mamyvault.MamyAPI;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -113,6 +114,10 @@ public final class LevelHudRenderer implements HudRenderCallback {
     // Resource bar offset animation state
     private static float resourceBarOffsetProgress = 0.0f;
     private static boolean lastResourceBarVisible = false;
+
+    private static String cachedBalance = "Nan";
+    private static long lastBalanceUpdate = 0;
+    private static final long BALANCE_UPDATE_INTERVAL = 10000; // Update every 10 seconds
 
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
@@ -508,7 +513,9 @@ public final class LevelHudRenderer implements HudRenderCallback {
         int availableStatPoints = levelData.getAvailableStatPoints();
         String statsText = "PS: " + availableStatPoints;
         String cpText = "CP: " + classData.getClassManager().getClassLevelSystem().getStatPoints();
-        String balanceText = NumberUtil.formatNumber(0); // is it support for 1 trillion? like If I store data in my database and get value on api?
+
+        updateBalanceFromAPI();
+        String balanceText = cachedBalance;
 
         // Calculate positions
         int classInfoWidth = textRenderer.getWidth(classInfo);
@@ -857,6 +864,27 @@ public final class LevelHudRenderer implements HudRenderCallback {
         int hiddenX = -hudWidth;
         float easedOffset = DrawContextUtils.enhancedEaseInOut(slideOffset);
         return MathHelper.lerp(easedOffset, BASE_HUD_X, hiddenX);
+    }
+    private void updateBalanceFromAPI() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastBalanceUpdate > BALANCE_UPDATE_INTERVAL) {
+            lastBalanceUpdate = currentTime;
+
+            UUID playerUuid = MinecraftClient.getInstance().player.getUuid(); // Implement this
+
+            MamyAPI.getWallet(playerUuid)
+                    .thenAccept(wallet -> {
+                        if (wallet != null) {
+                            cachedBalance = NumberUtil.formatNumber(wallet);
+                        } else if (MinecraftClient.getInstance().player.getWorld().isClient()) {
+                            cachedBalance = "Nan";
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        cachedBalance = "Offline";
+                        return null;
+                    });
+        }
     }
 
     public static void register() {
