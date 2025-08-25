@@ -29,7 +29,10 @@
     "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin",
     "vanilla.fixprojectileserde.PersistentProjectileEntityMixin",
     "vanilla.freerepair.AnvilScreenHandlerMixin",
-    "vanilla.itemcraftsignature.ItemMixin"
+    "vanilla.itemcraftsignature.ItemMixin",
+    "vanilla.rebalancestatuseffects.InstantHealthOrDamageStatusEffectMixin",
+    "vanilla.rebalancestatuseffects.StatusEffectMixin",
+    "vanilla.rebalancestatuseffects.WitherSkullEntityMixin"
   ],
   "client": [
     "core.altfeature.KeyboardMixin",
