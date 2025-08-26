@@ -66,9 +66,9 @@ public class HealingLightEntity extends PersistentProjectileEntity {
             // If too far away, teleport instead of lerp (prevents getting stuck)
             if (distance > 5) this.setPos(prevX, prevY, prevZ);
             else {
-                double newX = MathHelper.lerp(1.5f, currentX, prevX);
-                double newY = MathHelper.lerp(1.5f, currentY, prevY);
-                double newZ = MathHelper.lerp(1.5f, currentZ, prevZ);
+                double newX = MathHelper.lerp(1.0f, currentX, prevX);
+                double newY = MathHelper.lerp(1.0f, currentY, prevY);
+                double newZ = MathHelper.lerp(1.0f, currentZ, prevZ);
 
                 this.setPos(newX, newY, newZ);
             }
