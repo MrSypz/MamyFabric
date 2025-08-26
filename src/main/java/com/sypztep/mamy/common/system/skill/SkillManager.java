@@ -4,12 +4,8 @@ import com.sypztep.mamy.client.payload.SkillCooldownPayloadS2C;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.ClassSkillManager;
-import com.sypztep.mamy.common.system.classes.PlayerClassManager;
-import com.sypztep.mamy.common.system.classes.PlayerClass;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -21,55 +17,43 @@ public class SkillManager {
     public static void useSkill(PlayerEntity player, Identifier skillId) {
         if (!(player instanceof ServerPlayerEntity)) return;
 
-        Skill skill = SkillRegistry.getSkill(skillId);
-        if (skill == null) {
-            player.sendMessage(Text.literal("Unknown skill: " + skillId)
-                    .formatted(Formatting.RED), true);
-            return;
-        }
-
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        PlayerClassManager classManager = classComponent.getClassManager();
-        ClassSkillManager skillManager = classManager.getSkillManager();
-        PlayerClass currentClass = classManager.getCurrentClass();
-
-        if (!skill.isAvailableForClass(currentClass)) {
-            player.sendMessage(Text.literal("Your class (" + currentClass.getDisplayName() + ") cannot use this skill!")
-                    .formatted(Formatting.RED), true);
-            return;
-        }
-
-        // Get the skill level
+        ClassSkillManager skillManager = classComponent.getClassManager().getSkillManager();
         int skillLevel = skillManager.getSkillLevel(skillId);
-        if (skillLevel == 0) {
-            player.sendMessage(Text.literal("You haven't learned this skill!")
-                    .formatted(Formatting.RED), true);
+
+        // Use centralized validation
+        SkillUsabilityChecker.UsabilityCheck usabilityCheck =
+                SkillUsabilityChecker.checkServerUsability(player, skillId, skillLevel);
+
+        if (!usabilityCheck.isUsable()) {
+            SkillUsabilityChecker.sendUsabilityFeedback(player, usabilityCheck);
             return;
         }
 
-        if (isOnCooldown(player, skillId)) return;
+        // Additional server-side cooldown check (since client might be out of sync)
+        if (isOnCooldown(player, skillId)) {
+            return; // Don't send message, already handled by client
+        }
 
-        // Use level-based resource cost
+        Skill skill = SkillRegistry.getSkill(skillId);
+        if (skill == null) return; // Already validated, but keep for safety
+
+        // Try to use resources
         float resourceCost = skill.getResourceCost(skillLevel);
-        float currentResource = classManager.getCurrentResource();
-
-        if (currentResource < resourceCost) {
-            return;
-        }
-
-        if (!skill.canUse(player, skillLevel)) {
-            return;
-        }
-
         if (!classComponent.useResource(resourceCost)) {
-            return;
+            return; // Resource usage failed (already validated, but server state might differ)
         }
 
-        boolean bl1 = skill.use(player, skillLevel);
+        // Execute the skill
+        boolean skillExecuted = skill.use(player, skillLevel);
 
-        if (bl1) {
+        if (skillExecuted) {
+            // Apply cooldown
             float cooldown = skill.getCooldown(skillLevel);
             setCooldown(player, skillId, cooldown);
+        } else {
+            // If skill execution failed, refund the resource
+            classComponent.addResource(resourceCost);
         }
     }
 

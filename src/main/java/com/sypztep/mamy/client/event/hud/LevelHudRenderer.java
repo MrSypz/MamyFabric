@@ -28,7 +28,8 @@ import java.util.*;
 
 public final class LevelHudRenderer implements HudRenderCallback {
     // Layout settings - base dimensions (not scaled)
-    private static final int BASE_HUD_X = 3;
+    // UPDATED: Using consistent X position with ResourceBarHud for pixel perfect alignment
+    private static final int BASE_HUD_X = 5;
     private static final int BASE_HUD_Y = 2;
     private static final int BASE_HUD_WIDTH = 260;
     private static final int BASE_PLAYER_HEAD_SIZE = 32;
@@ -43,7 +44,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
     // Resource bar offset animation constants
     private static final float RESOURCE_BAR_OFFSET_DURATION = 0.4f; // Duration for Y offset animation
-    private static final int RESOURCE_BAR_MARGIN = -14; // Extra margin between resource bar and level HUD
+    private static final int BASE_VERTICAL_SPACING = -4; // Base spacing between components (before scaling)
 
     // GUI Texture identifiers (modern 1.21.1 approach)
     private static final Identifier BALANCE_ICON = Mamy.id("hud/level/balance");
@@ -189,7 +190,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         // Calculate slide position
         int currentHudX = calculateHudX();
 
-        // Calculate Y offset based on resource bar visibility
+        // Calculate Y offset based on resource bar visibility with proper scaling consideration
         int currentHudY = calculateHudY(deltaTime);
 
         // Calculate shake offset
@@ -268,6 +269,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
 
     /**
      * Calculate HUD Y position with resource bar offset animation
+     * UPDATED: Proper scaling consideration for pixel perfect alignment
      */
     private int calculateHudY(float deltaTime) {
         // Check if resource bar visibility has changed
@@ -292,9 +294,18 @@ public final class LevelHudRenderer implements HudRenderCallback {
             }
         }
 
-        // Calculate the offset with smooth easing
+        // Calculate the offset with proper scaling consideration
         float easedProgress = DrawContextUtils.enhancedEaseInOut(resourceBarOffsetProgress);
-        int resourceBarOffset = (int) (easedProgress * (ResourceBarHud.getResourceBarHeight() + RESOURCE_BAR_MARGIN));
+
+        // FIXED: Calculate proper offset considering ResourceBarHud's scaled height plus consistent spacing
+        int resourceBarOffset = 0;
+        if (currentResourceBarVisible) {
+            // Get the actual scaled height of the resource bar
+            int scaledResourceBarHeight = ResourceBarHud.getResourceBarHeight();
+            // Add consistent vertical spacing (scaled to maintain pixel perfect alignment)
+            int scaledSpacing = (int)(BASE_VERTICAL_SPACING * ModConfig.resourcebarscale);
+            resourceBarOffset = (int)(easedProgress * (scaledResourceBarHeight + scaledSpacing));
+        }
 
         return BASE_HUD_Y + resourceBarOffset;
     }

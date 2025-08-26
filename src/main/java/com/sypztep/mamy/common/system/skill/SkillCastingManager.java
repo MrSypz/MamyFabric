@@ -1,6 +1,8 @@
 package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,23 +29,22 @@ public class SkillCastingManager {
         return instance;
     }
 
-    // Replace your startCasting method with this:
     public void startCasting(Identifier skillId, int skillLevel) {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
 
-        // Check for cooldown FIRST
-        float remainingCooldown = ClientSkillCooldowns.getRemaining(skillId);
-        if (remainingCooldown > 0) {
+        // Comprehensive usability check using the new utility
+        SkillUsabilityChecker.UsabilityCheck usabilityCheck =
+                SkillUsabilityChecker.checkClientUsability(player, skillId, skillLevel);
+
+        if (!usabilityCheck.isUsable()) {
+            // Send feedback for failed attempts
+            SkillUsabilityChecker.sendUsabilityFeedback(player, usabilityCheck);
             return;
         }
 
         Skill skill = SkillRegistry.getSkill(skillId);
-        if (skill == null) {
-            player.sendMessage(Text.literal("Unknown skill!")
-                    .formatted(Formatting.RED), true);
-            return;
-        }
+        if (skill == null) return; // Already checked in usability check, but keep for safety
 
         // If already casting this skill, cancel it
         if (isCasting && skillId.equals(currentSkillId)) {
@@ -51,17 +52,19 @@ public class SkillCastingManager {
             return;
         }
 
+        // Handle instant vs castable skills
         if (!(skill instanceof CastableSkill castable)) {
             UseSkillPayloadC2S.send(skillId); // Instant skill
             return;
         }
 
-        if (isCasting) cancelCast(); // Cancel current cast
+        // Cancel any current cast before starting new one
+        if (isCasting) cancelCast();
 
+        // Initialize casting state
         this.isCasting = true;
         this.currentSkillId = skillId;
         this.castTicks = 0;
-        // NEW: Calculate actual cast time with VCT/FCT system
         this.maxCastTicks = CastingCalculator.calculateTotalCastTime(player, castable, skillLevel);
         this.hasAnimation = false;
 
@@ -76,7 +79,7 @@ public class SkillCastingManager {
                 0.3f, 1.2f);
 
         // Optional: Show casting breakdown in chat for debugging
-        if (player.isSneaking()) { // Only when sneaking for debug
+        if (player.isSneaking()) {
             var breakdown = CastingCalculator.getCastingBreakdown(player, castable, skillLevel);
             player.sendMessage(Text.literal(String.format("Cast: VCT %d->%d, FCT %d->%d, Total: %d ticks",
                             breakdown.baseVCT, breakdown.finalVCT, breakdown.baseFCT, breakdown.finalFCT, breakdown.totalCastTime))
@@ -93,17 +96,21 @@ public class SkillCastingManager {
             return;
         }
 
-        // Check if skill went on cooldown during casting (shouldn't happen but safety check)
-        float remainingCooldown = ClientSkillCooldowns.getRemaining(currentSkillId);
-        if (remainingCooldown > 0) {
-            player.sendMessage(Text.literal("Cast interrupted - skill on cooldown!")
-                    .formatted(Formatting.RED), true);
-            cancelCast();
+        // Re-validate skill usability during casting (in case resources were drained by other means)
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+        int skillLevel = classComponent.getSkillLevel(currentSkillId);
+
+        SkillUsabilityChecker.UsabilityCheck check =
+                SkillUsabilityChecker.checkClientUsability(player, currentSkillId, skillLevel);
+
+        if (!check.isUsable()) {
+            // If it's not usable anymore, interrupt the cast
+            interruptCast();
+            SkillUsabilityChecker.sendUsabilityFeedback(player, check);
             return;
         }
 
         if (++castTicks >= maxCastTicks) {
-            // Cast complete
             completeCast();
         }
     }
@@ -132,9 +139,6 @@ public class SkillCastingManager {
 
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            player.sendMessage(Text.literal("Cast interrupted by damage!")
-                    .formatted(Formatting.RED), true);
-
             player.getWorld().playSound(player, player.getBlockPos(),
                     SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.PLAYERS,
                     0.3f, 0.8f);
@@ -171,14 +175,28 @@ public class SkillCastingManager {
         hasAnimation = false;
     }
 
+    // Getters
     public boolean isCasting() { return isCasting; }
+
     public boolean shouldLockMovement() {
         if (!isCasting) return false;
         Skill skill = SkillRegistry.getSkill(currentSkillId);
         return skill instanceof CastableSkill castable && castable.shouldLockMovement();
     }
-    public float getCastProgress() { return isCasting ? (float) castTicks / maxCastTicks : 0f; }
-    public Identifier getCurrentCastingSkill() { return currentSkillId; }
-    public int getRemainingTicks() { return isCasting ? maxCastTicks - castTicks : 0; }
-    public boolean hasCastAnimation() { return hasAnimation; }
+
+    public float getCastProgress() {
+        return isCasting ? (float) castTicks / maxCastTicks : 0f;
+    }
+
+    public Identifier getCurrentCastingSkill() {
+        return currentSkillId;
+    }
+
+    public int getRemainingTicks() {
+        return isCasting ? maxCastTicks - castTicks : 0;
+    }
+
+    public boolean hasCastAnimation() {
+        return hasAnimation;
+    }
 }

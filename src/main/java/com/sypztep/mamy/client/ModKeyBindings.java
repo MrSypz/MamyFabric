@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
+import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
@@ -39,13 +40,13 @@ public class ModKeyBindings {
                 GLFW.GLFW_KEY_R,
                 "category.mamy.combat"
         ));
+
         TEST = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mamy.test",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_O,
                 "category.mamy.combat"
         ));
-
 
         CLASS_SELECTOR = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mamy.class_selector",
@@ -86,11 +87,11 @@ public class ModKeyBindings {
     }
 
     private static void handleKeyInputs(MinecraftClient client) {
-        if (client.player == null) return;
-        if (client.currentScreen != null) return;
+        if (client.player == null || client.currentScreen != null) return;
 
         SkillCastingManager.getInstance().tick();
 
+        // Handle non-skill related keys
         if (SWITCH_STANCE.wasPressed()) {
             ToggleStancePayloadC2S.send();
         }
@@ -98,60 +99,55 @@ public class ModKeyBindings {
             client.setScreen(new ClassEvolutionScreen(client));
         }
         if (TEST.wasPressed()) {
+            // Test functionality
         }
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        boolean inCombatStance = stanceComponent.isInCombatStance();
+
+        if (!stanceComponent.isInCombatStance()) return;
 
         long currentTime = System.currentTimeMillis();
-
-        // Update visual states
         updateVisualStates(currentTime);
-
-        if (!inCombatStance) return;
 
         // Check for Shift key
         boolean shiftPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT);
 
-        if (shiftPressed) {
-            // Shift combinations (slots 5-8)
-            if (SKILL_SLOT_1.wasPressed()) { // Shift + Z = Slot 5
-                useSkillSlot(classComponent, 4);
-                setKeyVisualPressed(4);
-                return;
-            }
-            if (SKILL_SLOT_2.wasPressed()) { // Shift + X = Slot 6
-                useSkillSlot(classComponent, 5);
-                setKeyVisualPressed(5);
-                return;
-            }
-            if (SKILL_SLOT_3.wasPressed()) { // Shift + C = Slot 7
-                useSkillSlot(classComponent, 6);
-                setKeyVisualPressed(6);
-                return;
-            }
-            if (SKILL_SLOT_4.wasPressed()) { // Shift + V = Slot 8
-                useSkillSlot(classComponent, 7);
-                setKeyVisualPressed(7);
-            }
+        // Handle skill key presses
+        handleSkillKeyPress(SKILL_SLOT_1, shiftPressed ? 4 : 0, classComponent);
+        handleSkillKeyPress(SKILL_SLOT_2, shiftPressed ? 5 : 1, classComponent);
+        handleSkillKeyPress(SKILL_SLOT_3, shiftPressed ? 6 : 2, classComponent);
+        handleSkillKeyPress(SKILL_SLOT_4, shiftPressed ? 7 : 3, classComponent);
+    }
+
+    private static void handleSkillKeyPress(KeyBinding keyBinding, int slotIndex, PlayerClassComponent classComponent) {
+        if (keyBinding.wasPressed()) {
+            setKeyVisualPressed(slotIndex);
+            attemptSkillUse(classComponent, slotIndex);
+        }
+    }
+
+    private static void attemptSkillUse(PlayerClassComponent classComponent, int slot) {
+        Identifier skillId = classComponent.getBoundSkill(slot);
+        if (skillId == null) return;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null) return;
+
+        int skillLevel = classComponent.getSkillLevel(skillId);
+
+        // Quick validation before attempting to cast
+        SkillUsabilityChecker.UsabilityCheck check =
+                SkillUsabilityChecker.checkClientUsability(client.player, skillId, skillLevel);
+
+        if (check.isUsable()) {
+            // Skill is usable, attempt casting
+            SkillCastingManager.getInstance().startCasting(skillId, skillLevel);
         } else {
-            // Normal keys (slots 1-4)
-            if (SKILL_SLOT_1.wasPressed()) { // Z = Slot 1
-                useSkillSlot(classComponent, 0);
-                setKeyVisualPressed(0);
-            }
-            if (SKILL_SLOT_2.wasPressed()) { // X = Slot 2
-                useSkillSlot(classComponent, 1);
-                setKeyVisualPressed(1);
-            }
-            if (SKILL_SLOT_3.wasPressed()) { // C = Slot 3
-                useSkillSlot(classComponent, 2);
-                setKeyVisualPressed(2);
-            }
-            if (SKILL_SLOT_4.wasPressed()) { // V = Slot 4
-                useSkillSlot(classComponent, 3);
-                setKeyVisualPressed(3);
+            // Only provide feedback for certain failure types to avoid spam
+            if (check.result == SkillUsabilityChecker.SkillUsabilityResult.INSUFFICIENT_RESOURCE ||
+                    check.result == SkillUsabilityChecker.SkillUsabilityResult.NOT_LEARNED) {
+                SkillUsabilityChecker.sendUsabilityFeedback(client.player, check);
             }
         }
     }
@@ -172,17 +168,6 @@ public class ModKeyBindings {
     public static boolean isKeyVisuallyPressed(int keyIndex) {
         if (keyIndex < 0 || keyIndex >= keyVisualStates.length) return false;
         return keyVisualStates[keyIndex];
-    }
-
-    private static void useSkillSlot(PlayerClassComponent classComponent, int slot) {
-        Identifier skillId = classComponent.getBoundSkill(slot);
-        if (skillId != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.player != null) {
-                int skillLevel = classComponent.getClassManager().getSkillManager().getSkillLevel(skillId);
-                SkillCastingManager.getInstance().startCasting(skillId, skillLevel);
-            }
-        }
     }
 
     public static KeyBinding getSkillKeybinding(int slotIndex) {

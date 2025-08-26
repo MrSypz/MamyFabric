@@ -8,6 +8,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.ClientSkillCooldowns;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -140,29 +141,49 @@ public class SkillHudOverlayRenderer {
         // Check if this skill slot is visually "pressed"
         boolean isPressed = ModKeyBindings.isKeyVisuallyPressed(slotIndex);
 
+        // Determine if skill should be dimmed
+        boolean shouldDim = false;
+        if (skillId != null && client.player != null) {
+            int skillLevel = classComponent.getSkillLevel(skillId);
+            shouldDim = SkillUsabilityChecker.shouldDimSkillInUI(client.player, skillId, skillLevel);
+        }
+
+        // Apply dimming to slot rendering
+        float slotAlpha = shouldDim ? alpha * 0.4f : alpha;
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, slotAlpha);
+
         // Render hotbar slot
         context.drawTexture(HOTBAR_SLOT_TEXTURE, x, y, 0, 0, SKILL_SLOT_SIZE - 1, SKILL_SLOT_SIZE, 182, 22);
 
-        // Render selection highlight if pressed
+        // Render selection highlight if pressed (with dimming)
         if (isPressed) {
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, slotAlpha);
             context.drawGuiTexture(HOTBAR_SELECTION_TEXTURE, x - 1, y - 1, SKILL_SLOT_SIZE + 2, SKILL_SLOT_SIZE + 2);
         }
+
+        // Reset shader color for content rendering
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
 
         // Render skill content
         if (skillId != null) {
             Skill skill = SkillRegistry.getSkill(skillId);
             if (skill != null) {
-                renderSkillIcon(context, x + 3, y + 3, skill);
-                renderCooldownOverlay(context, x + 3, y + 3, skill, classComponent);
+                renderSkillIcon(context, x + 3, y + 3, skill, shouldDim);
+                renderSkillOverlays(context, x + 3, y + 3, skill, classComponent, shouldDim);
             }
         }
 
         // Render keybinding text
         String keyText = getKeybindDisplayName(slotIndex);
-        int keyTextColor = isPressed ? 0xFFFFFF00 : 0xFFAAAAAA;
+        int baseKeyTextColor = isPressed ? 0xFFFFFF00 : 0xFFAAAAAA;
+
+        // Apply dimming to text color
+        if (shouldDim) {
+            baseKeyTextColor = 0xFF666666; // Darker gray for dimmed state
+        }
 
         int alphaValue = (int) (alpha * 255);
-        int finalKeyTextColor = (keyTextColor & 0x00FFFFFF) | (alphaValue << 24);
+        int finalKeyTextColor = (baseKeyTextColor & 0x00FFFFFF) | (alphaValue << 24);
 
         int keyTextWidth = client.textRenderer.getWidth(keyText);
         int keyX = Math.max(4, x - keyTextWidth - 6);
@@ -172,8 +193,8 @@ public class SkillHudOverlayRenderer {
 
         // Render slot number
         String slotNum = String.valueOf(slotIndex + 1);
-        int slotNumColor = 0xFF888888;
-        int finalSlotNumColor = (slotNumColor & 0x00FFFFFF) | (alphaValue << 24);
+        int baseSlotNumColor = shouldDim ? 0xFF555555 : 0xFF888888;
+        int finalSlotNumColor = (baseSlotNumColor & 0x00FFFFFF) | (alphaValue << 24);
 
         context.drawText(client.textRenderer, Text.literal(slotNum),
                 x + SKILL_SLOT_SIZE - client.textRenderer.getWidth(slotNum) - 2,
@@ -198,8 +219,12 @@ public class SkillHudOverlayRenderer {
         }
     }
 
-    private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill) {
+    private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill, boolean shouldDim) {
         MinecraftClient client = MinecraftClient.getInstance();
+
+        // Apply dimming to skill icon
+        float iconAlpha = shouldDim ? 0.5f : 1.0f;
+        RenderSystem.setShaderColor(iconAlpha, iconAlpha, iconAlpha, iconAlpha);
 
         if (skill.getIcon() != null) {
             context.drawGuiTexture(skill.getIcon(), x, y, SKILL_SLOT_SIZE - 6, SKILL_SLOT_SIZE - 6);
@@ -212,19 +237,38 @@ public class SkillHudOverlayRenderer {
             int textX = x + (availableSpace - textWidth) / 2;
             int textY = y + (availableSpace - client.textRenderer.fontHeight) / 2;
 
-            context.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + client.textRenderer.fontHeight + 1, 0x88000000);
-            context.drawText(client.textRenderer, Text.literal(abbreviation), textX, textY, 0xFFFFFFFF, false);
+            // Background with dimming
+            int bgColor = shouldDim ? 0x44000000 : 0x88000000;
+            context.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + client.textRenderer.fontHeight + 1, bgColor);
+
+            // Text with dimming
+            int textColor = shouldDim ? 0xFF888888 : 0xFFFFFFFF;
+            context.drawText(client.textRenderer, Text.literal(abbreviation), textX, textY, textColor, false);
         }
+
+        // Reset shader color
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    private static void renderCooldownOverlay(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent) {
+    private static void renderSkillOverlays(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent, boolean shouldDim) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) return;
 
-        float remainingCooldown = ClientSkillCooldowns.getRemaining(skill.getId());
         int availableSpace = SKILL_SLOT_SIZE - 6;
         int skillLevel = classComponent.getSkillLevel(skill.getId());
 
+        // Check different overlay types
+        float remainingCooldown = ClientSkillCooldowns.getRemaining(skill.getId());
+        boolean hasInsufficientResource = false;
+
+        // Check if skill has insufficient resource
+        if (remainingCooldown <= 0) { // Only check resource if not on cooldown
+            float resourceCost = skill.getResourceCost(skillLevel);
+            float currentResource = classComponent.getClassManager().getCurrentResource();
+            hasInsufficientResource = currentResource < resourceCost;
+        }
+
+        // Render cooldown overlay (priority over resource)
         if (remainingCooldown > 0) {
             float cooldownProgress = remainingCooldown / skill.getCooldown(skillLevel);
             int overlayHeight = (int) (availableSpace * cooldownProgress);
@@ -242,6 +286,34 @@ public class SkillHudOverlayRenderer {
                         y + (availableSpace - 8) / 2,
                         0xFFFFFFFF, true);
             }
+        }
+        // Render resource overlay if insufficient resource and not on cooldown
+        else if (hasInsufficientResource) {
+            // Semi-transparent red overlay for insufficient resource
+            context.fill(x, y, x + availableSpace, y + availableSpace, 0x55AA0000);
+
+            // Show "!" indicator for insufficient resource
+            String resourceIndicator = "!";
+            int textWidth = client.textRenderer.getWidth(resourceIndicator);
+            context.drawText(client.textRenderer,
+                    Text.literal(resourceIndicator),
+                    x + (availableSpace - textWidth) / 2,
+                    y + (availableSpace - 8) / 2,
+                    0xFFFFAAAA, true);
+        }
+        // Additional dimming overlay for other unusable states (like not learned, wrong class)
+        else if (shouldDim && skillLevel == 0) {
+            // Dark overlay for unlearned skills
+            context.fill(x, y, x + availableSpace, y + availableSpace, 0x88000000);
+
+            // Show "?" for unlearned skills
+            String unlearned = "?";
+            int textWidth = client.textRenderer.getWidth(unlearned);
+            context.drawText(client.textRenderer,
+                    Text.literal(unlearned),
+                    x + (availableSpace - textWidth) / 2,
+                    y + (availableSpace - 8) / 2,
+                    0xFF666666, true);
         }
     }
 }
