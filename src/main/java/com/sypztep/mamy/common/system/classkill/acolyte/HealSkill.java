@@ -1,6 +1,8 @@
 package com.sypztep.mamy.common.system.classkill.acolyte;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
+import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
@@ -8,11 +10,11 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.system.skill.config.SkillConfig;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
@@ -21,7 +23,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 public class HealSkill extends Skill implements CastableSkill {
 
@@ -174,7 +175,9 @@ public class HealSkill extends Skill implements CastableSkill {
 //                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, baseX, smokeY, baseZ, 30, 1 + i, 0.5, 1 + i, 0.02);
 //                serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX, smokeY, baseZ, 20, 0.8 + i, 0.3, 0.8 + i, 0.01);
 //            }
-
+            HealingLightEntity healingLightEntity = new HealingLightEntity(caster, caster.getWorld());
+            healingLightEntity.setPos(target.getX(), target.getY(), target.getZ());
+            caster.getWorld().spawnEntity(healingLightEntity);
         } else {
             // Heal living target
             target.heal(healingAmount);
