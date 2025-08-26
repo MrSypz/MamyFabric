@@ -42,7 +42,6 @@ public class HealingLightEntity extends PersistentProjectileEntity {
 
         lifetime++;
 
-        // Calculate intensity with smooth fade-out
         if (lifetime > MAX_LIFETIME) {
             this.discard();
             return;
@@ -246,6 +245,6 @@ public class HealingLightEntity extends PersistentProjectileEntity {
 
     @Override
     protected boolean canHit(Entity entity) {
-        return false; // Don't collide with entities
+        return false;
     }
 }

@@ -175,11 +175,10 @@ public class HealSkill extends Skill implements CastableSkill {
 //                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, baseX, smokeY, baseZ, 30, 1 + i, 0.5, 1 + i, 0.02);
 //                serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX, smokeY, baseZ, 20, 0.8 + i, 0.3, 0.8 + i, 0.01);
 //            }
-            HealingLightEntity healingLightEntity = new HealingLightEntity(caster, caster.getWorld());
+            HealingLightEntity healingLightEntity = new HealingLightEntity(target, target.getWorld());
             healingLightEntity.setPos(target.getX(), target.getY(), target.getZ());
             caster.getWorld().spawnEntity(healingLightEntity);
         } else {
-            // Heal living target
             target.heal(healingAmount);
 
             // Healing particles
