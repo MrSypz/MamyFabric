@@ -13,7 +13,7 @@ public class ModConfig implements ConfigData {
     // =====================================
     @ConfigEntry.Category("client_features")
     @Comment("Scale Factor for level bar")
-    public static float lvbarscale = 0.7f;
+    public static float lvbarscale = 0.5f;
 
     @ConfigEntry.Category("client_features")
     @Comment("Scale Factor for resource bar")
