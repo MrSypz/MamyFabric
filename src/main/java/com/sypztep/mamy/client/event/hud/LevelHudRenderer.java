@@ -11,7 +11,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.gearscore.PlayerGearscore;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.util.NumberUtil;
-import com.sypztep.mamyvault.MamyAPI;
+//import com.sypztep.mamyvault.MamyAPI;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -514,7 +514,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
         String statsText = "PS: " + availableStatPoints;
         String cpText = "CP: " + classData.getClassManager().getClassLevelSystem().getStatPoints();
 
-        updateBalanceFromAPI();
+//        updateBalanceFromAPI();
         String balanceText = cachedBalance;
 
         // Calculate positions
@@ -865,27 +865,27 @@ public final class LevelHudRenderer implements HudRenderCallback {
         float easedOffset = DrawContextUtils.enhancedEaseInOut(slideOffset);
         return MathHelper.lerp(easedOffset, BASE_HUD_X, hiddenX);
     }
-    private void updateBalanceFromAPI() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastBalanceUpdate > BALANCE_UPDATE_INTERVAL) {
-            lastBalanceUpdate = currentTime;
-
-            UUID playerUuid = MinecraftClient.getInstance().player.getUuid(); // Implement this
-
-            MamyAPI.getWallet(playerUuid)
-                    .thenAccept(wallet -> {
-                        if (wallet != null) {
-                            cachedBalance = NumberUtil.formatNumber(wallet);
-                        } else if (MinecraftClient.getInstance().player.getWorld().isClient()) {
-                            cachedBalance = "Nan";
-                        }
-                    })
-                    .exceptionally(throwable -> {
-                        cachedBalance = "Offline";
-                        return null;
-                    });
-        }
-    }
+//    private void updateBalanceFromAPI() {
+//        long currentTime = System.currentTimeMillis();
+//        if (currentTime - lastBalanceUpdate > BALANCE_UPDATE_INTERVAL) {
+//            lastBalanceUpdate = currentTime;
+//
+//            UUID playerUuid = MinecraftClient.getInstance().player.getUuid(); // Implement this
+//
+//            MamyAPI.getWallet(playerUuid)
+//                    .thenAccept(wallet -> {
+//                        if (wallet != null) {
+//                            cachedBalance = NumberUtil.formatNumber(wallet);
+//                        } else if (MinecraftClient.getInstance().player.getWorld().isClient()) {
+//                            cachedBalance = "Nan";
+//                        }
+//                    })
+//                    .exceptionally(throwable -> {
+//                        cachedBalance = "Offline";
+//                        return null;
+//                    });
+//        }
+//    }
 
     public static void register() {
         HudRenderCallback.EVENT.register(new LevelHudRenderer());

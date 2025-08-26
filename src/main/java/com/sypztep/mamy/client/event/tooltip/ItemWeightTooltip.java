@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.util.NumberUtil;
-import com.sypztep.mamyvault.MamyAPI;
+//import com.sypztep.mamyvault.MamyAPI;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,7 +24,7 @@ public final class ItemWeightTooltip implements ItemTooltipCallback {
     public static final String WEIGHT_ICON = "\u0020";
     public static final String COIN_ICON = "\u0019";
 
-    private static List<MamyAPI.LightMarketItem> cachedMarketItems = new ArrayList<>();
+//    private static List<MamyAPI.LightMarketItem> cachedMarketItems = new ArrayList<>();
     private static long lastMarketUpdate = 0;
     private static final long MARKET_CACHE_DURATION = 30000; // 30 seconds
 
@@ -46,12 +46,12 @@ public final class ItemWeightTooltip implements ItemTooltipCallback {
     private void addMarketValueTooltip(ItemStack stack, List<Text> lines) {
         if (!Mamy.isMamyVaultLoaded) return;
 
-        updateMarketCache();
-        String itemKey = Registries.ITEM.getId(stack.getItem()).toString();
+//        updateMarketCache();
+//        String itemKey = Registries.ITEM.getId(stack.getItem()).toString();
 
-        MamyAPI.LightMarketItem marketItem = findMarketItem(itemKey);
-        if (marketItem != null)
-            displayMarketValue(marketItem.currentSellPrice(), marketItem.priceMultiplier(), lines);
+//        MamyAPI.LightMarketItem marketItem = findMarketItem(itemKey);
+//        if (marketItem != null)
+//            displayMarketValue(marketItem.currentSellPrice(), marketItem.priceMultiplier(), lines);
     }
 
     private void displayMarketValue(long price, double multiplier, List<Text> lines) {
@@ -67,20 +67,20 @@ public final class ItemWeightTooltip implements ItemTooltipCallback {
         lines.add(valueLine);
     }
 
-    private MamyAPI.LightMarketItem findMarketItem(String itemKey) {
-        return cachedMarketItems.stream()
-                .filter(item -> item.itemKey().equals(itemKey))
-                .findFirst()
-                .orElse(null);
-    }
-
-    private void updateMarketCache() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastMarketUpdate > MARKET_CACHE_DURATION) {
-            lastMarketUpdate = currentTime;
-
-            MamyAPI.getMarketItemsLight().thenAccept(items -> cachedMarketItems = items)
-                    .exceptionally(throwable -> null);
-        }
-    }
+//    private MamyAPI.LightMarketItem findMarketItem(String itemKey) {
+//        return cachedMarketItems.stream()
+//                .filter(item -> item.itemKey().equals(itemKey))
+//                .findFirst()
+//                .orElse(null);
+//    }
+//
+//    private void updateMarketCache() {
+//        long currentTime = System.currentTimeMillis();
+//        if (currentTime - lastMarketUpdate > MARKET_CACHE_DURATION) {
+//            lastMarketUpdate = currentTime;
+//
+//            MamyAPI.getMarketItemsLight().thenAccept(items -> cachedMarketItems = items)
+//                    .exceptionally(throwable -> null);
+//        }
+//    }
 }
