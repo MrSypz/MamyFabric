@@ -106,81 +106,9 @@ public class HealSkill extends Skill implements CastableSkill {
             DamageSource holyDamageSource = ModDamageTypes.create(serverWorld, ModDamageTypes.HOLY, player);
             target.damage(holyDamageSource, holyDamage);
 
-//            // Mushroom Cloud Effect
-//            double baseX = target.getX();
-//            double baseY = target.getY();
-//            double baseZ = target.getZ();
-//
-//// Initial explosion flash
-//            serverWorld.spawnParticles(ParticleTypes.FLASH, baseX, baseY + 1, baseZ, 20, 0.5, 0.5, 0.5, 0.1);
-//            serverWorld.spawnParticles(ParticleTypes.EXPLOSION, baseX, baseY + 1, baseZ, 15, 1, 1, 1, 0.1);
-//
-//// Mushroom cloud stem - vertical smoke column
-//            for (int i = 0; i < 8; i++) {
-//                double stemY = baseY + (i * 1.5);
-//                // Gray dust for stem (lighter gray)
-//                DustParticleEffect grayDust = new DustParticleEffect(Vec3d.unpackRgb(0xC0C0C0).toVector3f(), 3.0f);
-//                serverWorld.spawnParticles(grayDust, baseX, stemY, baseZ, 25, 0.3, 0.1, 0.3, 0.02);
-//                // Some smoke mixed in
-//                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, baseX, stemY, baseZ, 15, 0.2, 0.05, 0.2, 0.02);
-//                serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX, stemY, baseZ, 10, 0.15, 0.05, 0.15, 0.01);
-//            }
-//
-//            // Mushroom head - expanding rings at different heights
-//            double headHeight = baseY + 12;
-//
-//            // Outer ring - expanding outward (gray to red dust)
-//            for (int ring = 1; ring <= 4; ring++) {
-//                double radius = ring * 4.0;
-//                int particleCount = ring * 20;
-//
-//                for (int i = 0; i < particleCount; i++) {
-//                    double angle = (2 * Math.PI * i) / particleCount;
-//                    double offsetX = Math.cos(angle) * radius;
-//                    double offsetZ = Math.sin(angle) * radius;
-//
-//                    // Gray dust for outer particles
-//                    if (ring <= 3) {
-//                        // Inner rings - darker gray transitioning to red
-//                        int color = 0x666666 + (ring * 0x220000); // Gray to reddish
-//                        DustParticleEffect dustEffect = new DustParticleEffect(Vec3d.unpackRgb(color).toVector3f(), 2.0f);
-//                        serverWorld.spawnParticles(dustEffect,
-//                                baseX + offsetX, headHeight - 4, baseZ + offsetZ,
-//                                15, 0.4, 0.2, 0.4, 0.02);
-//                    } else {
-//                        // Outer rings - more red
-//                        DustParticleEffect redDust = new DustParticleEffect(Vec3d.unpackRgb(0xCC4D33).toVector3f(), 3.0f);
-//                        serverWorld.spawnParticles(redDust,
-//                                baseX + offsetX, headHeight - 8, baseZ + offsetZ,
-//                                20, 0.5, 0.3, 0.5, 0.02);
-//                    }
-//                }
-//            }
-//
-//            for (int layer = 0; layer < 12; layer++) {
-//                double layerY = headHeight + (layer * 0.55) - 1;
-//                double layerRadius = 8 - (layer * 1.15);
-//
-//                for (int i = 0; i < 60; i++) {
-//                    double angle = (2 * Math.PI * i) / 60;
-//                    double offsetX = Math.cos(angle) * layerRadius;
-//                    double offsetZ = Math.sin(angle) * layerRadius;
-//                    serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX + offsetX, layerY, baseZ + offsetZ,
-//                            4, 0.3, 0.6, 0.3, 0.02);
-//                }
-//            }
-//
-//            // Rising smoke trails from the head
-//            for (int i = 0; i < 5; i++) {
-//                double smokeY = headHeight + (i * 2);
-//                // Dispersing smoke as it rises
-//                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, baseX, smokeY, baseZ, 30, 1 + i, 0.5, 1 + i, 0.02);
-//                serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX, smokeY, baseZ, 20, 0.8 + i, 0.3, 0.8 + i, 0.01);
-//            }
             target.getWorld().spawnEntity(healingLightEntity);
         } else {
             target.heal(healingAmount);
-
             target.getWorld().spawnEntity(healingLightEntity);
             // Healing particles
             serverWorld.spawnParticles(ParticleTypes.HEART,
