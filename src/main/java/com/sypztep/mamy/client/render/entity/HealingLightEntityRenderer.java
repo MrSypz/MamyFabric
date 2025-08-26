@@ -27,11 +27,12 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
             true,
             RenderLayer.MultiPhaseParameters.builder()
                     .program(RenderPhase.ENTITY_TRANSLUCENT_EMISSIVE_PROGRAM)
-                    .texture(new RenderPhase.Texture(HEALING_GRADIENT_TEXTURE, true, false))
+                    .texture(new RenderPhase.Texture(HEALING_GRADIENT_TEXTURE, false, false))
                     .transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY)
                     .cull(RenderPhase.DISABLE_CULLING)
                     .writeMaskState(RenderPhase.COLOR_MASK)
                     .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
+                    .lineWidth(RenderPhase.FULL_LINE_WIDTH)
                     .build(false)
     );
     private static final float CYLINDER_RADIUS = 1f;
@@ -55,18 +56,18 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
 
         float intensity = entity.getIntensity();
 
-        renderCylinder(matrices, vertexConsumers, intensity, light);
+        renderCylinder(matrices, vertexConsumers, intensity);
 
         matrices.pop();
     }
 
-    private void renderCylinder(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float intensity,int light) {
+    private void renderCylinder(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float intensity) {
         VertexConsumer buffer = vertexConsumers.getBuffer(HEALING_CYLINDER);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         float angleStep = (float) (2 * Math.PI / CYLINDER_SEGMENTS);
         int color = getHealingColor(intensity, 1.0f);
-//        int light = 0xF000F0; // Full brightness for emissive effect
+        int light = 0xF000F0; // Full brightness for emissive effect
         int overlay = 0;
 
         // Render cylinder wall with squares arranged in circle
@@ -105,17 +106,17 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
                     .light(light)
                     .normal(nx2, 0, nz2);
 
-            // Top vertices (v=1, transparent in texture)
+            // Top vertices (v=0.05f, nearly transparent but not fully to avoid edge artifacts)
             buffer.vertex(matrix, x2, CYLINDER_HEIGHT, z2)
                     .color(color)
-                    .texture(u2, 0.0f) // Top of gradient texture
+                    .texture(u2, 0.05f) // Slightly above 0 to avoid edge artifacts
                     .overlay(overlay)
                     .light(light)
                     .normal(nx2, 0, nz2);
 
             buffer.vertex(matrix, x1, CYLINDER_HEIGHT, z1)
                     .color(color)
-                    .texture(u1, 0.0f) // Top of gradient texture
+                    .texture(u1, 0.05f) // Slightly above 0 to avoid edge artifacts
                     .overlay(overlay)
                     .light(light)
                     .normal(nx1, 0, nz1);
@@ -123,10 +124,11 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
     }
 
     private int getHealingColor(float intensity, float alpha) {
+        // Base healing color - let texture handle transparency
         float r = MathHelper.clamp(0.6f * intensity, 0.0f, 1.0f);
-        float g = MathHelper.clamp(1.0f * intensity, 0.0f, 1.0f);
+        float g = MathHelper.clamp(intensity, 0.0f, 1.0f);
         float b = MathHelper.clamp(0.7f * intensity, 0.0f, 1.0f);
-        float a = alpha; // Full alpha, texture will handle gradient
+        float a = 1.0f; // Full alpha, texture will handle gradient
 
         return ((int)(a * 255) << 24) | ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
     }
