@@ -94,6 +94,8 @@ public class HealSkill extends Skill implements CastableSkill {
         if (target == null) {
             target = player; // Self-cast if no target found
         }
+        HealingLightEntity healingLightEntity = new HealingLightEntity(target, target.getWorld());
+        healingLightEntity.setPos(target.getX(), target.getY(), target.getZ());
 
         float healingAmount = calculateHealingAmount(player, skillLevel);
 
@@ -175,12 +177,11 @@ public class HealSkill extends Skill implements CastableSkill {
 //                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, baseX, smokeY, baseZ, 30, 1 + i, 0.5, 1 + i, 0.02);
 //                serverWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, baseX, smokeY, baseZ, 20, 0.8 + i, 0.3, 0.8 + i, 0.01);
 //            }
-            HealingLightEntity healingLightEntity = new HealingLightEntity(target, target.getWorld());
-            healingLightEntity.setPos(target.getX(), target.getY(), target.getZ());
-            caster.getWorld().spawnEntity(healingLightEntity);
+            target.getWorld().spawnEntity(healingLightEntity);
         } else {
             target.heal(healingAmount);
 
+            target.getWorld().spawnEntity(healingLightEntity);
             // Healing particles
             serverWorld.spawnParticles(ParticleTypes.HEART,
                     target.getX(), target.getY() + target.getHeight() / 2, target.getZ(),

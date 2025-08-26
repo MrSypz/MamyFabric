@@ -66,7 +66,7 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         float angleStep = (float) (2 * Math.PI / CYLINDER_SEGMENTS);
-        int color = getHealingColor(intensity, 1.0f);
+        int color = getHealingColor(intensity);
         int light = 0xF000F0; // Full brightness for emissive effect
         int overlay = 0;
 
@@ -109,26 +109,25 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
             // Top vertices (v=0.05f, nearly transparent but not fully to avoid edge artifacts)
             buffer.vertex(matrix, x2, CYLINDER_HEIGHT, z2)
                     .color(color)
-                    .texture(u2, 0.05f) // Slightly above 0 to avoid edge artifacts
+                    .texture(u2, 0.02f) // Slightly above 0 to avoid edge artifacts
                     .overlay(overlay)
                     .light(light)
                     .normal(nx2, 0, nz2);
 
             buffer.vertex(matrix, x1, CYLINDER_HEIGHT, z1)
                     .color(color)
-                    .texture(u1, 0.05f) // Slightly above 0 to avoid edge artifacts
+                    .texture(u1, 0.02f) // Slightly above 0 to avoid edge artifacts
                     .overlay(overlay)
                     .light(light)
                     .normal(nx1, 0, nz1);
         }
     }
 
-    private int getHealingColor(float intensity, float alpha) {
-        // Base healing color - let texture handle transparency
+    private int getHealingColor(float intensity) {
         float r = MathHelper.clamp(0.6f * intensity, 0.0f, 1.0f);
         float g = MathHelper.clamp(intensity, 0.0f, 1.0f);
         float b = MathHelper.clamp(0.7f * intensity, 0.0f, 1.0f);
-        float a = 1.0f; // Full alpha, texture will handle gradient
+        float a = MathHelper.clamp(intensity, 0.0f, 1.0f); // Full alpha, texture will handle gradient
 
         return ((int)(a * 255) << 24) | ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
     }
