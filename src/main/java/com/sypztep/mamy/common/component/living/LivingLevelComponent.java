@@ -132,7 +132,7 @@ public final class LivingLevelComponent implements AutoSyncedComponent {
         }
     }
     // single
-    private void refreshStatEffectsInternal(StatTypes statType) {
+    public void refreshStatEffectsInternal(StatTypes statType) {
         Stat stat = getStatByType(statType);
         stat.applyPrimaryEffect(living);
         stat.applySecondaryEffect(living);

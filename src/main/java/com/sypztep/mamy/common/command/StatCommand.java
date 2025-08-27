@@ -240,6 +240,7 @@ public class StatCommand {
             Stat stat = component.getStatByType(statType);
             stats.append(String.format("§6%s §8(§7%s§8):\n", statType.getName().toUpperCase(), statType.getAka()));
             stats.append(String.format("  §7Current Value: §f%d\n", stat.getCurrentValue()));
+            stats.append(String.format("  §7Effective Value: §f%d\n", stat.getEffective()));
             stats.append(String.format("  §7Base Value: §f%d\n", stat.getBaseValue()));
             stats.append(String.format("  §7Points Used: §e%d\n", stat.getTotalPointsUsed()));
             stats.append(String.format("  §7Next Upgrade Cost: §e%d\n\n", stat.getIncreasePerPoint()));
