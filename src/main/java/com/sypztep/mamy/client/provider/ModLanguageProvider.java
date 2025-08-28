@@ -59,7 +59,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
     }
     private void playerInfo(TranslationBuilder translator) {
         String key = "mamy.info.";
-        translator.add("mamy.gui.player_info.title", "Player Information | Main Screen");
+        translator.add("mamy.gui.player_info.title", "Player Information");
         translator.add("mamy.gui.player_info.header", "Player Stats");
         translator.add("mamy.gui.player_info.header_level", "Stats");
 

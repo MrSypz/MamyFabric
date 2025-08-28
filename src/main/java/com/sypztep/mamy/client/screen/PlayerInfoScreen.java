@@ -322,7 +322,7 @@ public final class PlayerInfoScreen extends Screen {
         int section2Y = contentY + section1Height + 10;
         renderScrollablePlayerInfoSection(context, section2X, section2Y, leftWidth - 30, section2Height - 10, mouseX, mouseY, delta);
 
-        // Section 3 (right side - ScrollableTextList)
+        // Section 3 (right side - ScrollableTextList with search)
         int section3X = leftWidth + 20;
         int section3Y = contentY;
 
@@ -401,7 +401,7 @@ public final class PlayerInfoScreen extends Screen {
             if (scrollablePlayerInfo.handleMouseClick(mouseX, mouseY, button)) return true;
         }
 
-        // Section 3 (right side) - ScrollableTextList
+        // Section 3 (right side) - ScrollableTextList with search
         int section3X = leftWidth + 20;
         int section3Y = contentY;
 
@@ -440,7 +440,7 @@ public final class PlayerInfoScreen extends Screen {
             if (scrollablePlayerInfo.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
         }
 
-        // Section 3 (right side) - ScrollableTextList
+        // Section 3 (right side) - ScrollableTextList with search
         int section3X = leftWidth + 20;
         int section3Y = contentY;
 
@@ -467,6 +467,24 @@ public final class PlayerInfoScreen extends Screen {
         playerInfo.handleMouseRelease(mouseX, mouseY, button);
 
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (playerInfo.handleKeyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (playerInfo.handleCharTyped(chr, modifiers)) {
+            return true;
+        }
+
+        return super.charTyped(chr, modifiers);
     }
 
     @Override

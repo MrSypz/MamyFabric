@@ -89,8 +89,8 @@ public final class ScrollableStat {
         updateScrollBounds();
 
         // Draw the container background
-        context.fill(x, y, x + width, y + height, 0xFF1E1E1E);
-
+        DrawContextUtils.drawRect(context, x, y, width, height, 0xFF1E1E1E);
+        context.drawBorder(x, y, width, height, 0xFF404040);
         // Update scroll behavior
         scrollBehavior.update(context, (int) mouseX, (int) mouseY, deltaTime);
 
