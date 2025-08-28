@@ -299,14 +299,14 @@ public final class SkillLearningScreen extends Screen {
                 } else if (canUpgrade) {
                     SkillActionPayloadC2S.sendUpgrade(skill.getId());
                 }
-                return true;
-            } else if (button == 1) { // Right click - Unlearn
+                return super.mouseClicked(mouseX, mouseY, button);
+            } else if (button == 1) {
                 if (isLearned) {
+                    playClickSound(); // Add sound due to the base class are only rightclick
                     SkillActionPayloadC2S.sendUnlearn(skill.getId());
                 }
                 return true;
             }
-
             return super.mouseClicked(mouseX, mouseY, button);
         }
     }

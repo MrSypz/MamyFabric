@@ -575,11 +575,13 @@ public final class SkillBindingScreen extends Screen {
             if (button == 1) { // Right click - unbind
                 if (boundSkill != null) {
                     unbindSkill(slotIndex);
+                    playClickSound(); // Add sound due to the base class are only rightclick
                 }
                 return true;
             } else if (button == 0) { // Left click - bind
                 if (selectedSkill != null) {
                     bindSkill(slotIndex, selectedSkill);
+                    playClickSound(); // only if unbind
                 }
                 return true;
             }
