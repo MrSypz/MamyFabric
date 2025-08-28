@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,10 +31,6 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     @Override
     public float getResourceCost(int skillLevel) {
         return 15f + (skillLevel * 3f);
-    }
-
-    public float getHPCost() {
-        return 15f;
     }
 
     @Override
@@ -77,17 +74,13 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     public boolean canUse(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;
 
-        // Check if player has enough HP for the skill (15 HP cost)
-        return player.isAlive() && player.getHealth() > getHPCost();
+        return player.isAlive();
     }
 
     @Override
     public boolean use(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
-
-        // Consume HP cost
-        player.damage(serverWorld.getDamageSources().magic(), getHPCost());
 
         // Find target using raycast (same as heal skill)
         LivingEntity target = findTargetEntity(player);
