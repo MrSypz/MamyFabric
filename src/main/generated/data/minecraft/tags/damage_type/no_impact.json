@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "mamy:double_attack",
+      "required": false
+    },
+    {
+      "id": "mamy:fire_damage",
+      "required": false
+    },
+    {
+      "id": "mamy:holy",
+      "required": false
+    }
+  ]
+}

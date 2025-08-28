@@ -1,0 +1,13 @@
+{
+  "baseLevel": 12,
+  "classReward": 100,
+  "expReward": 130,
+  "stats": {
+    "agility": 8,
+    "dexterity": 5,
+    "intelligence": 4,
+    "luck": 5,
+    "strength": 15,
+    "vitality": 35
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:thorns",
+    {
+      "id": "#minecraft:witch_resistant_to",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#minecraft:is_fire",
+      "required": false
+    },
+    {
+      "id": "mamy:fire_damage",
+      "required": false
+    }
+  ]
+}

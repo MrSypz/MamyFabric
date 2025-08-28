@@ -135,12 +135,12 @@ public final class PlayerInfoScreen extends Screen {
         values.put("fctpct", client.player.getAttributeValue(ModEntityAttributes.FCT_REDUCTION_PERCENT));
         values.put("skillvct", client.player.getAttributeValue(ModEntityAttributes.SKILL_VCT_REDUCTION));
 
-        values.put("str", playerStats.getStatValue(StatTypes.STRENGTH));
-        values.put("agi", playerStats.getStatValue(StatTypes.AGILITY));
-        values.put("vit", playerStats.getStatValue(StatTypes.VITALITY));
-        values.put("int", playerStats.getStatValue(StatTypes.INTELLIGENCE));
-        values.put("dex", playerStats.getStatValue(StatTypes.DEXTERITY));
-        values.put("luk", playerStats.getStatValue(StatTypes.LUCK));
+        values.put("str", playerStats.getStatByType(StatTypes.STRENGTH).getEffective());
+        values.put("agi", playerStats.getStatByType(StatTypes.AGILITY).getEffective());
+        values.put("vit", playerStats.getStatByType(StatTypes.VITALITY).getEffective());
+        values.put("int", playerStats.getStatByType(StatTypes.INTELLIGENCE).getEffective());
+        values.put("dex", playerStats.getStatByType(StatTypes.DEXTERITY).getEffective());
+        values.put("luk", playerStats.getStatByType(StatTypes.LUCK).getEffective());
 
         // Utility stats
         values.put("weight", client.player.getAttributeValue(ModEntityAttributes.MAX_WEIGHT));
