@@ -25,7 +25,6 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> CRIT_CHANCE = register("crit_chance", 0.0, 0.0, 2.0D);
     RegistryEntry<EntityAttribute> BACK_ATTACK = register("back_attack", 0.2, 0.0, 10.24D);
     RegistryEntry<EntityAttribute> SPECIAL_ATTACK = register("special_attack", 0.0, 0.0, 10.24D);
-    RegistryEntry<EntityAttribute> HEADSHOT_DAMAGE = register("headshot_damage", 0.0, 0.0, 1024D);
 
     // Dual attack damage attributes (flat and percentage)
     RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE_FLAT = register("melee_attack_damage_flat", 0, 0.0, 4096);
