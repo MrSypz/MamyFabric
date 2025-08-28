@@ -10,7 +10,7 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 
 public class IncreaseAgilityEffect extends StatusEffect {
-    private static final String MODIFIER_SOURCE = "increase_agility_effect";
+    private static final String MODIFIER_SOURCE = "IncreaseAgilityEffect";
     public IncreaseAgilityEffect(StatusEffectCategory category) {
         super(category, 0);
         this.addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED, Mamy.id("increase_agility_effect"), 0.01D, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE);
