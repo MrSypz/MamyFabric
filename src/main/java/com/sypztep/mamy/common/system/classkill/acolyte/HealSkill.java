@@ -1,7 +1,6 @@
 package com.sypztep.mamy.common.system.classkill.acolyte;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
 import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDamageTypes;
@@ -10,8 +9,8 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.config.SkillConfig;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,14 +20,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.Vec3d;
 
 public class HealSkill extends Skill implements CastableSkill {
 
     public HealSkill(Identifier identifier) {
-        super(identifier, "Heal", "Restore HP to a single target. Damages undead with holy power.",
-                13f, 0f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/heal"));
+        super(identifier, "Heal", "Restore HP to a single target. Damages undead with holy power.", 13f, 0f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/heal"));
     }
 
     @Override
@@ -90,17 +86,15 @@ public class HealSkill extends Skill implements CastableSkill {
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
         // Find target using raycast
-        LivingEntity target = findTargetEntity(player);
-        if (target == null) {
-            target = player; // Self-cast if no target found
-        }
+        LivingEntity target = SkillUtil.findTargetEntity(player,9);
+        if (target == null) target = player;
+
         HealingLightEntity healingLightEntity = new HealingLightEntity(target, target.getWorld());
         healingLightEntity.setPos(target.getX(), target.getY(), target.getZ());
 
         float healingAmount = calculateHealingAmount(player, skillLevel);
 
         if (target.getType().isIn(EntityTypeTags.UNDEAD)) {
-            // Damage undead with holy damage (half the healing amount)
             float holyDamage = healingAmount * 0.5f;
 
             DamageSource holyDamageSource = ModDamageTypes.create(serverWorld, ModDamageTypes.HOLY, player);
@@ -111,46 +105,15 @@ public class HealSkill extends Skill implements CastableSkill {
             target.heal(healingAmount);
             target.getWorld().spawnEntity(healingLightEntity);
             // Healing particles
-            serverWorld.spawnParticles(ParticleTypes.HEART,
-                    target.getX(), target.getY() + target.getHeight() / 2, target.getZ(),
-                    8, 0.3, 0.3, 0.3, 0.1);
+            serverWorld.spawnParticles(ParticleTypes.HEART, target.getX(), target.getY() + target.getHeight() / 2, target.getZ(), 8, 0.3, 0.3, 0.3, 0.1);
 
             // Play healing sound
-            serverWorld.playSound(null, target.getX(), target.getY(), target.getZ(),
-                    SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS,
-                    0.5f, 1.8f);
+            serverWorld.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.5f, 1.8f);
         }
 
         return true;
     }
 
-    private LivingEntity findTargetEntity(PlayerEntity player) {
-        Vec3d start = player.getCameraPosVec(1.0f);
-        Vec3d direction = player.getRotationVec(1.0f);
-        int range = 16;
-        EntityHitResult entityHit = null;
-        double closestDistance = Double.MAX_VALUE;
-
-        for (LivingEntity entity : player.getWorld().getEntitiesByClass(LivingEntity.class,
-                player.getBoundingBox().expand(range),
-                e -> e != player && e.isAlive())) {
-
-            // Check if entity is in line of sight
-            Vec3d entityCenter = entity.getBoundingBox().getCenter();
-            double distance = start.distanceTo(entityCenter);
-
-            if (distance < closestDistance) {
-                // Simple line of sight check
-                Vec3d toEntity = entityCenter.subtract(start).normalize();
-                if (direction.dotProduct(toEntity) > 0.8) { // Within ~36 degree cone
-                    closestDistance = distance;
-                    entityHit = new EntityHitResult(entity);
-                }
-            }
-        }
-
-        return entityHit != null ? (LivingEntity) entityHit.getEntity() : null;
-    }
 
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {

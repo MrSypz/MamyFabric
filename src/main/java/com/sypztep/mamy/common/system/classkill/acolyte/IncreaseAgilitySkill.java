@@ -6,7 +6,7 @@ import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.util.LivingEntityUtil;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,8 +17,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
@@ -55,7 +53,7 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
 
     @Override
     public Identifier getCastAnimation() {
-        return Mamy.id("blessing_cast");
+        return Mamy.id("pray");
     }
 
     @Override
@@ -83,7 +81,7 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
         // Find target using raycast (same as heal skill)
-        LivingEntity target = findTargetEntity(player);
+        LivingEntity target = SkillUtil.findTargetEntity(player,9);
         if (target == null) target = player;
 
         int duration = (40 + (skillLevel * 20)) * 20;
@@ -99,29 +97,6 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
         return true;
     }
 
-    private LivingEntity findTargetEntity(PlayerEntity player) {
-        Vec3d start = player.getCameraPosVec(1.0f);
-        Vec3d direction = player.getRotationVec(1.0f);
-
-        EntityHitResult entityHit = null;
-        double closestDistance = Double.MAX_VALUE;
-
-        for (LivingEntity entity : player.getWorld().getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(9.0), LivingEntity::isAlive)) { // Can target any living entity including player
-
-            Vec3d entityCenter = entity.getBoundingBox().getCenter();
-            double distance = start.distanceTo(entityCenter);
-
-            if (distance < closestDistance) {
-                Vec3d toEntity = entityCenter.subtract(start).normalize();
-                if (direction.dotProduct(toEntity) > 0.7) { // Within ~45 degree cone
-                    closestDistance = distance;
-                    entityHit = new EntityHitResult(entity);
-                }
-            }
-        }
-
-        return entityHit != null ? (LivingEntity) entityHit.getEntity() : null;
-    }
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
