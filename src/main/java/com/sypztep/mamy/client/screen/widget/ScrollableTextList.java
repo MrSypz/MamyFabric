@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.client.util.DrawContextUtils;
+import com.sypztep.mamy.common.util.TextUtil;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -92,7 +93,6 @@ public final class ScrollableTextList {
         itemHeights.clear();
         wrappedTextCache.clear();
 
-        // Calculate available width for text (accounting for padding and icon space)
         int textWidth = (int) ((width - CONTENT_PADDING * 2) / scale);
 
         for (int i = 0; i < items.size(); i++) {
@@ -103,7 +103,7 @@ public final class ScrollableTextList {
             String displayText = isMainContext ? itemText.getString() : "● " + itemText.getString();
             String formattedText = StringFormatter.format(displayText, values);
 
-            List<String> wrappedLines = wrapText(textRenderer, formattedText, textWidth);
+            List<String> wrappedLines = TextUtil.wrapText(textRenderer, formattedText, textWidth);
             wrappedTextCache.add(wrappedLines);
 
             int textBlockHeight = wrappedLines.size() * textRenderer.fontHeight;
@@ -210,43 +210,6 @@ public final class ScrollableTextList {
         context.drawGuiTexture(icon, 0, 0, ICON_SIZE, ICON_SIZE);
 
         matrixStack.pop();
-    }
-
-
-    private List<String> wrapText(TextRenderer textRenderer, String text, int maxWidth) {
-        List<String> lines = new ArrayList<>();
-
-        // Handle explicit line breaks first
-        String[] explicitLines = text.split("\\n");
-
-        for (String line : explicitLines) {
-            String[] words = line.split(" ");
-            StringBuilder currentLine = new StringBuilder();
-
-            for (String word : words) {
-                String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
-
-                if (textRenderer.getWidth(testLine) <= maxWidth) {
-                    if (!currentLine.isEmpty()) {
-                        currentLine.append(" ");
-                    }
-                    currentLine.append(word);
-                } else {
-                    if (!currentLine.isEmpty()) {
-                        lines.add(currentLine.toString());
-                        currentLine = new StringBuilder(word);
-                    } else {
-                        lines.add(word);
-                    }
-                }
-            }
-
-            if (!currentLine.isEmpty()) {
-                lines.add(currentLine.toString());
-            }
-        }
-
-        return lines;
     }
 
     private void updateHoverState(double mouseX, double mouseY) {
