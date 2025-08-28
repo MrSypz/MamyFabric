@@ -2,10 +2,7 @@ package com.sypztep.mamy.common.system.skill;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
-import com.sypztep.mamy.common.system.classkill.acolyte.DemonBanePassiveSkill;
-import com.sypztep.mamy.common.system.classkill.acolyte.DivineProtectionPassiveSkill;
-import com.sypztep.mamy.common.system.classkill.acolyte.HealSkill;
-import com.sypztep.mamy.common.system.classkill.acolyte.IncreaseAgilitySkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.*;
 import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
@@ -27,11 +24,14 @@ public class SkillRegistry {
     public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
     public static final Identifier HP_RECOVERY = Mamy.id("hp_recovery");
 
-    //Ac
+    //Acolyte
     public static final Identifier DEMON_BANE = Mamy.id("demon_bane");
     public static final Identifier DIVINE_PROTECTION = Mamy.id("divine_protection");
     public static final Identifier HEAL = Mamy.id("heal");
     public static final Identifier INCREASE_AGILITY = Mamy.id("increase_agility");
+    public static final Identifier DECREASE_AGILITY = Mamy.id("decrease_agility");
+    public static final Identifier BLESSING = Mamy.id("blessing");
+    public static final Identifier ANGELUS = Mamy.id("angelus");
 
     public static void registerSkills() {
         //Novice
@@ -43,12 +43,14 @@ public class SkillRegistry {
         register(new BashingBlowSkill(BASHING_BLOW));
         register(new EnergyBreakSkill(ENERGY_BREAK));
         register(new EndureSkill(ENDURE));
-
+        // Acolyte
         register(new DemonBanePassiveSkill(DEMON_BANE));
         register(new DivineProtectionPassiveSkill(DIVINE_PROTECTION));
         register(new HealSkill(HEAL));
         register(new IncreaseAgilitySkill(INCREASE_AGILITY));
-
+        register(new DecreaseAgilitySkill(DECREASE_AGILITY));
+        register(new BlessingSkill(BLESSING));
+        register(new AngelusSkill(ANGELUS));
     }
 
     private static void register(Skill skill) {
