@@ -9,9 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 public class CastingCalculator {
     private static final double STAT_DIVISOR = 530.0;
 
-    /**
-     * Calculate actual Variable Cast Time with all reductions
-     */
     public static int calculateVCT(PlayerEntity player, int baseVCT) {
         if (baseVCT <= 0) return 0;
         LivingLevelComponent comp = ModEntityComponents.LIVINGLEVEL.get(player);
@@ -40,9 +37,6 @@ public class CastingCalculator {
         return Math.max(0, (int) Math.round(finalVCT));
     }
 
-    /**
-     * Calculate actual Fixed Cast Time with reductions
-     */
     public static int calculateFCT(PlayerEntity player, int baseFCT) {
         if (baseFCT <= 0) return 0;
 
@@ -59,18 +53,12 @@ public class CastingCalculator {
         return Math.max(0, (int) Math.round(finalFCT));
     }
 
-    /**
-     * Calculate total cast time (VCT + FCT)
-     */
     public static int calculateTotalCastTime(PlayerEntity player, CastableSkill skill, int skillLevel) {
         int vct = calculateVCT(player, skill.getBaseVCT(skillLevel));
         int fct = calculateFCT(player, skill.getBaseFCT(skillLevel));
         return vct + fct;
     }
 
-    /**
-     * Get casting breakdown for UI/debugging
-     */
     public static CastingBreakdown getCastingBreakdown(PlayerEntity player, CastableSkill skill, int skillLevel) {
         int baseVCT = skill.getBaseVCT(skillLevel);
         int baseFCT = skill.getBaseFCT(skillLevel);
@@ -80,9 +68,6 @@ public class CastingCalculator {
         return new CastingBreakdown(baseVCT, baseFCT, finalVCT, finalFCT);
     }
 
-    /**
-     * Data class for casting breakdown
-     */
     public static class CastingBreakdown {
         public final int baseVCT;
         public final int baseFCT;
