@@ -15,6 +15,7 @@
     "core.critevasion.PlayerEntityMixin",
     "core.damage.PlayerEntityMixin",
     "core.registry.attribute.LivingEntityMixin",
+    "core.registry.attribute.PlayerEntityMixin",
     "core.stats.agility.projectileclip.PersistentProjectileEntityMixin",
     "core.stats.agility.projectileclip.TridentEntityMixin",
     "core.stats.dexterity.RangedWeaponItemMixin",
