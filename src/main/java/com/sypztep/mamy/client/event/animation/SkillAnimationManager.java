@@ -21,7 +21,6 @@ public class SkillAnimationManager {
     private static ModifierLayer<IAnimation> castingLayer;
 
     public static void initialize() {
-        // Register the casting animation layer
         PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
             if (player instanceof ClientPlayerEntity) {
                 ModifierLayer<IAnimation> layer = new ModifierLayer<>();

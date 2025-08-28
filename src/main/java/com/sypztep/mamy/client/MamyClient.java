@@ -2,7 +2,7 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
-import com.sypztep.mamy.client.event.animation.PlayerAnimRegistry;
+import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
 import com.sypztep.mamy.client.render.entity.BloodLustEntityRenderer;
@@ -24,7 +24,7 @@ public class MamyClient implements ClientModInitializer {
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
         config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
-        PlayerAnimRegistry.register();
+        SkillAnimationManager.initialize();
         ModParticles.Client.init();
 
         EntityRendererRegistry.register(ModEntityTypes.BLOOD_LUST, BloodLustEntityRenderer::new);
