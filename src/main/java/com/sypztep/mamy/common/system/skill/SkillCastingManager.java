@@ -80,7 +80,7 @@ public class SkillCastingManager {
 
         // Optional: Show casting breakdown in chat for debugging
         if (player.isSneaking()) {
-            var breakdown = CastingCalculator.getCastingBreakdown(player, castable, skillLevel);
+            CastingCalculator.CastingBreakdown breakdown = CastingCalculator.getCastingBreakdown(player, castable, skillLevel);
             player.sendMessage(Text.literal(String.format("Cast: VCT %d->%d, FCT %d->%d, Total: %d ticks",
                             breakdown.baseVCT, breakdown.finalVCT, breakdown.baseFCT, breakdown.finalFCT, breakdown.totalCastTime))
                     .formatted(Formatting.GRAY), true);
