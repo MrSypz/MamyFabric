@@ -1,12 +1,17 @@
 package com.sypztep.mamy.client.screen;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.client.screen.widget.*;
+import com.sypztep.mamy.client.screen.widget.ListElement;
+import com.sypztep.mamy.client.screen.widget.ScrollableTextList;
+import com.sypztep.mamy.client.screen.widget.ScrollableStat;
+import com.sypztep.mamy.client.screen.widget.ScrollablePlayerInfo;
 import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.system.damage.DamageUtil;
 import net.fabricmc.api.EnvType;
@@ -14,36 +19,31 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public final class PlayerInfoScreen extends Screen {
-    // Player Stats
     private final LivingLevelComponent playerStats;
-
-    // UI Components
-    private List<IncreasePointButton> increaseButtons;
+    private final PlayerClassComponent playerClassComponent;
     private final ScrollableTextList playerInfo;
-
-    private final int buttonHeight = 16;
-    private final int statLabelWidth = 30;
-    private final int statRowHeight = 25;
+    private final ScrollableStat scrollableStat;
+    private final ScrollablePlayerInfo scrollablePlayerInfo;
 
     public PlayerInfoScreen(MinecraftClient client) {
-        super(Text.literal("")); // Keep original title
+        super(Text.literal(""));
         assert client.player != null;
         this.playerStats = ModEntityComponents.LIVINGLEVEL.get(client.player);
+        this.playerClassComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
         Map<String, Object> infoKeys = createPlayerInfoKey(client);
         List<ListElement> listInfo = createListItems();
 
         this.playerInfo = new ScrollableTextList(listInfo, infoKeys);
+        this.scrollableStat = new ScrollableStat(playerStats, client);
+        this.scrollablePlayerInfo = new ScrollablePlayerInfo(client, playerStats, playerClassComponent);
     }
 
     public void updateValues(MinecraftClient client) {
@@ -51,44 +51,29 @@ public final class PlayerInfoScreen extends Screen {
         this.playerInfo.updateValues(values);
     }
 
-
     private Map<String, Object> createPlayerInfoKey(MinecraftClient client) {
         Map<String, Object> values = new HashMap<>();
         assert client.player != null;
 
-        // ==========================================
-        // COMBAT STATS - Offensive Power
-        // ==========================================
+        // Combat stats
         values.put("phyd", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE));
-
-        // Melee damage (flat + multiplier)
         values.put("meleed", client.player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT));
         values.put("meleem", client.player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT) * 100f);
-
-        // Projectile damage (flat + multiplier)
         values.put("projd", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT));
         values.put("projm", client.player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT) * 100f);
-
-        // Magic damage (flat + multiplier)
         values.put("mdmg", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT));
         values.put("mdmgm", client.player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT) * 100f);
-
         values.put("asp", client.player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
 
-        // ==========================================
-        // PRECISION & CRITICAL STATS
-        // ==========================================
+        // Precision stats
         values.put("acc", client.player.getAttributeValue(ModEntityAttributes.ACCURACY));
         values.put("ccn", client.player.getAttributeValue(ModEntityAttributes.CRIT_CHANCE) * 100f);
         values.put("cdmg", client.player.getAttributeValue(ModEntityAttributes.CRIT_DAMAGE) * 100f);
         values.put("bkdmg", client.player.getAttributeValue(ModEntityAttributes.BACK_ATTACK) * 100f);
         values.put("spedmg", client.player.getAttributeValue(ModEntityAttributes.SPECIAL_ATTACK) * 100f);
-        values.put("hsdmg", client.player.getAttributeValue(ModEntityAttributes.HEADSHOT_DAMAGE) * 100f);
         values.put("dblatt", client.player.getAttributeValue(ModEntityAttributes.DOUBLE_ATTACK_CHANCE) * 100f);
 
-        // ==========================================
-        // DEFENSIVE STATS
-        // ==========================================
+        // Defensive stats
         values.put("hp", client.player.getHealth());
         values.put("maxhp", client.player.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH));
         values.put("dp", client.player.getAttributeValue(EntityAttributes.GENERIC_ARMOR));
@@ -106,9 +91,7 @@ public final class PlayerInfoScreen extends Screen {
         values.put("flatproj", client.player.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION));
         values.put("flatmelee", client.player.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION));
 
-        // ==========================================
-        // ELEMENTAL DAMAGE STATS
-        // ==========================================
+        // Elemental damage stats
         values.put("fired", client.player.getAttributeValue(ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT));
         values.put("firem", client.player.getAttributeValue(ModEntityAttributes.FIRE_ATTACK_DAMAGE_MULT) * 100f);
         values.put("coldd", client.player.getAttributeValue(ModEntityAttributes.COLD_ATTACK_DAMAGE_FLAT));
@@ -122,9 +105,7 @@ public final class PlayerInfoScreen extends Screen {
         values.put("holyd", client.player.getAttributeValue(ModEntityAttributes.HOLY_ATTACK_DAMAGE_FLAT));
         values.put("holym", client.player.getAttributeValue(ModEntityAttributes.HOLY_ATTACK_DAMAGE_MULT) * 100f);
 
-        // ==========================================
-        // ELEMENTAL RESISTANCES
-        // ==========================================
+        // Elemental resistances
         values.put("fireres", client.player.getAttributeValue(ModEntityAttributes.FIRE_RESISTANCE) * 100f);
         values.put("coldres", client.player.getAttributeValue(ModEntityAttributes.COLD_RESISTANCE) * 100f);
         values.put("elecres", client.player.getAttributeValue(ModEntityAttributes.ELECTRIC_RESISTANCE) * 100f);
@@ -140,34 +121,20 @@ public final class PlayerInfoScreen extends Screen {
         values.put("flatwind", client.player.getAttributeValue(ModEntityAttributes.FLAT_WIND_REDUCTION));
         values.put("flatholy", client.player.getAttributeValue(ModEntityAttributes.FLAT_HOLY_REDUCTION));
 
-        // ==========================================
-        // RESOURCE & REGENERATION SYSTEM
-        // ==========================================
+        // Resource & regeneration system
         values.put("nhrg", client.player.getAttributeValue(ModEntityAttributes.HEALTH_REGEN));
         values.put("hef", client.player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE) * 100f);
-
-        // Resource system
         values.put("resource", client.player.getAttributeValue(ModEntityAttributes.RESOURCE));
         values.put("resregen", client.player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN));
         values.put("resrate", client.player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE));
 
-        // ==========================================
-        // CASTING SYSTEM ATTRIBUTES
-        // ==========================================
+        // Casting system attributes
         values.put("vctflat", client.player.getAttributeValue(ModEntityAttributes.VCT_REDUCTION_FLAT));
         values.put("vctpct", client.player.getAttributeValue(ModEntityAttributes.VCT_REDUCTION_PERCENT));
         values.put("fctflat", client.player.getAttributeValue(ModEntityAttributes.FCT_REDUCTION_FLAT));
         values.put("fctpct", client.player.getAttributeValue(ModEntityAttributes.FCT_REDUCTION_PERCENT));
         values.put("skillvct", client.player.getAttributeValue(ModEntityAttributes.SKILL_VCT_REDUCTION));
 
-        // ==========================================
-        // UTILITY STATS
-        // ==========================================
-        values.put("weight", client.player.getAttributeValue(ModEntityAttributes.MAX_WEIGHT));
-
-        // ==========================================
-        // BASE ATTRIBUTES (UNCHANGED)
-        // ==========================================
         values.put("str", playerStats.getStatValue(StatTypes.STRENGTH));
         values.put("agi", playerStats.getStatValue(StatTypes.AGILITY));
         values.put("vit", playerStats.getStatValue(StatTypes.VITALITY));
@@ -175,22 +142,63 @@ public final class PlayerInfoScreen extends Screen {
         values.put("dex", playerStats.getStatValue(StatTypes.DEXTERITY));
         values.put("luk", playerStats.getStatValue(StatTypes.LUCK));
 
-        values.put("cstr", playerStats.getStatByType(StatTypes.STRENGTH).getClassBonus());
-        values.put("cagi", playerStats.getStatByType(StatTypes.AGILITY).getClassBonus());
-        values.put("cvit", playerStats.getStatByType(StatTypes.VITALITY).getClassBonus());
-        values.put("cint", playerStats.getStatByType(StatTypes.INTELLIGENCE).getClassBonus());
-        values.put("cdex", playerStats.getStatByType(StatTypes.DEXTERITY).getClassBonus());
-        values.put("cluk", playerStats.getStatByType(StatTypes.LUCK).getClassBonus());
+        // Utility stats
+        values.put("weight", client.player.getAttributeValue(ModEntityAttributes.MAX_WEIGHT));
+
+        // Unified stats - showing effective values with breakdowns
+        for (StatTypes statType : StatTypes.values()) {
+            Stat stat = playerStats.getStatByType(statType);
+            values.put(statType.name().toLowerCase(), formatUnifiedStat(stat));
+        }
 
         return values;
+    }
+
+    private String formatUnifiedStat(Stat stat) {
+        short effective = stat.getEffective();
+        StringBuilder result = new StringBuilder(String.valueOf(effective));
+
+        if (stat.getClassBonus() > 0 || stat.getTotalTemporaryModifiers() != 0) {
+            result.append(" (");
+
+            boolean needsPlus = false;
+            if (stat.getCurrentValue() > 0) {
+                result.append(stat.getCurrentValue());
+                needsPlus = true;
+            }
+
+            if (stat.getClassBonus() > 0) {
+                if (needsPlus) result.append("+");
+                result.append(stat.getClassBonus()).append("c");
+                needsPlus = true;
+            }
+
+            if (stat.getTotalTemporaryModifiers() != 0) {
+                short temp = stat.getTotalTemporaryModifiers();
+                if (needsPlus && temp > 0) result.append("+");
+                result.append(temp).append("t");
+            }
+
+            result.append(")");
+        }
+
+        return result.toString();
     }
 
     private List<ListElement> createListItems() {
         List<ListElement> listElements = new ArrayList<>();
 
-        // ==========================================
-        // COMBAT POWER SECTION
-        // ==========================================
+        // Unified Attributes Section
+        listElements.add(new ListElement(Text.translatable("mamy.info.header_attributes"),
+                Identifier.ofVanilla("icon/accessibility")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.strength")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.agility")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.vitality")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.intelligence")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.dexterity")));
+        listElements.add(new ListElement(Text.translatable("mamy.info.luck")));
+
+        // Combat Power Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_combat"),
                 Mamy.id("hud/icon_sword")));
         listElements.add(new ListElement(Text.translatable("mamy.info.physical")));
@@ -202,9 +210,7 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_mult")));
         listElements.add(new ListElement(Text.translatable("mamy.info.attack_speed")));
 
-        // ==========================================
-        // PRECISION & CRITICAL SECTION
-        // ==========================================
+        // Precision & Critical Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_precision"),
                 Mamy.id("hud/icon_crosshair")));
         listElements.add(new ListElement(Text.translatable("mamy.info.accuracy")));
@@ -212,12 +218,9 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.critical_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.backattack_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.special_damage")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.headshot_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.double_attack")));
 
-        // ==========================================
-        // DEFENSIVE SECTION
-        // ==========================================
+        // Defensive Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_defense"),
                 Identifier.ofVanilla("hud/heart/full")));
         listElements.add(new ListElement(Text.translatable("mamy.info.health")));
@@ -225,20 +228,14 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.defense")));
         listElements.add(new ListElement(Text.translatable("mamy.info.damage_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.evasion")));
-
-        // Combat resistances
         listElements.add(new ListElement(Text.translatable("mamy.info.magic_resistance")));
         listElements.add(new ListElement(Text.translatable("mamy.info.projectile_resistance")));
         listElements.add(new ListElement(Text.translatable("mamy.info.melee_resistance")));
-
-        // Flat damage reductions
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_magic_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_projectile_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_melee_reduction")));
 
-        // ==========================================
-        // ELEMENTAL DAMAGE SECTION
-        // ==========================================
+        // Elemental Damage Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_elemental_damage"),
                 Mamy.id("hud/icon_fire")));
         listElements.add(new ListElement(Text.translatable("mamy.info.fire_damage")));
@@ -254,9 +251,7 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.holy_damage")));
         listElements.add(new ListElement(Text.translatable("mamy.info.holy_mult")));
 
-        // ==========================================
-        // ELEMENTAL RESISTANCES SECTION
-        // ==========================================
+        // Elemental Resistances Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_elemental_resist"),
                 Mamy.id("hud/icon_shield")));
         listElements.add(new ListElement(Text.translatable("mamy.info.fire_resistance")));
@@ -265,8 +260,6 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.water_resistance")));
         listElements.add(new ListElement(Text.translatable("mamy.info.wind_resistance")));
         listElements.add(new ListElement(Text.translatable("mamy.info.holy_resistance")));
-
-        // Flat elemental reductions
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_fire_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_cold_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_electric_reduction")));
@@ -274,9 +267,7 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_wind_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.flat_holy_reduction")));
 
-        // ==========================================
-        // RESOURCE & REGENERATION SECTION
-        // ==========================================
+        // Resource & Regeneration Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_recovery"),
                 Mamy.id("hud/recovery")));
         listElements.add(new ListElement(Text.translatable("mamy.info.nature_health_regen")));
@@ -285,9 +276,7 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.resource_regen")));
         listElements.add(new ListElement(Text.translatable("mamy.info.resource_regen_rate")));
 
-        // ==========================================
-        // CASTING SYSTEM SECTION
-        // ==========================================
+        // Casting System Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_casting"),
                 Mamy.id("hud/icon_cast")));
         listElements.add(new ListElement(Text.translatable("mamy.info.vct_flat_reduction")));
@@ -296,84 +285,87 @@ public final class PlayerInfoScreen extends Screen {
         listElements.add(new ListElement(Text.translatable("mamy.info.fct_percent_reduction")));
         listElements.add(new ListElement(Text.translatable("mamy.info.skill_vct_reduction")));
 
-        // ==========================================
-        // UTILITY SECTION
-        // ==========================================
+        // Utility Section
         listElements.add(new ListElement(Text.translatable("mamy.info.header_utility"),
                 Mamy.id("hud/icon_utility")));
         listElements.add(new ListElement(Text.translatable("mamy.info.max_weight")));
 
-        // ==========================================
-        // BASE ATTRIBUTES SECTION (UNCHANGED)
-        // ==========================================
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_attributes"),
-                Identifier.ofVanilla("icon/accessibility")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.strength")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.agility")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.vitality")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.intelligence")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.dexterity")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.luck")));
-
-        listElements.add(new ListElement(Text.translatable("mamy.info.header_classbonus"),
-                Identifier.ofVanilla("icon/accessibility")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.strength")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.agility")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.vitality")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.intelligence")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.dexterity")));
-        listElements.add(new ListElement(Text.translatable("mamy.info.classbonus.luck")));
-
         return listElements;
-    }
-    @Override
-    protected void init() {
-        super.init();
-        increaseButtons = new ArrayList<>(); // Initialize the list to hold buttons
-
-        int y = 50;
-        for (StatTypes statType : StatTypes.values()) {
-            int statValueWidth = 30;
-            int startX = 50;
-            int buttonX = startX + statLabelWidth + statValueWidth + 10; // Some spacing
-            int buttonY = y;
-            int buttonWidth = 16;
-            IncreasePointButton increaseButton = new IncreasePointButton(buttonX, buttonY, buttonWidth, buttonHeight, Text.of("+"), playerStats, statType, 1, client); // Updated constructor
-            this.addDrawableChild(increaseButton);
-            increaseButtons.add(increaseButton);
-
-            y += statRowHeight; // Move to the next row
-        }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         assert client != null;
         updateValues(client);
-        DrawContextUtils.fillScreen(context,0xFC141414);
+        DrawContextUtils.fillScreen(context,0xEC141414);
 
-        int screenWidth = this.width;
-        int screenHeight = this.height;
+        // Header
+        renderHeader(context, 20);
 
-        float contentSectionWidthRatio = 0.25f; // 25% of screen width
-        float contentSectionHeightRatio = 0.75f; // 50% of screen height (keep original comment)
+        // Layout sections
+        int contentY = 50;
+        int contentHeight = this.height - contentY - 20;
 
-        int contentWidth = (int) (screenWidth * contentSectionWidthRatio);
-        int contentHeight = (int) (screenHeight * contentSectionHeightRatio);
+        // Calculate section dimensions - only 2 sections now
+        int leftWidth = (this.width * 2) / 5;  // 40% for left side
+        int rightWidth = (this.width * 3) / 5; // 60% for right side
+        int section1Height = contentHeight / 2;
+        int section2Height = contentHeight / 2;
 
-        int xOffset = (int) (screenWidth * 0.67f); // 2/3 of the screen width
-        int yOffset = 20; // Static offset, removed animation
-        drawStatsSection(context, xOffset, yOffset, contentWidth, contentHeight, delta, mouseX, mouseY);
+        // Section 1 (top-left) - ScrollableStat
+        int section1X = 20;
+        int section1Y = contentY;
+        renderScrollableStatSection(context, section1X, section1Y, leftWidth - 30, section1Height , mouseX, mouseY, delta);
 
-        renderStatsAndButtons(context, screenWidth, yOffset, mouseX, mouseY, delta);
+        // Section 2 (bottom-left) - ScrollablePlayerInfo
+        int section2X = 20;
+        int section2Y = contentY + section1Height + 10;
+        renderScrollablePlayerInfoSection(context, section2X, section2Y, leftWidth - 30, section2Height - 10, mouseX, mouseY, delta);
 
-        renderBenefitPoint(context, screenWidth, screenHeight);
+        // Section 3 (right side - ScrollableTextList)
+        int section3X = leftWidth + 20;
+        int section3Y = contentY;
 
-        // Draw header section - updated translation keys
-        drawHeaderSection(context, xOffset + 100, yOffset, "mamy.gui.player_info.header");
-        drawHeaderSection(context, (int) (screenWidth * 0.025f) + 80, yOffset, "mamy.gui.player_info.header_level");
+        this.playerInfo.render(context, this.textRenderer, section3X , section3Y, rightWidth - 40, contentHeight , 0.8f, delta, mouseX, mouseY);
+
+        // Add separator lines
+        renderSeparatorLines(context, leftWidth, contentY, contentHeight, section1Height);
 
         renderToastsOverScreen(context, delta);
+    }
+
+    private void renderScrollableStatSection(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY, float delta) {
+        this.scrollableStat.render(context, this.textRenderer, x , y, width, height, delta, mouseX, mouseY);
+    }
+
+    private void renderScrollablePlayerInfoSection(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY, float delta) {
+        this.scrollablePlayerInfo.render(context, this.textRenderer, x, y, width, height, delta, mouseX, mouseY);
+    }
+
+    private void renderSeparatorLines(DrawContext context, int leftWidth, int contentY, int contentHeight, int section1Height) {
+        // Vertical line separating left and right sections
+        int verticalLineX = leftWidth + 10;
+        context.drawVerticalLine(verticalLineX, contentY, contentY + contentHeight, 0xFF404040);
+
+        // Horizontal line separating top-left and bottom-left sections
+        int horizontalLineY = contentY + section1Height + 5;
+        context.drawHorizontalLine(20, verticalLineX, horizontalLineY , 0xFF404040);
+    }
+
+    private void renderHeader(DrawContext context, int headerHeight) {
+        DrawContextUtils.drawRect(context, 0, 5, width, headerHeight, 0xE0000000);
+
+        // Title
+        Text title = Text.translatable("mamy.gui.player_info.title");
+        int titleY = headerHeight / 2;
+        context.drawTextWithShadow(textRenderer, title, 20, titleY, 0xFFDAA520);
+
+        // Available points (right)
+        int points = playerStats.getAvailableStatPoints();
+        String pointText = points == 1 ? "Stat Point" : "Stat Points";
+        Text pointsDisplay = Text.literal(points + " " + pointText);
+        int pointsX = width - textRenderer.getWidth(pointsDisplay) - 20;
+        context.drawTextWithShadow(textRenderer, pointsDisplay, pointsX, titleY, points > 0 ? 0xFFDAA520 : 0xFF888888);
     }
 
     private void renderToastsOverScreen(DrawContext context, float delta) {
@@ -381,132 +373,39 @@ public final class PlayerInfoScreen extends Screen {
         ToastRenderer.renderToasts(context, this.width, deltaTime);
     }
 
-    private void drawStatsSection(DrawContext context, int xOffset, float yOffset, int contentWidth, int contentHeight, float deltatick, int mouseX, int mouseY) {
-        this.playerInfo.render(context, this.textRenderer, xOffset + 25, (int) (yOffset + 18), contentWidth, contentHeight, 0.5f, deltatick, mouseX, mouseY);
-    }
-
-    private void renderStyledText(DrawContext context, int x, int y, int statValue, float scale) { // Updated parameter name
-        Text perPointText = Text.of(String.valueOf(statValue)).copy().setStyle(Style.EMPTY.withColor((0xF17633))); // Updated variable name
-        Text pointText = Text.of(" Point").copy().setStyle(Style.EMPTY.withColor(Formatting.WHITE));
-
-        Text text = Text.empty()
-                .append(perPointText)
-                .append(pointText);
-
-        // Render the styled text
-        context.drawTextWithShadow(this.textRenderer, text, (int) (x / scale), (int) (y / scale), 0xFFFFFF);
-    }
-
-    private void renderStatsAndButtons(DrawContext context, int screenWidth, int yOffset, int mouseX, int mouseY, float delta) {
-        int rectX = (int) (screenWidth * 0.025f);
-        int rectY = yOffset + 20;
-        int y;
-        int labelX = rectX + 10;
-
-        int buttonIndex = 0;
-
-        // Calculate maximum width and height needed
-        int maxWidth = 0;
-        int totalHeight = 0;
-
-        MatrixStack matrixStack = context.getMatrices();
-
-        for (StatTypes statType : StatTypes.values()) {
-            String label = statType.getAka() + ":";
-            int labelWidth = this.textRenderer.getWidth(Text.of(label));
-
-            int pointCost =playerStats.getStatCost(statType);
-            int valueWidth = this.textRenderer.getWidth(Text.of(pointCost + " Point"));
-
-            // Add padding to width calculation
-            maxWidth = Math.max(maxWidth, labelWidth + valueWidth + 50);
-            totalHeight += statRowHeight + 2;
-        }
-
-        // Draw the rectangle with the calculated size
-        DrawContextUtils.drawRect(context, rectX, rectY, maxWidth, totalHeight, 0xFF1E1E1E);
-
-        // Render the content inside the rectangle
-        y = rectY + 10;
-
-        // Use StatTypes enum instead of arrays
-        for (StatTypes statType : StatTypes.values()) {
-            String displayName = statType.getAka(); // Use enum method instead of array
-
-            int labelY = y + (buttonHeight - this.textRenderer.fontHeight) / 2;
-            float scale = 0.9f;
-
-            matrixStack.push();
-            matrixStack.scale(scale, scale, 0);
-            context.drawTextWithShadow(this.textRenderer, Text.of(displayName + ":"),
-                    (int) (labelX / scale), (int) (labelY / scale), 0xFFFFFF);
-            matrixStack.pop();
-
-            DrawContextUtils.renderHorizontalLineWithCenterGradient(context, rectX, y + 20, maxWidth, 1, 1, 0xFFFFFFFF, 0x00FFFFFF);
-
-            int valueX = labelX + statLabelWidth;
-
-            int pointCost; // Default value
-            pointCost = playerStats.getStatCost(statType); // Direct access to cost
-
-            matrixStack.push();
-            matrixStack.scale(scale, scale, 0);
-            renderStyledText(context, valueX, labelY, pointCost, scale);
-            matrixStack.pop();
-
-            // Position and render the corresponding button
-            IncreasePointButton button = increaseButtons.get(buttonIndex);
-            int buttonX = valueX + statLabelWidth + 12;
-            button.setX(buttonX);
-            button.setY(y);
-            button.render(context, mouseX, mouseY, delta);
-
-            y += statRowHeight;
-            buttonIndex++;
-        }
-    }
-
-    private void renderBenefitPoint(DrawContext context, int screenWidth, int screenHeight) {
-        int remainingPoints = playerStats.getAvailableStatPoints();
-        float scaleFactor = 2.5f;
-        int posX = (int) (screenWidth * 0.50f);
-        int posY = (int) (screenHeight * 0.75f);
-        int adjustedX = (int) (posX / scaleFactor);
-        int adjustedY = (int) (posY / scaleFactor);
-
-        String fuckyougramma = remainingPoints > 1 ? "Benefit Points" : "Benefit Point"; // Updated text
-
-        context.getMatrices().push();
-        context.getMatrices().scale(scaleFactor, scaleFactor, 0.0f);
-
-        context.drawCenteredTextWithShadow(textRenderer, Text.of("" + remainingPoints), adjustedX, adjustedY + 5 , 0xF17633);
-        context.getMatrices().pop();
-        context.drawCenteredTextWithShadow(textRenderer, Text.of(fuckyougramma),  posX, posY + 35, 0xFFFFFF);
-    }
-
-    private void drawHeaderSection(DrawContext context, int x, float verticalOffset, String text) {
-        int textWidth = this.textRenderer.getWidth(Text.translatable(text));
-        int centeredX = x - (textWidth / 2);
-        context.drawText(this.textRenderer, Text.translatable(text), centeredX, (int) verticalOffset, 0xFFFFFF, false);
-        int lineY1 = (int) (verticalOffset - 4);
-        int lineY2 = (int) (verticalOffset + 10);
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY1, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, 1.0f);
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, centeredX - 16, lineY2, textWidth + 32, 1, 400, 0xFFFFFFFF, 0, 1.0f);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY() - 30,
-                playerInfo.getWidth(), playerInfo.getHeight() + 30)) {
-            if (playerInfo.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
-        }
-
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-    }
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (playerInfo.isMouseOver(mouseX, mouseY, playerInfo.getX(), playerInfo.getY(),
-                playerInfo.getWidth(), playerInfo.getHeight())) {
+        int contentY = 50;
+        int contentHeight = this.height - contentY - 20;
+
+        int leftWidth = (this.width * 2) / 5;  // 40% for left side
+        int rightWidth = (this.width * 3) / 5; // 60% for right side
+        int section1Height = contentHeight / 2;
+        int section2Height = contentHeight / 2;
+
+        // Section 1 (top-left) - ScrollableStat
+        int section1X = 20;
+        int section1Y = contentY;
+        int section1Width = leftWidth - 30;
+
+        if (scrollableStat.isMouseOver(mouseX, mouseY, section1X, section1Y, section1Width, section1Height)) {
+            if (scrollableStat.handleMouseClick(mouseX, mouseY, button)) return true;
+        }
+
+        // Section 2 (bottom-left) - ScrollablePlayerInfo
+        int section2X = 20;
+        int section2Y = contentY + section1Height + 10;
+        int section2Width = leftWidth - 30;
+
+        if (scrollablePlayerInfo.isMouseOver(mouseX, mouseY, section2X, section2Y, section2Width, section2Height - 10)) {
+            if (scrollablePlayerInfo.handleMouseClick(mouseX, mouseY, button)) return true;
+        }
+
+        // Section 3 (right side) - ScrollableTextList
+        int section3X = leftWidth + 20;
+        int section3Y = contentY;
+
+        if (playerInfo.isMouseOver(mouseX, mouseY, section3X, section3Y, rightWidth - 40, contentHeight)) {
             if (playerInfo.handleMouseClick(mouseX, mouseY, button)) return true;
         }
 
@@ -514,7 +413,48 @@ public final class PlayerInfoScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        int contentY = 50;
+        int contentHeight = this.height - contentY - 20;
+
+        int leftWidth = (this.width * 2) / 5;  // 40% for left side
+        int rightWidth = (this.width * 3) / 5; // 60% for right side
+        int section1Height = contentHeight / 2;
+        int section2Height = contentHeight / 2;
+
+        // Section 1 (top-left) - ScrollableStat
+        int section1X = 20;
+        int section1Y = contentY;
+        int section1Width = leftWidth - 30;
+
+        if (scrollableStat.isMouseOver(mouseX, mouseY, section1X, section1Y, section1Width, section1Height)) {
+            if (scrollableStat.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
+        }
+
+        // Section 2 (bottom-left) - ScrollablePlayerInfo
+        int section2X = 20;
+        int section2Y = contentY + section1Height + 10;
+        int section2Width = leftWidth - 30;
+
+        if (scrollablePlayerInfo.isMouseOver(mouseX, mouseY, section2X, section2Y, section2Width, section2Height - 10)) {
+            if (scrollablePlayerInfo.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
+        }
+
+        // Section 3 (right side) - ScrollableTextList
+        int section3X = leftWidth + 20;
+        int section3Y = contentY;
+
+        if (playerInfo.isMouseOver(mouseX, mouseY, section3X, section3Y, rightWidth - 40, contentHeight)) {
+            if (playerInfo.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount)) return true;
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (scrollableStat.handleMouseDrag(mouseX, mouseY, button, deltaX, deltaY)) return true;
+        if (scrollablePlayerInfo.handleMouseDrag(mouseX, mouseY, button, deltaX, deltaY)) return true;
         if (playerInfo.handleMouseDrag(mouseX, mouseY, button, deltaX, deltaY)) return true;
 
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
@@ -522,9 +462,13 @@ public final class PlayerInfoScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        scrollableStat.handleMouseRelease(mouseX, mouseY, button);
+        scrollablePlayerInfo.handleMouseRelease(mouseX, mouseY, button);
         playerInfo.handleMouseRelease(mouseX, mouseY, button);
+
         return super.mouseReleased(mouseX, mouseY, button);
     }
+
     @Override
     public boolean shouldPause() {
         return false;
