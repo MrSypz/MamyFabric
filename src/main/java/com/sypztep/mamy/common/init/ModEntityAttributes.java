@@ -10,13 +10,14 @@ import net.minecraft.registry.entry.RegistryEntry;
 import java.util.ArrayList;
 
 public interface ModEntityAttributes {
-    ArrayList<RegistryEntry<EntityAttribute>> ENTRIES = new ArrayList<>();
+    ArrayList<RegistryEntry<EntityAttribute>> COMMON = new ArrayList<>();
+    ArrayList<RegistryEntry<EntityAttribute>> PLAYER_EXCLUSIVE = new ArrayList<>();
 
     RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
 
-    RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000);
-    RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000);
-    RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000);
+    RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000,true);
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000,true);
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000,true);
 
     RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
     RegistryEntry<EntityAttribute> EVASION = register("evasion", 0, 0.0, 2048.0D);
@@ -82,27 +83,30 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> HOLY_RESISTANCE = register("holy_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
     RegistryEntry<EntityAttribute> COLD_RESISTANCE = register("cold_resistance", 0, -10.0D, 0.75D);                 // ELEMENTAL
 
-    RegistryEntry<EntityAttribute> MAX_WEIGHT = register("max_weight", 400, 0D, 1000000);
+    RegistryEntry<EntityAttribute> MAX_WEIGHT = register("max_weight", 400, 0D, 1000000,true);
 
     RegistryEntry<EntityAttribute> HEAL_EFFECTIVE = register("heal_effective", 0, -10.0D, 10.24D);
-    RegistryEntry<EntityAttribute> DOUBLE_ATTACK_CHANCE = register("double_attack_chance", 0, 0, 1);
+    RegistryEntry<EntityAttribute> DOUBLE_ATTACK_CHANCE = register("double_attack_chance", 0, 0, 1,true);
 
     // ========== CASTING SYSTEM ATTRIBUTES ==========
 
     // VCT (Variable Cast Time) reductions
-    RegistryEntry<EntityAttribute> VCT_REDUCTION_FLAT = register("vct_reduction_flat", 0, 0.0, 1000.0);
-    RegistryEntry<EntityAttribute> VCT_REDUCTION_PERCENT = register("vct_reduction_percent", 0, 0.0, 100.0);
+    RegistryEntry<EntityAttribute> VCT_REDUCTION_FLAT = register("vct_reduction_flat", 0, 0.0, 1000.0,true);
+    RegistryEntry<EntityAttribute> VCT_REDUCTION_PERCENT = register("vct_reduction_percent", 0, 0.0, 100.0,true);
 
     // FCT (Fixed Cast Time) reductions
-    RegistryEntry<EntityAttribute> FCT_REDUCTION_FLAT = register("fct_reduction_flat", 0, 0.0, 1000.0);
-    RegistryEntry<EntityAttribute> FCT_REDUCTION_PERCENT = register("fct_reduction_percent", 0, 0.0, 100.0);
+    RegistryEntry<EntityAttribute> FCT_REDUCTION_FLAT = register("fct_reduction_flat", 0, 0.0, 1000.0,true);
+    RegistryEntry<EntityAttribute> FCT_REDUCTION_PERCENT = register("fct_reduction_percent", 0, 0.0, 100.0,true);
 
     // Skill-specific VCT reduction (from passive skills)
-    RegistryEntry<EntityAttribute> SKILL_VCT_REDUCTION = register("skill_vct_reduction", 0, 0.0, 100.0);
+    RegistryEntry<EntityAttribute> SKILL_VCT_REDUCTION = register("skill_vct_reduction", 0, 0.0, 100.0,true);
 
-    private static RegistryEntry<EntityAttribute> register(String id, double fallback, double min, double max) {
+    private static RegistryEntry<EntityAttribute> register(String id, double fallback, double min, double max, boolean playerExclusive) {
         RegistryEntry<EntityAttribute> entry = Registry.registerReference(Registries.ATTRIBUTE, Mamy.id(id), new ClampedEntityAttribute("attribute.name." + id, fallback, min, max).setTracked(true));
-        ENTRIES.add(entry);
+        if (playerExclusive) PLAYER_EXCLUSIVE.add(entry); else COMMON.add(entry);
         return entry;
+    }
+    private static RegistryEntry<EntityAttribute> register(String id, double fallback, double min, double max) {
+        return register(id,fallback,min,max, false);
     }
 }
