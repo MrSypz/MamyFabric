@@ -18,7 +18,6 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("mamy.text.critical", "Critical");
         translate.add("mamy.text.back", "Back Attack");
         translate.add("mamy.text.air", "Air Attack");
-        translate.add("mamy.text.headshot", "HEADSHOT!");
 
         translate.add("mamy.hitchance", "Hit Chance: %f%%");
         translate.add("config.jade.plugin_mamy.stats_config","Stats Config");
@@ -60,6 +59,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
     }
     private void playerInfo(TranslationBuilder translator) {
         String key = "mamy.info.";
+        translator.add("mamy.gui.player_info.title", "Player Information | Main Screen");
         translator.add("mamy.gui.player_info.header", "Player Stats");
         translator.add("mamy.gui.player_info.header_level", "Stats");
 
@@ -97,7 +97,6 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translator.add(key + "critical_damage", "Critical Hit Damage: $cdmg%");
         translator.add(key + "backattack_damage", "Back Attack Damage: $bkdmg%");
         translator.add(key + "special_damage", "Special Damage: $spedmg%");
-        translator.add(key + "headshot_damage", "Headshot Damage: $hsdmg%");
         translator.add(key + "double_attack", "Double Attack Chance: $dblatt%");
 
         // ==========================================
