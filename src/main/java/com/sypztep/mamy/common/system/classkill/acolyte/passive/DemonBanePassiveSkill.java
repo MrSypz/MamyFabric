@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.classkill.acolyte;
+package com.sypztep.mamy.common.system.classkill.acolyte.passive;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
@@ -12,18 +12,18 @@ import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.List;
 
-public class DivineProtectionPassiveSkill extends PassiveSkill {
+public class DemonBanePassiveSkill extends PassiveSkill {
 
-    public DivineProtectionPassiveSkill(Identifier id) {
+    public DemonBanePassiveSkill(Identifier id) {
         super(
                 id,
-                "Divine Protection",
-                "Divine blessing reduces damage from undead and demon creatures.",
+                "Demon Bane",
+                "Blessed weapons deal increased damage to undead and demon creatures.",
                 ModClasses.ACOLYTE,
                 1, // base cost
                 1, // upgrade cost
                 10, // max level
-                Mamy.id("skill/divine_protection")
+                Mamy.id("skill/demon_bane")
         );
     }
 
@@ -36,22 +36,22 @@ public class DivineProtectionPassiveSkill extends PassiveSkill {
         super.applyPassiveEffects(player, skillLevel);
     }
 
-    public static float calculateDamageReduction(PlayerEntity player, int skillLevel) {
+    public static float calculateDamageBonus(PlayerEntity player, int skillLevel) {
         if (skillLevel <= 0) return 0;
 
         int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
-        return (1f * skillLevel) + (0.04f * (baseLevel + 1));
+        return (1f * skillLevel) + (0.05f * (baseLevel + 1));
     }
 
     @Override
     protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal("Divine blessing protects against unholy creatures.").formatted(Formatting.GRAY));
+        tooltip.add(Text.literal("Blessed weapons strike with holy power against evil.").formatted(Formatting.GRAY));
 
         if (skillLevel > 0) {
             int baseLevel = 1; // Default for tooltip
-            float reduction = (1f * skillLevel) + (0.04f * (baseLevel + 1));
-            tooltip.add(Text.literal("• Damage Reduction vs Undead/Demons: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", reduction)).formatted(Formatting.YELLOW)));
+            float bonus = (1f * skillLevel) + (0.05f * (baseLevel + 1));
+            tooltip.add(Text.literal("• Damage Bonus vs Undead/Demons: ").formatted(Formatting.GRAY)
+                    .append(Text.literal("+" + String.format("%.1f", bonus)).formatted(Formatting.YELLOW)));
             tooltip.add(Text.literal("  (Scales with Base Level)").formatted(Formatting.DARK_GRAY));
         }
 
@@ -59,9 +59,9 @@ public class DivineProtectionPassiveSkill extends PassiveSkill {
             tooltip.add(Text.literal(""));
             tooltip.add(Text.literal("Next Level:").formatted(Formatting.GOLD));
             int baseLevel = 1;
-            float nextReduction = (1f * (skillLevel + 1)) + (0.04f * (baseLevel + 1));
-            tooltip.add(Text.literal("• Damage Reduction: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", nextReduction)).formatted(Formatting.DARK_GREEN)));
+            float nextBonus = (1f * (skillLevel + 1)) + (0.05f * (baseLevel + 1));
+            tooltip.add(Text.literal("• Damage Bonus: ").formatted(Formatting.GRAY)
+                    .append(Text.literal("+" + String.format("%.1f", nextBonus)).formatted(Formatting.DARK_GREEN)));
         }
     }
 

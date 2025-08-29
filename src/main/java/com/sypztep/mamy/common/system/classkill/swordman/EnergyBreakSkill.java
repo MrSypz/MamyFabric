@@ -24,9 +24,9 @@ import java.util.List;
 
 public class EnergyBreakSkill extends Skill implements CastableSkill {
 
-    public EnergyBreakSkill(Identifier identifier) {
+    public EnergyBreakSkill(Identifier identifier, List<SkillRequirement> prerequisites) {
         super(identifier, "Energy Break", "Unleash a devastating fire explosion in a 5x5 area",
-                30f, 2f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/energy_break"));
+                30f, 2f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/energy_break"), prerequisites);
     }
 
     @Override

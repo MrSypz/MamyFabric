@@ -1,313 +1,133 @@
 package com.sypztep.mamy.client.screen;
 
-import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
+import com.sypztep.mamy.client.screen.widget.ScrollableSkillTree;
 import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.client.util.DrawContextUtils;
-import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.SkillActionPayloadC2S;
-import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class SkillLearningScreen extends Screen {
-    // UI constants
-    private static final int CONTENT_PADDING = 50;
-    private static final int SUMMARY_HEIGHT = 35;
-    private static final int SKILL_ICON_SIZE = 32;
-    private static final int SKILL_SPACING = 20;  // 20px padding between skills
-    private static final int DOT_SIZE = 4;
-    private static final int DOT_SPACING = 3;
-    private static final int DOTS_OFFSET_Y = 38;  // Dots under icon
+    // Clean design constants
+    private static final int HEADER_HEIGHT = 60;
+    private static final int CONTENT_PADDING = 20;
 
-    // Colors
-    private static final int BACKGROUND_COLOR = 0xF0121212;
-    private static final int PANEL_COLOR = 0xFF1E1E1E;
-    private static final int LEARNED_COLOR = 0xFF4CAF50;
-    private static final int CAN_LEARN_COLOR = 0xFFFFD700;  // Gold for learnable
-    private static final int DOT_LEARNED_COLOR = 0xFF4CAF50;
-    private static final int DOT_UNLEARNED_COLOR = 0xFF666666;
+    // Modern colors
+    private static final int BACKGROUND_COLOR = 0xF00A0A0A;
+    private static final int HEADER_COLOR = 0xE0151515;
+    private static final int TEXT_PRIMARY = 0xFFE6EDF3;
+    private static final int ACCENT_GOLD = 0xFFE3B341;
 
-    // Component data
-    private final LivingLevelComponent playerStats;
     private final PlayerClassComponent classComponent;
-    private List<Skill> availableSkills;
-    private final List<SkillActionButton> skillButtons = new ArrayList<>();
+    private ScrollableSkillTree skillTree;
 
     public SkillLearningScreen(MinecraftClient client) {
         super(Text.literal("Skill Learning"));
-        this.playerStats = ModEntityComponents.LIVINGLEVEL.get(client.player);
         this.classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
-        loadAvailableSkills();
-    }
-
-    private void loadAvailableSkills() {
-        this.availableSkills = SkillRegistry.getSkillsForClass(classComponent.getClassManager().getCurrentClass());
     }
 
     @Override
     protected void init() {
         super.init();
 
-        skillButtons.clear();
-
-        int gridStartY = CONTENT_PADDING + SUMMARY_HEIGHT + 30;
-        int gridWidth = width - (CONTENT_PADDING * 2);
-        int skillsPerRow = gridWidth / (SKILL_ICON_SIZE + SKILL_SPACING);
-
-        for (int i = 0; i < availableSkills.size(); i++) {
-            Skill skill = availableSkills.get(i);
-
-            int col = i % skillsPerRow;
-            int row = i / skillsPerRow;
-            int skillX = CONTENT_PADDING + col * (SKILL_ICON_SIZE + SKILL_SPACING);
-            int skillY = gridStartY + row * (SKILL_ICON_SIZE + DOTS_OFFSET_Y);
-
-            SkillActionButton button = new SkillActionButton(skillX, skillY, skill, playerStats, client);
-            skillButtons.add(button);
-            addDrawableChild(button);
-        }
+        this.skillTree = new ScrollableSkillTree(classComponent, client);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
-        renderTitle(context);
-        renderClassPointsSummary(context);
-        renderToastsOverScreen(context,delta);
-        super.render(context, mouseX, mouseY, delta); // This renders the buttons
-    }
-
-    private void renderTitle(DrawContext context) {
-        Text titleText = Text.literal("Skill Learning & Upgrade").formatted(Formatting.GOLD, Formatting.BOLD);
-        int titleY = CONTENT_PADDING - 25;
-
-        context.drawCenteredTextWithShadow(textRenderer, titleText, width / 2, titleY, 0xFFD700);
-
-        // Decorative line
-        int lineY = titleY + textRenderer.fontHeight + 3;
-        DrawContextUtils.renderHorizontalLineWithCenterGradient(context, CONTENT_PADDING, lineY,
-                width - (CONTENT_PADDING * 2), 1, 1, 0xFFFFFFFF, 0x00FFFFFF);
-    }
-
-    private void renderClassPointsSummary(DrawContext context) {
-        int availablePoints = classComponent.getClassManager().getClassStatPoints();
-        var className = classComponent.getClassManager().getCurrentClass();
-
-        int summaryX = CONTENT_PADDING;
-        int summaryY = CONTENT_PADDING;
-        int summaryWidth = width - (CONTENT_PADDING * 2);
-
         // Background
-        DrawContextUtils.drawRect(context, summaryX, summaryY, summaryWidth, SUMMARY_HEIGHT, PANEL_COLOR);
-        DrawContextUtils.renderHorizontalLine(context,summaryX,summaryY,summaryWidth,1,0,LEARNED_COLOR);
-        DrawContextUtils.renderHorizontalLine(context,summaryX,summaryY + SUMMARY_HEIGHT,summaryWidth,1,0,LEARNED_COLOR);
+        DrawContextUtils.fillScreen(context, BACKGROUND_COLOR);
 
-        context.drawTextWithShadow(textRenderer,
-                Text.literal("Class: ").formatted(Formatting.WHITE)
-                        .append(Text.literal(className.getDisplayName()).formatted(className.getColor())),
-                summaryX + 10, summaryY + 8, 0xFFFFFF);
+        // Header
+        renderHeader(context);
 
-        // Available points
-        String pointsText = String.format("Available Points: %d", availablePoints);
-        Formatting pointsColor = availablePoints > 0 ? Formatting.GOLD : Formatting.GRAY;
-        context.drawTextWithShadow(textRenderer, Text.literal(pointsText).formatted(pointsColor),
-                summaryX + 10, summaryY + 20, pointsColor.getColorValue() != null ? pointsColor.getColorValue() : 0xFFFFFF);
+        // Main skill tree area
+        int treeX = CONTENT_PADDING;
+        int treeY = HEADER_HEIGHT + CONTENT_PADDING;
+        int treeWidth = width - (CONTENT_PADDING * 2);
+        int treeHeight = height - HEADER_HEIGHT - (CONTENT_PADDING * 2);
 
-        // Learned skills count
-        int learnedCount = classComponent.getLearnedSkills(true).size();
-        int totalCount = availableSkills.size();
-        String skillsText = String.format("Skills: %d/%d", learnedCount, totalCount);
-        int skillsTextWidth = textRenderer.getWidth(skillsText);
-        context.drawTextWithShadow(textRenderer, Text.literal(skillsText).formatted(Formatting.AQUA),
-                summaryX + summaryWidth - skillsTextWidth - 10, summaryY + 14, 0xFF00FFFF);
+        skillTree.render(context, textRenderer, treeX, treeY, treeWidth, treeHeight, delta, mouseX, mouseY);
+
+        // Toasts
+        renderToastsOverScreen(context, delta);
+    }
+
+    private void renderHeader(DrawContext context) {
+        // Header background
+        DrawContextUtils.drawRect(context, 0, 0, width, HEADER_HEIGHT, HEADER_COLOR);
+        DrawContextUtils.renderHorizontalLine(context, 0, HEADER_HEIGHT - 1, width, 1, 0, 0xFF30363D);
+
+        var currentClass = classComponent.getClassManager().getCurrentClass();
+
+        // Class emblem (left)
+        int emblemSize = 32;
+        int emblemX = CONTENT_PADDING;
+        int emblemY = (HEADER_HEIGHT - emblemSize) / 2;
+
+        DrawContextUtils.drawRect(context, emblemX, emblemY, emblemSize, emblemSize, 0xFF21262D);
+        context.drawBorder(emblemX, emblemY, emblemSize, emblemSize,
+                currentClass.getColor().getColorValue() | 0xFF000000);
+
+        String initial = currentClass.getDisplayName().substring(0, 1).toUpperCase();
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal(initial).formatted(Formatting.BOLD),
+                emblemX + emblemSize / 2, emblemY + emblemSize / 2 - 4, TEXT_PRIMARY);
+
+        // Title
+        Text titleText = Text.literal(currentClass.getDisplayName() + " Skill Tree")
+                .formatted(Formatting.WHITE, Formatting.BOLD);
+        context.drawTextWithShadow(textRenderer, titleText, emblemX + emblemSize + 15, emblemY + 8, TEXT_PRIMARY);
+
+        // Stats (right side)
+        int availablePoints = classComponent.getClassManager().getClassStatPoints();
+        int learnedSkills = classComponent.getLearnedSkills(true).size();
+
+        Text statsText = Text.literal(String.format("Points: %d | Learned: %d", availablePoints, learnedSkills))
+                .formatted(availablePoints > 0 ? Formatting.GOLD : Formatting.GRAY);
+
+        int statsX = width - textRenderer.getWidth(statsText) - CONTENT_PADDING;
+        context.drawTextWithShadow(textRenderer, statsText, statsX, emblemY + 12,
+                availablePoints > 0 ? ACCENT_GOLD : 0xFF8B949E);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        return skillTree.handleMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return skillTree.handleMouseClick(mouseX, mouseY, button) ||
+                super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return skillTree.handleMouseDrag(mouseX, mouseY, button, dragX, dragY) ||
+                super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        skillTree.handleMouseRelease(mouseX, mouseY, button);
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        // No default background
     }
 
     private void renderToastsOverScreen(DrawContext context, float delta) {
-        float deltaTime = delta / 20.0f;
-        ToastRenderer.renderToasts(context, this.width, deltaTime);
+        ToastRenderer.renderToasts(context, this.width, delta / 20.0f);
     }
 
     @Override
     public boolean shouldPause() {
         return false;
-    }
-
-    // ============================================================================
-    // SKILL BUTTON CLASS
-    // ============================================================================
-
-    private class SkillActionButton extends ActionWidgetButton {
-        private final Skill skill;
-
-        public SkillActionButton(int x, int y, Skill skill, LivingLevelComponent stats, MinecraftClient client) {
-            super(x, y, SKILL_ICON_SIZE, SKILL_ICON_SIZE, Text.empty(), stats, client);
-            this.skill = skill;
-        }
-
-        @Override
-        protected void renderAdditionalOverlays(DrawContext context, int mouseX, int mouseY, float delta,
-                                                boolean isHovered, boolean isPressed) {
-            boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            int skillLevel = isLearned ? classComponent.getSkillLevel(skill.getId()) : 0;
-
-            int availablePoints = classComponent.getClassManager().getClassStatPoints();
-            boolean canLearn = !isLearned && availablePoints >= skill.getBaseClassPointCost();
-            boolean canUpgrade = isLearned && skillLevel < skill.getMaxSkillLevel() &&
-                    availablePoints >= skill.getUpgradeClassPointCost();
-
-            int x = getX();
-            int y = getY();
-
-            // Calculate pulse once and reuse for all effects
-            float pulse = (float) (Math.sin(System.currentTimeMillis() * 0.006) * 0.5 + 0.5);
-            int pulseAlpha = (int) (pulse * 200) + 55; // avoid fully invisible range
-            int pulseColor = (pulseAlpha << 24) | (CAN_LEARN_COLOR & 0xFFFFFF);
-
-            if (canLearn || canUpgrade)
-                context.drawBorder(x- 1,y - 1,SKILL_ICON_SIZE + 1,SKILL_ICON_SIZE + 1,pulseColor);
-
-            // Skill icon or abbreviation
-            if (skill.getIcon() != null) {
-                context.drawGuiTexture(skill.getIcon(), x + 2, y + 2, SKILL_ICON_SIZE - 4, SKILL_ICON_SIZE - 4);
-            } else {
-                String abbreviation = skill.getName().length() >= 2
-                        ? skill.getName().substring(0, 2).toUpperCase()
-                        : skill.getName().toUpperCase();
-                int textWidth = textRenderer.getWidth(abbreviation);
-                int textX = x + (SKILL_ICON_SIZE - textWidth) / 2;
-                int textY = y + (SKILL_ICON_SIZE - textRenderer.fontHeight) / 2;
-                context.drawText(textRenderer, Text.literal(abbreviation), textX, textY, 0xFFFFFFFF, false);
-            }
-
-            // Dim overlay for unlearned or upgradeable-but-not-maxed
-            if (!isLearned || skillLevel < skill.getMaxSkillLevel()) {
-                context.fill(x + 1, y + 1, x + SKILL_ICON_SIZE - 2, y + SKILL_ICON_SIZE - 2, 0xBB000000);
-            }
-
-            // Draw pulsing "+" icon for available actions
-            if (canLearn || canUpgrade) {
-                String plus = "+";
-                int textWidth = textRenderer.getWidth(plus);
-                int textX = x + (SKILL_ICON_SIZE - textWidth) / 2;
-                int textY = y + (SKILL_ICON_SIZE - textRenderer.fontHeight) / 2;
-
-                context.getMatrices().push();
-                context.getMatrices().translate(textX + textWidth / 2f, textY + textRenderer.fontHeight / 2f, 0);
-                float scale = 1.5f + pulse * 0.5f; // subtle pulsing scale
-                context.getMatrices().scale(scale, scale, 1f);
-                context.getMatrices().translate(-textWidth / 2f, -textRenderer.fontHeight / 2f, 0);
-                context.drawText(textRenderer, Text.literal(plus), 0, 0, pulseColor, true);
-                context.getMatrices().pop();
-            }
-
-            // Level dots
-            renderSkillLevelDots(context, x, y + DOTS_OFFSET_Y, skillLevel);
-
-            // Tooltip
-            if (isHovered) {
-                renderTooltip(context, mouseX, mouseY);
-            }
-        }
-
-
-        private void renderSkillLevelDots(DrawContext context, int x, int y, int currentLevel) {
-            int maxLevel = skill.getMaxSkillLevel();
-
-            int dotsPerRow = 5; // max dots before wrapping
-            for (int i = 0; i < maxLevel; i++) {
-                int row = i / dotsPerRow;
-                int col = i % dotsPerRow;
-
-                int dotX = x + col * (DOT_SIZE + DOT_SPACING);
-                int dotY = y + row * (DOT_SIZE + DOT_SPACING);
-
-                int dotColor = i < currentLevel ? DOT_LEARNED_COLOR : DOT_UNLEARNED_COLOR;
-
-                // Draw dot
-                context.fill(dotX, dotY, dotX + DOT_SIZE, dotY + DOT_SIZE, dotColor);
-
-                // Draw dot border
-                if (i < currentLevel) {
-                    context.drawBorder(dotX, dotY, DOT_SIZE, DOT_SIZE, 0xFF2E7D32);
-                } else {
-                    context.drawBorder(dotX, dotY, DOT_SIZE, DOT_SIZE, 0xFF424242);
-                }
-            }
-        }
-
-
-        public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
-            boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            int skillLevel = isLearned ? classComponent.getSkillLevel(skill.getId()) : 1;
-
-            List<Text> tooltip = skill.generateTooltip(
-                    client.player,
-                    skillLevel,
-                    isLearned,
-                    Skill.TooltipContext.LEARNING_SCREEN
-            );
-
-            context.drawTooltip(client.textRenderer, tooltip, mouseX, mouseY);
-        }
-
-        @Override
-        protected int getBackgroundColor() {
-            boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            if (isLearned) return 0;
-            return PANEL_COLOR;
-        }
-
-        @Override
-        protected int getHoverBackgroundColor() {
-            boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            if (isLearned) return 0; // Brighter green
-            return 0xFF3A3A3A; // Lighter gray
-        }
-
-        @Override
-        public void onClick(double mouseX, double mouseY) {
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!isMouseOver(mouseX, mouseY)) return false;
-
-            boolean isLearned = classComponent.hasLearnedSkill(skill.getId());
-            int skillLevel = isLearned ? classComponent.getSkillLevel(skill.getId()) : 0;
-
-            int availablePoints = classComponent.getClassManager().getClassStatPoints();
-            boolean canLearn = !isLearned && availablePoints >= skill.getBaseClassPointCost();
-            boolean canUpgrade = isLearned && skillLevel < skill.getMaxSkillLevel() &&
-                    availablePoints >= skill.getUpgradeClassPointCost();
-
-            if (button == 0) { // Left click - Learn/Upgrade
-                if (canLearn) {
-                    SkillActionPayloadC2S.sendLearn(skill.getId());
-                } else if (canUpgrade) {
-                    SkillActionPayloadC2S.sendUpgrade(skill.getId());
-                }
-                return super.mouseClicked(mouseX, mouseY, button);
-            } else if (button == 1) {
-                if (isLearned) {
-                    playClickSound(); // Add sound due to the base class are only rightclick
-                    SkillActionPayloadC2S.sendUnlearn(skill.getId());
-                }
-                return true;
-            }
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
     }
 }

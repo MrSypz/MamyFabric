@@ -14,11 +14,13 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.particle.ParticleTypes;
 
+import java.util.List;
+
 public class EndureSkill extends Skill {
 
-    public EndureSkill(Identifier identifier) {
+    public EndureSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Endure", "Temporarily increase your armor for enhanced defense",
-                10f, 10f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/endure"));
+                10f, 10f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/endure"), skillRequirements);
     }
 
     @Override

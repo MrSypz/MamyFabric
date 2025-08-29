@@ -3,10 +3,13 @@ package com.sypztep.mamy.common.system.skill;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classkill.acolyte.*;
+import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
+import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EnergyBreakSkill;
+import com.sypztep.mamy.common.system.classkill.swordman.ProvokeSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.HPRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.SwordMasteryPassiveSkill;
 import net.minecraft.util.Identifier;
@@ -23,6 +26,7 @@ public class SkillRegistry {
     public static final Identifier ENDURE = Mamy.id("endure");
     public static final Identifier SWORD_MASTERY = Mamy.id("sword_mastery");
     public static final Identifier HP_RECOVERY = Mamy.id("hp_recovery");
+    public static final Identifier PROVOKE = Mamy.id("provoke");
 
     //Acolyte
     public static final Identifier DEMON_BANE = Mamy.id("demon_bane");
@@ -40,9 +44,10 @@ public class SkillRegistry {
         //SwordMan
         register(new SwordMasteryPassiveSkill(SWORD_MASTERY));
         register(new HPRecoveryPassiveSkill(HP_RECOVERY));
+        register(new ProvokeSkill(PROVOKE));
         register(new BashingBlowSkill(BASHING_BLOW));
-        register(new EnergyBreakSkill(ENERGY_BREAK));
-        register(new EndureSkill(ENDURE));
+        register(new EnergyBreakSkill(ENERGY_BREAK, Skill.requiresSkills(Skill.requires(BASHING_BLOW,5))));
+        register(new EndureSkill(ENDURE, Skill.requiresSkills(Skill.requires(PROVOKE, 5))));
         // Acolyte
         register(new DemonBanePassiveSkill(DEMON_BANE));
         register(new DivineProtectionPassiveSkill(DIVINE_PROTECTION));

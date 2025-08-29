@@ -47,8 +47,27 @@ public class ClassSkillManager {
         if (!free) {
             if (classManager == null) return;
 
-            // Check if player's class can learn this skill
             if (!skill.isAvailableForClass(classManager.getCurrentClass())) return;
+
+            if (!skill.arePrerequisitesMet(player)) {
+                if (player instanceof ServerPlayerEntity serverPlayer) {
+                    List<Skill.SkillRequirement> missing = skill.getMissingPrerequisites(player);
+                    StringBuilder message = new StringBuilder("Missing prerequisites: ");
+
+                    for (int i = 0; i < missing.size(); i++) {
+                        Skill.SkillRequirement req = missing.get(i);
+                        Skill prerequisiteSkill = SkillRegistry.getSkill(req.getSkillId());
+
+                        if (prerequisiteSkill != null) {
+                            message.append(prerequisiteSkill.getName()).append(" Lv.").append(req.getMinLevel());
+                            if (i < missing.size() - 1) message.append(", ");
+                        }
+                    }
+
+                    SendToastPayloadS2C.sendError(serverPlayer, message.toString());
+                }
+                return;
+            }
 
             // Check if player has enough class points
             int cost = skill.getBaseClassPointCost();
@@ -64,7 +83,6 @@ public class ClassSkillManager {
 
         if (player instanceof ServerPlayerEntity serverPlayer && !free)
             SendToastPayloadS2C.sendInfo(serverPlayer, "Learned: " + skill.getName());
-
     }
 
     public void unlearnSkill(Identifier skillId, PlayerClassManager classManager) {

@@ -11,6 +11,7 @@ import com.sypztep.mamy.common.system.classes.ResourceType;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -27,9 +28,12 @@ public abstract class Skill {
     protected final boolean isDefaultSkill;
     protected final Identifier icon;
 
+    protected final List<SkillRequirement> prerequisites;
+
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown, PlayerClass requiredClass, int baseClassPointCost,
-                 int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
+                 int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill,
+                 Identifier icon, List<SkillRequirement> prerequisites) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -41,6 +45,58 @@ public abstract class Skill {
         this.maxSkillLevel = maxSkillLevel;
         this.isDefaultSkill = isDefaultSkill;
         this.icon = icon;
+        this.prerequisites = prerequisites != null ? prerequisites : new ArrayList<>();
+    }
+    public Skill(Identifier id, String name, String description, float baseResourceCost,
+                 float baseCooldown, PlayerClass requiredClass, int baseClassPointCost,
+                 int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
+        this(id, name, description, baseResourceCost, baseCooldown, requiredClass,
+                baseClassPointCost, upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, null);
+    }
+
+    public static SkillRequirement requires(Identifier skillId, int minLevel) {
+        return new SkillRequirement(skillId, minLevel);
+    }
+
+    public static List<SkillRequirement> requiresSkills(SkillRequirement... requirements) {
+        return Arrays.asList(requirements);
+    }
+
+    // Check if prerequisites are met
+    public boolean arePrerequisitesMet(PlayerEntity player) {
+        if (prerequisites.isEmpty()) return true;
+
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+
+        for (SkillRequirement req : prerequisites) {
+            if (!classComponent.hasLearnedSkill(req.getSkillId())) {
+                return false; // Required skill not learned
+            }
+
+            int currentLevel = classComponent.getSkillLevel(req.getSkillId());
+            if (currentLevel < req.getMinLevel()) {
+                return false; // Required skill level not met
+            }
+        }
+        return true;
+    }
+
+    // Get missing prerequisites for tooltip/error messages
+    public List<SkillRequirement> getMissingPrerequisites(PlayerEntity player) {
+        List<SkillRequirement> missing = new ArrayList<>();
+        if (prerequisites.isEmpty()) return missing;
+
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+
+        for (SkillRequirement req : prerequisites) {
+            boolean learned = classComponent.hasLearnedSkill(req.getSkillId());
+            int currentLevel = learned ? classComponent.getSkillLevel(req.getSkillId()) : 0;
+
+            if (!learned || currentLevel < req.getMinLevel()) {
+                missing.add(req);
+            }
+        }
+        return missing;
     }
 
     // ============================================================================
@@ -251,6 +307,19 @@ public abstract class Skill {
         BINDING_SLOT
     }
 
+    public static class SkillRequirement {
+        private final Identifier skillId;
+        private final int minLevel;
+
+        public SkillRequirement(Identifier skillId, int minLevel) {
+            this.skillId = skillId;
+            this.minLevel = minLevel;
+        }
+
+        public Identifier getSkillId() { return skillId; }
+        public int getMinLevel() { return minLevel; }
+    }
+
     // ============================================================================
     // ABSTRACT METHODS FOR SKILL DATA
     // ============================================================================
@@ -293,4 +362,5 @@ public abstract class Skill {
     public int getMaxSkillLevel() { return maxSkillLevel; }
     public boolean isDefaultSkill() { return isDefaultSkill; }
     public Identifier getIcon() { return icon; }
+    public List<SkillRequirement> getPrerequisites() { return new ArrayList<>(prerequisites); }
 }

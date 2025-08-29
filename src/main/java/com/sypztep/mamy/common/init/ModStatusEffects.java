@@ -18,6 +18,7 @@ public class ModStatusEffects {
     public static RegistryEntry<StatusEffect> DECREASE_AGILITY;
     public static RegistryEntry<StatusEffect> BLESSING;
     public static RegistryEntry<StatusEffect> ANGELUS;
+    public static RegistryEntry<StatusEffect> PROVOKE;
 
     public static void initEffects() {
         STUN = init("stun", new StunEffect());
@@ -27,6 +28,7 @@ public class ModStatusEffects {
         DECREASE_AGILITY = init("decrease_agility", new DecreaseAgilityEffect(StatusEffectCategory.HARMFUL));
         BLESSING = init("blessing", new BlessingEffect(StatusEffectCategory.BENEFICIAL));
         ANGELUS = init("angelus", new AngelusEffect(StatusEffectCategory.BENEFICIAL));
+        PROVOKE = init("provoke", new ProvokeEffect(StatusEffectCategory.HARMFUL));
     }
     public static RegistryEntry<StatusEffect> init(String name, StatusEffect effect) {
         return Registry.registerReference(Registries.STATUS_EFFECT, Mamy.id(name), effect);
