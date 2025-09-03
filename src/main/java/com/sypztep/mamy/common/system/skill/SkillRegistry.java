@@ -36,6 +36,7 @@ public class SkillRegistry {
     public static final Identifier DECREASE_AGILITY = Mamy.id("decrease_agility");
     public static final Identifier BLESSING = Mamy.id("blessing");
     public static final Identifier ANGELUS = Mamy.id("angelus");
+    public static final Identifier CURE = Mamy.id("cure");
 
     public static void registerSkills() {
         //Novice
@@ -56,6 +57,7 @@ public class SkillRegistry {
         register(new DecreaseAgilitySkill(DECREASE_AGILITY, Skill.requiresSkills(Skill.requires(INCREASE_AGILITY,1))));
         register(new BlessingSkill(BLESSING, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,5))));
         register(new AngelusSkill(ANGELUS, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
+        register(new CureSkill(CURE, Skill.requiresSkills(Skill.requires(HEAL, 2))));
     }
 
     private static void register(Skill skill) {
