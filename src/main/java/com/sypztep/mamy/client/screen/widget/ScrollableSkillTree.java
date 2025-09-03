@@ -118,7 +118,7 @@ public final class ScrollableSkillTree {
 
         int maxTier = 0;
         for (Skill.SkillRequirement req : skill.getPrerequisites()) {
-            Skill prereq = SkillRegistry.getSkill(req.getSkillId());
+            Skill prereq = SkillRegistry.getSkill(req.skillId());
             if (prereq != null) {
                 maxTier = Math.max(maxTier, calculateTier(prereq, new HashSet<>(visited)));
             }
@@ -239,7 +239,7 @@ public final class ScrollableSkillTree {
             if (node.skill.getPrerequisites().isEmpty()) continue;
 
             for (Skill.SkillRequirement req : node.skill.getPrerequisites()) {
-                SkillTreeNode prereq = nodeMap.get(SkillRegistry.getSkill(req.getSkillId()));
+                SkillTreeNode prereq = nodeMap.get(SkillRegistry.getSkill(req.skillId()));
                 if (prereq == null) continue;
 
                 int color = getConnectionColor(node.skill, req);
@@ -394,39 +394,43 @@ public final class ScrollableSkillTree {
         boolean isLearned = classComponent.hasLearnedSkill(node.skill.getId());
         int skillLevel = isLearned ? classComponent.getSkillLevel(node.skill.getId()) : 1;
 
-        List<Text> tooltip = new ArrayList<>();
+        // Use the skill's own tooltip generation method - THIS IS THE KEY CHANGE
+        List<Text> tooltip = node.skill.generateTooltip(
+                client.player,
+                skillLevel,
+                isLearned,
+                Skill.TooltipContext.LEARNING_SCREEN  // Use LEARNING_SCREEN context
+        );
 
-        // Header
-        tooltip.add(Text.literal(node.skill.getName()).formatted(Formatting.AQUA, Formatting.BOLD));
+        // Add skill tree specific information at the end
+        tooltip.add(Text.literal("")); // Empty line
+
+        // Show tier information
         tooltip.add(Text.literal("Tier " + (node.tier + 1)).formatted(Formatting.DARK_GRAY));
-        tooltip.add(Text.literal(""));
 
-        // Description
-        tooltip.add(Text.literal(node.skill.getDescription()).formatted(Formatting.WHITE));
-
-        // Prerequisites
-        if (!node.skill.getPrerequisites().isEmpty()) {
+        // Prerequisites check (only if not learned and has prerequisites)
+        if (!node.skill.getPrerequisites().isEmpty() && !isLearned) {
             tooltip.add(Text.literal(""));
             tooltip.add(Text.literal("Requirements:").formatted(Formatting.YELLOW));
 
             for (Skill.SkillRequirement req : node.skill.getPrerequisites()) {
-                Skill prereq = SkillRegistry.getSkill(req.getSkillId());
+                Skill prereq = SkillRegistry.getSkill(req.skillId());
                 if (prereq != null) {
-                    boolean learned = classComponent.hasLearnedSkill(req.getSkillId());
-                    int level = learned ? classComponent.getSkillLevel(req.getSkillId()) : 0;
-                    boolean met = learned && level >= req.getMinLevel();
+                    boolean learned = classComponent.hasLearnedSkill(req.skillId());
+                    int level = learned ? classComponent.getSkillLevel(req.skillId()) : 0;
+                    boolean met = learned && level >= req.minLevel();
 
                     String symbol = met ? "✓" : "✗";
                     Formatting reqColor = met ? Formatting.GREEN : Formatting.RED;
 
-                    tooltip.add(Text.literal(String.format("%s %s Lv.%d", symbol, prereq.getName(), req.getMinLevel()))
+                    tooltip.add(Text.literal(String.format("%s %s Lv.%d", symbol, prereq.getName(), req.minLevel()))
                             .formatted(reqColor));
                 }
             }
         }
 
-        // Status and cost
-        tooltip.add(Text.literal(""));
+        // Learning/upgrade status and actions
+        tooltip.add(Text.literal("")); // Empty line
         if (!isLearned) {
             boolean prerequisitesMet = node.skill.arePrerequisitesMet(client.player);
             int cost = node.skill.getBaseClassPointCost();
@@ -442,14 +446,22 @@ public final class ScrollableSkillTree {
             }
         } else {
             tooltip.add(Text.literal("Learned (Level " + skillLevel + ")").formatted(Formatting.GREEN));
+
+            // Show upgrade option if not at max level
             if (skillLevel < node.skill.getMaxSkillLevel()) {
                 int upgradeCost = node.skill.getUpgradeClassPointCost();
                 int points = classComponent.getClassManager().getClassStatPoints();
                 if (points >= upgradeCost) {
                     tooltip.add(Text.literal("Click to upgrade (" + upgradeCost + " points)")
                             .formatted(Formatting.GOLD));
+                } else {
+                    tooltip.add(Text.literal("Insufficient points for upgrade (" + points + "/" + upgradeCost + ")")
+                            .formatted(Formatting.RED));
                 }
+            } else {
+                tooltip.add(Text.literal("Maximum level reached").formatted(Formatting.GRAY));
             }
+
             tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.RED));
         }
 
@@ -473,9 +485,9 @@ public final class ScrollableSkillTree {
 
     private int getConnectionColor(Skill skill, Skill.SkillRequirement req) {
         boolean skillLearned = classComponent.hasLearnedSkill(skill.getId());
-        boolean prereqLearned = classComponent.hasLearnedSkill(req.getSkillId());
-        int prereqLevel = prereqLearned ? classComponent.getSkillLevel(req.getSkillId()) : 0;
-        boolean prereqMet = prereqLearned && prereqLevel >= req.getMinLevel();
+        boolean prereqLearned = classComponent.hasLearnedSkill(req.skillId());
+        int prereqLevel = prereqLearned ? classComponent.getSkillLevel(req.skillId()) : 0;
+        boolean prereqMet = prereqLearned && prereqLevel >= req.minLevel();
 
         if (skillLearned && prereqMet) return CONNECTION_ACTIVE;
         if (prereqMet) return CONNECTION_READY;
@@ -538,7 +550,6 @@ public final class ScrollableSkillTree {
         return scrollBehavior.handleScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
-    // Helper classes
-        private record SkillTreeNode(Skill skill, int tier, int x, int y) {
+    private record SkillTreeNode(Skill skill, int tier, int x, int y) {
     }
 }

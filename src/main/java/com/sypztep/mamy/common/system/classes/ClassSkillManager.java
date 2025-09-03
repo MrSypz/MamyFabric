@@ -56,10 +56,10 @@ public class ClassSkillManager {
 
                     for (int i = 0; i < missing.size(); i++) {
                         Skill.SkillRequirement req = missing.get(i);
-                        Skill prerequisiteSkill = SkillRegistry.getSkill(req.getSkillId());
+                        Skill prerequisiteSkill = SkillRegistry.getSkill(req.skillId());
 
                         if (prerequisiteSkill != null) {
-                            message.append(prerequisiteSkill.getName()).append(" Lv.").append(req.getMinLevel());
+                            message.append(prerequisiteSkill.getName()).append(" Lv.").append(req.minLevel());
                             if (i < missing.size() - 1) message.append(", ");
                         }
                     }

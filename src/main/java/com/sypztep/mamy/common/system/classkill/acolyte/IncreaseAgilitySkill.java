@@ -22,6 +22,8 @@ import java.util.List;
 
 public class IncreaseAgilitySkill extends Skill implements CastableSkill {
 
+    private static final float HP_COST = 10f; // HP cost constant
+
     public IncreaseAgilitySkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Increase Agility", "Temporarily increases AGI, Attack Speed and Movement Speed of target.",
                 18f, 1f,
@@ -64,9 +66,8 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        // This is a buff skill, show the benefits
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL; // Use heal type for beneficial effects
+        data.damageType = DamageType.HEAL;
         data.maxHits = 1;
 
         return data;
@@ -76,7 +77,8 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     public boolean canUse(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;
 
-        return player.isAlive();
+        // Check if player is alive AND has enough HP
+        return player.isAlive() && player.getHealth() > HP_COST;
     }
 
     @Override
@@ -84,8 +86,13 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
+        // Double-check HP requirement before consuming
+        if (player.getHealth() <= HP_COST) {
+            return false;
+        }
+
         // Find target using raycast (same as heal skill)
-        LivingEntity target = SkillUtil.findTargetEntity(player,9);
+        LivingEntity target = SkillUtil.findTargetEntity(player, 9);
         if (target == null) target = player;
 
         int duration = (40 + (skillLevel * 20)) * 20;
@@ -94,13 +101,16 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
         StatusEffectInstance agilityBuff = new StatusEffectInstance(ModStatusEffects.INCREASE_AGILITY, duration, skillLevel - 1, false, false, false);
         target.addStatusEffect(agilityBuff);
 
+        // Consume HP - THIS IS THE KEY ADDITION
+        player.setHealth(player.getHealth() - HP_COST);
+
+        // Visual and audio effects
         serverWorld.spawnParticles(ParticleTypes.HAPPY_VILLAGER, target.getX(), target.getY() + target.getHeight() / 2, target.getZ(), 12, 0.4, 0.4, 0.4, 0.1);
         serverWorld.spawnParticles(ParticleTypes.COMPOSTER, target.getX(), target.getY() + target.getHeight() / 2, target.getZ(), 8, 0.3, 0.3, 0.3, 0.05);
         serverWorld.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.6f, 1.5f);
 
         return true;
     }
-
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
@@ -119,7 +129,12 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
             tooltip.add(Text.literal("• Duration: ").formatted(Formatting.GRAY).append(Text.literal(duration + "s").formatted(Formatting.YELLOW)));
 
             tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("HP Cost: ").formatted(Formatting.RED).append(Text.literal("15 HP").formatted(Formatting.DARK_RED)));
+            tooltip.add(Text.literal("HP Cost: ").formatted(Formatting.RED).append(Text.literal((int)HP_COST + " HP").formatted(Formatting.DARK_RED)));
+
+            // Add warning if player doesn't have enough HP
+            if (player != null && player.getHealth() <= HP_COST) {
+                tooltip.add(Text.literal("⚠ Insufficient HP!").formatted(Formatting.DARK_RED));
+            }
         }
 
         return tooltip;

@@ -19,7 +19,11 @@ import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+
+import java.util.List;
 
 public class HealSkill extends Skill implements CastableSkill {
 
@@ -52,25 +56,16 @@ public class HealSkill extends Skill implements CastableSkill {
         return Mamy.id("pray");
     }
 
-    @Override
-    protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
-        SkillTooltipData data = new SkillTooltipData();
-
-        data.baseDamage = calculateHealingAmount(player, skillLevel);
-        data.damageType = DamageType.HEAL;
-        data.maxHits = 1;
-
-        return data;
-    }
-
     private float calculateHealingAmount(PlayerEntity player, int skillLevel) {
-        // HP Restored = floor((BLv + INT)/5) × SkillLv × 3 × (1 + RecoveryEffect% + H.PLUS%) + MATK
         int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
         int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
         float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
 
-        float baseHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
+        float statBasedHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
+        float minimumHealing = skillLevel * 5f;
+
+        float baseHealing = Math.max(statBasedHealing, minimumHealing);
         float modifiedHealing = baseHealing * (1 + healingEffectiveness);
         return modifiedHealing + magicAttack;
     }
@@ -86,7 +81,7 @@ public class HealSkill extends Skill implements CastableSkill {
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
         // Find target using raycast
-        LivingEntity target = SkillUtil.findTargetEntity(player,9);
+        LivingEntity target = SkillUtil.findTargetEntity(player, 9);
         if (target == null) target = player;
 
         HealingLightEntity healingLightEntity = new HealingLightEntity(target, target.getWorld());
@@ -114,6 +109,61 @@ public class HealSkill extends Skill implements CastableSkill {
         return true;
     }
 
+    @Override
+    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
+
+        // Add healing formula explanation
+        if (skillLevel > 0) {
+            int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
+            int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
+            float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
+            float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
+
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Healing Details:").formatted(Formatting.GOLD));
+
+            // Show current stats contribution
+            float statHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
+            float minimumHealing = skillLevel * 5f;
+            float baseHealing = Math.max(statHealing, minimumHealing);
+            float totalHealing = calculateHealingAmount(player, skillLevel);
+
+            tooltip.add(Text.literal("• Base Healing: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", baseHealing)).formatted(Formatting.GREEN)));
+
+            if (magicAttack > 0) {
+                tooltip.add(Text.literal("• Magic Attack Bonus: ").formatted(Formatting.GRAY)
+                        .append(Text.literal("+" + String.format("%.0f", magicAttack)).formatted(Formatting.YELLOW)));
+            }
+
+            if (healingEffectiveness > 0) {
+                tooltip.add(Text.literal("• Healing Effectiveness: ").formatted(Formatting.GRAY)
+                        .append(Text.literal("+" + String.format("%.0f%%", healingEffectiveness * 100)).formatted(Formatting.AQUA)));
+            }
+
+            tooltip.add(Text.literal("• Total Healing: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", totalHealing)).formatted(Formatting.WHITE)));
+
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("vs Undead: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", totalHealing * 0.5f) + " Holy Damage").formatted(Formatting.GOLD)));
+
+        }
+
+        return tooltip;
+    }
+
+    @Override
+    protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
+        SkillTooltipData data = new SkillTooltipData();
+
+        data.baseDamage = 0;
+        data.damageType = DamageType.HEAL;
+        data.maxHits = 1;
+
+        return data;
+    }
 
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {

@@ -69,12 +69,12 @@ public abstract class Skill {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
 
         for (SkillRequirement req : prerequisites) {
-            if (!classComponent.hasLearnedSkill(req.getSkillId())) {
+            if (!classComponent.hasLearnedSkill(req.skillId())) {
                 return false; // Required skill not learned
             }
 
-            int currentLevel = classComponent.getSkillLevel(req.getSkillId());
-            if (currentLevel < req.getMinLevel()) {
+            int currentLevel = classComponent.getSkillLevel(req.skillId());
+            if (currentLevel < req.minLevel()) {
                 return false; // Required skill level not met
             }
         }
@@ -89,10 +89,10 @@ public abstract class Skill {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
 
         for (SkillRequirement req : prerequisites) {
-            boolean learned = classComponent.hasLearnedSkill(req.getSkillId());
-            int currentLevel = learned ? classComponent.getSkillLevel(req.getSkillId()) : 0;
+            boolean learned = classComponent.hasLearnedSkill(req.skillId());
+            int currentLevel = learned ? classComponent.getSkillLevel(req.skillId()) : 0;
 
-            if (!learned || currentLevel < req.getMinLevel()) {
+            if (!learned || currentLevel < req.minLevel()) {
                 missing.add(req);
             }
         }
@@ -307,17 +307,7 @@ public abstract class Skill {
         BINDING_SLOT
     }
 
-    public static class SkillRequirement {
-        private final Identifier skillId;
-        private final int minLevel;
-
-        public SkillRequirement(Identifier skillId, int minLevel) {
-            this.skillId = skillId;
-            this.minLevel = minLevel;
-        }
-
-        public Identifier getSkillId() { return skillId; }
-        public int getMinLevel() { return minLevel; }
+    public record SkillRequirement(Identifier skillId, int minLevel) {
     }
 
     // ============================================================================

@@ -45,49 +45,5 @@ public class MamyClient implements ClientModInitializer {
         IconOverlayManager.initialize(); // Only call once
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
-
-        // Register mouse event handlers (if you don't have them already)
-//        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-//            if (!KeyEntryScreen.keyValidated && client.currentScreen instanceof TitleScreen) {
-//                KeyEntryScreen.keyValidated = true;
-//
-//                String identity = KeyEntryScreen.getPlayerIdentity(client);
-//                String apiUrl = String.format("http://tyranus.online/smp/check_token.php?uuid=%s", identity);
-//
-//                HttpClient httpClient = HttpClient.newHttpClient();
-//                HttpRequest request = HttpRequest.newBuilder()
-//                        .uri(URI.create(apiUrl))
-//                        .GET()
-//                        .build();
-//
-//                CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-//
-//                responseFuture.thenAccept(response -> {
-//                    try {
-//                        JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
-//                        boolean validated = json.get("success").getAsBoolean();
-//                        if (validated) {
-//                            KeyEntryScreen.keyValidated = true;
-//                        } else {
-//                            client.execute(() -> {
-//                                client.setScreen(new KeyEntryScreen());
-//                                KeyEntryScreen.keyValidated = false; // Reset flag so user can submit key
-//                            });
-//                        }
-//                    } catch (Exception e) {
-//                        client.execute(() -> {
-//                            client.setScreen(new KeyEntryScreen());
-//                            KeyEntryScreen.keyValidated = false;
-//                        });
-//                    }
-//                }).exceptionally(ex -> {
-//                    client.execute(() -> {
-//                        client.setScreen(new KeyEntryScreen());
-//                        KeyEntryScreen.keyValidated = false;
-//                    });
-//                    return null;
-//                });
-//            }
-//        });
     }
 }
