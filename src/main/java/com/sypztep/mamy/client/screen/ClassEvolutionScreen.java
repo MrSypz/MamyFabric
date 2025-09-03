@@ -422,9 +422,8 @@ public final class ClassEvolutionScreen extends Screen {
             PlayerClass currentClass = classManager.getCurrentClass();
 
             if (currentClass.getTier() == 0) { // Novice evolving
-                // Basic Skill Level 10 requirement
                 int basicSkillLevel = classManager.getSkillLevel(SkillRegistry.BASICSKILL);
-                boolean basicSkillMet = basicSkillLevel >= 10;
+                boolean basicSkillMet = basicSkillLevel == 10;
                 Formatting basicSkillColor = basicSkillMet ? Formatting.GREEN : Formatting.RED;
                 String basicSkillText = String.format("  Basic Skill Level 10 (Current: %d)", basicSkillLevel);
 

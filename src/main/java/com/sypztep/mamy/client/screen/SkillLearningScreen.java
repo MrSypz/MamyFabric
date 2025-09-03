@@ -5,6 +5,7 @@ import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.PlayerClass;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -13,7 +14,7 @@ import net.minecraft.util.Formatting;
 
 public final class SkillLearningScreen extends Screen {
     // Clean design constants
-    private static final int HEADER_HEIGHT = 60;
+    private static final int HEADER_HEIGHT = 25;
     private static final int CONTENT_PADDING = 20;
 
     // Modern colors
@@ -45,7 +46,6 @@ public final class SkillLearningScreen extends Screen {
         // Header
         renderHeader(context);
 
-        // Main skill tree area
         int treeX = CONTENT_PADDING;
         int treeY = HEADER_HEIGHT + CONTENT_PADDING;
         int treeWidth = width - (CONTENT_PADDING * 2);
@@ -58,29 +58,19 @@ public final class SkillLearningScreen extends Screen {
     }
 
     private void renderHeader(DrawContext context) {
-        // Header background
         DrawContextUtils.drawRect(context, 0, 0, width, HEADER_HEIGHT, HEADER_COLOR);
         DrawContextUtils.renderHorizontalLine(context, 0, HEADER_HEIGHT - 1, width, 1, 0, 0xFF30363D);
 
-        var currentClass = classComponent.getClassManager().getCurrentClass();
+        PlayerClass currentClass = classComponent.getClassManager().getCurrentClass();
 
         // Class emblem (left)
-        int emblemSize = 32;
-        int emblemX = CONTENT_PADDING;
-        int emblemY = (HEADER_HEIGHT - emblemSize) / 2;
-
-        DrawContextUtils.drawRect(context, emblemX, emblemY, emblemSize, emblemSize, 0xFF21262D);
-        context.drawBorder(emblemX, emblemY, emblemSize, emblemSize,
-                currentClass.getColor().getColorValue() | 0xFF000000);
-
-        String initial = currentClass.getDisplayName().substring(0, 1).toUpperCase();
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal(initial).formatted(Formatting.BOLD),
-                emblemX + emblemSize / 2, emblemY + emblemSize / 2 - 4, TEXT_PRIMARY);
+        int emblemSize = 8;
+        int emblemY = ((HEADER_HEIGHT - emblemSize) / 2) - 1;
 
         // Title
         Text titleText = Text.literal(currentClass.getDisplayName() + " Skill Tree")
                 .formatted(Formatting.WHITE, Formatting.BOLD);
-        context.drawTextWithShadow(textRenderer, titleText, emblemX + emblemSize + 15, emblemY + 8, TEXT_PRIMARY);
+        context.drawTextWithShadow(textRenderer, titleText, CONTENT_PADDING + emblemSize, emblemY, TEXT_PRIMARY);
 
         // Stats (right side)
         int availablePoints = classComponent.getClassManager().getClassStatPoints();
@@ -90,7 +80,7 @@ public final class SkillLearningScreen extends Screen {
                 .formatted(availablePoints > 0 ? Formatting.GOLD : Formatting.GRAY);
 
         int statsX = width - textRenderer.getWidth(statsText) - CONTENT_PADDING;
-        context.drawTextWithShadow(textRenderer, statsText, statsX, emblemY + 12,
+        context.drawTextWithShadow(textRenderer, statsText, statsX, emblemY,
                 availablePoints > 0 ? ACCENT_GOLD : 0xFF8B949E);
     }
 

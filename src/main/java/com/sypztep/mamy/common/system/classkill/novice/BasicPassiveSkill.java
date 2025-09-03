@@ -2,10 +2,8 @@ package com.sypztep.mamy.common.system.classkill.novice;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -59,20 +57,6 @@ public final class BasicPassiveSkill extends PassiveSkill {
 
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {
-        return true; // All Classes
-    }
-
-    public static boolean canUseAmadeusStorage(PlayerEntity player) {
-        return getBasicSkillLevel(player) >= 6;
-    }
-
-    public static boolean canEvolveToFirstJob(PlayerEntity player) {
-        return getBasicSkillLevel(player) >= 10;
-    }
-
-    private static int getBasicSkillLevel(PlayerEntity player) {
-        var classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        var skillManager = classComponent.getClassManager().getSkillManager();
-        return skillManager.getSkillLevel(Mamy.id("basic_skill"));
+        return playerClass == ModClasses.NOVICE; // FUTURE ME don't replace to true again
     }
 }
