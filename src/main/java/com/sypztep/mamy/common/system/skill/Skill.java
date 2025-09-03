@@ -283,19 +283,12 @@ public abstract class Skill {
         public List<SecondaryDamage> secondaryDamages = new ArrayList<>();
     }
 
-    public static class SecondaryDamage {
-        public float baseDamage = 0;
-        public float damagePercentage = 0;
-        public DamageType damageType;
-        public int maxHits = 1;
-
-        public SecondaryDamage(DamageType damageType, float baseDamage, float damagePercentage, int maxHits) {
-            this.damageType = damageType;
-            this.baseDamage = baseDamage;
-            this.damagePercentage = damagePercentage;
-            this.maxHits = maxHits;
-        }
-    }
+    public record SecondaryDamage(
+            DamageType damageType,
+            float baseDamage,
+            float damagePercentage,
+            int maxHits
+    ) {}
 
     public enum DamageType {
         MELEE, MAGIC, PHYSICAL,ELEMENT, HEAL
@@ -307,8 +300,7 @@ public abstract class Skill {
         BINDING_SLOT
     }
 
-    public record SkillRequirement(Identifier skillId, int minLevel) {
-    }
+    public record SkillRequirement(Identifier skillId, int minLevel) {}
 
     // ============================================================================
     // ABSTRACT METHODS FOR SKILL DATA
