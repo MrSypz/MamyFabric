@@ -128,9 +128,9 @@ public class BlessingSkill extends Skill {
 
             tooltip.add(Text.literal(""));
             tooltip.add(Text.literal("Special Effects:").formatted(Formatting.AQUA));
-            if (skillLevel >= 2) {
-                tooltip.add(Text.literal("• Purges Curse & Stone").formatted(Formatting.LIGHT_PURPLE));
-            }
+//            if (skillLevel >= 2) {
+//                tooltip.add(Text.literal("• Purges Curse & Stone").formatted(Formatting.LIGHT_PURPLE));
+//            }
             tooltip.add(Text.literal("• vs Undead/Demons: Reduces DEX & INT").formatted(Formatting.RED));
         }
 
