@@ -3,6 +3,7 @@
     "minecraft:mob_attack",
     "minecraft:mob_projectile",
     "minecraft:mob_attack_no_aggro",
+    "minecraft:arrow",
     {
       "id": "mamy:holy",
       "required": false

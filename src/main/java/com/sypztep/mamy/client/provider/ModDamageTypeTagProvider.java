@@ -39,6 +39,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.MOB_ATTACK)
 				.add(DamageTypes.MOB_PROJECTILE)
 				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)
+				.add(DamageTypes.ARROW)
 				.addOptional(ModDamageTypes.HOLY);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
