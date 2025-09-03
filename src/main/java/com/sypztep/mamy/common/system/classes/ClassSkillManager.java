@@ -70,7 +70,6 @@ public class ClassSkillManager {
                 return;
             }
 
-            // Check if player has enough class points
             int cost = skill.getBaseClassPointCost();
             if (classManager.getClassStatPoints() < cost) return;
 
@@ -79,7 +78,6 @@ public class ClassSkillManager {
 
         skillLevels.put(skillId, 1);
 
-        // Apply passive effects if it's a passive skill
         if (skill instanceof PassiveSkill passiveSkill) passiveSkill.applyPassiveEffects(player, 1);
 
         if (player instanceof ServerPlayerEntity serverPlayer && !free)
