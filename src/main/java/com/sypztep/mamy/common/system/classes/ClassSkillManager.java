@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -87,6 +88,11 @@ public class ClassSkillManager {
 
     public void unlearnSkill(Identifier skillId, PlayerClassManager classManager) {
         if (!hasLearnedSkill(skillId)) return;
+
+        if (!ModConfig.unlearnskill) {
+            if (player instanceof ServerPlayerEntity serverPlayer) SendToastPayloadS2C.sendError(serverPlayer, "Skill unlearning is disabled!");
+            return;
+        }
 
         Skill skill = SkillRegistry.getSkill(skillId);
         int currentLevel = getSkillLevel(skillId);
@@ -237,6 +243,7 @@ public class ClassSkillManager {
      * @param newClassId
      * @param level
      */
+    @Deprecated
     public void onClassChange(String newClassId, int level) {
         // No auto-learning on class change anymore
         // Players must manually learn skills with class points

@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen.widget;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.payload.SkillActionPayloadC2S;
@@ -462,7 +463,9 @@ public final class ScrollableSkillTree {
                 tooltip.add(Text.literal("Maximum level reached").formatted(Formatting.GRAY));
             }
 
-            tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.RED));
+            if (ModConfig.unlearnskill) {
+                tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.RED));
+            }
         }
 
         context.drawTooltip(textRenderer, tooltip, (int) mouseX, (int) mouseY);
@@ -528,7 +531,7 @@ public final class ScrollableSkillTree {
                         SoundEvents.BLOCK_NOTE_BLOCK_BASS, 0.8F));
                 return true;
             }
-        } else if (button == 1 && isLearned) { // Right click unlearn
+        } else if (button == 1 && isLearned && ModConfig.unlearnskill) {
             SkillActionPayloadC2S.sendUnlearn(node.skill.getId());
             client.getSoundManager().play(PositionedSoundInstance.master(
                     SoundEvents.UI_TOAST_OUT, 1.0F));

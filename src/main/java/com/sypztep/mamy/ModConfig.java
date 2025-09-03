@@ -187,6 +187,9 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 4096)
     public static short maxStatValue = 99;
 
+    @ConfigEntry.Category("gameplay")
+    public static boolean unlearnskill = true;
+
     // =====================================
     // DEATH PENALTY
     // =====================================
