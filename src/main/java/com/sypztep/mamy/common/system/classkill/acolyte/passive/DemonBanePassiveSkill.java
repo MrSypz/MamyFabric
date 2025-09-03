@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DemonBanePassiveSkill extends PassiveSkill {
 
-    public DemonBanePassiveSkill(Identifier id) {
+    public DemonBanePassiveSkill(Identifier id, List<SkillRequirement> skillRequirements) {
         super(
                 id,
                 "Demon Bane",
@@ -23,7 +23,8 @@ public class DemonBanePassiveSkill extends PassiveSkill {
                 1, // base cost
                 1, // upgrade cost
                 10, // max level
-                Mamy.id("skill/demon_bane")
+                Mamy.id("skill/demon_bane"),
+                skillRequirements
         );
     }
 

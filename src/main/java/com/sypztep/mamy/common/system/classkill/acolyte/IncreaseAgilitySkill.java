@@ -22,8 +22,12 @@ import java.util.List;
 
 public class IncreaseAgilitySkill extends Skill implements CastableSkill {
 
-    public IncreaseAgilitySkill(Identifier identifier) {
-        super(identifier, "Increase Agility", "Temporarily increases AGI, Attack Speed and Movement Speed of target.", 18f, 1f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/increase_agility"));
+    public IncreaseAgilitySkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
+        super(identifier, "Increase Agility", "Temporarily increases AGI, Attack Speed and Movement Speed of target.",
+                18f, 1f,
+                ModClasses.ACOLYTE, 1,
+                1, 10,
+                false, Mamy.id("skill/increase_agility"), skillRequirements);
     }
 
     @Override

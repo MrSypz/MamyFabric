@@ -49,13 +49,13 @@ public class SkillRegistry {
         register(new EnergyBreakSkill(ENERGY_BREAK, Skill.requiresSkills(Skill.requires(BASHING_BLOW,5))));
         register(new EndureSkill(ENDURE, Skill.requiresSkills(Skill.requires(PROVOKE, 5))));
         // Acolyte
-        register(new DemonBanePassiveSkill(DEMON_BANE));
+        register(new DemonBanePassiveSkill(DEMON_BANE, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
         register(new DivineProtectionPassiveSkill(DIVINE_PROTECTION));
         register(new HealSkill(HEAL));
-        register(new IncreaseAgilitySkill(INCREASE_AGILITY));
-        register(new DecreaseAgilitySkill(DECREASE_AGILITY));
-        register(new BlessingSkill(BLESSING));
-        register(new AngelusSkill(ANGELUS));
+        register(new IncreaseAgilitySkill(INCREASE_AGILITY, Skill.requiresSkills(Skill.requires(HEAL,3))));
+        register(new DecreaseAgilitySkill(DECREASE_AGILITY, Skill.requiresSkills(Skill.requires(INCREASE_AGILITY,1))));
+        register(new BlessingSkill(BLESSING, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,5))));
+        register(new AngelusSkill(ANGELUS, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
     }
 
     private static void register(Skill skill) {

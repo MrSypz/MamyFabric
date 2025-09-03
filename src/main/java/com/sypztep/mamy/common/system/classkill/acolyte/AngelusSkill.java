@@ -22,8 +22,12 @@ import java.util.List;
 
 public class AngelusSkill extends Skill implements CastableSkill {
 
-    public AngelusSkill(Identifier identifier) {
-        super(identifier, "Angelus", "Places a temporary buff on user and all party members in area that increases Soft Defense and Max HP.", 20f, 1f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/angelus"));
+    public AngelusSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
+        super(identifier, "Angelus", "Places a temporary buff on user and all party members in area that increases Soft Defense and Max HP.",
+                20f, 1f,
+                ModClasses.ACOLYTE, 1,
+                1, 10,
+                false, Mamy.id("skill/angelus"),skillRequirements);
     }
 
     @Override

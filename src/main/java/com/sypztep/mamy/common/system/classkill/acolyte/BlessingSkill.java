@@ -23,8 +23,13 @@ import java.util.List;
 
 public class BlessingSkill extends Skill {
 
-    public BlessingSkill(Identifier identifier) {
-        super(identifier, "Blessing", "Places a temporary buff on target that increases STR, DEX, INT, and HIT. Purges curse and stone effects. Against undead/demons, reduces their DEX and INT instead.", 24f, 0f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/blessing"));
+    public BlessingSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
+        super(identifier, "Blessing",
+                "Places a temporary buff on target that increases STR, DEX, INT, and HIT. Purges curse and stone effects. Against undead/demons, reduces their DEX and INT instead.",
+                24f, 0f,
+                ModClasses.ACOLYTE, 1,
+                1, 10,
+                false, Mamy.id("skill/blessing"),skillRequirements);
     }
 
     @Override

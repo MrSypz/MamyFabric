@@ -20,24 +20,41 @@ public abstract class PassiveSkill extends Skill {
     protected final List<AttributeModification> attributeModifications;
     protected final List<PassiveEffect> passiveEffects;
 
+    // Constructor with prerequisites
+    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
+                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+                        boolean isDefaultSkill, Identifier icon, List<SkillRequirement> prerequisites) {
+        super(id, name, description, 0.0f, 0.0f, requiredClass, baseClassPointCost,
+                upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, prerequisites);
+        this.attributeModifications = new ArrayList<>();
+        this.passiveEffects = new ArrayList<>();
+        initializePassiveEffects();
+    }
+
+    // Constructor without prerequisites (defaults to empty list)
     public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
                         int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
                         boolean isDefaultSkill, Identifier icon) {
-        super(id, name, description, 0.0f, 0.0f, requiredClass, baseClassPointCost,
-                upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon);
-        this.attributeModifications = new ArrayList<>();
-        this.passiveEffects = new ArrayList<>();
-        initializePassiveEffects();
+        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+                maxSkillLevel, isDefaultSkill, icon, null);
     }
+
+    // Constructor with icon but without isDefaultSkill (defaults to false)
     public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
                         int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
-                         Identifier icon) {
-        super(id, name, description, 0.0f, 0.0f, requiredClass, baseClassPointCost,
-                upgradeClassPointCost, maxSkillLevel, false, icon);
-        this.attributeModifications = new ArrayList<>();
-        this.passiveEffects = new ArrayList<>();
-        initializePassiveEffects();
+                        Identifier icon) {
+        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+                maxSkillLevel, false, icon, null);
     }
+
+    // Constructor with icon and prerequisites but without isDefaultSkill (defaults to false)
+    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
+                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+                        Identifier icon, List<SkillRequirement> prerequisites) {
+        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+                maxSkillLevel, false, icon, prerequisites);
+    }
+
 
     /**
      * Initialize the passive effects this skill provides
