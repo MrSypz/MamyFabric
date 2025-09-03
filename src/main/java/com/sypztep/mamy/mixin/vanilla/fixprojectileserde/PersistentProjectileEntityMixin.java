@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.vanilla.fixprojectileserde;
 
-import com.sypztep.mamy.common.entity.entity.skill.BaseSkillEntity;
+import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -43,6 +43,6 @@ public abstract class PersistentProjectileEntityMixin extends ProjectileEntity {
 
     @Unique
     private boolean isDisallowed() {
-        return (Object) this instanceof BaseSkillEntity;
+        return (Object) this instanceof HealingLightEntity;
     }
 }

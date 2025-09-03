@@ -13,7 +13,6 @@ import com.sypztep.mamy.common.util.MultiHitSystem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;

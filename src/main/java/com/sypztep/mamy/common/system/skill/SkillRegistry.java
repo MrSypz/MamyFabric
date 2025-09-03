@@ -76,7 +76,6 @@ public class SkillRegistry {
         register(new OwlsEyePassiveSkill(OWLS_EYE));
         register(new VulturesEyePassiveSkill(VULTURES_EYE, Skill.requiresSkills(Skill.requires(OWLS_EYE, 3))));
         register(new ImproveConcentrationSkill(IMPROVE_CONCENTRATION, Skill.requiresSkills(Skill.requires(VULTURES_EYE, 1))));
-
     }
 
     private static void register(Skill skill) {

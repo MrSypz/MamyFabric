@@ -53,11 +53,6 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.FIRE_DAMAGE)
 				.addOptional(ModDamageTypes.HOLY);
 
-		// Is Projectile - Makes your skills count as projectile damage
-		getOrCreateTagBuilder(DamageTypeTags.IS_PROJECTILE);
-//				.addOptional(ModDamageTypes.Add new);
-
-
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
 		// ==========================================

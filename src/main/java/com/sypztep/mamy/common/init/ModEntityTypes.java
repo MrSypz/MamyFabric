@@ -1,7 +1,6 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.BloodLustEntity;
 import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,11 +9,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public final class ModEntityTypes {
-    public static EntityType<BloodLustEntity> BLOOD_LUST;
     public static EntityType<HealingLightEntity> HEALING_LIGHT;
 
     public static void init() {
-        BLOOD_LUST = registerEntity("bloodlust", createSkillProjectile(BloodLustEntity::new));
         HEALING_LIGHT = registerEntity("healing_light", createSkillProjectile(HealingLightEntity::new));
     }
 

@@ -108,9 +108,9 @@ public class HealingLightEntity extends PersistentProjectileEntity {
                 float z = CYLINDER_RADIUS * (float) Math.sin(angle);
 
                 // Add Gaussian noise for organic look
-                x += random.nextGaussian() * 0.1f;
-                z += random.nextGaussian() * 0.1f;
-                y += random.nextGaussian() * 0.05f;
+                x += (float) (random.nextGaussian() * 0.1f);
+                z += (float) (random.nextGaussian() * 0.1f);
+                y += (float) (random.nextGaussian() * 0.05f);
 
                 Vector3f color = new Vector3f(1.0f, 0.8f + random.nextFloat() * 0.2f, 0.3f);
                 color.mul(intensity);
@@ -143,7 +143,6 @@ public class HealingLightEntity extends PersistentProjectileEntity {
 
     private void renderInternalSparks(Vec3d center) {
         for (int i = 0; i < PARTICLES_PER_TICK * intensity; i++) {
-            // Generate random position within cylinder using Gaussian distribution
             float angle = random.nextFloat() * (float) (2 * Math.PI);
             float radius = (float) Math.abs(random.nextGaussian()) * CYLINDER_RADIUS * 0.4f;
             radius = Math.min(radius, CYLINDER_RADIUS * 0.9f); // Clamp to stay inside
