@@ -25,7 +25,6 @@ public class Mamy implements ModInitializer {
     public static Identifier id(String path) {
         return Identifier.of(MODID, path);
     }
-    public static boolean isMamyVaultLoaded;
     @Override
     public void onInitialize() {
         ModPayloads.init();
@@ -36,7 +35,6 @@ public class Mamy implements ModInitializer {
         SkillRegistry.registerSkills();
         ModDataComponents.register();
         ModStatusEffects.initEffects();
-        isMamyVaultLoaded = FabricLoader.getInstance().isModLoaded(MODID);
         // EVENT
         InitDamageTrackerEvent.register();
         MobSpawnStatsEvent.register();

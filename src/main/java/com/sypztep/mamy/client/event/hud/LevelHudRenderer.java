@@ -11,7 +11,6 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.gearscore.PlayerGearscore;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.util.NumberUtil;
-//import com.sypztep.mamyvault.MamyAPI;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -115,10 +114,6 @@ public final class LevelHudRenderer implements HudRenderCallback {
     // Resource bar offset animation state
     private static float resourceBarOffsetProgress = 0.0f;
     private static boolean lastResourceBarVisible = false;
-
-    private static String cachedBalance = "Nan";
-    private static long lastBalanceUpdate = 0;
-    private static final long BALANCE_UPDATE_INTERVAL = 10000; // Update every 10 seconds
 
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
@@ -524,19 +519,14 @@ public final class LevelHudRenderer implements HudRenderCallback {
         String statsText = "PS: " + availableStatPoints;
         String cpText = "CP: " + classData.getClassManager().getClassLevelSystem().getStatPoints();
 
-//        updateBalanceFromAPI();
-        String balanceText = cachedBalance;
-
         // Calculate positions
         int classInfoWidth = textRenderer.getWidth(classInfo);
         int statsWidth = textRenderer.getWidth(statsText);
         int cpWidth = textRenderer.getWidth(cpText);
-        int balanceWidth = textRenderer.getWidth(balanceText);
 
-        // Use full available width minus padding on both sides
         int contentWidth = BASE_HUD_WIDTH - (BASE_PADDING * 2);
-        int totalWidth = classInfoWidth + statsWidth + cpWidth + balanceWidth;
-        int spacing = Math.max(8, (contentWidth - totalWidth) / 3); // Divide by 3 for 3 gaps
+        int totalWidth = classInfoWidth + statsWidth + cpWidth;
+        int spacing = Math.max(8, (contentWidth - totalWidth) / 2); // Divide by 3 for 3 gaps
 
         // Render texts with icons
         drawContext.drawTextWithShadow(textRenderer, classInfo, contentX, y, classColorValue);
@@ -550,31 +540,15 @@ public final class LevelHudRenderer implements HudRenderCallback {
         int cpX = statsX + statsWidth + spacing;
         renderGuiIcon(drawContext, CLASS_ICON, cpX - BASE_ICON_SIZE - BASE_ICON_TEXT_SPACING / 2, y + (textRenderer.fontHeight - BASE_ICON_SIZE) / 2); // Changed to CLASS_ICON for CP
         drawContext.drawTextWithShadow(textRenderer, cpText, cpX, y, CONTENT_TEXT_COLOR);
-
-        // Balance icon and text
-        int balanceX = cpX + cpWidth + spacing;
-        renderGuiIcon(drawContext, BALANCE_ICON, balanceX - BASE_ICON_SIZE - BASE_ICON_TEXT_SPACING / 2, y + (textRenderer.fontHeight - BASE_ICON_SIZE) / 2);
-        drawContext.drawTextWithShadow(textRenderer, balanceText, balanceX, y, CONTENT_TEXT_COLOR);
     }
 
-    /**
-     * Modern 1.21.1 Fabric way to render GUI textures
-     */
     private void renderGuiIcon(DrawContext drawContext, Identifier iconTexture, int x, int y) {
-        try {
-            // Use the modern drawGuiTexture method for proper GUI atlas handling
-            drawContext.drawGuiTexture(iconTexture, x, y, BASE_ICON_SIZE, BASE_ICON_SIZE);
-        } catch (Exception e) {
-            // Fallback to colored rectangle if texture not found
-            drawContext.fill(x, y, x + BASE_ICON_SIZE, y + BASE_ICON_SIZE, 0xFF666666);
-        }
+        drawContext.drawGuiTexture(iconTexture, x, y, BASE_ICON_SIZE, BASE_ICON_SIZE);
     }
 
     private int renderShaderProgressBar(DrawContext drawContext, int x, int y, int width, int height, float progress, boolean isMaxLevel, int colorStart, int colorEnd, float glowTimer, boolean isBaseXp) {
-        // Background
         drawContext.fill(x, y, x + width, y + height, BAR_BG_COLOR);
 
-        // Progress fill
         int progressWidth = isMaxLevel ? width : (int) (width * progress);
 
         if (progressWidth > 0) {
@@ -641,27 +615,6 @@ public final class LevelHudRenderer implements HudRenderCallback {
         float easedOffset = DrawContextUtils.enhancedEaseInOut(slideOffset);
         return MathHelper.lerp(easedOffset, BASE_HUD_X, hiddenX);
     }
-//    private void updateBalanceFromAPI() {
-//        long currentTime = System.currentTimeMillis();
-//        if (currentTime - lastBalanceUpdate > BALANCE_UPDATE_INTERVAL) {
-//            lastBalanceUpdate = currentTime;
-//
-//            UUID playerUuid = MinecraftClient.getInstance().player.getUuid(); // Implement this
-//
-//            MamyAPI.getWallet(playerUuid)
-//                    .thenAccept(wallet -> {
-//                        if (wallet != null) {
-//                            cachedBalance = NumberUtil.formatNumber(wallet);
-//                        } else if (MinecraftClient.getInstance().player.getWorld().isClient()) {
-//                            cachedBalance = "Nan";
-//                        }
-//                    })
-//                    .exceptionally(throwable -> {
-//                        cachedBalance = "Offline";
-//                        return null;
-//                    });
-//        }
-//    }
 
     public static void register() {
         HudRenderCallback.EVENT.register(new LevelHudRenderer());
