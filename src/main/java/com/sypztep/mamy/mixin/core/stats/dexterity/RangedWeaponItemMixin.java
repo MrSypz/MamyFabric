@@ -3,6 +3,7 @@ package com.sypztep.mamy.mixin.core.stats.dexterity;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.sypztep.mamy.ModConfig;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
@@ -29,8 +30,9 @@ public class RangedWeaponItemMixin {
 
         float newDivergence = 10f * (1f - ((dexterity + factor) / ModConfig.maxStatValue));
         newDivergence = MathHelper.clamp(newDivergence, 0f, 10f);
+        float newSpeed = (float) (speed + shooter.getAttributeValue(ModEntityAttributes.ARROW_SPEED));
 
-        original.call(instance, shooter, projectile, index, speed, newDivergence, yaw, target);
+        original.call(instance, shooter, projectile, index, newSpeed, newDivergence, yaw, target);
 
         if (projectile instanceof PersistentProjectileEntity projectileEntity) projectileEntity.setCritical(false); // Disable particle
     }

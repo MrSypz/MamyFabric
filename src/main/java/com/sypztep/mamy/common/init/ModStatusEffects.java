@@ -19,6 +19,7 @@ public class ModStatusEffects {
     public static RegistryEntry<StatusEffect> BLESSING;
     public static RegistryEntry<StatusEffect> ANGELUS;
     public static RegistryEntry<StatusEffect> PROVOKE;
+    public static RegistryEntry<StatusEffect> IMPROVE_CONCENTRATION;
 
     public static void initEffects() {
         STUN = init("stun", new StunEffect());
@@ -29,6 +30,7 @@ public class ModStatusEffects {
         BLESSING = init("blessing", new BlessingEffect(StatusEffectCategory.BENEFICIAL));
         ANGELUS = init("angelus", new AngelusEffect(StatusEffectCategory.BENEFICIAL));
         PROVOKE = init("provoke", new ProvokeEffect(StatusEffectCategory.HARMFUL));
+        IMPROVE_CONCENTRATION = init("improve_concentration", new ImproveConcentrationEffect(StatusEffectCategory.BENEFICIAL));
     }
     public static RegistryEntry<StatusEffect> init(String name, StatusEffect effect) {
         return Registry.registerReference(Registries.STATUS_EFFECT, Mamy.id(name), effect);

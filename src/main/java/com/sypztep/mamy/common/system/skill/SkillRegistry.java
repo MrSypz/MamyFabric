@@ -5,6 +5,9 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classkill.acolyte.*;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
+import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
+import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
@@ -18,8 +21,10 @@ import java.util.*;
 
 public class SkillRegistry {
     private static final Map<Identifier, Skill> SKILLS = new HashMap<>();
+
     //Novice
     public static final Identifier BASICSKILL = Mamy.id("basic_skill");
+
     //SwordMan
     public static final Identifier BASHING_BLOW = Mamy.id("bashing_blow");
     public static final Identifier ENERGY_BREAK = Mamy.id("energy_break");
@@ -38,6 +43,13 @@ public class SkillRegistry {
     public static final Identifier ANGELUS = Mamy.id("angelus");
     public static final Identifier CURE = Mamy.id("cure");
 
+    //Archer
+    public static final Identifier OWLS_EYE = Mamy.id("owls_eye");
+    public static final Identifier VULTURES_EYE = Mamy.id("vultures_eye");
+    public static final Identifier IMPROVE_CONCENTRATION = Mamy.id("improve_concentration");
+    public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
+    public static final Identifier DOUBLE_STRAFE = Mamy.id("double_strafe");
+
     public static void registerSkills() {
         //Novice
         register(new BasicPassiveSkill(BASICSKILL));
@@ -49,6 +61,7 @@ public class SkillRegistry {
         register(new BashingBlowSkill(BASHING_BLOW));
         register(new EnergyBreakSkill(ENERGY_BREAK, Skill.requiresSkills(Skill.requires(BASHING_BLOW,5))));
         register(new EndureSkill(ENDURE, Skill.requiresSkills(Skill.requires(PROVOKE, 5))));
+
         // Acolyte
         register(new DemonBanePassiveSkill(DEMON_BANE, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
         register(new DivineProtectionPassiveSkill(DIVINE_PROTECTION));
@@ -58,6 +71,12 @@ public class SkillRegistry {
         register(new BlessingSkill(BLESSING, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,5))));
         register(new AngelusSkill(ANGELUS, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
         register(new CureSkill(CURE, Skill.requiresSkills(Skill.requires(HEAL, 2))));
+
+        // Archer
+        register(new OwlsEyePassiveSkill(OWLS_EYE));
+        register(new VulturesEyePassiveSkill(VULTURES_EYE, Skill.requiresSkills(Skill.requires(OWLS_EYE, 3))));
+        register(new ImproveConcentrationSkill(IMPROVE_CONCENTRATION, Skill.requiresSkills(Skill.requires(VULTURES_EYE, 1))));
+
     }
 
     private static void register(Skill skill) {
