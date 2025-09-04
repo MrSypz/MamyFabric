@@ -3,6 +3,10 @@
     {
       "id": "#minecraft:is_projectile",
       "required": false
+    },
+    {
+      "id": "mamy:arrow_rain",
+      "required": false
     }
   ]
 }

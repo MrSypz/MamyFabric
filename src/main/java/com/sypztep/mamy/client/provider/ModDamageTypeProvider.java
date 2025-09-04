@@ -17,7 +17,7 @@ public class ModDamageTypeProvider extends FabricDynamicRegistryProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup registries, Entries entries) {
-        entries.add(ModDamageTypes.BLOODLUST, new DamageType("bloodlust", 0.1f));
+        entries.add(ModDamageTypes.ARROW_RAIN, new DamageType("arrow_rain", 0.1f));
         entries.add(ModDamageTypes.DOUBLE_ATTACK, new DamageType("double_attack",0.1f));
         entries.add(ModDamageTypes.FIRE_DAMAGE, new DamageType("fire_attack",0.1f));
         entries.add(ModDamageTypes.BASHING_BLOW, new DamageType("bashing_blow",0.1f));

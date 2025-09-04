@@ -83,7 +83,7 @@ public class BashingBlowSkill extends Skill {
             target.damage(damageSource, finalDamage);
 
             serverWorld.spawnParticles(ParticleTypes.CRIT, target.getX(), target.getY() + 1, target.getZ(), 15, 0.5, 0.5, 0.5, 0.1);
-            serverWorld.spawnParticles(ModParticles.AIRHIKE, target.getX(), target.getBlockY() + 0.1f, target.getZ(), 1, 0, 0, 0, 0.0);
+            serverWorld.spawnParticles(ModParticles.ARROW_IMPACT, target.getX(), target.getBlockY() + 0.1f, target.getZ(), 1, 0, 0, 0, 0.0);
         }
 
         // Create vertical slash effect from above

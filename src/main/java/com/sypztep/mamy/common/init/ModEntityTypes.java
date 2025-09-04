@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.entity.entity.skill.ArrowRainEntity;
 import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,9 +11,11 @@ import net.minecraft.registry.Registry;
 
 public final class ModEntityTypes {
     public static EntityType<HealingLightEntity> HEALING_LIGHT;
+    public static EntityType<ArrowRainEntity> ARROW_RAIN;
 
     public static void init() {
         HEALING_LIGHT = registerEntity("healing_light", createSkillProjectile(HealingLightEntity::new));
+        ARROW_RAIN = registerEntity("arrow_rain", createSkillProjectile(ArrowRainEntity::new));
     }
 
     private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> builder) {
@@ -21,7 +24,7 @@ public final class ModEntityTypes {
 
     private static <T extends Entity> EntityType.Builder<T> createDefaultEntityType(EntityType.EntityFactory<T> factory) {
         return EntityType.Builder.create(factory, SpawnGroup.MISC)
-                .dimensions(0.5f, 0.5f)
+                .dimensions(0.5f, 0.2f)
                 .maxTrackingRange(126)
                 .trackingTickInterval(20);
     }

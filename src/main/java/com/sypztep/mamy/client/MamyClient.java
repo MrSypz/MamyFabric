@@ -5,6 +5,7 @@ import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
+import com.sypztep.mamy.client.render.entity.ArrowRainEntityRenderer;
 import com.sypztep.mamy.client.render.entity.HealingLightEntityRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.ModEntityTypes;
@@ -27,6 +28,7 @@ public class MamyClient implements ClientModInitializer {
         ModParticles.Client.init();
 
         EntityRendererRegistry.register(ModEntityTypes.HEALING_LIGHT, HealingLightEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntityTypes.ARROW_RAIN, ArrowRainEntityRenderer::new);
 
         ModPayloads.Client.registerClientPayloads();
         ModKeyBindings.register();

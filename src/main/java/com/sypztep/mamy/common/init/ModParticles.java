@@ -13,21 +13,21 @@ import net.minecraft.registry.Registry;
 public final class ModParticles {
     public static SimpleParticleType BLOOD_BUBBLE;
     public static SimpleParticleType BLOOD_BUBBLE_SPLATTER;
-    public static SimpleParticleType AIRHIKE;
+    public static SimpleParticleType ARROW_IMPACT;
 
     public static class Client{
         public static void init(){
             ParticleFactoryRegistry registry = ParticleFactoryRegistry.getInstance();
             registry.register(BLOOD_BUBBLE, BloodBubbleParticle.Factory::new);
             registry.register(BLOOD_BUBBLE_SPLATTER, BloodBubbleSplatterParticle.Factory::new);
-            registry.register(AIRHIKE, ShockwaveParticle.Factory::new);
+            registry.register(ARROW_IMPACT, ShockwaveParticle.Factory::new);
         }
     }
 
     public static void init() {
         BLOOD_BUBBLE = register("blood_bubble");
         BLOOD_BUBBLE_SPLATTER = register("blood_bubble_splatter");
-        AIRHIKE = register("airhike");
+        ARROW_IMPACT = register("arrow_impact");
     }
 
     private static SimpleParticleType register(String name) {

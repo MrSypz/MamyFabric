@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classkill.acolyte.*;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.archer.ArrowRainSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
@@ -76,6 +77,7 @@ public class SkillRegistry {
         register(new OwlsEyePassiveSkill(OWLS_EYE));
         register(new VulturesEyePassiveSkill(VULTURES_EYE, Skill.requiresSkills(Skill.requires(OWLS_EYE, 3))));
         register(new ImproveConcentrationSkill(IMPROVE_CONCENTRATION, Skill.requiresSkills(Skill.requires(VULTURES_EYE, 1))));
+        register(new ArrowRainSkill(ARROW_SHOWER));
     }
 
     private static void register(Skill skill) {

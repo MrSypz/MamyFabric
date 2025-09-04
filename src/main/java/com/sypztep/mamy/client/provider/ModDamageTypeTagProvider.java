@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.provider;
 
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModTags;
+import com.terraformersmc.modmenu.util.mod.Mod;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.entity.damage.DamageType;
@@ -40,7 +41,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.MOB_PROJECTILE)
 				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)
 				.add(DamageTypes.ARROW)
-				.addOptional(ModDamageTypes.HOLY);
+				.addOptional(ModDamageTypes.HOLY)
+				.addOptional(ModDamageTypes.ARROW_RAIN);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
@@ -52,7 +54,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.FIRE_DAMAGE)
-				.addOptional(ModDamageTypes.HOLY);
+				.addOptional(ModDamageTypes.HOLY)
+				.addOptional(ModDamageTypes.ARROW_RAIN);
 
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
@@ -71,7 +74,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// PROJECTILE DAMAGE - Just reference vanilla IS_PROJECTILE tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.PROJECTILE_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_PROJECTILE);
+				.addOptionalTag(DamageTypeTags.IS_PROJECTILE)
+				.addOptional(ModDamageTypes.ARROW_RAIN);
 
 		// ==========================================
 		// WATER DAMAGE - Combine vanilla water-related tags

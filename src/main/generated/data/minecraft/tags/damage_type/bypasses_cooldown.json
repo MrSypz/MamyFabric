@@ -7,6 +7,10 @@
     {
       "id": "mamy:holy",
       "required": false
+    },
+    {
+      "id": "mamy:arrow_rain",
+      "required": false
     }
   ]
 }

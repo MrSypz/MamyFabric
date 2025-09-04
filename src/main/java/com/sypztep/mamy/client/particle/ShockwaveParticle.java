@@ -13,7 +13,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
-public final class ShockwaveParticle extends SpriteBillboardParticle {
+public class ShockwaveParticle extends SpriteBillboardParticle {
     private final SpriteProvider spriteProvider;
     private static final Quaternionf QUATERNION = new Quaternionf(0F, -0.7F, 0.7F, 0F);
 
@@ -24,7 +24,7 @@ public final class ShockwaveParticle extends SpriteBillboardParticle {
         super(world, x, y, z, 0.0, 0.0, 0.0);
         this.spriteProvider = spriteProvider;
         this.maxAge = 10;
-        this.scale = 2F;
+        this.scale = 0.75F;
         this.gravityStrength = 0.008F;
         this.velocityX = velocityX;
         this.velocityY = velocityY;
@@ -41,8 +41,6 @@ public final class ShockwaveParticle extends SpriteBillboardParticle {
     public void tick() {
         super.tick();
         this.setSpriteForAge(this.spriteProvider);
-
-        // Calculate fade out alpha
         updateAlpha();
     }
 
@@ -51,7 +49,7 @@ public final class ShockwaveParticle extends SpriteBillboardParticle {
 
         if (ageRatio <= fadeStartRatio)
             this.alpha = startAlpha;
-         else {
+        else {
             float fadeProgress = (ageRatio - fadeStartRatio) / (1.0F - fadeStartRatio);
             this.alpha = startAlpha * (1.0F - (fadeProgress * fadeProgress));
         }
@@ -88,11 +86,10 @@ public final class ShockwaveParticle extends SpriteBillboardParticle {
             vector3f.mul(f4);
             vector3f.add(x, y, z);
 
-            // Create additional vertices for underside faces
             Vector3f vector3fBottom = vector3fsBottom[i];
             vector3fBottom.rotate(QUATERNION);
             vector3fBottom.mul(f4);
-            vector3fBottom.add(x, y - 0.1F, z); // Slightly lower to avoid z-fighting
+            vector3fBottom.add(x, y - 0.1F, z);
         }
 
         float f7 = this.getMinU();
@@ -101,13 +98,11 @@ public final class ShockwaveParticle extends SpriteBillboardParticle {
         float f6 = this.getMaxV();
         int light = this.getBrightness(ticks);
 
-        // Render the top faces - now using the updated alpha
         buffer.vertex(vector3fs[0].x(), vector3fs[0].y(), vector3fs[0].z()).texture(f8, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
         buffer.vertex(vector3fs[1].x(), vector3fs[1].y(), vector3fs[1].z()).texture(f8, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
         buffer.vertex(vector3fs[2].x(), vector3fs[2].y(), vector3fs[2].z()).texture(f7, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
         buffer.vertex(vector3fs[3].x(), vector3fs[3].y(), vector3fs[3].z()).texture(f7, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
 
-        // Render the underside faces - also using the updated alpha
         buffer.vertex(vector3fs[3].x(), vector3fs[3].y(), vector3fs[3].z()).texture(f7, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
         buffer.vertex(vector3fs[2].x(), vector3fs[2].y(), vector3fs[2].z()).texture(f7, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
         buffer.vertex(vector3fs[1].x(), vector3fs[1].y(), vector3fs[1].z()).texture(f8, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
