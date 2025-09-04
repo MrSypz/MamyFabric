@@ -56,43 +56,22 @@ public class ImproveConcentrationSkill extends Skill {
 
         int durationTicks = (60 + (skillLevel * 20)) * 20; // Convert seconds to ticks (20 ticks = 1 second)
 
-        StatusEffectInstance concentrationEffect = new StatusEffectInstance(
-                ModStatusEffects.IMPROVE_CONCENTRATION,
-                durationTicks,
-                skillLevel - 1,
-                false,
-                true,
-                true
-        );
+        StatusEffectInstance concentrationEffect = new StatusEffectInstance(ModStatusEffects.IMPROVE_CONCENTRATION, durationTicks, skillLevel - 1,false, false, false);
 
         player.addStatusEffect(concentrationEffect);
 
         // Visual and audio effects
         if (player.getWorld() instanceof ServerWorld serverWorld) {
-            // Particle effects around the player
             for (int i = 0; i < 15; i++) {
                 double offsetX = (player.getRandom().nextDouble() - 0.5) * 2.0;
                 double offsetY = player.getRandom().nextDouble() * 2.0;
                 double offsetZ = (player.getRandom().nextDouble() - 0.5) * 2.0;
 
-                serverWorld.spawnParticles(
-                        ParticleTypes.ENCHANT,
-                        player.getX() + offsetX,
-                        player.getY() + offsetY,
-                        player.getZ() + offsetZ,
-                        1, 0, 0, 0, 0.1
-                );
+                serverWorld.spawnParticles(ParticleTypes.ENCHANT, player.getX() + offsetX, player.getY() + offsetY, player.getZ() + offsetZ, 1, 0, 0, 0, 0.1);
             }
 
             // Sound effect
-            serverWorld.playSound(
-                    null,
-                    player.getBlockPos(),
-                    SoundEvents.ENTITY_PLAYER_LEVELUP,
-                    SoundCategory.PLAYERS,
-                    0.7f,
-                    1.2f
-            );
+            serverWorld.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.7f, 1.2f);
         }
 
         return true;
