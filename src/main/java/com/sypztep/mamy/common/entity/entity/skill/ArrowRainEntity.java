@@ -149,7 +149,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
 
         Box damageBox = new Box(
                 this.getX() - halfSize, this.getY() - 0.5, this.getZ() - halfSize,
-                this.getX() + halfSize, this.getY() + 2.5, this.getZ() + halfSize
+                this.getX() + halfSize, this.getY() + 15, this.getZ() + halfSize
         );
 
         float finalDamage = calculateFinalDamage(isFinalBurst);
