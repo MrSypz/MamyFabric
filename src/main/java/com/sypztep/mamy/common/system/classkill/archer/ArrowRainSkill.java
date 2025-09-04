@@ -3,7 +3,6 @@ package com.sypztep.mamy.common.system.classkill.archer;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.entity.skill.ArrowRainEntity;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
@@ -31,11 +30,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ArrowRainSkill extends Skill implements CastableSkill {
-    private static final float BASE_DAMAGE = 3.0f;
-    private static final float ARROW_DAMAGE_MULTIPLIER = 0.6f;
+    private static final float BASE_DAMAGE = 5.0f;
+    private static final float ARROW_DAMAGE_MULTIPLIER = 1.6f;
     private static final float SKILL_LEVEL_BONUS = 0.10f;
 
     public ArrowRainSkill(Identifier id) {
@@ -60,12 +61,18 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public float getResourceCost(int skillLevel) {
+        return 15;
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        data.baseDamage = calculateDamage(player, skillLevel);
+        data.baseDamage = calculateDamage(skillLevel);
         data.damageType = DamageType.PHYSICAL;
         data.maxHits = 5;
+        data.secondaryDamages = Collections.singletonList(new SecondaryDamage(DamageType.PHYSICAL, calculateDamage(skillLevel), 2, 1));
 
         return data;
     }
@@ -116,7 +123,7 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         ArrowInfo arrowInfo = getArrowWithEffects(player);
 
         // Calculate damage
-        float damage = calculateDamage(player, skillLevel);
+        float damage = calculateDamage(skillLevel);
 
         // Find target location on the ground
         Vec3d targetLocation = getGroundTargetLocation(player);
@@ -125,7 +132,7 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         // Create arrow effects list
         List<StatusEffectInstance> effects = arrowInfo != null ? arrowInfo.effects : new ArrayList<>();
 
-        ArrowRainEntity arrowRain = new ArrowRainEntity(world, damage, skillLevel, effects);
+        ArrowRainEntity arrowRain = new ArrowRainEntity(world, damage, skillLevel, skillLevel >= 6 ? 3 : 5, effects);
         arrowRain.setPosition(targetLocation.x, targetLocation.y, targetLocation.z);
         arrowRain.setOwner(player);
         world.spawnEntity(arrowRain);
@@ -138,15 +145,10 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         return true;
     }
 
-    private float calculateDamage(PlayerEntity player, int skillLevel) {
-        float projectileFlat = (float) player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
-        float projectileMult = (float) player.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT);
-        float projDamage = projectileFlat * (1 + projectileMult);
+    private float calculateDamage(int skillLevel) {
+        float skillLevelBonus = SKILL_LEVEL_BONUS * (skillLevel - 1);
 
-        float arrowDamageBonus = ARROW_DAMAGE_MULTIPLIER * projDamage;
-        float skillLevelBonus = SKILL_LEVEL_BONUS * (skillLevel - 1) * projDamage;
-
-        return BASE_DAMAGE + projDamage + arrowDamageBonus + skillLevelBonus;
+        return BASE_DAMAGE + ARROW_DAMAGE_MULTIPLIER + skillLevelBonus;
     }
 
     private ArrowInfo getArrowWithEffects(PlayerEntity player) {
@@ -193,16 +195,12 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
             ItemStack stack = player.getInventory().getStack(i);
             if (!(stack.getItem() instanceof ArrowItem)) continue;
 
-            switch (type) {
-                case TIPPED -> {
-                    if (stack.contains(DataComponentTypes.POTION_CONTENTS)) return stack;
-                }
-                case SPECTRAL -> {
-                    if (stack.isOf(Items.SPECTRAL_ARROW)) return stack;
-                }
-                case NORMAL -> {
-                    if (stack.isOf(Items.ARROW)) return stack;
-                }
+            if (Objects.requireNonNull(type) == ArrowType.TIPPED) {
+                if (stack.contains(DataComponentTypes.POTION_CONTENTS)) return stack;
+            } else if (type == ArrowType.SPECTRAL) {
+                if (stack.isOf(Items.SPECTRAL_ARROW)) return stack;
+            } else if (type == ArrowType.NORMAL) {
+                if (stack.isOf(Items.ARROW)) return stack;
             }
         }
         return null;
@@ -222,18 +220,17 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         List<StatusEffectInstance> effects = new ArrayList<>();
 
         // Add effects from registered potion (like Minecraft does)
-        if (potionContents.potion().isPresent()) {
+        if (potionContents.potion().isPresent())
             for (StatusEffectInstance effect : ((Potion)((RegistryEntry<?>)potionContents.potion().get()).value()).getEffects()) {
                 StatusEffectInstance arrowEffect = new StatusEffectInstance(
                         effect.getEffectType(),
-                        effect.mapDuration(duration -> duration),
+                        Math.max(effect.mapDuration(duration -> duration / 8),1),
                         effect.getAmplifier(),
                         effect.isAmbient(),
                         effect.shouldShowParticles()
                 );
                 effects.add(arrowEffect);
             }
-        }
 
         // Add custom effects
         effects.addAll(potionContents.customEffects());
@@ -262,16 +259,14 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
         // Otherwise, find the ground below the target point
         Vec3d groundStart = new Vec3d(targetPos.x, targetPos.y + 5, targetPos.z);
-        Vec3d groundEnd = new Vec3d(targetPos.x, player.getY() - 10, targetPos.z);
+        Vec3d groundEnd = new Vec3d(targetPos.x, player.getY() - 20, targetPos.z);
 
         HitResult groundHit = player.getWorld().raycast(new RaycastContext(
                 groundStart, groundEnd, RaycastContext.ShapeType.COLLIDER,
                 RaycastContext.FluidHandling.NONE, player
         ));
 
-        if (groundHit.getType() == HitResult.Type.BLOCK) {
-            return groundHit.getPos();
-        }
+        if (groundHit.getType() == HitResult.Type.BLOCK) return groundHit.getPos();
 
         // Fallback to player's Y level
         return new Vec3d(targetPos.x, player.getY(), targetPos.z);

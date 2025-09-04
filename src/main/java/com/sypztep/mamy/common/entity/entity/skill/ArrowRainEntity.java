@@ -24,7 +24,6 @@ import java.util.UUID;
 
 public class ArrowRainEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 20; // 1 second
-    private static final int DAMAGE_INTERVAL = 4; // Every 4 ticks
     private static final int MAX_HITS_PER_TARGET = 4;
 
     private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
@@ -32,14 +31,16 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
     private final int skillLevel;
     private final List<StatusEffectInstance> arrowEffects;
 
+    private int damage_interval; // Every 4 ticks
     private int ticksAlive = 0;
     private int damageTimer = 0;
 
-    public ArrowRainEntity(World world, float baseDamage, int skillLevel, List<StatusEffectInstance> arrowEffects) {
+    public ArrowRainEntity(World world, float baseDamage, int skillLevel,int damage_interval, List<StatusEffectInstance> arrowEffects) {
         super(ModEntityTypes.ARROW_RAIN, world);
         this.baseDamage = baseDamage;
         this.skillLevel = skillLevel;
         this.arrowEffects = arrowEffects != null ? arrowEffects : List.of();
+        this.damage_interval = damage_interval;
         this.setNoGravity(true);
         this.setVelocity(Vec3d.ZERO);
     }
@@ -55,9 +56,6 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
         return skillLevel;
     }
 
-    public int getHitCount(UUID entityId) {
-        return hitCounts.getOrDefault(entityId, 0);
-    }
 
     @Override
     protected ItemStack asItemStack() {
@@ -81,7 +79,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
         }
 
         // Deal damage every 4 ticks
-        if (damageTimer >= DAMAGE_INTERVAL && !this.getWorld().isClient) {
+        if (damageTimer >= damage_interval && !this.getWorld().isClient) {
             dealAreaDamage(false); // Normal damage
             damageTimer = 0;
         }
