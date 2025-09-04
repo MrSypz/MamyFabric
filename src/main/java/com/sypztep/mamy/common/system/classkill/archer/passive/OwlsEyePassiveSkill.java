@@ -27,7 +27,7 @@ public class OwlsEyePassiveSkill extends PassiveSkill {
     @Override
     protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
         tooltip.add(Text.literal("Accuracy: +" + skillLevel).formatted(Formatting.GREEN));
-        tooltip.add(Text.literal("Projectile Damage: +" + (PJ_DAMAGE * skillLevel)).formatted(Formatting.GREEN));
+        tooltip.add(Text.literal("Projectile Damage: +" + String.format("%.1f",(PJ_DAMAGE * skillLevel))).formatted(Formatting.GREEN));
     }
 
     @Override
