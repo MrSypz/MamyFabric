@@ -308,6 +308,7 @@ public final class DamageUtil {
         return target.getType().isIn(EntityTypeTags.UNDEAD);
     }
     public static boolean isDivineProtectionApplicable(LivingEntity attacker, LivingEntity defender) {
+        if (attacker == null) return false;
         if (attacker instanceof PlayerEntity) return false;
         if (!(defender instanceof PlayerEntity)) return false;
 
