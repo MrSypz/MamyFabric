@@ -36,11 +36,11 @@ public class Mamy implements ModInitializer {
         ModStatusEffects.initEffects();
         // EVENT
         InitDamageTrackerEvent.register();
+        InitPlayerClassEvent.register();
         MobSpawnStatsEvent.register();
         MobDeathExperienceEvent.register();
         MarkDamageTrackerEvent.register();
         RestoreStatsModifyEvent.register();
-        InitPlayerClassEvent.register();
         PlayerDisconnectCleanupEvent.register();
         DeathPenaltyEvent.register();
         ServerTickEvents.START_SERVER_TICK.register(MultiHitSystem::tick);
