@@ -21,7 +21,7 @@ public class ModStatusEffects {
     public static RegistryEntry<StatusEffect> PROVOKE;
     public static RegistryEntry<StatusEffect> IMPROVE_CONCENTRATION;
 
-    public static void initEffects() {
+    public static void init() {
         STUN = init("stun", new StunEffect());
         CARVE = init("carve", new MarkEffect(StatusEffectCategory.HARMFUL).addAttributeModifier(EntityAttributes.GENERIC_ARMOR, Mamy.id("carve_status_effect"), -0.08D, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         ENDURE = init("endure", new EndureEffect(StatusEffectCategory.BENEFICIAL));
