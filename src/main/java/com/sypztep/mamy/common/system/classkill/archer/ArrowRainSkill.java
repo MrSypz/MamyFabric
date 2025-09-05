@@ -66,6 +66,11 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public boolean canBeInterupt() {
+        return true;
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 

@@ -56,6 +56,11 @@ public class HealSkill extends Skill implements CastableSkill {
         return Mamy.id("pray");
     }
 
+    @Override
+    public boolean canBeInterupt() {
+        return true;
+    }
+
     private float calculateHealingAmount(PlayerEntity player, int skillLevel) {
         int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
         int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
