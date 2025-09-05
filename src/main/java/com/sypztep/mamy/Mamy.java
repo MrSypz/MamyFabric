@@ -34,7 +34,7 @@ public class Mamy implements ModInitializer {
         SkillRegistry.registerSkills();
         ModDataComponents.init();
         ModStatusEffects.init();
-
+        ModItems.init();
         // EVENT
         InitDamageTrackerEvent.register();
         InitPlayerClassEvent.register();

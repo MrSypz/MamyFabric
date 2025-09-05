@@ -25,7 +25,17 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         playerInfo(translate);
         generateConfigTranslations(translate);
         generateAttributeTranslations(translate);
-        generateElementalTranslations(translate); // Add this new method
+        generateElementalTranslations(translate);
+        generateItemTranslations(translate);
+    }
+
+    private void generateItemTranslations(TranslationBuilder translate) {
+        translate.add("item.mamy.pocket_resource_water", "Pocket Resource Water");
+        translate.add("item.mamy.lesser_resource_water", "Lesser Resource Water");
+        translate.add("item.mamy.resource_water", "Resource Water");
+        translate.add("item.mamy.greater_resource_water", "Greater Resource Water");
+        translate.add("item.mamy.superior_resource_water", "Superior Resource Water");
+        translate.add("item.mamy.ultimate_resource_water", "Ultimate Resource Water");
     }
 
     private void generateElementalTranslations(TranslationBuilder translate) {
