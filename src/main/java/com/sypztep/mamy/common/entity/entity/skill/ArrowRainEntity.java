@@ -72,11 +72,11 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
         super.tick();
         ticksAlive++;
         damageTimer++;
+        getWorld().playSound(null, this.getBlockPos(),
+                SoundEvents.WEATHER_RAIN, SoundCategory.PLAYERS,
+                0.5f, 1.25f);
 
-        // Spawn impact particles (server-side spawns particles for all clients)
-        if (!this.getWorld().isClient) {
-            createFallingArrowEffects();
-        }
+        if (!this.getWorld().isClient) createFallingArrowEffects();
 
         // Deal damage every 4 ticks
         if (damageTimer >= damage_interval && !this.getWorld().isClient) {
