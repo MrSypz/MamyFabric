@@ -47,7 +47,7 @@
       "mamy:playerclass",
       "mamy:playerstance",
       "mamy:playerweight",
-      "mamy:dungeon_data"
+      "mamy:playercrowdcontrol"
     ]
   }
 }
