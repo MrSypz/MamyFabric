@@ -77,14 +77,6 @@ public class SkillCastingManager {
         player.getWorld().playSound(player, player.getBlockPos(),
                 SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS,
                 0.3f, 1.2f);
-
-        // Optional: Show casting breakdown in chat for debugging
-        if (player.isSneaking()) {
-            CastingCalculator.CastingBreakdown breakdown = CastingCalculator.getCastingBreakdown(player, castable, skillLevel);
-            player.sendMessage(Text.literal(String.format("Cast: VCT %d->%d, FCT %d->%d, Total: %d ticks",
-                            breakdown.baseVCT, breakdown.finalVCT, breakdown.baseFCT, breakdown.finalFCT, breakdown.totalCastTime))
-                    .formatted(Formatting.GRAY), true);
-        }
     }
 
     public void tick() {
@@ -102,7 +94,6 @@ public class SkillCastingManager {
 
         SkillUsabilityChecker.UsabilityCheck check =
                 SkillUsabilityChecker.checkClientUsability(player, currentSkillId, skillLevel);
-
         if (!check.isUsable()) {
             // If it's not usable anymore, interrupt the cast
             interruptCast();
@@ -182,6 +173,11 @@ public class SkillCastingManager {
         if (!isCasting) return false;
         Skill skill = SkillRegistry.getSkill(currentSkillId);
         return skill instanceof CastableSkill castable && castable.shouldLockMovement();
+    }
+    public boolean canBeInterupt() {
+        if (!isCasting) return false;
+        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        return skill instanceof CastableSkill castable && castable.canBeInterupt();
     }
 
     public float getCastProgress() {
