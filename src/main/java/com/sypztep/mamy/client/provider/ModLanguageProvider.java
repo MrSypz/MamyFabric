@@ -30,12 +30,17 @@ public class ModLanguageProvider extends FabricLanguageProvider {
     }
 
     private void generateItemTranslations(TranslationBuilder translate) {
-        translate.add("item.mamy.pocket_resource_water", "Pocket Resource Water");
-        translate.add("item.mamy.lesser_resource_water", "Lesser Resource Water");
-        translate.add("item.mamy.resource_water", "Resource Water");
-        translate.add("item.mamy.greater_resource_water", "Greater Resource Water");
-        translate.add("item.mamy.superior_resource_water", "Superior Resource Water");
-        translate.add("item.mamy.ultimate_resource_water", "Ultimate Resource Water");
+        translate.add("item.mamy.chilling_light_water.effect.water", "Chilling Light Water");
+        translate.add("item.mamy.chilling_light_water.effect.empty", "Chilling Light Water");
+        translate.add("item.mamy.thermal_essence.effect.water", "Thermal Essence");
+        translate.add("item.mamy.thermal_essence.effect.empty", "Thermal Essence");
+
+        translate.add("item.mamy.pocket_resource_water.effect.empty", "Pocket Resource Water");
+        translate.add("item.mamy.lesser_resource_water.effect.empty", "Lesser Resource Water");
+        translate.add("item.mamy.resource_water.effect.empty", "Resource Water");
+        translate.add("item.mamy.greater_resource_water.effect.empty", "Greater Resource Water");
+        translate.add("item.mamy.superior_resource_water.effect.empty", "Superior Yin Yang Water");
+        translate.add("item.mamy.ultimate_resource_water.effect.empty", "Supreme Yin Yang Convergence");
     }
 
     private void generateElementalTranslations(TranslationBuilder translate) {

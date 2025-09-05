@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.event.tooltip;
 
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDataComponents;
+import com.sypztep.mamy.common.item.ResourcePotionItem;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.entity.player.PlayerEntity;
@@ -74,7 +75,9 @@ public final class ClassRestrictionTooltipHelper {
         }
 
         if (itemStack.contains(ModDataComponents.CRAFT_BY)) {
-            textConsumer.accept(Text.literal(" Craft By: ").formatted(Formatting.GRAY).append(Text.literal(itemStack.get(ModDataComponents.CRAFT_BY)).formatted(Formatting.WHITE)));
+            String craftMethod = (itemStack.getItem() instanceof ResourcePotionItem) ? " Brewed By: " : " Craft By: ";
+            textConsumer.accept(Text.literal(craftMethod).formatted(Formatting.GRAY)
+                    .append(Text.literal(itemStack.get(ModDataComponents.CRAFT_BY)).formatted(Formatting.WHITE)));
         }
     }
 
