@@ -32,8 +32,9 @@ public class Mamy implements ModInitializer {
         ModParticles.init();
         ModCustomParticles.init();
         SkillRegistry.registerSkills();
-        ModDataComponents.register();
-        ModStatusEffects.initEffects();
+        ModDataComponents.init();
+        ModStatusEffects.init();
+
         // EVENT
         InitDamageTrackerEvent.register();
         InitPlayerClassEvent.register();
@@ -44,6 +45,7 @@ public class Mamy implements ModInitializer {
         PlayerDisconnectCleanupEvent.register();
         DeathPenaltyEvent.register();
         ServerTickEvents.START_SERVER_TICK.register(MultiHitSystem::tick);
+
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyMobExpReloadListener());
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MamyElementalReloadListener());

@@ -1,0 +1,6 @@
+{
+  "generator": {
+    "type": "mamy:dungeon"
+  },
+  "type": "mamy:dungeon_type"
+}

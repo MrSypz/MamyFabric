@@ -12,7 +12,7 @@ public interface ModDataComponents {
     ComponentType<ToolComponent> ORIGINAL_TOOL = ComponentType.<ToolComponent>builder().codec(ToolComponent.CODEC).build();
     ComponentType<String> CRAFT_BY = ComponentType.<String>builder().codec(Codec.STRING).build();
 
-    static void register() {
+    static void init() {
         Registry.register(Registries.DATA_COMPONENT_TYPE, Mamy.id("broken_flag"), BROKEN_FLAG);
         Registry.register(Registries.DATA_COMPONENT_TYPE, Mamy.id("original_tool"), ORIGINAL_TOOL);
         Registry.register(Registries.DATA_COMPONENT_TYPE, Mamy.id("craft_by"), CRAFT_BY);

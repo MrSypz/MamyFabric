@@ -13,7 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
-public class PlayerWeightComponent implements AutoSyncedComponent {
+public final class PlayerWeightComponent implements AutoSyncedComponent {
     private final PlayerEntity player;
     private double currentWeight = 0.0;
     private int currentTier = 0;
