@@ -2,6 +2,7 @@ package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
+import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
@@ -25,6 +26,8 @@ public class MamyClient implements ClientModInitializer {
         config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
         SkillAnimationManager.initialize();
+        CrowdControlAnimationManager.initialize();
+
         ModParticles.Client.init();
 
         EntityRendererRegistry.register(ModEntityTypes.HEALING_LIGHT, HealingLightEntityRenderer::new);
