@@ -55,7 +55,7 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
     }
 
     // Inject code after get Enchantment Protection
-    @Inject(method = "modifyAppliedDamage", at = @At(value = "RETURN", ordinal = 3), cancellable = true)
+    @Inject(method = "modifyAppliedDamage", at = @At(value = "RETURN"), cancellable = true)
     private void replaceModifyAppliedDamage(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
         cir.setReturnValue(DamageUtil.damageResistanceModifier((LivingEntity) (Object) this, cir.getReturnValue(), source));
     }
