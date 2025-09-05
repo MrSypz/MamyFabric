@@ -15,7 +15,7 @@ import java.util.List;
 public class OwlsEyePassiveSkill extends PassiveSkill {
     private final float PJ_DAMAGE = 0.02f;
     public OwlsEyePassiveSkill(Identifier id) {
-        super(id, "Owl's Eye", "Increases Accuracy by up to 10. and projectile inflict more damage", ModClasses.ARCHER, 0, 1, 10, false, Mamy.id("skill/passive/owls_eye"));
+        super(id, "Owl's Eye", "Increases Accuracy by up to 10. and projectile inflict more damage", ModClasses.ARCHER, 1, 1, 10, false, Mamy.id("skill/passive/owls_eye"));
     }
 
     @Override

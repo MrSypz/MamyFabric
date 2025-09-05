@@ -20,7 +20,7 @@ public class VulturesEyePassiveSkill extends PassiveSkill {
                 "Vulture's Eye",
                 "Increases range and Accuracy when using bows or crossbow.",
                 ModClasses.ARCHER,
-                0,
+                1,
                 1,
                 10,
                 false,
