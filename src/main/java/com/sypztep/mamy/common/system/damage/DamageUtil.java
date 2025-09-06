@@ -9,10 +9,12 @@ import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.EntityTypeTags;
@@ -118,7 +120,7 @@ public final class DamageUtil {
         }),
 
         DEMON_BANE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (isDemonBaneApplicable(attacker, target)) {
+            if (isDemonBaneApplicable(source, target)) {
                 PlayerEntity player = (PlayerEntity) attacker;
                 int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DEMON_BANE);
                 return DemonBanePassiveSkill.calculateDamageBonus(player, skillLevel);
@@ -251,7 +253,7 @@ public final class DamageUtil {
             debugLog("Magic resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE));
         }
 
-        if (isDivineProtectionApplicable((LivingEntity) source.getAttacker(), defender)) {
+        if (isDivineProtectionApplicable(source, defender)) {
             PlayerEntity player = (PlayerEntity) defender;
             int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DIVINE_PROTECTION);
             if (skillLevel > 0) {
@@ -301,17 +303,36 @@ public final class DamageUtil {
     public static float getArmorDamageReduction(float armor) {
         return armor / (armor + 20.0f);
     }
-    public static boolean isDemonBaneApplicable(LivingEntity attacker, LivingEntity target) {
-        if (!(attacker instanceof PlayerEntity)) return false;
-        if (target instanceof PlayerEntity) return false;
+    public static boolean isDivineProtectionApplicable(DamageSource source, LivingEntity defender) {
+        LivingEntity attacker = getActualAttacker(source);
 
-        return target.getType().isIn(EntityTypeTags.UNDEAD);
-    }
-    public static boolean isDivineProtectionApplicable(LivingEntity attacker, LivingEntity defender) {
         if (attacker == null) return false;
         if (attacker instanceof PlayerEntity) return false;
         if (!(defender instanceof PlayerEntity)) return false;
 
         return attacker.getType().isIn(EntityTypeTags.UNDEAD);
     }
+
+    public static boolean isDemonBaneApplicable(DamageSource source, LivingEntity target) {
+        LivingEntity attacker = getActualAttacker(source);
+
+        if (!(attacker instanceof PlayerEntity)) return false;
+        if (target instanceof PlayerEntity) return false;
+
+        return target.getType().isIn(EntityTypeTags.UNDEAD);
+    }
+    private static LivingEntity getActualAttacker(DamageSource source) {
+        Entity directSource = source.getSource();
+        Entity attacker = source.getAttacker();
+
+        if (directSource instanceof LivingEntity) return (LivingEntity) directSource;
+        if (attacker instanceof LivingEntity) return (LivingEntity) attacker;
+        if (directSource instanceof ProjectileEntity projectile) {
+            Entity owner = projectile.getOwner();
+            if (owner instanceof LivingEntity) return (LivingEntity) owner;
+        }
+
+        return null;
+    }
+
 }
