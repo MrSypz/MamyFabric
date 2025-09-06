@@ -3,7 +3,7 @@ package com.sypztep.mamy.client.screen.widget;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
-import com.sypztep.mamy.common.payload.SkillActionPayloadC2S;
+import com.sypztep.mamy.common.network.server.SkillActionPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;

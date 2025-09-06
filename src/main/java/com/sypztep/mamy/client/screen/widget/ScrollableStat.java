@@ -3,7 +3,7 @@ package com.sypztep.mamy.client.screen.widget;
 import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
-import com.sypztep.mamy.common.payload.IncreaseStatsPayloadC2S;
+import com.sypztep.mamy.common.network.server.IncreaseStatsPayloadC2S;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.client.MinecraftClient;

@@ -1,7 +1,7 @@
 package com.sypztep.mamy.mixin.core.classes.theif;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
-import com.sypztep.mamy.common.payload.MultiHitPayloadC2S;
+import com.sypztep.mamy.common.network.server.MultiHitPayloadC2S;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

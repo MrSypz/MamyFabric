@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.payload;
+package com.sypztep.mamy.common.network.client;
 
 import com.sypztep.mamy.Mamy;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

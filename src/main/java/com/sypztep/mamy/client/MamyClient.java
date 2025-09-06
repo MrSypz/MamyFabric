@@ -26,14 +26,12 @@ public class MamyClient implements ClientModInitializer {
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
         config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
+        ModEntityTypes.Client.registerRender();
+
         SkillAnimationManager.initialize();
         CrowdControlAnimationManager.initialize();
 
         ModParticles.Client.init();
-
-        EntityRendererRegistry.register(ModEntityTypes.HEALING_LIGHT, HealingLightEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntityTypes.ARROW_RAIN, ArrowRainEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntityTypes.ARROW_STRAFE, ArrowStrafeEntityRenderer::new);
 
         ModPayloads.Client.registerClientPayloads();
         ModKeyBindings.register();

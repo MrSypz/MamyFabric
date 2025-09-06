@@ -1,6 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
-import com.sypztep.mamy.client.payload.SkillCooldownPayloadS2C;
+import com.sypztep.mamy.common.network.client.SkillCooldownPayloadS2C;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.ClassSkillManager;

@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.ModConfig;
-import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.network.client.SendToastPayloadS2C;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;

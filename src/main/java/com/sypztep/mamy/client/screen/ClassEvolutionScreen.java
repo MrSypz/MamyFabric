@@ -3,7 +3,7 @@ package com.sypztep.mamy.client.screen;
 import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
 import com.sypztep.mamy.client.toast.ToastRenderer;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.ClassEvolutionPayloadC2S;
+import com.sypztep.mamy.common.network.server.ClassEvolutionPayloadC2S;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;

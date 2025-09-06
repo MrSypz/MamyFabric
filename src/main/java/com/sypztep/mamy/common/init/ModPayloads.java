@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.init;
 
-import com.sypztep.mamy.client.payload.*;
-import com.sypztep.mamy.common.payload.*;
+import com.sypztep.mamy.common.network.client.*;
+import com.sypztep.mamy.common.network.server.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

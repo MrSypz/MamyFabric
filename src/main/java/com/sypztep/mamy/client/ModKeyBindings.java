@@ -4,7 +4,7 @@ import com.sypztep.mamy.client.screen.ClassEvolutionScreen;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.ToggleStancePayloadC2S;
+import com.sypztep.mamy.common.network.server.ToggleStancePayloadC2S;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
 import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

@@ -6,7 +6,7 @@ import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.BindSkillPayloadC2S;
+import com.sypztep.mamy.common.network.server.BindSkillPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import net.minecraft.client.MinecraftClient;

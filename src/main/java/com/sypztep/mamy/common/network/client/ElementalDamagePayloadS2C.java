@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.payload;
+package com.sypztep.mamy.common.network.client;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.util.ElementalDamageDisplay;

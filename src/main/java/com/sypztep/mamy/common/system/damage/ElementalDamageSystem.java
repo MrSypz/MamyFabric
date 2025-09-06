@@ -1,6 +1,6 @@
 package com.sypztep.mamy.common.system.damage;
 
-import com.sypztep.mamy.client.payload.ElementalDamagePayloadS2C;
+import com.sypztep.mamy.common.network.client.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModTags;

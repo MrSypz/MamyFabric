@@ -3,7 +3,7 @@ package com.sypztep.mamy.common.system.skill;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
-import com.sypztep.mamy.common.payload.UseSkillPayloadC2S;
+import com.sypztep.mamy.common.network.server.UseSkillPayloadC2S;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

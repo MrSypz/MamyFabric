@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.util;
 
-import com.sypztep.mamy.client.payload.AddEmitterParticlePayloadS2C;
-import com.sypztep.mamy.client.payload.AddTextParticlesPayloadS2C;
+import com.sypztep.mamy.common.network.client.AddEmitterParticlePayloadS2C;
+import com.sypztep.mamy.common.network.client.AddTextParticlesPayloadS2C;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.particle.ParticleType;

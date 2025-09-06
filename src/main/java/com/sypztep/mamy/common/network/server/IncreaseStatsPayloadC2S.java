@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.payload;
+package com.sypztep.mamy.common.network.server;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;

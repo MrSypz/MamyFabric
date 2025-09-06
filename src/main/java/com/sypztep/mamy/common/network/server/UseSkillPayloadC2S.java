@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.payload;
+package com.sypztep.mamy.common.network.server;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.skill.SkillManager;
@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 

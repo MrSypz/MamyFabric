@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.payload;
+package com.sypztep.mamy.common.network.server;
 
 import com.sypztep.mamy.common.util.MultiHitSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

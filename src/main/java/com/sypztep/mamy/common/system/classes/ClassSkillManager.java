@@ -2,7 +2,7 @@ package com.sypztep.mamy.common.system.classes;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.ModConfig;
-import com.sypztep.mamy.client.payload.SendToastPayloadS2C;
+import com.sypztep.mamy.common.network.client.SendToastPayloadS2C;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
