@@ -1,8 +1,8 @@
 package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.ArrowRainEntity;
-import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
+import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
+import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;

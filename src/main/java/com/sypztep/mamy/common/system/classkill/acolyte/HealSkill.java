@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.classkill.acolyte;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
+import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityAttributes;

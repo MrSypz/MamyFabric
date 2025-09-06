@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.entity.entity.skill;
+package com.sypztep.mamy.common.entity.skill;
 
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import net.minecraft.entity.Entity;

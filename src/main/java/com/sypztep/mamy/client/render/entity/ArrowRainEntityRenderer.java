@@ -1,6 +1,6 @@
 package com.sypztep.mamy.client.render.entity;
 
-import com.sypztep.mamy.common.entity.entity.skill.ArrowRainEntity;
+import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
 import com.sypztep.mamy.common.init.ModParticles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.classkill.archer;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.ArrowRainEntity;
+import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;

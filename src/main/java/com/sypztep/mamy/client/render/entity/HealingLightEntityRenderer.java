@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.render.entity;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.entity.skill.HealingLightEntity;
+import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.*;
