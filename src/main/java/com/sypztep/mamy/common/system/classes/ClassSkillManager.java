@@ -97,7 +97,6 @@ public class ClassSkillManager {
 
         if (skill == null) return;
 
-        // PREVENT UNLEARNING BASIC SKILL - BUT ONLY IF IT'S LEARNED
         if (skillId.equals(SkillRegistry.BASICSKILL)) {
             if (player instanceof ServerPlayerEntity serverPlayer) SendToastPayloadS2C.sendInfo(serverPlayer, "Basic Skill cannot be unlearned!");
             return;
@@ -106,6 +105,18 @@ public class ClassSkillManager {
         if (skill.isDefaultSkill() && currentLevel <= 1)
             return; // Can't unlearn default skills completely
 
+        List<Skill> dependentSkills = findDependentSkills(skillId, currentLevel);
+        if (!dependentSkills.isEmpty()) {
+            if (player instanceof ServerPlayerEntity serverPlayer) {
+                StringBuilder message = new StringBuilder("Cannot unlearn! Required by: ");
+                for (int i = 0; i < dependentSkills.size(); i++) {
+                    message.append(dependentSkills.get(i).getName());
+                    if (i < dependentSkills.size() - 1) message.append(", ");
+                }
+                SendToastPayloadS2C.sendError(serverPlayer, message.toString());
+            }
+            return;
+        }
 
         if (currentLevel <= 1) {
             if (skill instanceof PassiveSkill passiveSkill)
@@ -137,6 +148,30 @@ public class ClassSkillManager {
         }
     }
 
+    private List<Skill> findDependentSkills(Identifier skillId, int currentLevel) {
+        List<Skill> dependentSkills = new ArrayList<>();
+
+        Set<Identifier> learnedSkills = getLearnedSkills(true);
+
+        for (Identifier learnedSkillId : learnedSkills) {
+            if (learnedSkillId.equals(skillId)) continue;
+
+            Skill learnedSkill = SkillRegistry.getSkill(learnedSkillId);
+            if (learnedSkill == null) continue;
+
+            for (Skill.SkillRequirement req : learnedSkill.getPrerequisites()) {
+                if (req.skillId().equals(skillId)) {
+                    int newLevel = (currentLevel <= 1) ? 0 : currentLevel - 1;
+                    if (newLevel < req.minLevel()) {
+                        dependentSkills.add(learnedSkill);
+                        break; // Found dependency, no need to check other requirements
+                    }
+                }
+            }
+        }
+
+        return dependentSkills;
+    }
     /**
      * Upgrade a skill to the next level using class points
      */
