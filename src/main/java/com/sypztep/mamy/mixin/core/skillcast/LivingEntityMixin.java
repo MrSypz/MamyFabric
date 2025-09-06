@@ -1,12 +1,7 @@
 package com.sypztep.mamy.mixin.core.skillcast;
 
-import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillCastingManager;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
 import com.sypztep.mamy.common.util.MovementLock;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,12 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-
-    @Inject(method = "damage", at = @At("HEAD")) // TODO : fix weird ah crash
-    private void interruptCastOnDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-//        if (SkillCastingManager.getInstance().canBeInterupt())
-//            SkillCastingManager.getInstance().interruptCast();
-    }
 
     @Unique
     private float lockedBodyYaw = 0f;
