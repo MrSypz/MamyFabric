@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
+import com.sypztep.mamy.common.entity.skill.ArrowStrafeEntity;
 import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -12,10 +13,12 @@ import net.minecraft.registry.Registry;
 public final class ModEntityTypes {
     public static EntityType<HealingLightEntity> HEALING_LIGHT;
     public static EntityType<ArrowRainEntity> ARROW_RAIN;
+    public static EntityType<ArrowStrafeEntity> ARROW_STRAFE;
 
     public static void init() {
         HEALING_LIGHT = registerEntity("healing_light", createSkillProjectile(HealingLightEntity::new));
         ARROW_RAIN = registerEntity("arrow_rain", createSkillProjectile(ArrowRainEntity::new));
+        ARROW_STRAFE = registerEntity("arrow_strafe", createSkillProjectile(ArrowStrafeEntity::new));
     }
 
     private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> builder) {

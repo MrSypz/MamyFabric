@@ -1,13 +1,15 @@
 package com.sypztep.mamy.common.system.classkill.archer;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
+import com.sypztep.mamy.common.entity.skill.ArrowStrafeEntity;
 import com.sypztep.mamy.common.init.ModClasses;
+import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.LivingEntity;
@@ -20,29 +22,24 @@ import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class ArrowRainSkill extends Skill implements CastableSkill {
-    private static final float BASE_DAMAGE = 6.0f;
-    private static final float ARROW_DAMAGE_MULTIPLIER = 1.6f;
-    private static final float SKILL_LEVEL_BONUS = 0.10f;
+public class ArrowStrafeSkill extends Skill implements CastableSkill {
+    private static final float BASE_DAMAGE_MULTIPLIER = 1.0f; // 100% at level 1
+    private static final float DAMAGE_MULTIPLIER_PER_LEVEL = 0.10f; // +10% per level
+    private static final float BASE_DAMAGE = 6;
 
-    public ArrowRainSkill(Identifier id) {
-        super(id, "Arrow Rain", "Rain arrows from the sky in target area",
-                15f, 0.3f, ModClasses.ARCHER, 1, 1, 10, false,
-                Mamy.id("skill/arrow_rain"));
+    public ArrowStrafeSkill(Identifier id) {
+        super(id, "Arrow Strafe", "Fire two arrows in quick succession at a target",
+                12f, 0.3f, ModClasses.ARCHER, 1, 1, 10, false,
+                Mamy.id("skill/arrow_strafe"));
     }
 
     @Override
@@ -62,22 +59,20 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 15;
-    }
-
-    @Override
-    public boolean canBeInterupt() {
-        return true;
+        return 12;
     }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        data.baseDamage = calculateDamage(skillLevel);
+        float damageMultiplier = calculateDamageMultiplier(skillLevel);
+        data.baseDamage = damageMultiplier;
         data.damageType = DamageType.PHYSICAL;
-        data.maxHits = 5;
-        data.secondaryDamages = Collections.singletonList(new SecondaryDamage(DamageType.PHYSICAL, calculateDamage(skillLevel), 2, 1));
+        data.maxHits = 1;
+        data.secondaryDamages = Collections.singletonList(
+                new SecondaryDamage(DamageType.PHYSICAL, damageMultiplier, 1, 1)
+        );
 
         return data;
     }
@@ -111,7 +106,6 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -124,36 +118,39 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         ItemStack mainHand = player.getStackInHand(Hand.MAIN_HAND);
         if (!(mainHand.getItem() instanceof BowItem)) return false;
 
-        // Get arrow item and effects (following Minecraft's behavior)
-        ArrowInfo arrowInfo = getArrowWithEffects(player);
+        // Find target
+        LivingEntity target = SkillUtil.findTargetEntity(player,10 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.VULTURES_EYE));
+        if (target == null) return false;
 
-        // Calculate damage
-        float damage = calculateDamage(skillLevel);
+        // Get arrow with effects (consume 2 arrows for the skill)
+        ArrowInfo firstArrow = getArrowWithEffects(player);
 
-        // Find target location on the ground
-        Vec3d targetLocation = getGroundTargetLocation(player);
-        if (targetLocation == null) return false;
+        // Combine effects from both arrows
+        List<StatusEffectInstance> combinedEffects = new ArrayList<>();
+        if (firstArrow != null) combinedEffects.addAll(firstArrow.effects);
+        if (firstArrow != null) combinedEffects.addAll(firstArrow.effects);
 
-        // Create arrow effects list
-        List<StatusEffectInstance> effects = arrowInfo != null ? arrowInfo.effects : new ArrayList<>();
+        // Calculate damage multiplier
+        float damageMultiplier = calculateDamageMultiplier(skillLevel);
 
-        ArrowRainEntity arrowRain = new ArrowRainEntity(world, damage, skillLevel, skillLevel >= 6 ? 3 : 5, effects);
-        arrowRain.setPosition(targetLocation.x, targetLocation.y, targetLocation.z);
-        arrowRain.setOwner(player);
-        world.spawnEntity(arrowRain);
+        // Create and spawn ArrowStrafeEntity
+        ArrowStrafeEntity arrowStrafe = new ArrowStrafeEntity(world, target, BASE_DAMAGE, damageMultiplier, combinedEffects);
 
-        // Play cast sound
-        world.playSound(null, player.getBlockPos(),
-                SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS,
-                1.0f, 0.8f);
+        // Set proper starting position
+        Vec3d startPos = new Vec3d(player.getX(), player.getEyeY(), player.getZ());
+        arrowStrafe.setPosition(startPos.x, startPos.y, startPos.z);
+        arrowStrafe.setOwner(player);
+
+        double speed = 3 + player.getAttributeValue(ModEntityAttributes.ARROW_SPEED); // Arrow speed
+        arrowStrafe.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, (float)speed, 1.0F);
+
+        world.spawnEntity(arrowStrafe);
 
         return true;
     }
 
-    private float calculateDamage(int skillLevel) {
-        float skillLevelBonus = SKILL_LEVEL_BONUS * (skillLevel - 1);
-
-        return BASE_DAMAGE + ARROW_DAMAGE_MULTIPLIER + skillLevelBonus;
+    private float calculateDamageMultiplier(int skillLevel) {
+        return BASE_DAMAGE * (BASE_DAMAGE_MULTIPLIER + (DAMAGE_MULTIPLIER_PER_LEVEL * (skillLevel - 1)));
     }
 
     private ArrowInfo getArrowWithEffects(PlayerEntity player) {
@@ -211,7 +208,6 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         return null;
     }
 
-
     private List<StatusEffectInstance> extractArrowEffects(ItemStack arrowStack) {
         if (!arrowStack.contains(DataComponentTypes.POTION_CONTENTS)) {
             return new ArrayList<>();
@@ -224,56 +220,22 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
         List<StatusEffectInstance> effects = new ArrayList<>();
 
-        // Add effects from registered potion (like Minecraft does)
-        if (potionContents.potion().isPresent())
+        if (potionContents.potion().isPresent()) {
             for (StatusEffectInstance effect : ((Potion)((RegistryEntry<?>)potionContents.potion().get()).value()).getEffects()) {
                 StatusEffectInstance arrowEffect = new StatusEffectInstance(
                         effect.getEffectType(),
-                        Math.max(effect.mapDuration(duration -> duration / 8),1),
+                        Math.max(effect.mapDuration(duration -> duration / 8), 1),
                         effect.getAmplifier(),
                         effect.isAmbient(),
                         effect.shouldShowParticles()
                 );
                 effects.add(arrowEffect);
             }
+        }
 
-        // Add custom effects
         effects.addAll(potionContents.customEffects());
 
         return effects;
-    }
-
-    private Vec3d getGroundTargetLocation(PlayerEntity player) {
-        double maxDistance = 9.0 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.VULTURES_EYE);
-        Vec3d start = player.getCameraPosVec(1.0f);
-        Vec3d direction = player.getRotationVec(1.0f);
-        Vec3d end = start.add(direction.multiply(maxDistance));
-
-        HitResult hitResult = player.getWorld().raycast(new RaycastContext(
-                start, end, RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE, player
-        ));
-
-        Vec3d targetPos = hitResult.getPos();
-
-        if (hitResult.getType() == HitResult.Type.BLOCK && hitResult instanceof BlockHitResult) {
-            if (Math.abs(targetPos.y - player.getY()) <= 3.0) {
-                return targetPos;
-            }
-        }
-
-        // Otherwise, find the ground below the target point
-        Vec3d groundStart = new Vec3d(targetPos.x, targetPos.y + 5, targetPos.z);
-        Vec3d groundEnd = new Vec3d(targetPos.x, player.getY() - 20, targetPos.z);
-
-        HitResult groundHit = player.getWorld().raycast(new RaycastContext(
-                groundStart, groundEnd, RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE, player
-        ));
-
-        if (groundHit.getType() == HitResult.Type.BLOCK) return groundHit.getPos();
-
-        return new Vec3d(targetPos.x, player.getY(), targetPos.z);
     }
 
     @Override

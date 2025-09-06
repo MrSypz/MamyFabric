@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.system.classkill.acolyte.*;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ArrowRainSkill;
+import com.sypztep.mamy.common.system.classkill.archer.ArrowStrafeSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
@@ -49,7 +50,7 @@ public class SkillRegistry {
     public static final Identifier VULTURES_EYE = Mamy.id("vultures_eye");
     public static final Identifier IMPROVE_CONCENTRATION = Mamy.id("improve_concentration");
     public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
-    public static final Identifier DOUBLE_STRAFE = Mamy.id("double_strafe");
+    public static final Identifier ARROW_STRAFE = Mamy.id("arrow_strafe");
 
     public static void registerSkills() {
         //Novice
@@ -78,6 +79,7 @@ public class SkillRegistry {
         register(new VulturesEyePassiveSkill(VULTURES_EYE, Skill.requiresSkills(Skill.requires(OWLS_EYE, 3))));
         register(new ImproveConcentrationSkill(IMPROVE_CONCENTRATION, Skill.requiresSkills(Skill.requires(VULTURES_EYE, 1))));
         register(new ArrowRainSkill(ARROW_SHOWER));
+        register(new ArrowStrafeSkill(ARROW_STRAFE));
     }
 
     private static void register(Skill skill) {
