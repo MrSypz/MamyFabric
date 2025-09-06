@@ -15,9 +15,9 @@ public interface ModEntityAttributes {
 
     RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
 
-    RegistryEntry<EntityAttribute> RESOURCE = register("resource", 200, 0.0, 1000000,true);
+    RegistryEntry<EntityAttribute> RESOURCE = register("resource", 10, 0.0, 10000000,true);
     RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 10, 0.0, 10000000,true);
-    RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 30, 0.0, 10000000,true);
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 160, 0.0, 10000000,true);
 
     RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
     RegistryEntry<EntityAttribute> EVASION = register("evasion", 0, 0.0, 2048.0D);

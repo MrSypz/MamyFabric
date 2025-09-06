@@ -360,13 +360,9 @@ public class PlayerClassManager {
     public void tickResourceRegeneration() {
         resourceRegenTick++;
 
-        // Get regen rate from attributes (in seconds)
-        double regenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE);
+        double regenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE); // 160 -> 8 sec regen rate
 
-        // Convert to ticks
-        int regenIntervalTicks = (int)(regenRateSeconds * 20);
-
-        if (resourceRegenTick >= regenIntervalTicks) {
+        if (resourceRegenTick >= regenRateSeconds) {
             resourceRegenTick = 0;
 
             float maxResource = getMaxResource();
@@ -445,16 +441,13 @@ public class PlayerClassManager {
     }
 
     public boolean isReadyForEvolution() {
-        // Novice class has special requirements
         if (currentClass.getTier() == 0) {
-            // Novice requirements: Level 10 + Basic Skill Level 10
             boolean levelReady = getClassLevel() >= 10;
             boolean basicSkillReady = getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
             boolean hasEvolutions = !getAvailableEvolutions().isEmpty();
 
             return levelReady && basicSkillReady && hasEvolutions;
         } else {
-            // Other classes: Level 45 + All skill points spent (= 0)
             boolean levelReady = getClassLevel() >= 45;
             boolean skillPointsSpent = getClassStatPoints() == 0;
             boolean hasEvolutions = !getAvailableEvolutions().isEmpty();
@@ -464,12 +457,9 @@ public class PlayerClassManager {
     }
 
     public boolean isReadyForTranscendence() {
-        // Similar logic for transcendence
         if (currentClass.getTier() == 0) {
-            // Novice shouldn't be able to transcend directly
             return false;
         } else {
-            // Other classes: Level 45 + All skill points spent (= 0)
             boolean levelReady = getClassLevel() >= 45;
             boolean skillPointsSpent = getClassStatPoints() == 0;
             boolean hasTranscendence = !getAvailableTranscendence().isEmpty();
@@ -479,9 +469,7 @@ public class PlayerClassManager {
     }
 
     public int getEvolutionRequiredLevel() {
-        if (currentClass.getTier() == 0) {  // Novice
-            return currentClass.getMaxLevel(); // novice max lvl are 10
-        }
+        if (currentClass.getTier() == 0) return currentClass.getMaxLevel(); // novice max lvl are 10
         return 45; // All other classes
     }
 
@@ -490,39 +478,6 @@ public class PlayerClassManager {
         return currentClass.getTier() != 0;
     }
 
-    public String getEvolutionStatusMessage() {
-        if (currentClass.getTier() == 0) { // Novice
-            boolean levelReady = getClassLevel() >= 10;
-            boolean basicSkillReady = getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
-
-            if (!levelReady && !basicSkillReady) {
-                return "Requires Level 10 and Basic Skill Level 10";
-            } else if (!levelReady) {
-                return "Requires Level 10";
-            } else if (!basicSkillReady) {
-                return "Requires Basic Skill Level 10";
-            } else {
-                return "Ready to evolve!";
-            }
-        } else {
-            // For other classes
-            boolean levelReady = getClassLevel() >= 45;
-            boolean skillPointsSpent = getClassStatPoints() == 0;
-
-            if (!levelReady && skillPointsSpent) {
-                return "Requires Level 45 and spending all skill points";
-            } else if (!levelReady) {
-                return "Requires Level 45";
-            } else if (skillPointsSpent) {
-                return "Must spend all " + getClassStatPoints() + " skill points";
-            } else {
-                return "Ready to evolve!";
-            }
-        }
-    }
-
-
-    // Future getter for class skills
     public ClassSkillManager getSkillManager() {
         return skillManager;
     }

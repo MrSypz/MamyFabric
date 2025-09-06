@@ -19,11 +19,9 @@ import net.minecraft.util.Identifier;
 import java.util.*;
 
 public class PlayerClass {
-    // Job bonus record
     public record JobBonuses(short str, short agi, short vit, short intel, short dex, short luk) {
         public static final JobBonuses NONE = new JobBonuses((short)0, (short)0, (short)0, (short)0, (short)0, (short)0);
     }
-
     public record ClassRequirement(PlayerClass previousClass, int requiredLevel) {}
 
     private final String id;
@@ -43,7 +41,7 @@ public class PlayerClass {
     private final List<ClassRequirement> requirements;
     private final List<PlayerClass> nextClasses;
 
-    // Private constructor - only accessible through Builder
+    private final int BASE_RESOURCE = 10;
     private PlayerClass(Builder builder) {
         this.id = builder.id;
         this.tier = builder.tier;
@@ -61,51 +59,11 @@ public class PlayerClass {
 
         // Handle attribute modifiers and resource
         this.attributeModifiers = new HashMap<>(builder.attributeModifiers);
-        if (builder.resourceAmount > 0) {
-            this.attributeModifiers.put(ModEntityAttributes.RESOURCE, (double) builder.resourceAmount);
-        }
-    }
-
-    // Legacy constructors for backward compatibility
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, ResourceType primaryResource, double resourceAmount, JobBonuses jobBonuses, String description, int maxLevel, boolean isTranscendent) {
-        this.id = id;
-        this.tier = tier;
-        this.branch = branch;
-        this.displayName = displayName;
-        this.color = color;
-        this.primaryResource = primaryResource;
-        this.description = description;
-        this.maxLevel = maxLevel;
-        this.isTranscendent = isTranscendent;
-        this.jobBonuses = jobBonuses != null ? jobBonuses : JobBonuses.NONE;
-        this.requirements = new ArrayList<>();
-        this.nextClasses = new ArrayList<>();
-        this.growthFactors = new HashMap<>(growthFactors);
-
-        // Create a new map and add resource if > 0
-        this.attributeModifiers = new HashMap<>(attributeModifiers);
-        if (resourceAmount > 0) {
-            this.attributeModifiers.put(ModEntityAttributes.RESOURCE, resourceAmount);
-        }
-    }
-
-    // Overloaded constructor without growth factors (for backward compatibility)
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, ResourceType primaryResource, double resourceAmount, JobBonuses jobBonuses, String description, int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers, new HashMap<>(), primaryResource, resourceAmount, jobBonuses, description, maxLevel, isTranscendent);
-    }
-
-    // Keep existing constructors for backward compatibility
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, Map<RegistryEntry<EntityAttribute>, GrowthFactor> growthFactors, ResourceType primaryResource, String description, int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers, growthFactors, primaryResource, 0, null, description, maxLevel, isTranscendent);
-    }
-
-    public PlayerClass(String id, int tier, int branch, String displayName, Formatting color, Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers, ResourceType primaryResource, String description, int maxLevel, boolean isTranscendent) {
-        this(id, tier, branch, displayName, color, attributeModifiers, new HashMap<>(), primaryResource, 0, null, description, maxLevel, isTranscendent);
+        if (builder.resourceAmount > 0) this.attributeModifiers.put(ModEntityAttributes.RESOURCE, (double) builder.resourceAmount);
     }
 
     // Builder class
     public static class Builder {
-        // Required fields
         private final String id;
         private final int tier;
         private final int branch;
@@ -154,11 +112,6 @@ public class PlayerClass {
 
         public Builder resource(int resourceAmount) {
             this.resourceAmount = resourceAmount;
-            return this;
-        }
-
-        public Builder jobBonuses(JobBonuses jobBonuses) {
-            this.jobBonuses = jobBonuses;
             return this;
         }
 
@@ -239,9 +192,7 @@ public class PlayerClass {
      * Get max resource from player's current RESOURCE attribute value
      */
     public float getMaxResource(PlayerEntity player) {
-        if (player == null) {
-            return getBaseMaxResource();
-        }
+        if (player == null) return getBaseMaxResource();
         return (float) player.getAttributeValue(ModEntityAttributes.RESOURCE);
     }
 
@@ -250,18 +201,14 @@ public class PlayerClass {
      * Use this for UI display when player context isn't available
      */
     public float getBaseMaxResource() {
-        double baseResource = 200.0; // ModEntityAttributes.RESOURCE base
         double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
-        return (float) (baseResource + classBonus);
+        return (float) (this.BASE_RESOURCE + classBonus);
     }
     public void applyAttributeModifiers(LivingEntity entity) {
-        // Get current class level
-        int classLevel = 1; // Default level
+        int classLevel = 1;
         if (entity instanceof PlayerEntity player) {
             LivingLevelComponent baseComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player); // using base instead of class lvl
-            if (baseComponent != null) {
-                classLevel = baseComponent.getLevel();
-            }
+            if (baseComponent != null) classLevel = baseComponent.getLevel();
         }
 
         // Apply base attributes + growth

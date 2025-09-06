@@ -12,7 +12,6 @@ import java.util.Map;
 public interface ModClasses {
     Map<String, PlayerClass> CLASSES = new HashMap<>();
 
-    // ===== TIER 0 (Starting Class) - EXTREME CHALLENGE =====
     PlayerClass NOVICE = register(PlayerClass
             .create("novice", 0, 0, "Novice", Formatting.GRAY, ResourceType.MANA,
                     "A beginning adventurer with no specialized skills - fragile but determined")
@@ -27,8 +26,6 @@ public interface ModClasses {
             .resource(200)  // Base resource for scaling
             .maxLevel(10)
             .build());
-
-    // ===== TIER 1 (First Job Classes) - BALANCED CHALLENGE =====
 
     PlayerClass SWORDMAN = register(PlayerClass
             .create("swordman", 1, 1, "Swordman", Formatting.RED, ResourceType.RAGE,
@@ -73,7 +70,7 @@ public interface ModClasses {
                     ModEntityAttributes.RESOURCE, GrowthFactor.flat(3.5),         // Good mana for skills
                     ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(0.3)
             ))
-            .resource(520)  // 2.6x base - medium resource needs
+            .resource(520)
             .jobBonuses((short)3, (short)3, (short)1, (short)2, (short)7, (short)2)
             .build()
             .addRequirement(NOVICE, 10));
