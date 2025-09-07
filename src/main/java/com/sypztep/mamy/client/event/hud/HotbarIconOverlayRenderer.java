@@ -13,7 +13,7 @@ public class HotbarIconOverlayRenderer {
     public static void register() {
         IconOverlayManager.clearAll();
 
-        IconOverlayManager.registerIconGroup(HOTBAR_GROUP_ID, IconOverlayManager.IconPosition.HOTBAR_RIGHT, true);
+        IconOverlayManager.registerIconGroup(HOTBAR_GROUP_ID, IconOverlayManager.IconPosition.BOTTOM_RIGHT, true);
 
         IconOverlayManager.addScreenIcon(
                 HOTBAR_GROUP_ID,
