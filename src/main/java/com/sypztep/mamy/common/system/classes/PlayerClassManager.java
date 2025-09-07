@@ -284,9 +284,11 @@ public class PlayerClassManager {
     public void learnSkill(Identifier skillId) {
         skillManager.learnSkill(skillId, this);
     }
+
     public void upgradeSkill(Identifier skillId) {
         skillManager.upgradeSkill(skillId, this);
     }
+
     public void unlearnSkill(Identifier skillId) {
         skillManager.unlearnSkill(skillId, this);
     }
@@ -334,7 +336,7 @@ public class PlayerClassManager {
     }
 
     public void setCurrentResource(float amount) {
-        this.currentResource = Math.clamp(amount,0,getMaxResource());
+        this.currentResource = Math.clamp(amount, 0, getMaxResource());
     }
 
     public boolean useResource(float amount) {
@@ -351,7 +353,7 @@ public class PlayerClassManager {
 
     public float getResourcePercentage() {
         float max = getMaxResource();
-        return max > 0 ? (currentResource / max): 0f;
+        return max > 0 ? (currentResource / max) : 0f;
     }
 
     /**
@@ -361,14 +363,14 @@ public class PlayerClassManager {
         resourceRegenTick++;
 
         double regenRateTick = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE) * 20; // 8 sec regen rate
-
+        float maxResource = getMaxResource();
+        if (currentResource > getMaxResource()) currentResource = maxResource;
         if (resourceRegenTick >= regenRateTick) {
             resourceRegenTick = 0;
 
-            float maxResource = getMaxResource();
             if (currentResource < maxResource) {
                 double regenAmount = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN);
-                addResource((float)regenAmount);
+                addResource((float) regenAmount);
             }
         }
     }
