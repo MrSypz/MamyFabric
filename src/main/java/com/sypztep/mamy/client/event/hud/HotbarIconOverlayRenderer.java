@@ -8,15 +8,11 @@ import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import net.minecraft.util.Identifier;
 
 public class HotbarIconOverlayRenderer {
-    private static final String HOTBAR_GROUP_ID = "hotbar_icons";
 
     public static void register() {
         IconOverlayManager.clearAll();
 
-        IconOverlayManager.registerIconGroup(HOTBAR_GROUP_ID, IconOverlayManager.IconPosition.BOTTOM_RIGHT, true);
-
         IconOverlayManager.addScreenIcon(
-                HOTBAR_GROUP_ID,
                 Identifier.ofVanilla("icon/accessibility"),
                 "Character Stats",
                 "View your character's attributes, stats, and progression",
@@ -24,7 +20,6 @@ public class HotbarIconOverlayRenderer {
         );
 
         IconOverlayManager.addScreenIcon(
-                HOTBAR_GROUP_ID,
                 Mamy.id("overlay/skills"),
                 "Skills",
                 "Learn and upgrade your skills",
@@ -32,7 +27,6 @@ public class HotbarIconOverlayRenderer {
         );
 
         IconOverlayManager.addScreenIcon(
-                HOTBAR_GROUP_ID,
                 Mamy.id("overlay/binding"),
                 "Skill Bindings",
                 "Configure skill hotkeys",
