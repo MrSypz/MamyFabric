@@ -2,15 +2,14 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.render.entity.ArrowRainEntityRenderer;
-import com.sypztep.mamy.client.render.entity.ArrowStrafeEntityRenderer;
+import com.sypztep.mamy.client.render.entity.DoubleStrafeEntityRenderer;
 import com.sypztep.mamy.client.render.entity.HealingLightEntityRenderer;
 import com.sypztep.mamy.common.entity.skill.ArrowRainEntity;
-import com.sypztep.mamy.common.entity.skill.ArrowStrafeEntity;
+import com.sypztep.mamy.common.entity.skill.DoubleStrafeEntity;
 import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -20,19 +19,19 @@ import net.minecraft.registry.Registry;
 public final class ModEntityTypes {
     public static EntityType<HealingLightEntity> HEALING_LIGHT;
     public static EntityType<ArrowRainEntity> ARROW_RAIN;
-    public static EntityType<ArrowStrafeEntity> ARROW_STRAFE;
+    public static EntityType<DoubleStrafeEntity> DOUBLE_STRAFE;
 
     public static void init() {
         HEALING_LIGHT = registerEntity("healing_light", createSkillProjectile(HealingLightEntity::new));
         ARROW_RAIN = registerEntity("arrow_rain", createSkillProjectile(ArrowRainEntity::new));
-        ARROW_STRAFE = registerEntity("arrow_strafe", createSkillProjectile(ArrowStrafeEntity::new));
+        DOUBLE_STRAFE = registerEntity("double_strafe", createSkillProjectile(DoubleStrafeEntity::new));
     }
     @Environment(EnvType.CLIENT)
     public static class Client {
         public static void registerRender() {
             EntityRendererRegistry.register(ModEntityTypes.HEALING_LIGHT, HealingLightEntityRenderer::new);
             EntityRendererRegistry.register(ModEntityTypes.ARROW_RAIN, ArrowRainEntityRenderer::new);
-            EntityRendererRegistry.register(ModEntityTypes.ARROW_STRAFE, ArrowStrafeEntityRenderer::new);
+            EntityRendererRegistry.register(ModEntityTypes.DOUBLE_STRAFE, DoubleStrafeEntityRenderer::new);
         }
     }
 

@@ -15,7 +15,7 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class ArrowStrafeEntity extends PersistentProjectileEntity {
+public class DoubleStrafeEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 100;
     private static final int DAMAGE_DELAY_TICKS = 4; // 0.2 seconds
 
@@ -27,8 +27,8 @@ public class ArrowStrafeEntity extends PersistentProjectileEntity {
     private int ticksAlive = 0;
     private int arrowsFired = 0;
 
-    public ArrowStrafeEntity(World world, LivingEntity target, float baseDamage, float damageMultiplier, List<StatusEffectInstance> arrowEffects) {
-        super(ModEntityTypes.ARROW_STRAFE, world);
+    public DoubleStrafeEntity(World world, LivingEntity target, float baseDamage, float damageMultiplier, List<StatusEffectInstance> arrowEffects) {
+        super(ModEntityTypes.DOUBLE_STRAFE, world);
         this.targetEntity = target;
         this.baseDamage = baseDamage;
         this.damageMultiplier = damageMultiplier;
@@ -36,7 +36,7 @@ public class ArrowStrafeEntity extends PersistentProjectileEntity {
         this.setVelocity(Vec3d.ZERO);
     }
 
-    public ArrowStrafeEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
+    public DoubleStrafeEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.targetEntity = null;
         this.baseDamage = 0f;

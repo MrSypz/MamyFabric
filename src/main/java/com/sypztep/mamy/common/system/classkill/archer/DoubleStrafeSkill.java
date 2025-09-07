@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.classkill.archer;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.skill.ArrowStrafeEntity;
+import com.sypztep.mamy.common.entity.skill.DoubleStrafeEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -31,15 +31,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class ArrowStrafeSkill extends Skill implements CastableSkill {
+public class DoubleStrafeSkill extends Skill implements CastableSkill {
     private static final float BASE_DAMAGE_MULTIPLIER = 1.0f; // 100% at level 1
     private static final float DAMAGE_MULTIPLIER_PER_LEVEL = 0.10f; // +10% per level
     private static final float BASE_DAMAGE = 6;
 
-    public ArrowStrafeSkill(Identifier id) {
-        super(id, "Arrow Strafe", "Fire two arrows in quick succession at a target",
+    public DoubleStrafeSkill(Identifier id) {
+        super(id, "Double Strafe", "Fire two arrows in quick succession at a target",
                 12f, 0.3f, ModClasses.ARCHER, 1, 1, 10, false,
-                Mamy.id("skill/arrow_strafe"));
+                Mamy.id("skill/double_strafe"));
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ArrowStrafeSkill extends Skill implements CastableSkill {
         float damageMultiplier = calculateDamageMultiplier(skillLevel);
 
         // Create and spawn ArrowStrafeEntity
-        ArrowStrafeEntity arrowStrafe = new ArrowStrafeEntity(world, target, BASE_DAMAGE, damageMultiplier, combinedEffects);
+        DoubleStrafeEntity arrowStrafe = new DoubleStrafeEntity(world, target, BASE_DAMAGE, damageMultiplier, combinedEffects);
 
         // Set proper starting position
         Vec3d startPos = new Vec3d(player.getX(), player.getEyeY(), player.getZ());

@@ -6,9 +6,6 @@ import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
-import com.sypztep.mamy.client.render.entity.ArrowRainEntityRenderer;
-import com.sypztep.mamy.client.render.entity.ArrowStrafeEntityRenderer;
-import com.sypztep.mamy.client.render.entity.HealingLightEntityRenderer;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;
@@ -16,7 +13,6 @@ import com.sypztep.mamy.common.init.ModPayloads;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();

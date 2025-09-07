@@ -1,6 +1,6 @@
 package com.sypztep.mamy.client.render.entity;
 
-import com.sypztep.mamy.common.entity.skill.ArrowStrafeEntity;
+import com.sypztep.mamy.common.entity.skill.DoubleStrafeEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.OverlayTexture;
@@ -16,10 +16,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
-public class ArrowStrafeEntityRenderer<T extends ArrowStrafeEntity> extends EntityRenderer<T> {
+public class DoubleStrafeEntityRenderer<T extends DoubleStrafeEntity> extends EntityRenderer<T> {
     private static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/projectiles/arrow.png");
 
-    public ArrowStrafeEntityRenderer(EntityRendererFactory.Context ctx) {
+    public DoubleStrafeEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
 
