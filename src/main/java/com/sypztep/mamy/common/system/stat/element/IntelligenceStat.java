@@ -17,7 +17,6 @@ public final class IntelligenceStat extends Stat {
     private static final double MAGIC_RESISTANCE_SCALING = 0.005; // 0.5% per point
     private static final double RESOURCE_SCALING = 0.01; // 1% per point
 
-
     public IntelligenceStat(short baseValue) {
         super(baseValue);
     }
@@ -34,6 +33,33 @@ public final class IntelligenceStat extends Stat {
 
     @Override
     public void applySecondaryEffect(LivingEntity living) {
+        if (living.getAttributeInstance(ModEntityAttributes.RESOURCE) == null) {
+            List<AttributeModification> modifications = List.of(
+                    AttributeModification.addValue(
+                            ModEntityAttributes.MAGIC_RESISTANCE,
+                            getSecondaryId(),
+                            baseValue -> MAGIC_RESISTANCE_SCALING * this.getEffective()
+                    )
+            );
+            applyEffects(living, modifications);
+            return;
+        }
+
+        // Calculate SPR using your formula
+        double maxResource = living.getAttributeValue(ModEntityAttributes.RESOURCE);
+        int intValue = this.getEffective();
+
+        double resourceRegen = living.getAttributeBaseValue(ModEntityAttributes.RESOURCE_REGEN);
+        resourceRegen += Math.floor(maxResource * 0.01f);
+        resourceRegen += Math.floor(intValue / 6.0);
+        resourceRegen = Math.floor(resourceRegen * 1.01);
+        // comment this due to int are max at 99 atm for future int are greater than 100
+//        if (intValue >= 120) {
+//            resourceRegen += 4;
+//            resourceRegen += Math.floor(intValue / 2.0 - 60);
+//        }
+
+        double ResourceRegenAmount = resourceRegen - 1;
         List<AttributeModification> modifications = List.of(
                 AttributeModification.addValue(
                         ModEntityAttributes.MAGIC_RESISTANCE,
@@ -44,16 +70,14 @@ public final class IntelligenceStat extends Stat {
                         ModEntityAttributes.RESOURCE,
                         getSecondaryId(),
                         baseValue -> this.getEffective() * RESOURCE_SCALING
+                ),
+                AttributeModification.addValue(
+                        ModEntityAttributes.RESOURCE_REGEN,
+                        getSecondaryId(),
+                        baseValue -> ResourceRegenAmount
                 )
         );
-        int regenBonus = this.getEffective() / 5;
-        if (regenBonus > 0) {
-            applyEffect(living,
-                    ModEntityAttributes.RESOURCE_REGEN_RATE,
-                    Mamy.id("int_regen_bonus"),
-                    baseValue -> (double) - regenBonus
-            );
-        }
+
         applyEffects(living, modifications);
     }
 
@@ -78,9 +102,9 @@ public final class IntelligenceStat extends Stat {
         double futureResourceBonus = futureTotal * RESOURCE_SCALING * 100;
         double resourceIncrease = futureResourceBonus - currentResourceBonus;
 
-        int currentRegenBonusInt = getEffective() / 6;
-        int futureRegenBonusInt = (getEffective() + additionalPoints) / 6;
-        int regenIncreaseInt = futureRegenBonusInt - currentRegenBonusInt;
+        int currentResourceRegen = Math.max(1, (int)Math.floor(currentTotal / 6.0));
+        int futureResourceRegen = Math.max(1, (int)Math.floor(futureTotal / 6.0));
+        int resourceRegenIncrease = futureResourceRegen - currentResourceRegen;
 
         List<Text> description = new ArrayList<>();
 
@@ -123,10 +147,12 @@ public final class IntelligenceStat extends Stat {
                 .append(Text.literal(String.format("+%.1f%%", resourceIncrease)).formatted(Formatting.AQUA))
                 .append(Text.literal(String.format(" (%.1f%% → %.1f%%)", currentResourceBonus, futureResourceBonus)).formatted(Formatting.DARK_GRAY)));
         description.add(Text.literal("  Resource Regen Rate: ").formatted(Formatting.GRAY)
-                .append(Text.literal(String.format("+%d%%", regenIncreaseInt)).formatted(Formatting.AQUA))
-                .append(Text.literal(String.format(" (%d%% → %d%%)", currentRegenBonusInt, futureRegenBonusInt)).formatted(Formatting.DARK_GRAY)));
+                .append(Text.literal(String.format("+%d", resourceRegenIncrease)).formatted(Formatting.AQUA))
+                .append(Text.literal(String.format(" (%d → %d)", currentResourceRegen, futureResourceRegen)).formatted(Formatting.DARK_GRAY)));
+
         return description;
     }
+
     @Override
     protected Identifier getPrimaryId() {
         return Mamy.id("intelligence_primary");
