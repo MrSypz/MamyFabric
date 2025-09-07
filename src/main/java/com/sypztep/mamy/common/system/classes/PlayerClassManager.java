@@ -423,9 +423,6 @@ public class PlayerClassManager {
         currentResource = nbt.getFloat("CurrentResource");
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
 
-        // REMOVE THIS LINE - clamp later after attributes are loaded
-        // currentResource = Math.min(currentResource, getMaxResource());
-
         if (nbt.contains("ClassSkills")) {
             skillManager.readFromNbt(nbt.getCompound("ClassSkills"));
         }
