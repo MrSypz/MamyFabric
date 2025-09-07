@@ -57,27 +57,12 @@ public final class LivingEntityUtil {
 
         return false;
     }
-    public static boolean canPerformJump(LivingEntity entity) {
-        if (entity.isFallFlying()) return false;
-        if (entity.getVehicle() != null) return false;
-        if (entity.isClimbing()) return false;
-
-        if (entity instanceof PlayerEntity player && player.getAbilities().flying) return false;
-
-        return (!entity.isTouchingWater() && !entity.isSwimming());
-    }
-    public static float getBerserkerDamageBonus(LivingEntity living) {
-        float healthPercent = getHealthPercentage(living);
-        float missingPercent = 1.0f - healthPercent;
-        return missingPercent * 0.2f;
-    }
-
     // PLAYER CLASS //
     public static void updateClassModifierBonus(LivingEntity livingEntity) {
         var playerClass = ModEntityComponents.PLAYERCLASS.get(livingEntity);
         playerClass.performBatchUpdate(() -> {
             playerClass.getClassManager().getCurrentClass().removeAttributeModifiers(livingEntity);
-            playerClass.getClassManager().getCurrentClass().applyAttributeModifiers(livingEntity);
+            playerClass.getClassManager().getCurrentClass().applyClassAttributeModifiers(livingEntity);
         });
     }
 
