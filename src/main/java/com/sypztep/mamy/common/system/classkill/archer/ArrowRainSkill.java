@@ -39,10 +39,10 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     private static final float ARROW_DAMAGE_MULTIPLIER = 1.6f;
     private static final float SKILL_LEVEL_BONUS = 0.10f;
 
-    public ArrowRainSkill(Identifier id) {
+    public ArrowRainSkill(Identifier id, List<SkillRequirement> skillRequirements) {
         super(id, "Arrow Rain", "Rain arrows from the sky in target area",
                 15f, 0.3f, ModClasses.ARCHER, 1, 1, 10, false,
-                Mamy.id("skill/arrow_rain"));
+                Mamy.id("skill/arrow_rain"), skillRequirements);
     }
 
     @Override
