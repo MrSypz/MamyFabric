@@ -17,7 +17,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
-
+//TODO : Replace hardcode section on jobhealthmodify and resource
 public class PlayerClass {
     public record JobBonuses(short str, short agi, short vit, short intel, short dex, short luk) {
         public static final JobBonuses NONE = new JobBonuses((short)0, (short)0, (short)0, (short)0, (short)0, (short)0);
@@ -36,12 +36,12 @@ public class PlayerClass {
     private final int maxLevel;
     private final boolean isTranscendent;
     private final JobBonuses jobBonuses;
+    private final double jobHealthModify; // Add this field
 
     // Class progression requirements
     private final List<ClassRequirement> requirements;
     private final List<PlayerClass> nextClasses;
 
-    private final int BASE_RESOURCE = 10;
     private PlayerClass(Builder builder) {
         this.id = builder.id;
         this.tier = builder.tier;
@@ -53,6 +53,7 @@ public class PlayerClass {
         this.maxLevel = builder.maxLevel;
         this.isTranscendent = builder.isTranscendent;
         this.jobBonuses = builder.jobBonuses;
+        this.jobHealthModify = builder.jobHealthModify;
         this.requirements = new ArrayList<>();
         this.nextClasses = new ArrayList<>();
         this.growthFactors = new HashMap<>(builder.growthFactors);
@@ -71,6 +72,7 @@ public class PlayerClass {
         private final Formatting color;
         private final ResourceType primaryResource;
         private final String description;
+        private double jobHealthModify = 0.0; // Default value
 
         // Optional fields with defaults
         private Map<RegistryEntry<EntityAttribute>, Double> attributeModifiers = new HashMap<>();
@@ -119,7 +121,10 @@ public class PlayerClass {
             this.jobBonuses = new JobBonuses(str, agi, vit, intel, dex, luk);
             return this;
         }
-
+        public Builder jobHealthModify(double modifier) {
+            this.jobHealthModify = modifier;
+            return this;
+        }
         public Builder maxLevel(int maxLevel) {
             this.maxLevel = maxLevel;
             return this;
@@ -148,14 +153,6 @@ public class PlayerClass {
         return this;
     }
 
-    public PlayerClass addTranscendentRequirement(PlayerClass previousClass, int requiredLevel) {
-        requirements.add(new ClassRequirement(previousClass, requiredLevel));
-        if (previousClass != null) {
-            previousClass.nextClasses.add(this);
-        }
-        return this;
-    }
-
     public boolean canEvolveFrom(PlayerClass currentClass, int currentClassLevel) {
         if (requirements.isEmpty()) return true;
 
@@ -176,18 +173,6 @@ public class PlayerClass {
         return tier + "-" + branch + (isTranscendent ? "T" : "");
     }
 
-    public boolean isHigherTierThan(PlayerClass other) {
-        return this.tier > other.tier;
-    }
-
-    public List<PlayerClass> getPossibleEvolutions() {
-        return new ArrayList<>(nextClasses);
-    }
-
-    public List<PlayerClass> getTranscendentEvolutions() {
-        return nextClasses.stream().filter(PlayerClass::isTranscendent).toList();
-    }
-
     /**
      * Get max resource from player's current RESOURCE attribute value
      */
@@ -202,16 +187,15 @@ public class PlayerClass {
      */
     public float getBaseMaxResource() {
         double classBonus = attributeModifiers.getOrDefault(ModEntityAttributes.RESOURCE, 0.0);
-        return (float) (this.BASE_RESOURCE + classBonus);
+        return (float) (classBonus);
     }
-    public void applyAttributeModifiers(LivingEntity entity) {
-        int classLevel = 1;
+    public void applyClassAttributeModifiers(LivingEntity entity) {
+        int baseLvl = 1;
         if (entity instanceof PlayerEntity player) {
-            LivingLevelComponent baseComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player); // using base instead of class lvl
-            if (baseComponent != null) classLevel = baseComponent.getLevel();
+            LivingLevelComponent baseComponent = ModEntityComponents.LIVINGLEVEL.getNullable(player);
+            if (baseComponent != null) baseLvl = baseComponent.getLevel();
         }
 
-        // Apply base attributes + growth
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
             EntityAttributeInstance attribute = entity.getAttributeInstance(entry.getKey());
             if (attribute != null) {
@@ -221,27 +205,26 @@ public class PlayerClass {
                 double baseValue = entry.getValue();
                 double effectValue = baseValue;
 
-                // Apply growth if defined for this attribute
                 GrowthFactor growth = growthFactors.get(entry.getKey());
                 if (growth != null) {
-                    double growthBonus = growth.calculateGrowth(baseValue, classLevel - 1); // Level 1 = no growth
+                    double growthBonus = growth.calculateGrowth(baseValue, baseLvl - 1);
                     effectValue += growthBonus;
                 }
 
-                // Special handling for health
                 if (entry.getKey().equals(EntityAttributes.GENERIC_MAX_HEALTH)) {
-                    double vanillaBase = 20.0;
-                    effectValue = effectValue - vanillaBase;
+                    effectValue = entry.getValue();
+                    effectValue += baseLvl * 5;
+
+                    for (int i = 2; i <= baseLvl; i++) effectValue += Math.round(jobHealthModify * i);
+                    effectValue = effectValue - 20.0;
                 }
 
-                // Use ADD_VALUE for all class bonuses (flat amounts)
                 attribute.addPersistentModifier(new EntityAttributeModifier(modifierId, effectValue, EntityAttributeModifier.Operation.ADD_VALUE));
             }
         }
 
         if (entity instanceof PlayerEntity player) updatePlayerHealth(player);
     }
-
     public void removeAttributeModifiers(LivingEntity entity) {
         Identifier modifierId = getClassModifierId();
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {
@@ -269,7 +252,6 @@ public class PlayerClass {
         int maxLevel = getMaxLevel();
         int level = Math.min(currentClassLevel, maxLevel);
 
-        // Calculate progression percentage (0.0 to 1.0)
         double progression = (double) level / maxLevel;
 
         // Apply progression to each stat
@@ -282,10 +264,6 @@ public class PlayerClass {
 
         return new JobBonuses(progressiveStr, progressiveAgi, progressiveVit,
                 progressiveInt, progressiveDex, progressiveLuk);
-    }
-
-    public Map<RegistryEntry<EntityAttribute>, GrowthFactor> getGrowthFactors() {
-        return growthFactors;
     }
 
     public String getGrowthDescription(RegistryEntry<EntityAttribute> attribute) {
@@ -314,11 +292,6 @@ public class PlayerClass {
         String transcendentPrefix = isTranscendent ? "High " : "";
         return Text.literal(transcendentPrefix + displayName).formatted(color);
     }
-
-    public Text getFormattedNameWithTier() {
-        return Text.literal("[" + getClassCode() + "] " + displayName).formatted(color);
-    }
-
     // Getters
     public String getId() { return id; }
     public int getTier() { return tier; }
