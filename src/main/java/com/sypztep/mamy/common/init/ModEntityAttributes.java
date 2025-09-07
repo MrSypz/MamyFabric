@@ -16,7 +16,7 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
 
     RegistryEntry<EntityAttribute> RESOURCE = register("resource", 0, 0.0, 10000000,true); // NOTE : fallback are not working sadly
-    RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 0, 0.0, 10000000,true); // NOTE : fallback are not working sadly
+    RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 1, 0.0, 10000000,true); // NOTE : fallback are not working sadly
     RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 8, -1, 10000000,true);
 
     RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
