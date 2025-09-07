@@ -6,7 +6,7 @@ import com.sypztep.mamy.common.system.classkill.acolyte.*;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ArrowRainSkill;
-import com.sypztep.mamy.common.system.classkill.archer.ArrowStrafeSkill;
+import com.sypztep.mamy.common.system.classkill.archer.DoubleStrafeSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
@@ -17,6 +17,7 @@ import com.sypztep.mamy.common.system.classkill.swordman.EnergyBreakSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.ProvokeSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.HPRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.SwordMasteryPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.thief.passive.DoubleAttackPassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -49,8 +50,11 @@ public class SkillRegistry {
     public static final Identifier OWLS_EYE = Mamy.id("owls_eye");
     public static final Identifier VULTURES_EYE = Mamy.id("vultures_eye");
     public static final Identifier IMPROVE_CONCENTRATION = Mamy.id("improve_concentration");
-    public static final Identifier ARROW_SHOWER = Mamy.id("arrow_shower");
-    public static final Identifier ARROW_STRAFE = Mamy.id("arrow_strafe");
+    public static final Identifier ARROW_RAIN = Mamy.id("arrow_rain");
+    public static final Identifier DOUBLE_STRAFE = Mamy.id("double_strafe");
+
+    //Thief
+    public static final Identifier DOUBLE_ATTACK = Mamy.id("double_attack");
 
     public static void registerSkills() {
         //Novice
@@ -78,8 +82,12 @@ public class SkillRegistry {
         register(new OwlsEyePassiveSkill(OWLS_EYE));
         register(new VulturesEyePassiveSkill(VULTURES_EYE, Skill.requiresSkills(Skill.requires(OWLS_EYE, 3))));
         register(new ImproveConcentrationSkill(IMPROVE_CONCENTRATION, Skill.requiresSkills(Skill.requires(VULTURES_EYE, 1))));
-        register(new ArrowRainSkill(ARROW_SHOWER));
-        register(new ArrowStrafeSkill(ARROW_STRAFE));
+        register(new ArrowRainSkill(ARROW_RAIN, Skill.requiresSkills(Skill.requires(DOUBLE_STRAFE, 5))));
+        register(new DoubleStrafeSkill(DOUBLE_STRAFE));
+
+        // Thief
+
+        register(new DoubleAttackPassiveSkill(DOUBLE_ATTACK));
     }
 
     private static void register(Skill skill) {
@@ -98,23 +106,9 @@ public class SkillRegistry {
         return SKILLS.get(Mamy.id(id));
     }
 
-    public static Collection<Skill> getAllSkills() {
-        return SKILLS.values();
-    }
-
     // ====================
     // UPDATED QUERY METHODS
     // ====================
-
-    /**
-     * Get all skills available for a specific class
-     */
-    public static List<Skill> getSkillsForClass(String classId) {
-        return SKILLS.values().stream()
-                .filter(skill -> skill.getRequiredClass() != null &&
-                        skill.getRequiredClass().getId().equals(classId))
-                .toList();
-    }
 
     /**
      * Get all skills available for a specific class (by PlayerClass object)
@@ -126,27 +120,9 @@ public class SkillRegistry {
     }
 
     /**
-     * Get skills that can be learned with the given class points
-     */
-    public static List<Skill> getAffordableSkills(String classId, int availableClassPoints) {
-        return getSkillsForClass(classId).stream()
-                .filter(skill -> skill.getBaseClassPointCost() <= availableClassPoints)
-                .toList();
-    }
-
-    /**
      * Check if a skill exists and is valid
      */
     public static boolean isValidSkill(Identifier skillId) {
         return SKILLS.containsKey(skillId);
-    }
-
-    /**
-     * Get skills ordered by class point cost (cheaper first)
-     */
-    public static List<Skill> getSkillsOrderedByCost(String classId) {
-        return getSkillsForClass(classId).stream()
-                .sorted(Comparator.comparingInt(Skill::getBaseClassPointCost))
-                .toList();
     }
 }
