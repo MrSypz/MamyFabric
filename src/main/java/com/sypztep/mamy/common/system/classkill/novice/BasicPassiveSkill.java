@@ -26,33 +26,8 @@ public final class BasicPassiveSkill extends PassiveSkill {
         tooltip.add(Text.literal("Essential skills for novice adventurers").formatted(Formatting.GRAY));
         tooltip.add(Text.literal(""));
 
-        if (skillLevel >= 6)
-            tooltip.add(Text.literal("✓ Amadeus Storage Access").formatted(Formatting.GREEN));
-        if (skillLevel >= 10)
-            tooltip.add(Text.literal("✓ First Job Class Evolution").formatted(Formatting.GREEN));
-
-        // Show next unlock if not max level
-        if (skillLevel < 10) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next unlock at level " + getNextUnlockLevel(skillLevel) + ":").formatted(Formatting.YELLOW));
-            switch (getNextUnlockLevel(skillLevel)) {
-                case 6 -> tooltip.add(Text.literal("- Amadeus Storage Access").formatted(Formatting.GRAY));
-                case 10 -> tooltip.add(Text.literal("- First Job Class Evolution").formatted(Formatting.GOLD, Formatting.BOLD));
-            }
-        }
-
-        // Special note about evolution requirement
-        if (skillLevel >= 10) {
-            tooltip.add(Text.literal(""));
+        if (skillLevel == this.maxSkillLevel)
             tooltip.add(Text.literal("⚡ Evolution unlocked! Reach class level 10 to evolve.").formatted(Formatting.GOLD, Formatting.ITALIC));
-        }
-    }
-
-    private int getNextUnlockLevel(int currentLevel) {
-        if (currentLevel < 5) return 5;
-        if (currentLevel < 6) return 6;
-        if (currentLevel < 7) return 7;
-        return 10; // Max level
     }
 
     @Override
