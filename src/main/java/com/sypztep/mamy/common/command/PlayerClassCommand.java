@@ -196,7 +196,7 @@ public class PlayerClassCommand {
 
     // === IMPLEMENTATION METHODS ===
 
-    private static int showInfo(ServerCommandSource source, ServerPlayerEntity player) {
+    private static void showInfo(ServerCommandSource source, ServerPlayerEntity player) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
         PlayerClassManager manager = classComponent.getClassManager();
         PlayerClass currentClass = manager.getCurrentClass();
@@ -216,7 +216,6 @@ public class PlayerClassCommand {
 
         Text finalMessage = message;
         source.sendFeedback(() -> finalMessage, false);
-        return 1;
     }
 
     private static int setClass(ServerCommandSource source, ServerPlayerEntity player, String className) {
