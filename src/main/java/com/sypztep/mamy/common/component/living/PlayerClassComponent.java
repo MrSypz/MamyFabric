@@ -81,7 +81,7 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
 
     // NEW: Upgrade skill method
     public void upgradeSkill(Identifier skillId) {
-        performBatchUpdate(() ->  classManager.upgradeSkill(skillId));
+        performBatchUpdate(() -> classManager.upgradeSkill(skillId));
     }
     public void unlearnSkill(Identifier skillId) {
         performBatchUpdate(() -> classManager.unlearnSkill(skillId));
@@ -127,7 +127,7 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
             classManager.tickResourceRegeneration();
             float newResource = classManager.getCurrentResource();
 
-            if (Math.abs(newResource - oldResource) > 1.0f) needsSync = true;
+            if (Math.abs(newResource - oldResource) > 0.0f) needsSync = true;
 
             if (needsSync) sync();
         }
