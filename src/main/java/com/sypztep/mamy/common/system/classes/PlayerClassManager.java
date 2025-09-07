@@ -148,7 +148,7 @@ public class PlayerClassManager {
         classLevelSystem.updateForClass(currentClass);
 
         // Apply new class attributes
-        currentClass.applyAttributeModifiers(player);
+        currentClass.applyClassAttributeModifiers(player);
         this.applyJobBonusesToStats(player);
 
         // Reset resource to full for new class
@@ -190,7 +190,7 @@ public class PlayerClassManager {
 //        classLevelSystem.updateForClass(currentClass);  // it using resetFor
 
         // Apply new class modifiers
-        currentClass.applyAttributeModifiers(player);
+        currentClass.applyClassAttributeModifiers(player);
 
         // Reset resource to full
         currentResource = targetClass.getMaxResource(player);
@@ -221,7 +221,7 @@ public class PlayerClassManager {
 
         currentClass = newClass;
         classLevelSystem.updateForClass(currentClass);
-        currentClass.applyAttributeModifiers(player);
+        currentClass.applyClassAttributeModifiers(player);
         currentResource = currentClass.getMaxResource(player);
         applyJobBonusesToStats(player);
     }
@@ -360,9 +360,9 @@ public class PlayerClassManager {
     public void tickResourceRegeneration() {
         resourceRegenTick++;
 
-        double regenRateSeconds = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE); // 160 -> 8 sec regen rate
+        double regenRateTick = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE) * 20; // 8 sec regen rate
 
-        if (resourceRegenTick >= regenRateSeconds) {
+        if (resourceRegenTick >= regenRateTick) {
             resourceRegenTick = 0;
 
             float maxResource = getMaxResource();
@@ -382,7 +382,7 @@ public class PlayerClassManager {
      */
     public void initialize() {
         if (currentClass != null) {
-            currentClass.applyAttributeModifiers(player);
+            currentClass.applyClassAttributeModifiers(player);
             skillManager.reapplyPassiveSkills();
             currentResource = Math.min(currentResource, this.getMaxResource());
         }
