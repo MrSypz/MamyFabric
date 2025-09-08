@@ -189,7 +189,8 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category("gameplay")
     public static boolean unlearnskill = true;
-
+    @ConfigEntry.Category("gameply")
+    public static boolean newCreeperExplode = true;
     // =====================================
     // DEATH PENALTY
     // =====================================

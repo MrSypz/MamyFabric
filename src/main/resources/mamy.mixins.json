@@ -42,6 +42,7 @@
     "vanilla.rebalancestatuseffects.WitherSkullEntityMixin"
   ],
   "client": [
+    "CameraMixin",
     "core.altfeature.KeyboardMixin",
     "core.altfeature.MouseMixin",
     "core.broken.client.DrawContextMixin",

@@ -16,5 +16,11 @@
       "mamy:entity/ricochet"
     ],
     "subtitle": "subtitles.mamy.entity.generic.ricochet"
+  },
+  "entity.generic.shockwave": {
+    "sounds": [
+      "mamy:entity/shockwave"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.shockwave"
   }
 }
