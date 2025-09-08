@@ -42,7 +42,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.MOB_ATTACK_NO_AGGRO)
 				.add(DamageTypes.ARROW)
 				.addOptional(ModDamageTypes.HOLY)
-				.addOptional(ModDamageTypes.ARROW_RAIN);
+				.addOptional(ModDamageTypes.ARROW_RAIN)
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)

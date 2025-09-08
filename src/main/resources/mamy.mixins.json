@@ -20,6 +20,7 @@
     "core.stats.agility.projectileclip.PersistentProjectileEntityMixin",
     "core.stats.agility.projectileclip.TridentEntityMixin",
     "core.stats.dexterity.RangedWeaponItemMixin",
+    "core.stats.intelligence.mob.CreeperEntityMixin",
     "core.stats.vitality.HungerManagerMixin",
     "core.stats.vitality.LivingEntityMixin",
     "core.weight.ItemEntityMixin",
