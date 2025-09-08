@@ -52,7 +52,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
     private static final Identifier STATS_ICON = Mamy.id("hud/level/stats");
 
     private static final Identifier BACKGROUND_TEXTURE = Mamy.id("textures/gui/hud/level/card.png");
-    private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/sky_night.png");
+    private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/vfx/water_caustic.png");
 
     // Animation settings
     private static final float XP_GLOW_DURATION = 3.0f;

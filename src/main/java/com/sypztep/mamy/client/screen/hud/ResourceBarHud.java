@@ -34,7 +34,7 @@ public class ResourceBarHud {
 
     // Texture identifiers
     private static final Identifier BACKGROUND_TEXTURE = Mamy.id("textures/gui/hud/resource/card.png");
-    private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/sky_night.png");
+    private static final Identifier SKY_NIGHT_TEXTURE = Mamy.id("textures/vfx/water_caustic.png");
 
     // Color scheme
     private static final int BACKGROUND_DARK = 0xFF000000;

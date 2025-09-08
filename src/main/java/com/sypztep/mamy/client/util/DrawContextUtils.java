@@ -299,7 +299,7 @@ public final class DrawContextUtils {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
 
         // Bind texture once
-        RenderSystem.setShaderTexture(0, Mamy.id("textures/sky_night_2.png")); // SPARKLE
+        RenderSystem.setShaderTexture(0, Mamy.id("textures/vfx/dust_spark.png")); // SPARKLE
         RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.depthMask(false);
 
