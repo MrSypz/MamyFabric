@@ -1,4 +1,4 @@
-package com.sypztep.mamy.client.event;accessoraccessor
+package com.sypztep.mamy.client.event;
 
 import com.sypztep.mamy.client.screen.CameraShakeManager;
 import com.sypztep.mamy.common.init.ModSoundEvents;
