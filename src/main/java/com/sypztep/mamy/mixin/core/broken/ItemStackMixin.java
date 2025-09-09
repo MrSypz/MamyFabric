@@ -40,7 +40,7 @@ public abstract class ItemStackMixin implements ComponentHolder {
     public abstract int getMaxDamage();
 
     @Unique
-    private ItemStack stack = (ItemStack) (Object) this;
+    private final ItemStack stack = (ItemStack) (Object) this;
 
     @Inject(method = "applyAttributeModifiers", at = @At("HEAD"), cancellable = true)
     public void preventAttributeModifiersIfBroken(EquipmentSlot slot, BiConsumer<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifierConsumer, CallbackInfo ci) {

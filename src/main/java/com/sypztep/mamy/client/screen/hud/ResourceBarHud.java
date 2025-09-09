@@ -260,9 +260,9 @@ public class ResourceBarHud {
     private void spawnResourceParticle(float amount, ResourceType resourceType) {
         // Calculate spawn position (center of the resource bar) - account for scaling
         float scale = ModConfig.resourcebarscale;
-        int barCenterX = (int)(calculateHudX() + (BASE_PADDING + BASE_BAR_WIDTH / 2) * scale);
+        int barCenterX = (int)(calculateHudX() + (BASE_PADDING + (float) BASE_BAR_WIDTH / 2) * scale);
         int barCenterY = (int)(BASE_HUD_Y + (BASE_PADDING +
-                MinecraftClient.getInstance().textRenderer.fontHeight + BASE_LINE_HEIGHT + 4 + BASE_BAR_HEIGHT / 2) * scale);
+                MinecraftClient.getInstance().textRenderer.fontHeight + BASE_LINE_HEIGHT + 4 + (float) BASE_BAR_HEIGHT / 2) * scale);
 
         // Determine color based on gain/loss and resource type
         boolean isGain = amount > 0;
