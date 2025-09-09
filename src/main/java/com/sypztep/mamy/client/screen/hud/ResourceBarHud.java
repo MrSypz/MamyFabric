@@ -217,7 +217,6 @@ public class ResourceBarHud {
         float scale = ModConfig.resourcebarscale;
 
         DrawContextUtils.withScaleAt(drawContext, scale, currentHudX, hudY, () -> {
-            // Render the enhanced resource bar with scaling applied
             renderEnhancedResourceBar(drawContext, client, manager, currentHudX, hudY, resourceType);
         });
 

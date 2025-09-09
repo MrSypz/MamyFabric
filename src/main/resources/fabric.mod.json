@@ -47,7 +47,8 @@
       "mamy:playerclass",
       "mamy:playerstance",
       "mamy:playerweight",
-      "mamy:playercrowdcontrol"
+      "mamy:playercrowdcontrol",
+      "mamy:playershieldscore"
     ]
   }
 }

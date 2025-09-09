@@ -26,7 +26,7 @@ public abstract class LivingEntityMixin {
 
             if (damage >= 0.5f) {
                 SkillCastingManager castingManager = SkillCastingManager.getInstance();
-                if (castingManager.canBeInterupt()) {
+                if (castingManager.canBeInterupt() && castingManager.isCasting()) {
                     castingManager.interruptCast();
                 }
             }

@@ -18,6 +18,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<PlayerStanceComponent> PLAYERSTANCE = ComponentRegistry.getOrCreate(Mamy.id("playerstance"), PlayerStanceComponent.class);
     public static final ComponentKey<PlayerWeightComponent> PLAYERWEIGHT = ComponentRegistry.getOrCreate(Mamy.id("playerweight"), PlayerWeightComponent.class);
     public static final ComponentKey<PlayerCrowdControlComponent> PLAYERCROWDCONTROL = ComponentRegistry.getOrCreate(Mamy.id("playercrowdcontrol"), PlayerCrowdControlComponent.class);
+    public static final ComponentKey<PlayerShieldScoreComponent> PLAYERSHIELDSCORE = ComponentRegistry.getOrCreate(Mamy.id("playershieldscore"), PlayerShieldScoreComponent.class);
 //    public static final ComponentKey<DungeonDataComponent> DUNGEON_DATA = ComponentRegistry.getOrCreate(Mamy.id("dungeon_data"), DungeonDataComponent.class);
 
     @Override
@@ -28,6 +29,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerForPlayers(PLAYERSTANCE, PlayerStanceComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerForPlayers(PLAYERWEIGHT, PlayerWeightComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerForPlayers(PLAYERCROWDCONTROL, PlayerCrowdControlComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        registry.registerForPlayers(PLAYERSHIELDSCORE, PlayerShieldScoreComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 //        registry.registerForPlayers(DUNGEON_DATA, DungeonDataComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
 }

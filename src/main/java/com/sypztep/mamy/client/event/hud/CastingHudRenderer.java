@@ -15,13 +15,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 
 @Environment(EnvType.CLIENT)
-public final class CastingHudRenderer {
+public final class CastingHudRenderer implements HudRenderCallback {
 
     public static void init() {
-        HudRenderCallback.EVENT.register(CastingHudRenderer::renderCastingBar);
+        HudRenderCallback.EVENT.register(new CastingHudRenderer());
     }
 
-    private static void renderCastingBar(DrawContext context, RenderTickCounter tickCounter) {
+    @Override
+    public void onHudRender(DrawContext context, RenderTickCounter renderTickCounter) {
         MinecraftClient client = MinecraftClient.getInstance();
         SkillCastingManager castingManager = SkillCastingManager.getInstance();
 
@@ -32,7 +33,7 @@ public final class CastingHudRenderer {
 
         // Position below hotbar
         int barWidth = 182;
-        int barHeight = 8;
+        int barHeight = 4;
         int x = (screenWidth - barWidth) / 2;
         int y = screenHeight - 32 - barHeight - 25;
 

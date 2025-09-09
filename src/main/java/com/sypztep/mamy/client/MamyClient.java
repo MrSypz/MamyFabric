@@ -40,6 +40,7 @@ public class MamyClient implements ClientModInitializer {
 
         SkillHudOverlayRenderer.register();
         HotbarIconOverlayRenderer.register();
+        ShieldScoreHudRenderer.register();
         CastingHudRenderer.init();
 
         SkillCooldownCleanUpEvent.register();

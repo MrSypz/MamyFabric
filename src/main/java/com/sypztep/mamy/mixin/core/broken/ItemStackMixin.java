@@ -3,6 +3,7 @@ package com.sypztep.mamy.mixin.core.broken;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.component.ComponentHolder;
 import net.minecraft.entity.EquipmentSlot;
@@ -11,6 +12,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -49,9 +51,9 @@ public abstract class ItemStackMixin implements ComponentHolder {
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
     public void preventUse(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
-        if (ClassEquipmentUtil.handleRestriction(player, stack, "use")) {
-            cir.setReturnValue(TypedActionResult.fail(stack));
-        }
+        if (ClassEquipmentUtil.handleRestriction(player, stack, "use")) cir.setReturnValue(TypedActionResult.fail(stack));
+        // I'm to lazy to make new class so mix up with this
+        if (this.stack.isOf(Items.SHIELD) && ModEntityComponents.PLAYERSHIELDSCORE.get(player).getCurrentShieldScore() == 0.0) cir.setReturnValue(TypedActionResult.fail(stack));
     }
 
     @Inject(method = "damage(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/server/network/ServerPlayerEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"), cancellable = true)

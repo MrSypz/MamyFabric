@@ -26,6 +26,7 @@
     "core.weight.ItemEntityMixin",
     "core.weight.PlayerInventoryMixin",
     "core.weight.ServerPlayerEntityMixin",
+    "vanilla.balanceshield.LivingEntityMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
     "vanilla.changeattributerange.EntityAttributesMixin",
     "vanilla.disableitemtooltip.ItemStackMixin",
