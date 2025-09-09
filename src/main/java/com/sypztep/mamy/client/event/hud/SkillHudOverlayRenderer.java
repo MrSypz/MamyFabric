@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-public class SkillHudOverlayRenderer {
+public final class SkillHudOverlayRenderer {
     // Skill hotbar constants
     private static final int SKILL_SLOT_SIZE = 22;
     private static final int SKILL_SLOT_SPACING = 22;

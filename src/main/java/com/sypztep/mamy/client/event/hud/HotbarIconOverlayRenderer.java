@@ -7,7 +7,7 @@ import com.sypztep.mamy.client.screen.SkillLearningScreen;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import net.minecraft.util.Identifier;
 
-public class HotbarIconOverlayRenderer {
+public final class HotbarIconOverlayRenderer {
 
     public static void register() {
         IconOverlayManager.clearAll();

@@ -14,7 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
-public class ShieldScoreHudRenderer implements HudRenderCallback {
+public final class ShieldScoreHudRenderer implements HudRenderCallback {
     private static final Identifier SHIELD_EMPTY = Mamy.id("textures/gui/sprites/hud/shield_empty.png");
     private static final Identifier SHIELD_FULL = Mamy.id("textures/gui/sprites/hud/shield.png");
     private static final int TEXTURE_SIZE = 64;

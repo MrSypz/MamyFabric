@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(EnvType.CLIENT)
-public class HealthBarRenderer {
+public final class HealthBarRenderer {
     private static final Identifier HEALTHBAR_TEXTURE = Mamy.id("textures/gui/hud/health/healthbar.png");
     private static final Identifier WATER_CAUSTIC = Mamy.id("textures/vfx/water_caustic.png");
 

@@ -7,11 +7,10 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 
-public class VersionHudRenderer implements HudRenderCallback {
+public final class VersionHudRenderer implements HudRenderCallback {
     private final String displayText;
 
     public VersionHudRenderer() {
-        // Grab version from fabric.mod.json (linked to gradle.properties)
         String version = FabricLoader.getInstance()
                 .getModContainer("mamy") // your mod id here
                 .map(c -> c.getMetadata().getVersion().getFriendlyString())
