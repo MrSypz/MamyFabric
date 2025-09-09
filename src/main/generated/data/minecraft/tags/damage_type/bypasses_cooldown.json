@@ -11,6 +11,10 @@
     {
       "id": "mamy:arrow_rain",
       "required": false
+    },
+    {
+      "id": "mamy:double_attack",
+      "required": false
     }
   ]
 }
