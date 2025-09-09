@@ -22,7 +22,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true ;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));
@@ -217,8 +217,7 @@ public final class DamageUtil {
     }
 
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
-        debugLog("====RESISTANCE MODIFIER START====");
-
+        debugLog("====RESISTANCE MODIFIER START - INPUT: %.2f====", amount);
         float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
 
         float flatReduction = 0.0f;
@@ -266,8 +265,7 @@ public final class DamageUtil {
         float afterPercentageReduction = elementalDamage * (1.0f - Math.min(0.95f, percentageReduction));
 
         // Apply flat reduction
-        float finalDamage = Math.max(0.1f, afterPercentageReduction - flatReduction);
-
+        float finalDamage = Math.max(0.0f, afterPercentageReduction - flatReduction);
         debugLog("Elemental damage: %.2f, Percentage reduction: %.2f, After percentage: %.2f, Flat reduction: %.2f, Final: %.2f",
                 elementalDamage, percentageReduction, afterPercentageReduction, flatReduction, finalDamage);
         debugLog("====RESISTANCE MODIFIER END====");
@@ -289,7 +287,7 @@ public final class DamageUtil {
         debugLog("Calculation: %.3f × (1 - %.3f) = %.3f", damageAfterArmor, percentageReduction, finalDamage);
 
         debugLog("====ARMOR CALCULATION END====");
-        return Math.max(0.1f, finalDamage);
+        return Math.max(0.0f, finalDamage);
     }
 
     public static float getDamageAfterArmor(LivingEntity self, DamageSource source, float amount) {

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
@@ -48,8 +48,7 @@ public final class ElementalDamageSystem {
     private static float applyEnvironmentalDamage(LivingEntity defender, float damage, DamageSource source) {
         ElementType sourceElement = getElementTypeFromDamageSource(source);
         float resistance = (float) defender.getAttributeValue(sourceElement.resistance);
-        float finalDamage = Math.max(0.1f, damage * (1.0f - resistance));
-
+        float finalDamage = Math.max(0.0f, damage * (1.0f - resistance));
         debugLog("Environmental damage: %s, Resistance: %.2f, Final: %.2f", sourceElement.name(), resistance, finalDamage);
 
         sendDamageNumbers(defender, new ElementalBreakdown(Map.of(sourceElement, finalDamage), source));
@@ -164,14 +163,14 @@ public final class ElementalDamageSystem {
 
             float afterResistance = elementDamage * (1.0f - totalResistance);
             float flatReduction = (float) defender.getAttributeValue(element.flatReduction);
-            float finalElementDamage = Math.max(0.05f, afterResistance - flatReduction);
+            float finalElementDamage = Math.max(0.0f, afterResistance - flatReduction);
 
             totalFinalDamage += finalElementDamage;
 
             debugLog("%s: %.2f × (1 - %.3f total) = %.2f - %.2f flat = %.2f", element.name(), elementDamage, totalResistance, afterResistance, flatReduction, finalElementDamage);
         }
         sendDamageNumbers(defender, breakdown);
-        return Math.max(0.1f, totalFinalDamage);
+        return Math.max(0.0f, totalFinalDamage);
     }
 
     private static Map<ElementType, Float> calculateArmorResistances(LivingEntity entity) {
