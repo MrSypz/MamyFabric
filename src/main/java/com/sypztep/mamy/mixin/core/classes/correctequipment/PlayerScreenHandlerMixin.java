@@ -2,15 +2,16 @@ package com.sypztep.mamy.mixin.core.classes.correctequipment;
 
 import com.sypztep.mamy.common.util.ClassEquipmentUtil;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -39,11 +40,13 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler {
         }
     }
 
+    @Unique
     private boolean isArmorItem(ItemStack stack) {
-        return stack.getItem() instanceof net.minecraft.item.ArmorItem;
+        return stack.getItem() instanceof ArmorItem;
     }
 
+    @Unique
     private boolean isShieldItem(ItemStack stack) {
-        return stack.getItem() instanceof net.minecraft.item.ShieldItem;
+        return stack.getItem() instanceof ShieldItem;
     }
 }

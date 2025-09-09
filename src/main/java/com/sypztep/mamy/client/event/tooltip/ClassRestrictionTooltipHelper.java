@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-/**
- * Helper class for adding class restriction tooltips to items
- */
 public final class ClassRestrictionTooltipHelper {
 
     /**

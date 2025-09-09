@@ -203,24 +203,18 @@ public final class ClassEquipmentUtil {
     public static boolean handleRestriction(PlayerEntity player, ItemStack itemStack, String actionName) {
         RestrictionReason reason = getRestrictionReason(player, itemStack);
 
-        switch (reason) {
-            case NONE:
-                return false; // Allow action
+        return switch (reason) {
+            case NONE -> false; // Allow action
 
-            case BROKEN:
-                if (!player.getWorld().isClient) {
-                    sendBrokenItemMessage(player, itemStack, actionName);
-                }
-                return true; // Prevent action
-
-            case CLASS_RESTRICTED:
-                if (!player.getWorld().isClient) {
-                    sendClassRestrictionMessage(player, itemStack, actionName);
-                }
-                return true; // Prevent action
-        }
-
-        return false;
+            case BROKEN -> {
+                if (!player.getWorld().isClient) sendBrokenItemMessage(player, itemStack, actionName);
+                yield true;
+            }
+            case CLASS_RESTRICTED -> {
+                if (!player.getWorld().isClient) sendClassRestrictionMessage(player, itemStack, actionName);
+                yield true;
+            }
+        };
     }
 
     private static void sendBrokenItemMessage(PlayerEntity player, ItemStack itemStack, String action) {
