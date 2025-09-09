@@ -13,7 +13,7 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ShockwaveHandler {
-    private static final double SOUND_SPEED = 123.0;
+    private static final double SOUND_SPEED = 123.0; // 346 but / 2 due to minecraft distance render
     private static final List<DelayedShake> pendingShakes = new ArrayList<>();
 
     public static class DelayedShake {
