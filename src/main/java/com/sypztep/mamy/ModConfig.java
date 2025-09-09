@@ -36,10 +36,6 @@ public class ModConfig implements ConfigData {
     @Comment("Color of the critical hit damage indicator")
     public static int critDamageColor = 0xFF4F00;
 
-    @ConfigEntry.Category("client_features")
-    @Comment("Show tooltip information in stat screens")
-    public static boolean tooltipinfo = true;
-
     // =====================================
     // NOTIFICATIONS
     // =====================================
@@ -189,8 +185,10 @@ public class ModConfig implements ConfigData {
 
     @ConfigEntry.Category("gameplay")
     public static boolean unlearnskill = true;
-    @ConfigEntry.Category("gameply")
+    @ConfigEntry.Category("gameplay")
     public static boolean newCreeperExplode = true;
+    @ConfigEntry.Category("gameplay")
+    public static boolean shieldReblance = true;
     // =====================================
     // DEATH PENALTY
     // =====================================
