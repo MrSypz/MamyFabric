@@ -12,19 +12,19 @@ import net.minecraft.util.Identifier;
 
 import java.util.List;
 
-public class DoubleAttackPassiveSkill extends PassiveSkill {
+public class ImproveDodgePassiveSkill extends PassiveSkill {
 
-    public DoubleAttackPassiveSkill(Identifier id) {
+    public ImproveDodgePassiveSkill(Identifier id) {
         super(
                 id,
-                "Double Attack",
-                "Adds a high chance to deal double damage when attacking",
+                "Improve Dodge",
+                "Increases evasion chance through nimble movement and reflexes",
                 ModClasses.THIEF,
                 1,
                 1,
                 10,
                 false,
-                Mamy.id("skill/passive/double_attack")
+                Mamy.id("skill/passive/improve_dodge")
         );
     }
 
@@ -32,23 +32,21 @@ public class DoubleAttackPassiveSkill extends PassiveSkill {
     protected void initializePassiveEffects() {
         addAttributeModification(
                 AttributeModification.addValue(
-                        ModEntityAttributes.ACCURACY,
-                        Mamy.id("double_attack_passive"),
-                        skillLevel -> skillLevel * 2 // +2 accuracy per level accuracy 5%
-                )
-        );
-        addAttributeModification(
-                AttributeModification.addValue(
-                        ModEntityAttributes.DOUBLE_ATTACK_CHANCE,
-                        Mamy.id("double_attack_passive"),
-                        skillLevel -> skillLevel * 0.07f // +7% per level
+                        ModEntityAttributes.EVASION,
+                        Mamy.id("improve_dodge_passive"),
+                        skillLevel -> skillLevel * 3 // +3 evasion per level
                 )
         );
     }
 
     @Override
     protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal("Gives the chance to inflict two hits instead of one and improves hit rate while attacking.").formatted(Formatting.GRAY));
+        tooltip.add(Text.literal("Improves evasion through agility training and quick reflexes.").formatted(Formatting.GRAY));
+
+        // Show current evasion bonus
+        int evasionBonus = skillLevel * 3;
+        tooltip.add(Text.literal("Evasion: +").formatted(Formatting.GRAY)
+                .append(Text.literal(String.valueOf(evasionBonus)).formatted(Formatting.GREEN)));
     }
 
     @Override

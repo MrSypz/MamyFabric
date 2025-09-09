@@ -12,7 +12,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 
 public class ModStatusEffects {
-    public static RegistryEntry<StatusEffect> CARVE;
     public static RegistryEntry<StatusEffect> ENDURE;
     public static RegistryEntry<StatusEffect> INCREASE_AGILITY;
     public static RegistryEntry<StatusEffect> DECREASE_AGILITY;
@@ -28,9 +27,9 @@ public class ModStatusEffects {
     public static RegistryEntry<StatusEffect> FREEZING;
     public static RegistryEntry<StatusEffect> KNOCKBACK;
     public static RegistryEntry<StatusEffect> FLOATING;
+    public static RegistryEntry<StatusEffect> ENVENOM_WEAPON;
 
     public static void init() {
-        CARVE = init("carve", new MarkEffect(StatusEffectCategory.HARMFUL).addAttributeModifier(EntityAttributes.GENERIC_ARMOR, Mamy.id("carve_status_effect"), -0.08D, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         ENDURE = init("endure", new EndureEffect(StatusEffectCategory.BENEFICIAL));
         INCREASE_AGILITY = init("increase_agility", new IncreaseAgilityEffect(StatusEffectCategory.BENEFICIAL));
         DECREASE_AGILITY = init("decrease_agility", new DecreaseAgilityEffect(StatusEffectCategory.HARMFUL));
@@ -46,6 +45,7 @@ public class ModStatusEffects {
         FREEZING = init("freezing", new CrowdControlStatusEffect(StatusEffectCategory.HARMFUL, CrowdControlType.FREEZING, CrowdControlType.FREEZING.getCcPoints()));
         KNOCKBACK = init("knockback", new CrowdControlStatusEffect(StatusEffectCategory.HARMFUL, CrowdControlType.KNOCKBACK, CrowdControlType.KNOCKBACK.getCcPoints()));
         FLOATING = init("floating", new CrowdControlStatusEffect(StatusEffectCategory.HARMFUL, CrowdControlType.FLOATING, CrowdControlType.FLOATING.getCcPoints()));
+        ENVENOM_WEAPON = init("envenom_weapon", new EnvenomWeaponStatusEffect(StatusEffectCategory.BENEFICIAL));
     }
     public static RegistryEntry<StatusEffect> init(String name, StatusEffect effect) {
         return Registry.registerReference(Registries.STATUS_EFFECT, Mamy.id(name), effect);

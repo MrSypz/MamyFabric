@@ -17,7 +17,11 @@ import com.sypztep.mamy.common.system.classkill.swordman.EnergyBreakSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.ProvokeSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.HPRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.passive.SwordMasteryPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.thief.DetoxifySkill;
+import com.sypztep.mamy.common.system.classkill.thief.EnvenomSkill;
+import com.sypztep.mamy.common.system.classkill.thief.StealSkill;
 import com.sypztep.mamy.common.system.classkill.thief.passive.DoubleAttackPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.thief.passive.ImproveDodgePassiveSkill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
@@ -55,6 +59,10 @@ public class SkillRegistry {
 
     //Thief
     public static final Identifier DOUBLE_ATTACK = Mamy.id("double_attack");
+    public static final Identifier DETOXIFY = Mamy.id("detoxify");
+    public static final Identifier ENVENOM = Mamy.id("envenom");
+    public static final Identifier IMPROVE_DODGE = Mamy.id("improve_dodge");
+    public static final Identifier STEAL = Mamy.id("steal");
 
     public static void registerSkills() {
         //Novice
@@ -86,8 +94,11 @@ public class SkillRegistry {
         register(new DoubleStrafeSkill(DOUBLE_STRAFE));
 
         // Thief
-
         register(new DoubleAttackPassiveSkill(DOUBLE_ATTACK));
+        register(new DetoxifySkill(DETOXIFY, Skill.requiresSkills(Skill.requires(ENVENOM, 3))));
+        register(new EnvenomSkill(ENVENOM));
+        register(new ImproveDodgePassiveSkill(IMPROVE_DODGE));
+        register(new StealSkill(STEAL));
     }
 
     private static void register(Skill skill) {

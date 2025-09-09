@@ -25,7 +25,7 @@ public final class ModTags {
     }
 
     public static class EntityTypes {
-        public static final TagKey<EntityType<?>> CANNOT_HEADSHOT = TagKey.of(RegistryKeys.ENTITY_TYPE, Mamy.id("cannot_headshot"));
+        public static final TagKey<EntityType<?>> BOSSES = TagKey.of(RegistryKeys.ENTITY_TYPE, Mamy.id("bosses"));
     }
     // ==========================================
     // ITEM TAGS FOR CLASS RESTRICTION SYSTEM

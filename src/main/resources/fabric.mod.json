@@ -48,7 +48,8 @@
       "mamy:playerstance",
       "mamy:playerweight",
       "mamy:playercrowdcontrol",
-      "mamy:playershieldscore"
+      "mamy:playershieldscore",
+      "mamy:livingsteal"
     ]
   }
 }
