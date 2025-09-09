@@ -291,15 +291,22 @@ public final class DrawContextUtils {
         RenderSystem.disableBlend();
     }
 
-    /**
-     * Renders a magical portal effect with multiple animated layers
-     */
     public static void renderMagicalPortalEffect(DrawContext context, int x, int y, int width, int height,
                                                  Identifier skyTexture, float time, float alpha) {
+        renderMagicalPortalEffect(context, x, y, width, height,
+                Mamy.id("textures/vfx/dust_spark.png"), skyTexture, time, alpha);
+    }
+
+    /**
+     * Overloaded method with custom base and overlay textures
+     */
+    public static void renderMagicalPortalEffect(DrawContext context, int x, int y, int width, int height,
+                                                 Identifier baseTexture, Identifier overlayTexture,
+                                                 float time, float alpha) {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
 
-        // Bind texture once
-        RenderSystem.setShaderTexture(0, Mamy.id("textures/vfx/dust_spark.png")); // SPARKLE
+        // Bind base texture first
+        RenderSystem.setShaderTexture(0, baseTexture);
         RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.depthMask(false);
 
@@ -309,13 +316,14 @@ public final class DrawContextUtils {
         renderAnimatedTextureLayer(matrix, x, y, width, height, time * 0.15f, time * 0.1f,
                 width / 50.0f, height / 50.0f, (int)(alpha * 180) << 24 | 0xFFFFFF);
 
-        RenderSystem.setShaderTexture(0, skyTexture);
+        // === LAYER 2: OVERLAY TEXTURE ===
+        RenderSystem.setShaderTexture(0, overlayTexture);
         BlendMode.applyBlendMode(BlendMode.MULTIPLY_SCREEN_HYBRID);
         renderAnimatedTextureLayer(matrix, x, y, width, height, time * -0.25f, time * 0.2f,
                 width / 35.0f, height / 35.0f, (int)(alpha * 120) << 24 | 0xAABBFF);
 
+        // === LAYER 3: OVERLAY TEXTURE SECOND PASS ===
         BlendMode.applyBlendMode(BlendMode.MULTIPLY_SCREEN_HYBRID);
-
         renderAnimatedTextureLayer(matrix, x, y, width, height, time * 0.4f, time * -0.3f,
                 width / 25.0f, height / 25.0f, (int)(alpha * 80) << 24 | 0x6688FF);
 

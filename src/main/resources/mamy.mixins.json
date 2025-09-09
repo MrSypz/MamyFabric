@@ -52,7 +52,8 @@
     "core.skillcast.client.KeyboardInputMixin",
     "core.skillcast.client.LivingEntityMixin",
     "core.stats.dexterity.ClientPlayerEntityMixin",
-    "core.weight.client.InventoryScreenMixin"
+    "core.weight.client.InventoryScreenMixin",
+    "vanilla.changeheartdraw.InGameHudHealthMixin"
   ],
   "injectors": {
     "defaultRequire": 1

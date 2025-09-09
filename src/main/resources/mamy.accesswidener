@@ -5,3 +5,5 @@ accessible method net/minecraft/client/font/TextRenderer tweakTransparency (I)I
 accessible method net/minecraft/entity/LivingEntity spawnItemParticles (Lnet/minecraft/item/ItemStack;I)V
 accessible class net/minecraft/entity/effect/InstantHealthOrDamageStatusEffect
 accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
+accessible class net/minecraft/client/gui/hud/InGameHud$HeartType
+accessible method net/minecraft/client/gui/hud/InGameHud$HeartType fromPlayerState (Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/client/gui/hud/InGameHud$HeartType;

@@ -9,15 +9,14 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntity> {
-    private static final Identifier TEXTURE = Mamy.id("textures/entity/bloodlust.png");
     private static final Identifier HEALING_GRADIENT_TEXTURE = Mamy.id("textures/entity/healing_gradient.png");
 
-    // Custom render layer for healing cylinder with texture support
     private static final RenderLayer HEALING_CYLINDER = RenderLayer.of(
             "healing_cylinder_translucent_emissive",
             VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
@@ -45,7 +44,7 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
 
     @Override
     public Identifier getTexture(HealingLightEntity entity) {
-        return TEXTURE;
+        return HEALING_GRADIENT_TEXTURE;
     }
 
     @Override
@@ -124,11 +123,12 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
     }
 
     private int getHealingColor(float intensity) {
-        float r = MathHelper.clamp(0.6f * intensity, 0.0f, 1.0f);
-        float g = MathHelper.clamp(intensity, 0.0f, 1.0f);
-        float b = MathHelper.clamp(0.7f * intensity, 0.0f, 1.0f);
-        float a = MathHelper.clamp(intensity, 0.0f, 1.0f); // Full alpha, texture will handle gradient
+        int red = 25;
+        int green = 204;
+        int blue = 255;
 
-        return ((int)(a * 255) << 24) | ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
+        int alpha = (int)(MathHelper.clamp(intensity, 0.0f, 1.0f) * 255);
+
+        return ColorHelper.Argb.getArgb(alpha, red, green, blue);
     }
 }

@@ -28,6 +28,9 @@ public class ModConfig implements ConfigData {
     public static boolean damageCritIndicator = true;
 
     @ConfigEntry.Category("client_features")
+    public static boolean fixHeartScreen =  true;
+
+    @ConfigEntry.Category("client_features")
     @Comment("Show visual indicator when attacks miss")
     public static boolean missingIndicator = true;
 
