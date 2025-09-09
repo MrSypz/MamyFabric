@@ -4,3 +4,4 @@ accessible field net/minecraft/entity/LivingEntity jumping Z
 accessible method net/minecraft/client/font/TextRenderer tweakTransparency (I)I
 accessible method net/minecraft/entity/LivingEntity spawnItemParticles (Lnet/minecraft/item/ItemStack;I)V
 accessible class net/minecraft/entity/effect/InstantHealthOrDamageStatusEffect
+accessible method net/minecraft/world/World getDestructionType (Lnet/minecraft/world/GameRules$Key;)Lnet/minecraft/world/explosion/Explosion$DestructionType;
