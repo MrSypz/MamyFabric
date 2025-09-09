@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.damage;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.network.client.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.Mamy;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = ModConfig.elementDamageDebug;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
@@ -139,10 +140,7 @@ public final class ElementalDamageSystem {
             }
         }
 
-        // If no weapon elements found, default to physical
-        if (elementalDamage.isEmpty()) {
-            return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
-        }
+        if (elementalDamage.isEmpty()) return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
 
         return new ElementalBreakdown(elementalDamage, source);
     }

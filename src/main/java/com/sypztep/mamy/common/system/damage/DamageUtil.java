@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
@@ -22,7 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = true ;
+    private static final boolean DEBUG = ModConfig.damageAfterArmorDebug;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));

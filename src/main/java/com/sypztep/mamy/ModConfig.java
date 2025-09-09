@@ -189,6 +189,7 @@ public class ModConfig implements ConfigData {
     public static boolean newCreeperExplode = true;
     @ConfigEntry.Category("gameplay")
     public static boolean shieldReblance = true;
+
     // =====================================
     // DEATH PENALTY
     // =====================================
@@ -201,4 +202,9 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 1)
     @Comment("Percentage of next level experience lost on death (0.0 - 1.0)")
     public static float deathPenaltyPercentage = 0.1f;
+
+    @ConfigEntry.Category("dev")
+    public static boolean damageAfterArmorDebug = false;
+    @ConfigEntry.Category("dev")
+    public static boolean elementDamageDebug = false;
 }
