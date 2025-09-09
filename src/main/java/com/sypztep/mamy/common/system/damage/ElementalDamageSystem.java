@@ -10,9 +10,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public final class ElementalDamageSystem {
     private static final boolean DEBUG = ModConfig.elementDamageDebug;
@@ -236,6 +239,13 @@ public final class ElementalDamageSystem {
 
     public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {
         if (target.getWorld().isClient()) return;
-        PlayerLookup.tracking(target).forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
+
+        Set<ServerPlayerEntity> recipients = new HashSet<>(PlayerLookup.tracking(target));
+
+        if (breakdown.originalSource.getAttacker() instanceof ServerPlayerEntity attacker) recipients.add(attacker);
+
+        if (target instanceof ServerPlayerEntity player) recipients.add(player);
+
+        recipients.forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
     }
 }
