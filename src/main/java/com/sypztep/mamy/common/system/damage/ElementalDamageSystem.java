@@ -195,11 +195,11 @@ public final class ElementalDamageSystem {
     }
 
     private static ElementType getElementTypeFromDamageSource(DamageSource source) {
-        if (source.isIn(ModTags.DamageTags.FIRE_DAMAGE) || source.isIn(DamageTypeTags.IS_FIRE)) {
+        if (source.isIn(ModTags.DamageTags.FIRE_DAMAGE)) {
             return ElementType.FIRE;
         } else if (source.isIn(ModTags.DamageTags.COLD_DAMAGE)) {
             return ElementType.COLD;
-        } else if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE) || source.isIn(DamageTypeTags.IS_LIGHTNING)) {
+        } else if (source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE)) {
             return ElementType.ELECTRIC;
         } else if (source.isIn(ModTags.DamageTags.WATER_DAMAGE)) {
             return ElementType.WATER;
