@@ -149,7 +149,7 @@ public final class HealthBarRenderer {
 
         public static void render(DrawContext context, PlayerEntity player, int x, int y, TextRenderer textRenderer) {
             int armor = player.getArmor();
-            if (armor <= 0) return;
+            if (armor < 0) return;
 
             updateArmorAnimations(armor);
 
