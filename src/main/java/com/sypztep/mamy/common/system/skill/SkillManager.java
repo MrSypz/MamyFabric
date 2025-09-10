@@ -22,8 +22,7 @@ public class SkillManager {
         int skillLevel = skillManager.getSkillLevel(skillId);
 
         // Use centralized validation
-        SkillUsabilityChecker.UsabilityCheck usabilityCheck =
-                SkillUsabilityChecker.checkServerUsability(player, skillId, skillLevel);
+        SkillUsabilityChecker.UsabilityCheck usabilityCheck = SkillUsabilityChecker.checkServerUsability(player, skillId, skillLevel);
 
         if (!usabilityCheck.isUsable()) {
             SkillUsabilityChecker.sendUsabilityFeedback(player, usabilityCheck);
@@ -31,18 +30,14 @@ public class SkillManager {
         }
 
         // Additional server-side cooldown check (since client might be out of sync)
-        if (isOnCooldown(player, skillId)) {
-            return; // Don't send message, already handled by client
-        }
+        if (isOnCooldown(player, skillId)) return; // Don't send message, already handled by client
 
         Skill skill = SkillRegistry.getSkill(skillId);
         if (skill == null) return; // Already validated, but keep for safety
 
         // Try to use resources
         float resourceCost = skill.getResourceCost(skillLevel);
-        if (!classComponent.useResource(resourceCost)) {
-            return; // Resource usage failed (already validated, but server state might differ)
-        }
+        if (!classComponent.useResource(resourceCost)) return; // Resource usage failed (already validated, but server state might differ)
 
         // Execute the skill
         boolean skillExecuted = skill.use(player, skillLevel);
@@ -51,10 +46,7 @@ public class SkillManager {
             // Apply cooldown
             float cooldown = skill.getCooldown(skillLevel);
             setCooldown(player, skillId, cooldown);
-        } else {
-            // If skill execution failed, refund the resource
-            classComponent.addResource(resourceCost);
-        }
+        } else classComponent.addResource(resourceCost);
     }
 
     private static boolean isOnCooldown(PlayerEntity player, Identifier skillId) {
@@ -69,9 +61,7 @@ public class SkillManager {
         long currentTime = System.currentTimeMillis();
         if (currentTime >= endTime) {
             playerCooldowns.remove(skillId);
-            if (playerCooldowns.isEmpty()) {
-                PLAYER_COOLDOWNS.remove(playerId);
-            }
+            if (playerCooldowns.isEmpty()) PLAYER_COOLDOWNS.remove(playerId);
             return false;
         }
         return true;
@@ -83,8 +73,7 @@ public class SkillManager {
         long cooldownMillis = Math.round(cooldownSeconds * 1000);
         long endTime = currentTime + cooldownMillis;
 
-        PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>())
-                .put(skillId, endTime);
+        PLAYER_COOLDOWNS.computeIfAbsent(playerId, k -> new HashMap<>()).put(skillId, endTime);
 
         if (player instanceof ServerPlayerEntity serverPlayer)
             SkillCooldownPayloadS2C.send(serverPlayer, skillId, endTime);
