@@ -31,7 +31,6 @@
     "vanilla.balanceshield.LivingEntityMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
     "vanilla.changeattributerange.EntityAttributesMixin",
-    "vanilla.disablefoodregen.HungerManagerMixin",
     "vanilla.disablefoodregen.PlayerEntityMixin",
     "vanilla.disableitemtooltip.ItemStackMixin",
     "vanilla.disablemovementcheck.ServerPlayNetworkHandlerMixin",
