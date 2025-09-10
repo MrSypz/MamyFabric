@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.stat.Stat;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -33,50 +34,42 @@ public final class IntelligenceStat extends Stat {
 
     @Override
     public void applySecondaryEffect(LivingEntity living) {
-        if (living.getAttributeInstance(ModEntityAttributes.RESOURCE) == null) {
-            List<AttributeModification> modifications = List.of(
-                    AttributeModification.addValue(
-                            ModEntityAttributes.MAGIC_RESISTANCE,
-                            getSecondaryId(),
-                            baseValue -> MAGIC_RESISTANCE_SCALING * this.getEffective()
-                    )
-            );
-            applyEffects(living, modifications);
-            return;
-        }
+        List<AttributeModification> modifications = new ArrayList<>();
 
-        // Calculate SPR using your formula
-        double maxResource = living.getAttributeValue(ModEntityAttributes.RESOURCE);
-        int intValue = this.getEffective();
-
-        double resourceRegen = living.getAttributeBaseValue(ModEntityAttributes.RESOURCE_REGEN);
-        resourceRegen += Math.floor(maxResource * 0.01f);
-        resourceRegen += Math.floor(intValue / 6.0);
-        resourceRegen = Math.floor(resourceRegen * 1.01);
-        // comment this due to int are max at 99 atm for future int are greater than 100
-//        if (intValue >= 120) {
-//            resourceRegen += 4;
-//            resourceRegen += Math.floor(intValue / 2.0 - 60);
-//        }
-
-        double ResourceRegenAmount = resourceRegen - 1;
-        List<AttributeModification> modifications = List.of(
+        modifications.add(
                 AttributeModification.addValue(
                         ModEntityAttributes.MAGIC_RESISTANCE,
                         getSecondaryId(),
                         baseValue -> MAGIC_RESISTANCE_SCALING * this.getEffective()
-                ),
-                AttributeModification.addMultiply(
-                        ModEntityAttributes.RESOURCE,
-                        getSecondaryId(),
-                        baseValue -> this.getEffective() * RESOURCE_SCALING
-                ),
-                AttributeModification.addValue(
-                        ModEntityAttributes.RESOURCE_REGEN,
-                        getSecondaryId(),
-                        baseValue -> ResourceRegenAmount
                 )
         );
+
+        if (living instanceof PlayerEntity || living.getAttributeInstance(ModEntityAttributes.RESOURCE) != null) {
+            double maxResource = living.getAttributeValue(ModEntityAttributes.RESOURCE);
+            int intValue = this.getEffective();
+
+            double resourceRegen = living.getAttributeBaseValue(ModEntityAttributes.RESOURCE_REGEN);
+            resourceRegen += Math.floor(maxResource * 0.01f);
+            resourceRegen += Math.floor(intValue / 6.0);
+            resourceRegen = Math.floor(resourceRegen * 1.01);
+
+            double ResourceRegenAmount = resourceRegen - 1;
+
+            modifications.add(
+                    AttributeModification.addMultiply(
+                            ModEntityAttributes.RESOURCE,
+                            getSecondaryId(),
+                            baseValue -> this.getEffective() * RESOURCE_SCALING
+                    )
+            );
+            modifications.add(
+                    AttributeModification.addValue(
+                            ModEntityAttributes.RESOURCE_REGEN,
+                            getSecondaryId(),
+                            baseValue -> ResourceRegenAmount
+                    )
+            );
+        }
 
         applyEffects(living, modifications);
     }
