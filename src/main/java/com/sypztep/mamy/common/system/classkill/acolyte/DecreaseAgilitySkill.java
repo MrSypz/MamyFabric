@@ -62,7 +62,7 @@ public class DecreaseAgilitySkill extends Skill implements CastableSkill {
 
     @Override
     public Identifier getCastAnimation() {
-        return Mamy.id("curse_cast");
+        return Mamy.id("pray");
     }
 
     @Override
