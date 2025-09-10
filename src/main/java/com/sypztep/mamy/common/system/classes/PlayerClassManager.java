@@ -389,6 +389,13 @@ public class PlayerClassManager {
             currentResource = Math.min(currentResource, this.getMaxResource());
         }
     }
+    public void respawn() {
+        if (currentClass != null) {
+            currentClass.applyClassAttributeModifiers(player);
+            skillManager.reapplyPassiveSkills();
+            currentResource = this.getMaxResource();
+        }
+    }
 
     // ====================
     // NBT

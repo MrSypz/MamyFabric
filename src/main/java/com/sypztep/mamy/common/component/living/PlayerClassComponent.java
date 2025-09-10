@@ -136,6 +136,9 @@ public final class PlayerClassComponent implements AutoSyncedComponent, CommonTi
     public void initialize() {
         performBatchUpdate(classManager::initialize);
     }
+    public void respawn() {
+        performBatchUpdate(classManager::respawn);
+    }
 
     // ====================
     // NBT & SYNC

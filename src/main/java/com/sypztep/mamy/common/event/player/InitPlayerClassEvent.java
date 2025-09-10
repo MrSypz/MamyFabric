@@ -21,7 +21,7 @@ public final class InitPlayerClassEvent implements ServerPlayerEvents.AfterRespa
     @Override
     public void afterRespawn(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean alive) {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(newPlayer);
-        classComponent.initialize(); // Replace  classComponent.handleRespawn();
+        classComponent.respawn(); // Replace  classComponent.handleRespawn();
 
         newPlayer.setHealth(newPlayer.getMaxHealth());
     }
