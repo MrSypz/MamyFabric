@@ -15,6 +15,10 @@
     {
       "id": "mamy:double_attack",
       "required": false
+    },
+    {
+      "id": "mamy:magic_arrow",
+      "required": false
     }
   ]
 }

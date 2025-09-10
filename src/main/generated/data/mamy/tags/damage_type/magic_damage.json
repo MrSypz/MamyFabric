@@ -4,6 +4,10 @@
     {
       "id": "#minecraft:witch_resistant_to",
       "required": false
+    },
+    {
+      "id": "mamy:magic_arrow",
+      "required": false
     }
   ]
 }

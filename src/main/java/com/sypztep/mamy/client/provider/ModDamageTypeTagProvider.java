@@ -43,20 +43,23 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.add(DamageTypes.ARROW)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
-				.addOptional(ModDamageTypes.DOUBLE_ATTACK);
+				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
+				.addOptional(ModDamageTypes.MAGIC_ARROW);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.FIRE_DAMAGE)
-				.addOptional(ModDamageTypes.HOLY);
+				.addOptional(ModDamageTypes.HOLY)
+				.addOptional(ModDamageTypes.MAGIC_ARROW);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.FIRE_DAMAGE)
 				.addOptional(ModDamageTypes.HOLY)
-				.addOptional(ModDamageTypes.ARROW_RAIN);
+				.addOptional(ModDamageTypes.ARROW_RAIN)
+				.addOptional(ModDamageTypes.MAGIC_ARROW);
 
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
@@ -124,6 +127,7 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.MAGIC_DAMAGE)
 				.add(DamageTypes.THORNS)
-				.addOptionalTag(DamageTypeTags.WITCH_RESISTANT_TO); // DRY: Use vanilla witch resistances
+				.addOptionalTag(DamageTypeTags.WITCH_RESISTANT_TO)
+				.addOptional(ModDamageTypes.MAGIC_ARROW);
 	}
 }

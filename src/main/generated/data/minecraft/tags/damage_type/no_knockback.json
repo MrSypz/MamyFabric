@@ -15,6 +15,10 @@
     {
       "id": "mamy:arrow_rain",
       "required": false
+    },
+    {
+      "id": "mamy:magic_arrow",
+      "required": false
     }
   ]
 }

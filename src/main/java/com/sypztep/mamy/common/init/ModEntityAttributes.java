@@ -18,6 +18,7 @@ public interface ModEntityAttributes {
 
     RegistryEntry<EntityAttribute> RESOURCE = register("resource", 0, 0.0, 10000000,true); // NOTE : fallback are not working sadly
     RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 1, 0.0, 10000000,true); // NOTE : fallback are not working sadly
+    RegistryEntry<EntityAttribute> PASSIVE_RESOURCE_REGEN = register("passive_resource_regen", 0, 0.0, 10000000,true); // NOTE : fallback are not working sadly
     RegistryEntry<EntityAttribute> RESOURCE_REGEN_RATE = register("resource_regen_rate", 8, -1, 10000000,true);
 
     RegistryEntry<EntityAttribute> ACCURACY = register("accuracy", 0, 0.0, 2048.0D);
@@ -30,13 +31,13 @@ public interface ModEntityAttributes {
     RegistryEntry<EntityAttribute> ARROW_SPEED = register("arrow_speed",0,-2,15, true);
 
     // Dual attack damage attributes (flat and percentage)
-    RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE_FLAT = register("melee_attack_damage_flat", 0, 0.0, 4096);
+    RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE_FLAT = register("melee_attack_damage_flat", 1, 0.0, 4096);
     RegistryEntry<EntityAttribute> MELEE_ATTACK_DAMAGE_MULT = register("melee_attack_damage_mult", 0, 0.0, 10.24D);
 
-    RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE_FLAT = register("magic_attack_damage_flat", 0, 0.0, 4096);
+    RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE_FLAT = register("magic_attack_damage_flat", 1, 0.0, 4096);
     RegistryEntry<EntityAttribute> MAGIC_ATTACK_DAMAGE_MULT = register("magic_attack_damage_mult", 0, 0.0, 10.24D);
 
-    RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE_FLAT = register("projectile_attack_damage_flat", 0, 0.0, 4096);
+    RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE_FLAT = register("projectile_attack_damage_flat", 1, 0.0, 4096);
     RegistryEntry<EntityAttribute> PROJECTILE_ATTACK_DAMAGE_MULT = register("projectile_attack_damage_mult", 0, 0.0, 10.24D);
 
     // Flat damage reduction

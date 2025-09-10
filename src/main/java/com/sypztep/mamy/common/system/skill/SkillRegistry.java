@@ -10,6 +10,8 @@ import com.sypztep.mamy.common.system.classkill.archer.DoubleStrafeSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
+import com.sypztep.mamy.common.system.classkill.mage.MagicArrowSkill;
+import com.sypztep.mamy.common.system.classkill.mage.passive.ResourceRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
@@ -66,6 +68,10 @@ public class SkillRegistry {
     public static final Identifier STEAL = Mamy.id("steal");
     public static final Identifier HIDING = Mamy.id("hiding");
 
+    //Magician
+    public static final Identifier IRR = Mamy.id("increase_resource_recovery");
+    public static final Identifier MAGIC_ARROW = Mamy.id("magic_arrow");
+
     public static void registerSkills() {
         //Novice
         register(new BasicPassiveSkill(BASICSKILL));
@@ -102,6 +108,9 @@ public class SkillRegistry {
         register(new ImproveDodgePassiveSkill(IMPROVE_DODGE));
         register(new StealSkill(STEAL));
         register(new HidingSkill(HIDING, Skill.requiresSkills(Skill.requires(STEAL, 5))));
+
+        register(new ResourceRecoveryPassiveSkill(IRR));
+        register(new MagicArrowSkill(MAGIC_ARROW));
     }
 
     private static void register(Skill skill) {

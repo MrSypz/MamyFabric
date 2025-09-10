@@ -11,6 +11,10 @@
     {
       "id": "mamy:holy",
       "required": false
+    },
+    {
+      "id": "mamy:magic_arrow",
+      "required": false
     }
   ]
 }

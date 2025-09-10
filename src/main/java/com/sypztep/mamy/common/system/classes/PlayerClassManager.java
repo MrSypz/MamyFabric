@@ -28,6 +28,7 @@ public class PlayerClassManager {
     // Resource system
     private float currentResource;
     private int resourceRegenTick = 0;
+    private int passiveResourceRegenTick = 0;
 
     private final ClassSkillManager skillManager;
 
@@ -361,20 +362,33 @@ public class PlayerClassManager {
      */
     public void tickResourceRegeneration() {
         resourceRegenTick++;
+        passiveResourceRegenTick++;
 
         double regenRateTick = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN_RATE) * 20; // 8 sec regen rate
         float maxResource = getMaxResource();
         if (currentResource > getMaxResource()) currentResource = maxResource;
+
         if (resourceRegenTick >= regenRateTick) {
-            resourceRegenTick = 0;
+            resourceRegenTick = 0; // This resets to 0
 
             if (currentResource < maxResource) {
                 double regenAmount = player.getAttributeValue(ModEntityAttributes.RESOURCE_REGEN);
                 addResource((float) regenAmount);
             }
         }
-    }
 
+        if (passiveResourceRegenTick >= 200) { // 200 ticks = 10 seconds
+            passiveResourceRegenTick = 0; // same as before :)
+
+            boolean isIdle = player.getVelocity().lengthSquared() < 0.01;
+            if (isIdle && currentResource < maxResource) {
+                double passiveRegen = player.getAttributeValue(ModEntityAttributes.PASSIVE_RESOURCE_REGEN);
+                if (passiveRegen > 0) {
+                    addResource((float) passiveRegen);
+                }
+            }
+        }
+    }
     // ====================
     // LIFECYCLE
     // ====================
@@ -409,6 +423,7 @@ public class PlayerClassManager {
 
         nbt.putFloat("CurrentResource", currentResource);
         nbt.putInt("ResourceRegenTick", resourceRegenTick);
+        nbt.putInt("PassiveResourceRegenTick", passiveResourceRegenTick);
 
         // Save class skills
         NbtCompound skillsTag = new NbtCompound();
@@ -429,6 +444,7 @@ public class PlayerClassManager {
         // Load resource state - DON'T clamp yet!
         currentResource = nbt.getFloat("CurrentResource");
         resourceRegenTick = nbt.getInt("ResourceRegenTick");
+        passiveResourceRegenTick = nbt.getInt("PassiveResourceRegenTick");
 
         if (nbt.contains("ClassSkills")) {
             skillManager.readFromNbt(nbt.getCompound("ClassSkills"));

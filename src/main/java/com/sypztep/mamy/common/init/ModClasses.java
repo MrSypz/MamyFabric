@@ -34,8 +34,8 @@ public interface ModClasses {
             .build()
             .addRequirement(NOVICE, 10));
 
-    PlayerClass MAGICIAN = register(PlayerClass
-            .create("magician", 1, 2, "Magician", Formatting.BLUE, ResourceType.MANA,
+    PlayerClass MAGE = register(PlayerClass
+            .create("mage", 1, 2, "Mage", Formatting.BLUE, ResourceType.MANA,
                     "A glass cannon wielding devastating arcane power")
             .jobHealthModify(0.3)
             .growthFactors(Map.of(
