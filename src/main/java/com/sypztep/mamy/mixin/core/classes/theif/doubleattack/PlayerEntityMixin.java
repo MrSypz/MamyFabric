@@ -1,4 +1,4 @@
-package com.sypztep.mamy.mixin.core.classes.theif;
+package com.sypztep.mamy.mixin.core.classes.theif.doubleattack;
 
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.network.server.MultiHitPayloadC2S;

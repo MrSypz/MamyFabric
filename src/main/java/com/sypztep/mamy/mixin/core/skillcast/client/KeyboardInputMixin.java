@@ -1,6 +1,7 @@
 package com.sypztep.mamy.mixin.core.skillcast.client;
 
 import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
 import com.sypztep.mamy.common.util.MovementLock;
 import net.minecraft.client.MinecraftClient;
@@ -25,8 +26,8 @@ public class KeyboardInputMixin extends Input {
         if (player == null) return;
 
         boolean shouldLock = SkillCastingManager.getInstance().shouldLockMovement() || shouldLockMovement(player);
-
-        if (shouldLock) {
+        //TODO : using interface for easy than hardcode. 9/10/2025 5:42AM
+        if (shouldLock || ModEntityComponents.HIDING.get(player).getBuryPos() != null) {
             pressingForward = false;
             pressingBack = false;
             pressingLeft = false;

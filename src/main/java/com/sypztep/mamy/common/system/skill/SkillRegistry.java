@@ -19,6 +19,7 @@ import com.sypztep.mamy.common.system.classkill.swordman.passive.HPRecoveryPassi
 import com.sypztep.mamy.common.system.classkill.swordman.passive.SwordMasteryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.thief.DetoxifySkill;
 import com.sypztep.mamy.common.system.classkill.thief.EnvenomSkill;
+import com.sypztep.mamy.common.system.classkill.thief.HidingSkill;
 import com.sypztep.mamy.common.system.classkill.thief.StealSkill;
 import com.sypztep.mamy.common.system.classkill.thief.passive.DoubleAttackPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.thief.passive.ImproveDodgePassiveSkill;
@@ -63,6 +64,7 @@ public class SkillRegistry {
     public static final Identifier ENVENOM = Mamy.id("envenom");
     public static final Identifier IMPROVE_DODGE = Mamy.id("improve_dodge");
     public static final Identifier STEAL = Mamy.id("steal");
+    public static final Identifier HIDING = Mamy.id("hiding");
 
     public static void registerSkills() {
         //Novice
@@ -99,6 +101,7 @@ public class SkillRegistry {
         register(new EnvenomSkill(ENVENOM));
         register(new ImproveDodgePassiveSkill(IMPROVE_DODGE));
         register(new StealSkill(STEAL));
+        register(new HidingSkill(HIDING, Skill.requiresSkills(Skill.requires(STEAL, 5))));
     }
 
     private static void register(Skill skill) {

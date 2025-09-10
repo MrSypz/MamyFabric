@@ -28,6 +28,7 @@ public class ModStatusEffects {
     public static RegistryEntry<StatusEffect> KNOCKBACK;
     public static RegistryEntry<StatusEffect> FLOATING;
     public static RegistryEntry<StatusEffect> ENVENOM_WEAPON;
+    public static RegistryEntry<StatusEffect> HIDING;
 
     public static void init() {
         ENDURE = init("endure", new EndureEffect(StatusEffectCategory.BENEFICIAL));
@@ -46,6 +47,7 @@ public class ModStatusEffects {
         KNOCKBACK = init("knockback", new CrowdControlStatusEffect(StatusEffectCategory.HARMFUL, CrowdControlType.KNOCKBACK, CrowdControlType.KNOCKBACK.getCcPoints()));
         FLOATING = init("floating", new CrowdControlStatusEffect(StatusEffectCategory.HARMFUL, CrowdControlType.FLOATING, CrowdControlType.FLOATING.getCcPoints()));
         ENVENOM_WEAPON = init("envenom_weapon", new EnvenomWeaponStatusEffect(StatusEffectCategory.BENEFICIAL));
+        HIDING = init("hiding", new HidingStatusEffect(StatusEffectCategory.BENEFICIAL));
     }
     public static RegistryEntry<StatusEffect> init(String name, StatusEffect effect) {
         return Registry.registerReference(Registries.STATUS_EFFECT, Mamy.id(name), effect);
