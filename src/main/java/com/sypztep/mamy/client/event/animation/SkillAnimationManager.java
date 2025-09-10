@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.event.animation;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.network.server.PlayerAnimationSyncPayloadC2S;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -62,6 +63,10 @@ public class SkillAnimationManager {
                                         .setShowLeftItem(true)
                                         .setShowRightItem(true))
                 );
+
+                // Send network packet to sync with other clients
+                PlayerAnimationSyncPayloadC2S.sendToServer(animationId, true);
+
                 return true;
             }
         } catch (Exception e) {
@@ -78,6 +83,9 @@ public class SkillAnimationManager {
         if (castingLayer != null && castingLayer.getAnimation() != null) {
             castingLayer.replaceAnimationWithFade(
                     AbstractFadeModifier.standardFadeIn(10, Ease.INOUTSINE), null);
+
+            // Send network packet to sync with other clients (use a null identifier for stop)
+            PlayerAnimationSyncPayloadC2S.sendToServer(Mamy.id("stop"), false);
         }
     }
 

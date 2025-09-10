@@ -20,6 +20,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playS2C().register(ElementalDamagePayloadS2C.ID, ElementalDamagePayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(CameraShakePayloadS2C.ID, CameraShakePayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(ShockwavePayloadS2C.ID, ShockwavePayloadS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayerAnimationSyncPayloadS2C.ID, PlayerAnimationSyncPayloadS2C.CODEC);
 
         PayloadTypeRegistry.playC2S().register(IncreaseStatsPayloadC2S.ID, IncreaseStatsPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(ToggleStancePayloadC2S.ID, ToggleStancePayloadC2S.CODEC);
@@ -28,6 +29,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playC2S().register(SkillActionPayloadC2S.ID, SkillActionPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(ClassEvolutionPayloadC2S.ID, ClassEvolutionPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(MultiHitPayloadC2S.ID, MultiHitPayloadC2S.CODEC);
+        PayloadTypeRegistry.playC2S().register(PlayerAnimationSyncPayloadC2S.ID, PlayerAnimationSyncPayloadC2S.CODEC);
 
         registerPayloads();
     }
@@ -40,7 +42,9 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(SkillActionPayloadC2S.ID, new SkillActionPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ClassEvolutionPayloadC2S.ID, new ClassEvolutionPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(MultiHitPayloadC2S.ID, new MultiHitPayloadC2S.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(PlayerAnimationSyncPayloadC2S.ID, new PlayerAnimationSyncPayloadC2S.Receiver());
     }
+
     @Environment(EnvType.CLIENT)
     public static class Client {
         public static void registerClientPayloads() {
@@ -51,6 +55,7 @@ public final class ModPayloads {
             ClientPlayNetworking.registerGlobalReceiver(ElementalDamagePayloadS2C.ID, new ElementalDamagePayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(CameraShakePayloadS2C.ID, new CameraShakePayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(ShockwavePayloadS2C.ID, new ShockwavePayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(PlayerAnimationSyncPayloadS2C.ID, new PlayerAnimationSyncPayloadS2C.Receiver());
         }
     }
 }

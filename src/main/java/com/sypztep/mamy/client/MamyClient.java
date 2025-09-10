@@ -4,6 +4,7 @@ import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.event.ShockwaveHandler;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
 import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
+import com.sypztep.mamy.client.event.animation.NetworkAnimationManager;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
@@ -28,6 +29,8 @@ public class MamyClient implements ClientModInitializer {
         ModEntityTypes.Client.registerRender();
 
         SkillAnimationManager.initialize();
+        NetworkAnimationManager.initialize();
+
         CrowdControlAnimationManager.initialize();
 
         ModParticles.Client.init();
