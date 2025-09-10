@@ -186,8 +186,8 @@ public class PlayerClass {
             applyAttributeModifier(entity, entry.getKey(), entry.getValue(), baseLvl, modifierId);
 
         applyHealthModifier(entity, baseLvl, modifierId);
-
         applyResourceModifier(entity, baseLvl, modifierId);
+        applyHealthRegenModifier(entity);
 
         updatePlayerHealth(player);
     }
@@ -228,7 +228,23 @@ public class PlayerClass {
 
         instance.addPersistentModifier(new EntityAttributeModifier(modifierId, effectValue, EntityAttributeModifier.Operation.ADD_VALUE));
     }
+    private void applyHealthRegenModifier(LivingEntity entity) {
+        double maxHP = entity.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH);
+        double healthRegenValue = Math.max(1, Math.floor(maxHP * 0.005f));
 
+        Identifier modifierId = Mamy.id("base_health_regen");
+        EntityAttributeInstance instance = entity.getAttributeInstance(ModEntityAttributes.HEALTH_REGEN);
+
+        if (instance != null) {
+            instance.removeModifier(modifierId);
+
+            instance.addPersistentModifier(new EntityAttributeModifier(
+                    modifierId,
+                    healthRegenValue,
+                    EntityAttributeModifier.Operation.ADD_VALUE
+            ));
+        }
+    }
     public void removeAttributeModifiers(LivingEntity entity) {
         Identifier modifierId = getClassModifierId();
         for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : attributeModifiers.entrySet()) {

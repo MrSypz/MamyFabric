@@ -192,6 +192,8 @@ public class ModConfig implements ConfigData {
     public static boolean newCreeperExplode = true;
     @ConfigEntry.Category("gameplay")
     public static boolean shieldReblance = true;
+    @ConfigEntry.Category("gameplay")
+    public static boolean allowVanillaFoodHealing = false;
 
     // =====================================
     // DEATH PENALTY
@@ -210,4 +212,5 @@ public class ModConfig implements ConfigData {
     public static boolean damageAfterArmorDebug = false;
     @ConfigEntry.Category("dev")
     public static boolean elementDamageDebug = false;
+
 }

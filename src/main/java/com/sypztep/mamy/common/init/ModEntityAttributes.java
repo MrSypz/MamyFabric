@@ -13,7 +13,7 @@ public interface ModEntityAttributes {
     ArrayList<RegistryEntry<EntityAttribute>> COMMON = new ArrayList<>();
     ArrayList<RegistryEntry<EntityAttribute>> PLAYER_EXCLUSIVE = new ArrayList<>();
 
-    RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, 2048);
+    RegistryEntry<EntityAttribute> HEALTH_REGEN = register("health_regen", 0, 0.0, Double.MAX_VALUE);
 
     RegistryEntry<EntityAttribute> RESOURCE = register("resource", 0, 0.0, 10000000,true); // NOTE : fallback are not working sadly
     RegistryEntry<EntityAttribute> RESOURCE_REGEN = register("resource_regen", 1, 0.0, 10000000,true); // NOTE : fallback are not working sadly
