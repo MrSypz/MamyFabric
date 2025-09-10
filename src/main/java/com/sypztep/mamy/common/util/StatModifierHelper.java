@@ -5,6 +5,8 @@ import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.LivingEntity;
 
+import java.util.Map;
+
 public class StatModifierHelper {
 
     public static void applyTemporaryModifier(LivingEntity entity, StatTypes statType, String source, short value, boolean refreshEffects) {
@@ -36,12 +38,12 @@ public class StatModifierHelper {
         }
     }
 
-    public static void applyMultipleModifiers(LivingEntity entity, java.util.Map<StatTypes, Short> modifiers, String source) {
+    public static void applyMultipleModifiers(LivingEntity entity, Map<StatTypes, Short> modifiers, String source) {
         LivingLevelComponent component = ModEntityComponents.LIVINGLEVEL.getNullable(entity);
         if (component == null) return;
 
         component.performBatchUpdate(() -> {
-            for (var entry : modifiers.entrySet()) {
+            for (Map.Entry<StatTypes, Short> entry : modifiers.entrySet()) {
                 StatTypes statType = entry.getKey();
                 Short value = entry.getValue();
                 component.getStatByType(statType).addTemporaryModifier(source, value);
@@ -62,6 +64,8 @@ public class StatModifierHelper {
                 }
             }
         });
+
+        System.out.println("Finished removing source: " + source);
     }
 
     public static short getTemporaryModifier(LivingEntity entity, StatTypes statType, String source) {
