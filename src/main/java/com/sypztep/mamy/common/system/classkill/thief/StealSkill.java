@@ -139,8 +139,7 @@ public class StealSkill extends Skill {
         int finalSuccessRate = baseSuccessRate + ((userDex - targetDex) / 2);
         finalSuccessRate = Math.max(1, Math.min(95, finalSuccessRate)); // Clamp between 1-95%
 
-        // Roll for success
-        boolean success = player.getRandom().nextInt(100) < finalSuccessRate;
+        boolean success = player.getRandom().nextFloat() < (finalSuccessRate * 0.01f);
 
         // Mark as stolen from regardless of success/failure
         stealComponent.markAsStolen();
