@@ -66,10 +66,6 @@ public final class LivingEntityUtil {
         });
     }
 
-    public static float getHealthPercentage(LivingEntity living) {
-        return living.getHealth() / living.getMaxHealth();
-    }
-
     public static boolean isPlayerWetInRain(PlayerEntity player) {
         World world = player.getWorld();
         return world.isRaining() &&
@@ -77,12 +73,7 @@ public final class LivingEntityUtil {
                 world.isSkyVisible(player.getBlockPos()) &&
                 world.getBiome(player.getBlockPos()).value().getPrecipitation(player.getBlockPos()) == Biome.Precipitation.RAIN;
     }
-
-    public static boolean isHealthBelow(LivingEntity living, float threshold) {
-        return getHealthPercentage(living) < threshold;
-    }
-
-    public static boolean isHealthAbove(LivingEntity living, float threshold) {
-        return getHealthPercentage(living) > threshold;
+    public static boolean isValidGround(LivingEntity living) {
+        return living.isOnGround() && !living.isClimbing() && !living.isCrawling() && !living.inPowderSnow && !living.isSwimming() && !living.hasVehicle();
     }
 }
