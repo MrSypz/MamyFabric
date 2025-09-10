@@ -11,11 +11,6 @@ public class EnvenomWeaponStatusEffect extends StatusEffect {
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        return false;
-    }
-
-    @Override
     public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
         return false;
     }

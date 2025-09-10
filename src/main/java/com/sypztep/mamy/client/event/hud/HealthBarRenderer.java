@@ -141,6 +141,7 @@ public final class HealthBarRenderer {
         private static final float ARMOR_GLOW_DURATION = 2.0f;
         private static final float ARMOR_SHAKE_DURATION = 0.5f;
         private static final float ARMOR_SHAKE_INTENSITY = 2.0f;
+        private static final Identifier ARMOR_TEXTURE =  Identifier.ofVanilla("hud/armor_full");
 
         // Text fade animation (same as health)
         private static float textFadeAlpha = 0.3f;
@@ -149,7 +150,7 @@ public final class HealthBarRenderer {
 
         public static void render(DrawContext context, PlayerEntity player, int x, int y, TextRenderer textRenderer) {
             int armor = player.getArmor();
-            if (armor < 0) return;
+            if (armor <= 0) return;
 
             updateArmorAnimations(armor);
 
@@ -169,6 +170,7 @@ public final class HealthBarRenderer {
             renderArmorBar(context, x + (int)shakeOffsetX, y + (int)shakeOffsetY, 78, 8,
                     animatedArmorProgress, armor >= 20, colorStart, colorEnd, glowColor,
                     player, textRenderer);
+            context.drawGuiTexture(ARMOR_TEXTURE, x - 6, y - 1 , 9, 9);
         }
 
         private static void updateArmorAnimations(int currentArmor) {

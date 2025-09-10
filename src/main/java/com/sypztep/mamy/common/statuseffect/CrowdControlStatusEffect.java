@@ -8,12 +8,12 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.player.PlayerEntity;
 
-public class CrowdControlStatusEffect extends StatusEffect implements EffectRemoval, MovementLock {
+public class CrowdControlStatusEffect extends CleanUpEffect implements MovementLock {
     private final CrowdControlManager.CrowdControlType ccType;
     private final float ccPoints;
 
     public CrowdControlStatusEffect(StatusEffectCategory category, CrowdControlManager.CrowdControlType ccType, float ccPoints) {
-        super(category, 0);
+        super(category);
         this.ccType = ccType;
         this.ccPoints = ccPoints;
     }

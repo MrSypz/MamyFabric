@@ -10,7 +10,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,9 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(InGameHud.class)
 public abstract class InGameHudHealthMixin {
-    @Unique
-    private static final Identifier ARMOR_TEXTURE =  Identifier.ofVanilla("hud/armor_full");
-
     @Shadow
     public abstract TextRenderer getTextRenderer();
 
@@ -43,7 +39,6 @@ public abstract class InGameHudHealthMixin {
         int y = i - 10;
 
         HealthBarRenderer.Armor.render(context, player, x, y, MinecraftClient.getInstance().textRenderer);
-        context.drawGuiTexture(ARMOR_TEXTURE, x - 6, y - 1 , 9, 9);
         ci.cancel();
     }
     @Unique

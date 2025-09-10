@@ -6,15 +6,14 @@ import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.StatModifierHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.registry.tag.EntityTypeTags;
 
-public class BlessingEffect extends StatusEffect {
+public class BlessingEffect extends CleanUpEffect {
     private static final String MODIFIER_SOURCE = "BlessingEffect";
 
     public BlessingEffect(StatusEffectCategory category) {
-        super(category, 0);
+        super(category);
         this.addAttributeModifier(ModEntityAttributes.ACCURACY, Mamy.id("blessing_hit_bonus"), 2.0D, EntityAttributeModifier.Operation.ADD_VALUE);
     }
 
@@ -53,7 +52,7 @@ public class BlessingEffect extends StatusEffect {
     }
 
     @Override
-    public boolean applyUpdateEffect(LivingEntity entity, int amplifier) {
+    public void onRemoved(LivingEntity entity) {
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.STRENGTH, MODIFIER_SOURCE + "_STR", true);
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.DEXTERITY, MODIFIER_SOURCE + "_DEX", true);
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.INTELLIGENCE, MODIFIER_SOURCE + "_INT", true);
@@ -61,12 +60,5 @@ public class BlessingEffect extends StatusEffect {
         // Remove undead debuffs
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.DEXTERITY, MODIFIER_SOURCE + "_UNDEAD_DEX", true);
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.INTELLIGENCE, MODIFIER_SOURCE + "_UNDEAD_INT", true);
-
-        return super.applyUpdateEffect(entity, amplifier);
-    }
-
-    @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        return duration <= 1;
     }
 }

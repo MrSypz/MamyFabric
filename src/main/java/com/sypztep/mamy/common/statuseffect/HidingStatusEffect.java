@@ -4,17 +4,16 @@ import com.sypztep.mamy.common.component.living.LivingHidingComponent;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-public class HidingStatusEffect extends StatusEffect implements EffectRemoval{
+public class HidingStatusEffect extends CleanUpEffect{
 
     public HidingStatusEffect(StatusEffectCategory category) {
-        super(category, 0);
+        super(category);
     }
 
     @Override
