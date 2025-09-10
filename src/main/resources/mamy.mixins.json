@@ -40,6 +40,7 @@
     "vanilla.rebalanceconsumables.EnderPearlEntityMixin",
     "vanilla.rebalanceconsumables.ItemMixin",
     "vanilla.rebalanceconsumables.PersistentProjectileEntityMixin",
+    "vanilla.rebalancedamage.enviroment.EntityMixin",
     "vanilla.rebalancestatuseffects.InstantHealthOrDamageStatusEffectMixin",
     "vanilla.rebalancestatuseffects.StatusEffectMixin",
     "vanilla.rebalancestatuseffects.WitherSkullEntityMixin"

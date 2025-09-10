@@ -76,4 +76,11 @@ public final class LivingEntityUtil {
     public static boolean isValidGround(LivingEntity living) {
         return living.isOnGround() && !living.isClimbing() && !living.isCrawling() && !living.inPowderSnow && !living.isSwimming() && !living.hasVehicle();
     }
+    public static float modifyEnviromentDamage(Entity entity, float amount,float percentage) {
+        if (entity instanceof LivingEntity living) {
+            float maxHealth = living.getMaxHealth();
+            return maxHealth * percentage;
+        }
+        return amount;
+    }
 }
