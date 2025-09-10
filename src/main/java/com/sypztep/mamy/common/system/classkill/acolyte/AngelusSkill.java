@@ -57,7 +57,7 @@ public class AngelusSkill extends Skill implements CastableSkill {
 
     @Override
     public Identifier getCastAnimation() {
-        return Mamy.id("blessing_cast");
+        return Mamy.id("pray");
     }
 
     @Override
