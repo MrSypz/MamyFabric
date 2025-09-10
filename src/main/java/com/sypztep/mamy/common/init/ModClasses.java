@@ -16,7 +16,7 @@ public interface ModClasses {
                     "A beginning adventurer with no specialized skills - fragile but determined")
             .jobHealthModify(0.0) // Novice: 0
             .growthFactors(Map.of(
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(1.0), // jobresourcemodifier: 1
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(1.0),
                     ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(1)
             ))
             .maxLevel(10)
@@ -27,15 +27,15 @@ public interface ModClasses {
                     "A warrior who trades magic for martial prowess")
             .jobHealthModify(0.7) // Swordman: .7
             .growthFactors(Map.of(
-                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(2.0), // jobresourcemodifier: 2
+                    ModEntityAttributes.RESOURCE, GrowthFactor.flat(2.0),
                     ModEntityAttributes.RESOURCE_REGEN, GrowthFactor.flat(1)
             ))
             .jobBonuses((short)7, (short)2, (short)4, (short)0, (short)3, (short)2)
             .build()
             .addRequirement(NOVICE, 10));
 
-    PlayerClass MAGE = register(PlayerClass
-            .create("mage", 1, 2, "Mage", Formatting.BLUE, ResourceType.MANA,
+    PlayerClass MAGICIAN = register(PlayerClass
+            .create("magician", 1, 2, "Magician", Formatting.BLUE, ResourceType.MANA,
                     "A glass cannon wielding devastating arcane power")
             .jobHealthModify(0.3)
             .growthFactors(Map.of(
