@@ -2,10 +2,7 @@ package com.sypztep.mamy.common.system.classkill.acolyte;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.skill.HealingLightEntity;
-import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModDamageTypes;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
-import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -18,7 +15,6 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -109,10 +105,8 @@ public class HealSkill extends Skill implements CastableSkill {
             target.getWorld().spawnEntity(healingLightEntity);
             // Healing particles
             serverWorld.spawnParticles(ParticleTypes.HEART, target.getX(), target.getY() + target.getHeight() / 2, target.getZ(), 8, 0.3, 0.3, 0.3, 0.1);
-
-            // Play healing sound
-            serverWorld.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 0.5f, 1.8f);
         }
+        serverWorld.playSound(null, target.getX(), target.getY(), target.getZ(), ModSoundEvents.ENTITY_GENERIC_AHHH, SoundCategory.PLAYERS, 0.8f, 1f + target.getRandom().nextFloat() * 0.2f);
 
         return true;
     }
