@@ -1,9 +1,11 @@
 package com.sypztep.mamy.common.entity.skill;
 
 import com.google.common.collect.Maps;
-import com.sypztep.mamy.client.render.entity.MagicArrowEntityRenderer;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModSoundEvents;
+import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -76,10 +78,8 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         ticksAlive++;
         damageTimer++;
 
-        // Particle effects
-        if (this.getWorld().isClient && this.age % 2 == 0) {
-            this.getWorld().addParticle(ParticleTypes.ENCHANT,
-                    this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
+        if (this.getWorld().isClient) {
+            createTrailParticles();
         }
 
         // Multiple hit system when arrow has hit a target
@@ -92,13 +92,25 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
 
         // Remove after lifetime or if target is dead
         if (ticksAlive >= MAX_LIFETIME || (hasHitTarget && (hitTarget == null || !hitTarget.isAlive()))) {
-            if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
             discard();
         }
 
         if (!getWorld().isClient && age > 100 && !hasHitTarget) {
-            if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
             discard();
+        }
+    }
+
+    private void createTrailParticles() {
+        World world = getWorld();
+
+        for (int i = 0; i < 3; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 0.2;
+            double offsetY = (random.nextDouble() - 0.5) * 0.2;
+            double offsetZ = (random.nextDouble() - 0.5) * 0.2;
+
+            world.addParticle(ParticleTypes.ENCHANT,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    0.0, 0.0, 0.0);
         }
     }
 
@@ -164,12 +176,18 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
             int newHitCount = currentHits + 1;
             hitCounts.put(targetId, newHitCount);
 
-            // Play hit sound with different pitch based on hit count
-            float pitch = 1.0f + (newHitCount * 0.1f) + (this.random.nextFloat() - this.random.nextFloat()) * 0.1f;
+            // Enhanced hit sound with different pitch based on hit count
+            float pitch = 1.0f + (newHitCount * 0.15f) + (this.random.nextFloat() - this.random.nextFloat()) * 0.1f;
 
             getWorld().playSound(null, hitTarget.getBlockPos(),
                     SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.sound.SoundCategory.PLAYERS,
-                    0.5f, pitch);
+                    0.7f, pitch);
+
+            getWorld().playSound(null, hitTarget.getBlockPos(),
+                    SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, net.minecraft.sound.SoundCategory.PLAYERS,
+                    0.4f, 1.5f + (newHitCount * 0.1f));
+
+            createdHitEffect();
         }
     }
 
@@ -197,36 +215,94 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         if (!getWorld().isClient) {
-            playSound(getHitSound(), 1.0f, 1.2f / (random.nextFloat() * 0.2f + 0.9f));
-            discard();
-        } else MagicArrowEntityRenderer.cleanupLight(this.getUuid());
+            // Enhanced block hit sound
+            playSound(ModSoundEvents.ENTITY_GENERIC_MAGIC_ARROW_EXPLODE, 2f, 1.2f);
+            Vec3d blockPos = blockHitResult.getPos();
+            double range = 15;
+            PlayerLookup.around((ServerWorld) getWorld(),blockPos,range)
+                    .forEach(player -> CameraShakePayloadS2C.send(player, blockPos.x, blockPos.y,blockPos.z,10,range,10));
+
+            createBlockHitEffect();
+        }
+        discard();
     }
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
-        if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
         if (!getWorld().isClient && entityHitResult.getEntity() instanceof LivingEntity target) {
             this.hasHitTarget = true;
             this.hitTarget = target;
             this.damageTimer = 0;
-
+            playSound(ModSoundEvents.ENTITY_GENERIC_MAGIC_ARROW_EXPLODE, 2f, 1.2f);
             dealDamageToTarget();
-            createHitEffect();
         }
     }
 
-    private void createHitEffect() {
+    private void createdHitEffect() {
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
-        // Create magical hit particles
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 15; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 1.2;
+            double offsetY = (random.nextDouble() - 0.5) * 1.2;
+            double offsetZ = (random.nextDouble() - 0.5) * 1.2;
+
+            serverWorld.spawnParticles(ParticleTypes.ENCHANT,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    1, 0.0, 0.0, 0.0, 0.15);
+        }
+
+        for (int i = 0; i < 3; i++) {
             double offsetX = (random.nextDouble() - 0.5);
             double offsetY = (random.nextDouble() - 0.5);
             double offsetZ = (random.nextDouble() - 0.5);
 
+            serverWorld.spawnParticles(ParticleTypes.FLASH,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    1, 0.0, 0.1, 0.0, 0.2);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 0.6;
+            double offsetY = (random.nextDouble() - 0.5) * 0.6;
+            double offsetZ = (random.nextDouble() - 0.5) * 0.6;
+
+            serverWorld.spawnParticles(ParticleTypes.DRAGON_BREATH,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    1, 0.0, 0.0, 0.0, 0.05);
+        }
+    }
+
+    private void createBlockHitEffect() {
+        if (!(getWorld() instanceof ServerWorld serverWorld)) return;
+
+        for (int i = 0; i < 20; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 1.5;
+            double offsetY = (random.nextDouble() - 0.5) * 1.5;
+            double offsetZ = (random.nextDouble() - 0.5) * 1.5;
+
             serverWorld.spawnParticles(ParticleTypes.ENCHANT,
                     getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
-                    1, 0.0, 0.0, 0.0, 0.1);
+                    1, 0.0, 0.0, 0.0, 0.2);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            double offsetX = (random.nextDouble() - 0.5);
+            double offsetY = (random.nextDouble() - 0.5);
+            double offsetZ = (random.nextDouble() - 0.5);
+
+            serverWorld.spawnParticles(ParticleTypes.FLASH,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    1, offsetX * 0.3, offsetY * 0.3, offsetZ * 0.3, 0.1);
+        }
+
+        for (int i = 0; i < 8; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 0.8;
+            double offsetY = (random.nextDouble() - 0.5) * 0.8;
+            double offsetZ = (random.nextDouble() - 0.5) * 0.8;
+
+            serverWorld.spawnParticles(ParticleTypes.WITCH,
+                    getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
+                    1, 0.0, 0.1, 0.0, 0.1);
         }
     }
 
