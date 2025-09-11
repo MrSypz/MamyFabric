@@ -68,7 +68,7 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
             if (arrowLight == null) {
                 // create once
                 arrowLight = new PointLightData();
-                arrowLight.setColor(0xFF8033FF);
+                arrowLight.setColor(0xFF0FDDC9);
                 arrowLight.setBrightness(2.0f);
                 arrowLight.setRadius(8.0f);
                 lightRenderer.addLight(arrowLight);
@@ -114,7 +114,7 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
         VertexConsumer consumer = vertexConsumers.getBuffer(FLAME_ALPHA_LAYER);
         float alpha = 0.8f;
         float endAlpha = 0.0f;
-        float r = 0.5f, g = 0.2f, b = 1.0f;
+        float r = 0.0588f, g = 0.8667f, b = 0.7882f;
 
         drawRotatingBeamSides(context, consumer, matrix, halfWidth, height,
                 r, g, b, alpha, endAlpha, outerRotation);
