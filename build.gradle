@@ -47,6 +47,10 @@ repositories {
         }
     }
     maven {
+        name = 'BlameJared Maven (CrT / Bookshelf)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven {
         name = "My Library"
         url = "https://jitpack.io"
     }
@@ -69,6 +73,11 @@ dependencies {
     modImplementation include("org.ladysnake.cardinal-components-api:cardinal-components-base:${cardinal_components_version}")
     modImplementation include("org.ladysnake.cardinal-components-api:cardinal-components-entity:${cardinal_components_version}")
     modImplementation include("org.ladysnake.cardinal-components-api:cardinal-components-world:${cardinal_components_version}")
+
+    modImplementation("foundry.veil:veil-fabric-${project.minecraft_version}:${project.veil_version}") {
+        exclude group: "maven.modrinth"
+        exclude group: "me.fallenbreath"
+    }
 
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")

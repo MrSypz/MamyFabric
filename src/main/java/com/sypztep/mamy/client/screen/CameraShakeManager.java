@@ -106,7 +106,7 @@ public class CameraShakeManager {
     public static class Event {
         public static void register(MinecraftClient client) {
             if (client.player != null) {
-                instance.tick(0.05f);
+                getInstance().tick(0.05f);
                 ShockwaveHandler.tick();
             }
         }

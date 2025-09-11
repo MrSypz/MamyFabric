@@ -1,0 +1,21 @@
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "mamy:distortion",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        { "name": "Time", "type": "float", "count": 1, "values": [0.0] },
+        { "name": "DistortionStrength", "type": "float", "count": 1, "values": [0.02] }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

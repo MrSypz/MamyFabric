@@ -231,7 +231,6 @@ public final class DrawContextUtils {
                 }
 
             case CENTER:
-                // No scaling, center the image
                 float uScale = Math.min(1.0f, (float) targetWidth / textureWidth);
                 float vScale = Math.min(1.0f, (float) targetHeight / textureHeight);
                 float uOffset = (1.0f - uScale) / 2.0f;
@@ -239,13 +238,11 @@ public final class DrawContextUtils {
                 return new UVCoords(uOffset, vOffset, uOffset + uScale, vOffset + vScale);
 
             case TILE:
-                // Repeat the texture to fill the area
                 float uRepeat = (float) targetWidth / textureWidth;
                 float vRepeat = (float) targetHeight / textureHeight;
                 return new UVCoords(0.0f, 0.0f, uRepeat, vRepeat);
 
             case NINE_PATCH:
-                // For now, treat as stretch (nine-patch needs more complex implementation)
                 return new UVCoords(0.0f, 0.0f, 1.0f, 1.0f);
 
             default:
@@ -291,18 +288,18 @@ public final class DrawContextUtils {
         RenderSystem.disableBlend();
     }
 
-    public static void renderMagicalPortalEffect(DrawContext context, int x, int y, int width, int height,
-                                                 Identifier skyTexture, float time, float alpha) {
-        renderMagicalPortalEffect(context, x, y, width, height,
+    public static void renderAnimatedFluidBar(DrawContext context, int x, int y, int width, int height,
+                                              Identifier skyTexture, float time, float alpha) {
+        renderAnimatedFluidBar(context, x, y, width, height,
                 Mamy.id("textures/vfx/dust_spark.png"), skyTexture, time, alpha);
     }
 
     /**
      * Overloaded method with custom base and overlay textures
      */
-    public static void renderMagicalPortalEffect(DrawContext context, int x, int y, int width, int height,
-                                                 Identifier baseTexture, Identifier overlayTexture,
-                                                 float time, float alpha) {
+    public static void renderAnimatedFluidBar(DrawContext context, int x, int y, int width, int height,
+                                              Identifier baseTexture, Identifier overlayTexture,
+                                              float time, float alpha) {
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
 
         // Bind base texture first

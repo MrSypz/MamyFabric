@@ -105,7 +105,7 @@ public final class HealthBarRenderer {
             }
 
             DrawContextUtils.renderVerticalGradient(drawContext, x + 2, y + 2, progressWidth, height - 4, colorStart, colorEnd);
-            DrawContextUtils.renderMagicalPortalEffect(drawContext, x + 2, y + 2, progressWidth, height - 4, WATER_CAUSTIC, portalTime, 0.4f);
+            DrawContextUtils.renderAnimatedFluidBar(drawContext, x + 2, y + 2, progressWidth, height - 4, WATER_CAUSTIC, portalTime, 0.4f);
         }
 
         int highlightColor = 0x40FFFFFF;

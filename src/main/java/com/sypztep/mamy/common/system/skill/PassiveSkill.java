@@ -158,9 +158,6 @@ public abstract class PassiveSkill extends Skill {
         // Context-specific info (no resource cost/cooldown for passives)
         addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
-        // Allow custom tooltip info (this is the new flexible part!)
-        addCustomTooltipInfo(tooltip, player, skillLevel, isLearned, context);
-
         return tooltip;
     }
 

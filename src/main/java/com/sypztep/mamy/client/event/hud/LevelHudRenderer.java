@@ -577,7 +577,7 @@ public final class LevelHudRenderer implements HudRenderCallback {
                 portalAlpha = 0.4f + (glowTimer / XP_GLOW_DURATION) * 0.3f; // Increase intensity during glow
             }
 
-            DrawContextUtils.renderMagicalPortalEffect(drawContext, x, y, progressWidth, height, SKY_NIGHT_TEXTURE, portalTime, portalAlpha);
+            DrawContextUtils.renderAnimatedFluidBar(drawContext, x, y, progressWidth, height, SKY_NIGHT_TEXTURE, portalTime, portalAlpha);
         }
 
         // Enhanced border with depth

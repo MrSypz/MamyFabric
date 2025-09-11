@@ -472,7 +472,7 @@ public class ResourceBarHud {
                 portalAlpha = 0.2f + (resourceGainGlowTimer / RESOURCE_GLOW_DURATION) * 0.1f;
             }
 
-            DrawContextUtils.renderMagicalPortalEffect(drawContext, barX, barY, progressWidth, BASE_BAR_HEIGHT,
+            DrawContextUtils.renderAnimatedFluidBar(drawContext, barX, barY, progressWidth, BASE_BAR_HEIGHT,
                     SKY_NIGHT_TEXTURE, portalTime, portalAlpha);
         }
 

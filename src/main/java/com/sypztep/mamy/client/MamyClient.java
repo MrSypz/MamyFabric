@@ -19,6 +19,15 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();
 
+    public static boolean hasMagicArrows = false;
+    public static float currentDistortionTime = 0.0f;
+    public static float currentDistortionStrength = 0.0f;
+
+    public static void updateDistortionShader(float time, float strength) {
+        currentDistortionTime = time;
+        currentDistortionStrength = strength;
+        hasMagicArrows = true; // Mark that we have active arrows
+    }
     @Override
     public void onInitializeClient() {
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
@@ -49,5 +58,9 @@ public class MamyClient implements ClientModInitializer {
         ItemWeightTooltip.register();
 
         ClientTickEvents.END_CLIENT_TICK.register(CameraShakeManager.Event::register);
+//        FabricVeilRenderLevelStageEvent.EVENT.register((stage, levelRenderer, bufferSource, matrixStack, frustumMatrix, projectionMatrix, renderTick, deltaTracker, camera, frustum) -> {
+//            if (stage == VeilRenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+//            }
+//        });
     }
 }
