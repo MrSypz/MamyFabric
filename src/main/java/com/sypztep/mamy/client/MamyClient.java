@@ -1,9 +1,7 @@
 package com.sypztep.mamy.client;
 
 import com.sypztep.mamy.ModConfig;
-import com.sypztep.mamy.client.event.ShockwaveHandler;
 import com.sypztep.mamy.client.event.SkillCooldownCleanUpEvent;
-import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
 import com.sypztep.mamy.client.event.animation.NetworkAnimationManager;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
@@ -31,8 +29,6 @@ public class MamyClient implements ClientModInitializer {
         SkillAnimationManager.initialize();
         NetworkAnimationManager.initialize();
 
-        CrowdControlAnimationManager.initialize();
-
         ModParticles.Client.init();
 
         ModPayloads.Client.registerClientPayloads();
@@ -52,11 +48,6 @@ public class MamyClient implements ClientModInitializer {
         VersionHudRenderer.register(); // <- This adds your bottom-left alpha tag
         ItemWeightTooltip.register();
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null) {
-                CameraShakeManager.getInstance().tick(0.05f);
-                ShockwaveHandler.tick();
-            }
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(CameraShakeManager.Event::register);
     }
 }

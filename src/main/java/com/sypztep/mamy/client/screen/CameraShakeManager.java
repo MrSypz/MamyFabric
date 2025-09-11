@@ -1,5 +1,7 @@
 package com.sypztep.mamy.client.screen;
 
+import com.sypztep.mamy.client.event.ShockwaveHandler;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class CameraShakeManager {
@@ -13,9 +15,7 @@ public class CameraShakeManager {
     private double shakeType = 0;
 
     public static CameraShakeManager getInstance() {
-        if (instance == null) {
-            instance = new CameraShakeManager();
-        }
+        if (instance == null) instance = new CameraShakeManager();
         return instance;
     }
 
@@ -102,5 +102,13 @@ public class CameraShakeManager {
 
     public double getShakeTime() {
         return shakeTime;
+    }
+    public static class Event {
+        public static void register(MinecraftClient client) {
+            if (client.player != null) {
+                instance.tick(0.05f);
+                ShockwaveHandler.tick();
+            }
+        }
     }
 }
