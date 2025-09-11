@@ -16,6 +16,8 @@ public interface ModSoundEvents {
     SoundEvent ENTITY_GENERIC_HEADSHOT = createSoundEvent("entity.generic.headshot");
     SoundEvent ENTITY_GENERIC_RICOCHET = createSoundEvent("entity.generic.ricochet");
     SoundEvent ENTITY_GENERIC_SHOCKWAVE = createSoundEvent("entity.generic.shockwave");
+    SoundEvent ENTITY_GENERIC_MAGIC_ARROW_EXPLODE = createSoundEvent("entity.generic.magic_arrow_explode");
+    SoundEvent ENTITY_GENERIC_AHHH = createSoundEvent("entity.generic.ahhh");
 	static void init() {
 		SOUND_EVENTS.keySet().forEach((soundEvent) -> Registry.register(Registries.SOUND_EVENT, SOUND_EVENTS.get(soundEvent), soundEvent));
 	}

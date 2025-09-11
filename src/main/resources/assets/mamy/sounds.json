@@ -22,5 +22,23 @@
       "mamy:entity/shockwave"
     ],
     "subtitle": "subtitles.mamy.entity.generic.shockwave"
+  },
+  "entity.generic.magic_arrow_cast": {
+    "sounds": [
+      "mamy:entity/magic_arrow_cast"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.magic_arrow_cast"
+  },
+  "entity.generic.magic_arrow_explode": {
+    "sounds": [
+      "mamy:entity/magic_arrow_explode"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.magic_arrow_explode"
+  },
+  "entity.generic.ahhh": {
+    "sounds": [
+      "mamy:entity/ahhh"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.ahhh"
   }
 }
