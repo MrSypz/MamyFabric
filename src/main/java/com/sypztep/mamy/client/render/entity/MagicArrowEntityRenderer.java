@@ -17,7 +17,7 @@ import org.joml.Matrix4f;
 @Environment(EnvType.CLIENT)
 public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
     private static final Identifier MAGIC_TEXTURE = Identifier.ofVanilla("textures/entity/end_crystal/end_crystal_beam.png");
-
+    private static final float HEIGHT = 1.5f;
     public MagicArrowEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
@@ -69,9 +69,7 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
     private void renderMagicBeam(MatrixStack matrices, VertexConsumerProvider vertexConsumers, MagicArrowEntity entity, float tickDelta) {
         matrices.push();
 
-        float width = 0.2f;
-        float height = 1.5f;
-        float halfWidth = width / 2.0f;
+
         VertexContext context = new VertexContext(matrices, vertexConsumers);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
@@ -84,11 +82,10 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
         float endAlpha = 0.0f;
         float r = 0.5f, g = 0.2f, b = 1.0f;
 
-        drawRotatingBeamSides(context, consumer, matrix, halfWidth, height,
+        drawRotatingBeamSides(context, consumer, matrix, 0.1f, HEIGHT,
                 r, g, b, alpha, endAlpha, outerRotation);
 
-        float innerWidth = halfWidth * 0.5f;
-        drawRotatingBeamSides(context, consumer, matrix, innerWidth, height,
+        drawRotatingBeamSides(context, consumer, matrix, 0.05f, HEIGHT,
                 r, g, b, alpha * 0.8f, endAlpha, innerRotation);
         matrices.pop();
     }

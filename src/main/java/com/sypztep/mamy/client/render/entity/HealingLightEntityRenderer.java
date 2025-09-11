@@ -34,9 +34,11 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
                     .lineWidth(RenderPhase.FULL_LINE_WIDTH)
                     .build(false)
     );
-    private static final float CYLINDER_RADIUS = 1f;
-    private static final float CYLINDER_HEIGHT = 2f;
-    private static final int CYLINDER_SEGMENTS = 16;
+
+    private static final float SQUARE_SIZE = 1.0f;
+    private static final float SQUARE_HEIGHT = 2.0f;
+
+    private float currentHeight = 0.0f;
 
     public HealingLightEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -55,78 +57,110 @@ public class HealingLightEntityRenderer extends EntityRenderer<HealingLightEntit
 
         float intensity = entity.getIntensity();
 
-        renderCylinder(matrices, vertexConsumers, intensity);
+        float targetHeight = SQUARE_HEIGHT * intensity;
+
+        currentHeight = MathHelper.lerp(0.05f, currentHeight, targetHeight);
+
+        if (intensity <= 0.0f || entity.isRemoved()) {
+            currentHeight = MathHelper.lerp(0.7f, currentHeight, 0.0f);
+        }
+
+        if (currentHeight >= 0.01f) {
+            renderSquares(matrices, vertexConsumers, entity, tickDelta, intensity);
+        }
 
         matrices.pop();
     }
 
-    private void renderCylinder(MatrixStack matrices, VertexConsumerProvider vertexConsumers, float intensity) {
+    private void renderSquares(MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                               HealingLightEntity entity, float tickDelta, float intensity) {
+
+        float time = (entity.age + tickDelta) * 0.1f;
+
+        float outerRotation = -time * 0.05f;
+        renderSquare(matrices, vertexConsumers, SQUARE_SIZE, outerRotation, intensity);
+
+        float innerRotation = time * 3.0f;
+        renderSquare(matrices, vertexConsumers, 0.5f, innerRotation, intensity * 0.8f);
+    }
+
+    private void renderSquare(MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                              float size, float rotation, float intensity) {
+
         VertexConsumer buffer = vertexConsumers.getBuffer(HEALING_CYLINDER);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
-        float angleStep = (float) (2 * Math.PI / CYLINDER_SEGMENTS);
         int color = getHealingColor(intensity);
         int light = 0xF000F0; // Full brightness for emissive effect
         int overlay = 0;
 
-        // Render cylinder wall with squares arranged in circle
-        for (int i = 0; i < CYLINDER_SEGMENTS; i++) {
-            float angle1 = i * angleStep;
-            float angle2 = (i + 1) * angleStep;
+        float sin = MathHelper.sin(rotation);
+        float cos = MathHelper.cos(rotation);
+        float halfSize = size * 0.5f;
 
-            float x1 = CYLINDER_RADIUS * MathHelper.cos(angle1);
-            float z1 = CYLINDER_RADIUS * MathHelper.sin(angle1);
-            float x2 = CYLINDER_RADIUS * MathHelper.cos(angle2);
-            float z2 = CYLINDER_RADIUS * MathHelper.sin(angle2);
+        // Calculate the four corners of the rotated square
+        float x1 = -halfSize * cos + halfSize * sin;
+        float z1 = -halfSize * sin - halfSize * cos;
+        float x2 = halfSize * cos + halfSize * sin;
+        float z2 = halfSize * sin - halfSize * cos;
+        float x3 = halfSize * cos - halfSize * sin;
+        float z3 = halfSize * sin + halfSize * cos;
+        float x4 = -halfSize * cos - halfSize * sin;
+        float z4 = -halfSize * sin + halfSize * cos;
 
-            // Calculate texture coordinates for gradient
-            float u1 = (float) i / CYLINDER_SEGMENTS;
-            float u2 = (float) (i + 1) / CYLINDER_SEGMENTS;
+        // Render the four sides of the square
+        renderSquareSide(buffer, matrix, x1, z1, x2, z2, color, light, overlay);
+        renderSquareSide(buffer, matrix, x2, z2, x3, z3, color, light, overlay);
+        renderSquareSide(buffer, matrix, x3, z3, x4, z4, color, light, overlay);
+        renderSquareSide(buffer, matrix, x4, z4, x1, z1, color, light, overlay);
+    }
 
-            // Normal pointing outward from cylinder
-            float nx1 = MathHelper.cos(angle1);
-            float nz1 = MathHelper.sin(angle1);
-            float nx2 = MathHelper.cos(angle2);
-            float nz2 = MathHelper.sin(angle2);
+    private void renderSquareSide(VertexConsumer buffer, Matrix4f matrix,
+                                  float x1, float z1, float x2, float z2,
+                                  int color, int light, int overlay) {
 
-            // Create rectangular quad for cylinder wall
-            // Bottom vertices (v=0, full opacity in texture)
-            buffer.vertex(matrix, x1, 0, z1)
-                    .color(color)
-                    .texture(u1, 1.0f) // Bottom of gradient texture
-                    .overlay(overlay)
-                    .light(light)
-                    .normal(nx1, 0, nz1);
+        // Calculate normal (pointing outward from the side)
+        float dx = x2 - x1;
+        float dz = z2 - z1;
+        float length = MathHelper.sqrt(dx * dx + dz * dz);
+        float nx = -dz / length; // Perpendicular to the side
+        float nz = dx / length;
 
-            buffer.vertex(matrix, x2, 0, z2)
-                    .color(color)
-                    .texture(u2, 1.0f) // Bottom of gradient texture
-                    .overlay(overlay)
-                    .light(light)
-                    .normal(nx2, 0, nz2);
+        // Bottom vertices (full opacity)
+        buffer.vertex(matrix, x1, 0, z1)
+                .color(color)
+                .texture(0.0f, 1.0f) // Bottom of gradient texture
+                .overlay(overlay)
+                .light(light)
+                .normal(nx, 0, nz);
 
-            // Top vertices (v=0.05f, nearly transparent but not fully to avoid edge artifacts)
-            buffer.vertex(matrix, x2, CYLINDER_HEIGHT, z2)
-                    .color(color)
-                    .texture(u2, 0.02f) // Slightly above 0 to avoid edge artifacts
-                    .overlay(overlay)
-                    .light(light)
-                    .normal(nx2, 0, nz2);
+        buffer.vertex(matrix, x2, 0, z2)
+                .color(color)
+                .texture(0.125f, 1.0f) // Bottom of gradient texture
+                .overlay(overlay)
+                .light(light)
+                .normal(nx, 0, nz);
 
-            buffer.vertex(matrix, x1, CYLINDER_HEIGHT, z1)
-                    .color(color)
-                    .texture(u1, 0.02f) // Slightly above 0 to avoid edge artifacts
-                    .overlay(overlay)
-                    .light(light)
-                    .normal(nx1, 0, nz1);
-        }
+        // Top vertices (nearly transparent)
+        buffer.vertex(matrix, x2, currentHeight, z2)
+                .color(color)
+                .texture(0.125f, 0.02f) // Nearly transparent
+                .overlay(overlay)
+                .light(light)
+                .normal(nx, 0, nz);
+
+        buffer.vertex(matrix, x1, currentHeight, z1)
+                .color(color)
+                .texture(0.0f, 0.02f) // Nearly transparent
+                .overlay(overlay)
+                .light(light)
+                .normal(nx, 0, nz);
     }
 
     private int getHealingColor(float intensity) {
         int red = 25;
         int green = 204;
         int blue = 255;
-
         int alpha = (int)(MathHelper.clamp(intensity, 0.0f, 1.0f) * 255);
 
         return ColorHelper.Argb.getArgb(alpha, red, green, blue);
