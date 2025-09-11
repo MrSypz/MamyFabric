@@ -17,7 +17,6 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<PlayerClassComponent> PLAYERCLASS = ComponentRegistry.getOrCreate(Mamy.id("playerclass"), PlayerClassComponent.class);
     public static final ComponentKey<PlayerStanceComponent> PLAYERSTANCE = ComponentRegistry.getOrCreate(Mamy.id("playerstance"), PlayerStanceComponent.class);
     public static final ComponentKey<PlayerWeightComponent> PLAYERWEIGHT = ComponentRegistry.getOrCreate(Mamy.id("playerweight"), PlayerWeightComponent.class);
-    public static final ComponentKey<PlayerCrowdControlComponent> PLAYERCROWDCONTROL = ComponentRegistry.getOrCreate(Mamy.id("playercrowdcontrol"), PlayerCrowdControlComponent.class);
     public static final ComponentKey<PlayerShieldScoreComponent> PLAYERSHIELDSCORE = ComponentRegistry.getOrCreate(Mamy.id("playershieldscore"), PlayerShieldScoreComponent.class);
     public static final ComponentKey<StealComponent> LIVINGSTEAL = ComponentRegistry.getOrCreate(Mamy.id("livingsteal"), StealComponent.class);
     public static final ComponentKey<LivingHidingComponent> HIDING = ComponentRegistry.getOrCreate(Mamy.id("livinghiding"), LivingHidingComponent.class);
@@ -31,7 +30,6 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerFor(MobEntity.class, DAMAGETRACKER, entity -> new DamageTrackerComponent());
         registry.registerForPlayers(PLAYERSTANCE, PlayerStanceComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerForPlayers(PLAYERWEIGHT, PlayerWeightComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
-        registry.registerForPlayers(PLAYERCROWDCONTROL, PlayerCrowdControlComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerForPlayers(PLAYERSHIELDSCORE, PlayerShieldScoreComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerFor(LivingEntity.class, LIVINGSTEAL, StealComponent::new);
         registry.registerFor(LivingEntity.class, HIDING, LivingHidingComponent::new);

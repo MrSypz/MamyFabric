@@ -187,7 +187,7 @@ public class PlayerClassManager {
         hasTranscended = true;
 
         // Reset level and experience (like RO transcendence)
-        classLevelSystem.resetForTranscendence();// for future me it not gonna reset class point
+        classLevelSystem.resetForTranscendence();// for future me it's not going to reset class point
 //        classLevelSystem.updateForClass(currentClass);  // it using resetFor
 
         // Apply new class modifiers

@@ -1,6 +1,5 @@
 package com.sypztep.mamy.mixin.core.skillcast.client;
 
-import com.sypztep.mamy.client.event.animation.CrowdControlAnimationManager;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
 import com.sypztep.mamy.common.util.MovementLock;
@@ -25,7 +24,7 @@ public class KeyboardInputMixin extends Input {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
 
-        boolean shouldLock = SkillCastingManager.getInstance().shouldLockMovement() || shouldLockMovement(player);
+        boolean shouldLock = SkillCastingManager.getInstance().shouldLockMovement() || hasMovementLockingEffect(player);
         //TODO : using interface for easy than hardcode. 9/10/2025 5:42AM
         if (shouldLock || ModEntityComponents.HIDING.get(player).getBuryPos() != null) {
             pressingForward = false;
@@ -45,17 +44,5 @@ public class KeyboardInputMixin extends Input {
             }
         }
         return false;
-    }
-
-    @Unique
-    private boolean shouldLockMovement(LivingEntity entity) {
-        boolean hasLockingEffect = hasMovementLockingEffect(entity);
-
-        if (entity.getWorld().isClient()) {
-            boolean animationPlaying = CrowdControlAnimationManager.isCrowdControlAnimationPlaying();
-            return hasLockingEffect || animationPlaying;
-        }
-
-        return hasLockingEffect;
     }
 }
