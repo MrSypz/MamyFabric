@@ -32,7 +32,6 @@ public class StealSkill extends Skill {
     public StealSkill(Identifier identifier) {
         super(identifier, "Steal", "Attempts to pinch an item from a targeted monster.",
                 10f, 0f,
-                1,
                 10,
                 Mamy.id("skill/steal"));
     }

@@ -18,7 +18,7 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
 
     public MagicArrowSkill(Identifier id) {
         super(id, "Magic Arrow", "Fires magic arrows that can pierce through multiple enemies",
-                5, 2f, 1, 10, false, Mamy.id("skill/magic_arrow"));
+                5, 2f, 10,  Mamy.id("skill/magic_arrow"));
     }
 
     @Override

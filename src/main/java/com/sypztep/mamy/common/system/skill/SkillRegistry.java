@@ -12,7 +12,7 @@ import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSki
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.mage.MagicArrowSkill;
 import com.sypztep.mamy.common.system.classkill.mage.passive.ResourceRecoveryPassiveSkill;
-import com.sypztep.mamy.common.system.classkill.novice.BasicPassiveSkill;
+import com.sypztep.mamy.common.system.classkill.novice.passive.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EndureSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.EnergyBreakSkill;

@@ -30,7 +30,6 @@ public class HealSkill extends Skill implements CastableSkill {
     public HealSkill(Identifier identifier) {
         super(identifier, "Heal", "Restore HP to a single target. Damages undead with holy power.",
                 13f, 1f,
-                1,
                 10,
                 Mamy.id("skill/heal"));
     }

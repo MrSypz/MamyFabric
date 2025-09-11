@@ -25,7 +25,6 @@ public class ProvokeSkill extends Skill {
     public ProvokeSkill(Identifier identifier) {
         super(identifier, "Provoke", "Taunt an enemy, increasing their attack while reducing their defense",
                 4f, 30f,
-                1,
                 10,
                 Mamy.id("skill/provoke"));
     }

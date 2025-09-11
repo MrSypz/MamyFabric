@@ -39,7 +39,6 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
     public DoubleStrafeSkill(Identifier id) {
         super(id, "Double Strafe", "Fire two arrows in quick succession at a target",
                 12f, 0.3f,
-                1,
                 10,
                 Mamy.id("skill/double_strafe"));
     }

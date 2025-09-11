@@ -28,7 +28,7 @@ public class EnvenomSkill extends Skill {
     public EnvenomSkill(Identifier identifier) {
         super(identifier, "Envenom", "Coats the weapon in poison and strikes a single target to inflict Poison property physical damage. It has a chance of leaving the target poisoned, which is reduced by the target's VIT.",
                 12f, 0f,
-                1, 10,
+                10,
                  Mamy.id("skill/envenom"));
     }
 

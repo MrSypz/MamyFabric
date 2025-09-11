@@ -52,17 +52,17 @@ public abstract class Skill {
                 1, maxSkillLevel, false, icon, prerequisites);
     }
     public Skill(Identifier id, String name, String description, float baseResourceCost,
-                 float baseCooldown, int upgradeClassPointCost,
+                 float baseCooldown,
                  int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
         this(id, name, description, baseResourceCost, baseCooldown, 1,
-                upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, null);
+                1, maxSkillLevel, isDefaultSkill, icon, null);
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
-                 float baseCooldown, int upgradeClassPointCost,
+                 float baseCooldown,
                  int maxSkillLevel, Identifier icon) {
         this(id, name, description, baseResourceCost, baseCooldown, 1,
-                upgradeClassPointCost, maxSkillLevel, false, icon, null);
+                1, maxSkillLevel, false, icon, null);
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,

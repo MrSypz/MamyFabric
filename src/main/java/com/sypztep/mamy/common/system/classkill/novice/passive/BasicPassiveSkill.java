@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.classkill.novice;
+package com.sypztep.mamy.common.system.classkill.novice.passive;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
