@@ -17,7 +17,7 @@ public class ResourceRecoveryPassiveSkill extends PassiveSkill {
 
     public ResourceRecoveryPassiveSkill(Identifier id) {
         super(id, "Resource Recovery", "Enhanced resource regeneration based on your maximum resource and meditation training.",
-                ModClasses.MAGE, 1, 1, 10, false, Mamy.id("skill/increase_resource_recovery"));
+                10,  Mamy.id("skill/increase_resource_recovery"));
     }
 
     @Override

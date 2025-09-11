@@ -14,7 +14,7 @@ public final class BasicPassiveSkill extends PassiveSkill {
 
     public BasicPassiveSkill(Identifier identifier) {
         super(identifier, "Basic Skill", "Essential novice abilities for survival and progression",
-                ModClasses.NOVICE, 0, 1, 10, true, Mamy.id("skill/basic_skill"));
+                10, true, Mamy.id("skill/basic_skill"));
     }
 
     @Override

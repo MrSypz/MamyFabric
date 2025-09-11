@@ -27,14 +27,14 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     public IncreaseAgilitySkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Increase Agility", "Temporarily increases AGI, Attack Speed and Movement Speed of target.",
                 18f, 1f,
-                ModClasses.ACOLYTE, 1,
-                1, 10,
-                false, Mamy.id("skill/increase_agility"), skillRequirements);
+                10,
+                Mamy.id("skill/increase_agility"),
+                skillRequirements);
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 15f + (skillLevel * 3f);
+        return super.getResourceCost(skillLevel) + (skillLevel * 3f);
     }
 
     @Override
@@ -45,11 +45,6 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     @Override
     public int getBaseFCT(int skillLevel) {
         return 4; // 0.2 seconds (4 ticks)
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 1.0f; // 1 second cast delay
     }
 
     @Override

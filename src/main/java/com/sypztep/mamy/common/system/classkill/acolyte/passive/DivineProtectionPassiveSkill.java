@@ -19,10 +19,7 @@ public class DivineProtectionPassiveSkill extends PassiveSkill {
                 id,
                 "Divine Protection",
                 "Divine blessing reduces damage from undead and demon creatures.",
-                ModClasses.ACOLYTE,
-                1, // base cost
-                1, // upgrade cost
-                10, // max level
+                10,
                 Mamy.id("skill/divine_protection")
         );
     }

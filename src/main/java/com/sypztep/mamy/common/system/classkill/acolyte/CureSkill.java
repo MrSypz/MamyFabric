@@ -25,15 +25,9 @@ public class CureSkill extends Skill implements CastableSkill {
 
     public CureSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Cure", "Removes poison, blindness, confusion and other negative status effects from target.",
-                15f, 0f,
-                ModClasses.ACOLYTE, 1,
-                1, 1, // Max level 1
-                false, Mamy.id("skill/cure"), skillRequirements);
-    }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 15f; // Fixed cost since max level is 1
+                15f, 6f,
+                1, // Max level 1
+                Mamy.id("skill/cure"), skillRequirements);
     }
 
     @Override
@@ -44,11 +38,6 @@ public class CureSkill extends Skill implements CastableSkill {
     @Override
     public int getBaseFCT(int skillLevel) {
         return 0; // No fixed cast time
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 6.0f; // 6 seconds cooldown
     }
 
     @Override

@@ -24,18 +24,17 @@ public class ProvokeSkill extends Skill {
 
     public ProvokeSkill(Identifier identifier) {
         super(identifier, "Provoke", "Taunt an enemy, increasing their attack while reducing their defense",
-                4f, 30f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/provoke"));
+                4f, 30f,
+                1,
+                10,
+                Mamy.id("skill/provoke"));
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 4f + skillLevel;
+        return super.getResourceCost(skillLevel) + skillLevel;
     }
 
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 30f; // Fixed 30 second cooldown
-    }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {

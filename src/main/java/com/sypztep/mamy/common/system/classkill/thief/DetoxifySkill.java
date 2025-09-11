@@ -23,19 +23,8 @@ public class DetoxifySkill extends Skill {
     public DetoxifySkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Detoxify", "Cures any target within range of Poison and Wither status effects.",
                 10f, 0f,
-                ModClasses.THIEF, 1,
-                1, 1,
-                false, Mamy.id("skill/detoxify"), skillRequirements);
-    }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 10f;
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 0f;
+                1,
+                Mamy.id("skill/detoxify"), skillRequirements);
     }
 
     @Override

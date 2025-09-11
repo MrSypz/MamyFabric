@@ -41,8 +41,10 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
     public ArrowRainSkill(Identifier id, List<SkillRequirement> skillRequirements) {
         super(id, "Arrow Rain", "Rain arrows from the sky in target area",
-                15f, 0.3f, ModClasses.ARCHER, 1, 1, 10, false,
-                Mamy.id("skill/arrow_rain"), skillRequirements);
+                15f,0.3f,
+                10,
+                Mamy.id("skill/arrow_rain"),
+                skillRequirements);
     }
 
     @Override
@@ -58,11 +60,6 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     @Override
     public boolean shouldLockMovement() {
         return true;
-    }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 15;
     }
 
     @Override

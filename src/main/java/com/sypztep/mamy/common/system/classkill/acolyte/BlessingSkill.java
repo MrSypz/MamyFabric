@@ -27,19 +27,13 @@ public class BlessingSkill extends Skill {
         super(identifier, "Blessing",
                 "Places a temporary buff on target that increases STR, DEX, INT, and HIT. Purges curse and stone effects. Against undead/demons, reduces their DEX and INT instead.",
                 24f, 0f,
-                ModClasses.ACOLYTE, 1,
-                1, 10,
-                false, Mamy.id("skill/blessing"),skillRequirements);
+                10,
+                Mamy.id("skill/blessing"),skillRequirements);
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 24f + (skillLevel * 4f);
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 0f; // 2 second cast delay
+        return super.getResourceCost(skillLevel) + (skillLevel * 4f);
     }
 
     @Override

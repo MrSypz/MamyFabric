@@ -20,17 +20,14 @@ public class ImproveConcentrationSkill extends Skill {
 
     public ImproveConcentrationSkill(Identifier identifier, List<SkillRequirement> prerequisites) {
         super(identifier, "Improve Concentration", "Temporarily boosts AGI and DEX to enhance combat precision and reflexes.",
-                20f, 0f, ModClasses.ARCHER, 1, 1, 10, false, Mamy.id("skill/improve_concentration"), prerequisites);
+                20f, 2f,
+                10,
+                Mamy.id("skill/improve_concentration"), prerequisites);
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 20f + (skillLevel * 5f); // SP Cost: 20 + (Skill Level × 5)
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 0.1f; // No cooldown as per description
+        return super.getResourceCost(skillLevel) + (skillLevel * 5f); // SP Cost: 20 + (Skill Level × 5)
     }
 
     @Override

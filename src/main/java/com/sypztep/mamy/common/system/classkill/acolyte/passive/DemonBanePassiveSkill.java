@@ -19,10 +19,7 @@ public class DemonBanePassiveSkill extends PassiveSkill {
                 id,
                 "Demon Bane",
                 "Blessed weapons deal increased damage to undead and demon creatures.",
-                ModClasses.ACOLYTE,
-                1, // base cost
-                1, // upgrade cost
-                10, // max level
+                10,
                 Mamy.id("skill/demon_bane"),
                 skillRequirements
         );

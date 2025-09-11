@@ -30,19 +30,12 @@ import java.util.List;
 public class StealSkill extends Skill {
 
     public StealSkill(Identifier identifier) {
-        super(identifier, "Steal", "Attempts to pinch an item from a targeted monster.", 10f, 0f, ModClasses.THIEF, 1, 1, 10, false, Mamy.id("skill/steal"));
+        super(identifier, "Steal", "Attempts to pinch an item from a targeted monster.",
+                10f, 0f,
+                1,
+                10,
+                Mamy.id("skill/steal"));
     }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 10f; // Fixed cost for all levels
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 0f; // No cooldown
-    }
-
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {

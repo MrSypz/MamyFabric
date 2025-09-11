@@ -24,15 +24,14 @@ public class AngelusSkill extends Skill implements CastableSkill {
 
     public AngelusSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
         super(identifier, "Angelus", "Places a temporary buff on user and all party members in area that increases Soft Defense and Max HP.",
-                20f, 1f,
-                ModClasses.ACOLYTE, 1,
-                1, 10,
-                false, Mamy.id("skill/angelus"),skillRequirements);
+                20f, 3.5f,
+                10,
+                Mamy.id("skill/angelus"),skillRequirements);
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 20f + (skillLevel * 3f);
+        return super.getResourceCost(skillLevel) + (skillLevel * 3f);
     }
 
     @Override
@@ -43,11 +42,6 @@ public class AngelusSkill extends Skill implements CastableSkill {
     @Override
     public int getBaseFCT(int skillLevel) {
         return 3; // 0.15 seconds (3 ticks)
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 3.5f; // 3.5 seconds cast delay
     }
 
     @Override

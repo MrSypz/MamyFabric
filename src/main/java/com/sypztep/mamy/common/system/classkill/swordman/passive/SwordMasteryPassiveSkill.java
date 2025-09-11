@@ -16,7 +16,8 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
 
     public SwordMasteryPassiveSkill(Identifier id) {
         super(id, "Sword Mastery", "Extensive training with bladed weapons increases your melee damage.",
-                ModClasses.SWORDMAN, 1, 1, 10, Mamy.id("skill/sword_mastery"));
+                10,
+                Mamy.id("skill/sword_mastery"));
     }
 
     @Override

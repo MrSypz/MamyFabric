@@ -19,7 +19,8 @@ public class HPRecoveryPassiveSkill extends PassiveSkill {
 
     public HPRecoveryPassiveSkill(Identifier id) {
         super(id, "HP Recovery", "Enhanced health regeneration based on your maximum health and training level.",
-                ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/hp_recovery"));
+                10,
+                Mamy.id("skill/hp_recovery"));
     }
 
     @Override

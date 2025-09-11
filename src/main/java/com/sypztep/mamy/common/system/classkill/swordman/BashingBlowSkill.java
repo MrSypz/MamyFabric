@@ -24,12 +24,16 @@ import java.util.List;
 public class BashingBlowSkill extends Skill {
 
     public BashingBlowSkill(Identifier identifier) {
-        super(identifier, "Bashing Blow", "Dash 5 blocks forward and deal massive damage to the first enemy hit", 8f, 0.5f, ModClasses.SWORDMAN, 1, 1, 10, false, Mamy.id("skill/bashing_blow"));
+        super(identifier, "Bashing Blow", "Dash 5 blocks forward and deal massive damage to the first enemy hit",
+                8f, 0.5f,
+                1,
+                10,
+                Mamy.id("skill/bashing_blow"));
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return skillLevel <= 5 ? 8f : 16f;
+        return skillLevel <= 5 ? super.getResourceCost(skillLevel) : super.getResourceCost(skillLevel) * 2f;
     }
 
     @Override

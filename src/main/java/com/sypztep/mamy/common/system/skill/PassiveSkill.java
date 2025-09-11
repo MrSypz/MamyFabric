@@ -7,12 +7,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import com.sypztep.mamy.common.system.classes.PlayerClass;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.ToDoubleFunction;
+
 import net.minecraft.registry.entry.RegistryEntry;
 import com.sypztep.mamy.common.util.AttributeModification;
 
@@ -20,41 +19,40 @@ public abstract class PassiveSkill extends Skill {
     protected final List<AttributeModification> attributeModifications;
     protected final List<PassiveEffect> passiveEffects;
 
-    // Constructor with prerequisites
-    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
-                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+    // Main constructor with prerequisites
+    public PassiveSkill(Identifier id, String name, String description,
+                        int maxSkillLevel,
                         boolean isDefaultSkill, Identifier icon, List<SkillRequirement> prerequisites) {
-        super(id, name, description, 0.0f, 0.0f, requiredClass, baseClassPointCost,
-                upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, prerequisites);
+        super(id, name, description, 0.0f, 0.0f, 1,
+                1, maxSkillLevel, isDefaultSkill, icon, prerequisites);
         this.attributeModifications = new ArrayList<>();
         this.passiveEffects = new ArrayList<>();
         initializePassiveEffects();
     }
 
     // Constructor without prerequisites (defaults to empty list)
-    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
-                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+    public PassiveSkill(Identifier id, String name, String description,
+                        int maxSkillLevel,
                         boolean isDefaultSkill, Identifier icon) {
-        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+        this(id, name, description,
                 maxSkillLevel, isDefaultSkill, icon, null);
     }
 
     // Constructor with icon but without isDefaultSkill (defaults to false)
-    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
-                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+    public PassiveSkill(Identifier id, String name, String description,
+                        int maxSkillLevel,
                         Identifier icon) {
-        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+        this(id, name, description,
                 maxSkillLevel, false, icon, null);
     }
 
     // Constructor with icon and prerequisites but without isDefaultSkill (defaults to false)
-    public PassiveSkill(Identifier id, String name, String description, PlayerClass requiredClass,
-                        int baseClassPointCost, int upgradeClassPointCost, int maxSkillLevel,
+    public PassiveSkill(Identifier id, String name, String description,
+                        int maxSkillLevel,
                         Identifier icon, List<SkillRequirement> prerequisites) {
-        this(id, name, description, requiredClass, baseClassPointCost, upgradeClassPointCost,
+        this(id, name, description,
                 maxSkillLevel, false, icon, prerequisites);
     }
-
 
     /**
      * Initialize the passive effects this skill provides
@@ -160,6 +158,9 @@ public abstract class PassiveSkill extends Skill {
         // Context-specific info (no resource cost/cooldown for passives)
         addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
+        // Allow custom tooltip info (this is the new flexible part!)
+        addCustomTooltipInfo(tooltip, player, skillLevel, isLearned, context);
+
         return tooltip;
     }
 
@@ -178,6 +179,8 @@ public abstract class PassiveSkill extends Skill {
 
     /**
      * Override this to add custom passive effects description to tooltip
+     * This is now more flexible - you can completely override this method
+     * or use addCustomTooltipInfo() for additional info
      */
     protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
         tooltip.add(Text.literal(description).formatted(Formatting.GRAY));

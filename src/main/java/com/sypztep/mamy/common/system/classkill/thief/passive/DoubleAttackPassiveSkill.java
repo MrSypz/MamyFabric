@@ -19,11 +19,7 @@ public class DoubleAttackPassiveSkill extends PassiveSkill {
                 id,
                 "Double Attack",
                 "Adds a high chance to deal double damage when attacking",
-                ModClasses.THIEF,
-                1,
-                1,
                 10,
-                false,
                 Mamy.id("skill/passive/double_attack")
         );
     }

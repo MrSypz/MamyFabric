@@ -19,11 +19,7 @@ public class ImproveDodgePassiveSkill extends PassiveSkill {
                 id,
                 "Improve Dodge",
                 "Increases evasion chance through nimble movement and reflexes",
-                ModClasses.THIEF,
-                1,
-                1,
                 10,
-                false,
                 Mamy.id("skill/passive/improve_dodge")
         );
     }

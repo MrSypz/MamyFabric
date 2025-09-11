@@ -24,17 +24,10 @@ import java.util.List;
 public class HidingSkill extends Skill {
 
     public HidingSkill(Identifier identifier, List<SkillRequirement> skillRequirements) {
-        super(identifier, "Hiding", "Toggles the hide effect on the character on/off. Hidden characters cannot move, attack or use any skill.", 10f, 1.5f, ModClasses.THIEF, 1, 1, 10, false, Mamy.id("skill/hiding"), skillRequirements);
-    }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 10f; // Fixed cost for all levels
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 1.5f; // 1.5 second cooldown
+        super(identifier, "Hiding", "Toggles the hide effect on the character on/off. Hidden characters cannot move, attack or use any skill.",
+                10f, 1.5f,
+                10,
+                Mamy.id("skill/hiding"), skillRequirements);
     }
 
     @Override

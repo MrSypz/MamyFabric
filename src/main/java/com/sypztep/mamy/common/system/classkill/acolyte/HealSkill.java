@@ -28,12 +28,16 @@ import java.util.List;
 public class HealSkill extends Skill implements CastableSkill {
 
     public HealSkill(Identifier identifier) {
-        super(identifier, "Heal", "Restore HP to a single target. Damages undead with holy power.", 13f, 0f, ModClasses.ACOLYTE, 1, 1, 10, false, Mamy.id("skill/heal"));
+        super(identifier, "Heal", "Restore HP to a single target. Damages undead with holy power.",
+                13f, 1f,
+                1,
+                10,
+                Mamy.id("skill/heal"));
     }
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 13f + (skillLevel - 1) * 3f;
+        return super.getResourceCost(skillLevel) + (skillLevel - 1) * 3f;
     }
 
     @Override

@@ -28,19 +28,8 @@ public class EnvenomSkill extends Skill {
     public EnvenomSkill(Identifier identifier) {
         super(identifier, "Envenom", "Coats the weapon in poison and strikes a single target to inflict Poison property physical damage. It has a chance of leaving the target poisoned, which is reduced by the target's VIT.",
                 12f, 0f,
-                ModClasses.THIEF, 1,
                 1, 10,
-                false, Mamy.id("skill/envenom"));
-    }
-
-    @Override
-    public float getResourceCost(int skillLevel) {
-        return 12f; // Fixed cost for all levels
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 0f; // No cooldown
+                 Mamy.id("skill/envenom"));
     }
 
     @Override

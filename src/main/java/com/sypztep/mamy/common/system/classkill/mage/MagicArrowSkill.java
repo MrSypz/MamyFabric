@@ -18,8 +18,7 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
 
     public MagicArrowSkill(Identifier id) {
         super(id, "Magic Arrow", "Fires magic arrows that can pierce through multiple enemies",
-                5, 0f, ModClasses.MAGE, 1, 1, 10, false,
-                Mamy.id("skill/magic_arrow"));
+                5, 2f, 1, 10, false, Mamy.id("skill/magic_arrow"));
     }
 
     @Override
@@ -44,12 +43,7 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return 5 + skillLevel * 5; // Fixed cost
-    }
-
-    @Override
-    public float getCooldown(int skillLevel) {
-        return 2;
+        return super.getResourceCost(skillLevel) + skillLevel * 5;
     }
 
     private int getMaxTargets(int skillLevel) {
