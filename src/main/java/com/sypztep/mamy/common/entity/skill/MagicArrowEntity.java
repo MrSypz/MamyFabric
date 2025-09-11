@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.entity.skill;
 
 import com.google.common.collect.Maps;
+import com.sypztep.mamy.client.render.entity.MagicArrowEntityRenderer;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import net.minecraft.entity.EntityType;
@@ -91,10 +92,12 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
 
         // Remove after lifetime or if target is dead
         if (ticksAlive >= MAX_LIFETIME || (hasHitTarget && (hitTarget == null || !hitTarget.isAlive()))) {
+            if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
             discard();
         }
 
         if (!getWorld().isClient && age > 100 && !hasHitTarget) {
+            if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
             discard();
         }
     }
@@ -196,11 +199,12 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         if (!getWorld().isClient) {
             playSound(getHitSound(), 1.0f, 1.2f / (random.nextFloat() * 0.2f + 0.9f));
             discard();
-        }
+        } else MagicArrowEntityRenderer.cleanupLight(this.getUuid());
     }
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
+        if (getWorld().isClient) MagicArrowEntityRenderer.cleanupLight(this.getUuid());
         if (!getWorld().isClient && entityHitResult.getEntity() instanceof LivingEntity target) {
             this.hasHitTarget = true;
             this.hitTarget = target;
@@ -224,6 +228,11 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
                     getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
                     1, 0.0, 0.0, 0.0, 0.1);
         }
+    }
+
+    @Override
+    protected float getDragInWater() {
+        return 0.9f;
     }
 
     @Override

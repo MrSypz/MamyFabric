@@ -3,6 +3,9 @@ package com.sypztep.mamy.client.render.entity;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.client.render.VertexContext;
 import com.sypztep.mamy.common.entity.skill.MagicArrowEntity;
+import foundry.veil.api.client.render.VeilRenderSystem;
+import foundry.veil.api.client.render.light.data.PointLightData;
+import foundry.veil.api.client.render.light.renderer.LightRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.*;
@@ -14,9 +17,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 @Environment(EnvType.CLIENT)
 public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
     private static final Identifier MAGIC_TEXTURE = Identifier.ofVanilla("textures/entity/end_crystal/end_crystal_beam.png");
+    private static final Map<UUID, PointLightData> ACTIVE_LIGHTS = new HashMap<>();
 
     public MagicArrowEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -52,6 +60,30 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
 
     @Override
     public void render(MagicArrowEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+        LightRenderer lightRenderer = VeilRenderSystem.renderer().getLightRenderer();
+
+        PointLightData arrowLight = ACTIVE_LIGHTS.get(entity.getUuid());
+
+        if (entity.isAlive() && !entity.isRemoved()) {
+            if (arrowLight == null) {
+                // create once
+                arrowLight = new PointLightData();
+                arrowLight.setColor(0xFF8033FF);
+                arrowLight.setBrightness(2.0f);
+                arrowLight.setRadius(8.0f);
+                lightRenderer.addLight(arrowLight);
+
+                ACTIVE_LIGHTS.put(entity.getUuid(), arrowLight);
+            }
+
+            arrowLight.setPosition(
+                    (float) entity.getX(),
+                    (float) entity.getY(),
+                    (float) entity.getZ()
+            );
+
+        }
+
         matrices.push();
 
         float lerpedYaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
@@ -114,6 +146,10 @@ public class MagicArrowEntityRenderer extends EntityRenderer<MagicArrowEntity> {
         drawBeamSide(context, consumer, matrix, x3, z3, x4, z4, height, r, g, b, alpha, endAlpha);
         drawBeamSide(context, consumer, matrix, x4, z4, x1, z1, height, r, g, b, alpha, endAlpha);
         drawBeamSide(context, consumer, matrix, x2, z2, x3, z3, height, r, g, b, alpha, endAlpha);
+    }
+    public static void cleanupLight(UUID uuid) {
+        PointLightData light = ACTIVE_LIGHTS.remove(uuid);
+        if (light != null) VeilRenderSystem.renderer().getLightRenderer().free();
     }
 
     private void drawBeamSide(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
