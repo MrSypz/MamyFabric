@@ -17,9 +17,9 @@ public class LevelSystem {
     public LevelSystem(LivingEntity livingEntity) {
         this.level = 1;
         this.experience = 0;
-        this.statPoints = ModConfig.startStatpoints;
+        this.statPoints = (short) ModConfig.startStatpoints;
         this.livingEntity = livingEntity;
-        this.maxLevel = ModConfig.maxLevel;
+        this.maxLevel = (short) ModConfig.maxLevel;
         this.experienceToNextLevel = calculateXpForNextLevel(level);
         this.levelUpCallback = null; // Set by external system
     }

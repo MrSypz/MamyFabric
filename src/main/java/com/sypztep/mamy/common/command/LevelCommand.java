@@ -188,7 +188,7 @@ public class LevelCommand {
         component.performBatchUpdate(() -> {
             component.setLevel((short) 1);
             component.getLevelSystem().setExperience(0);
-            component.getLevelSystem().setStatPoints(ModConfig.startStatpoints);
+            component.getLevelSystem().setStatPoints((short) ModConfig.startStatpoints);
             component.getLivingStats().resetStats(player,false);
         });
 

@@ -71,14 +71,14 @@ public class ModConfig implements ConfigData {
     // =====================================
 
     @ConfigEntry.Category("gameplay")
-    @ConfigEntry.BoundedDiscrete(min = 1, max = 199)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = Short.MAX_VALUE)
     @Comment("The highest level players can reach")
-    public static short maxLevel = 99;
+    public static int maxLevel = 99;
 
     @ConfigEntry.Category("gameplay")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 4096)
+    @ConfigEntry.BoundedDiscrete(min = 0, max = Short.MAX_VALUE)
     @Comment("Number of benefit points new players start with")
-    public static short startStatpoints = 48;
+    public static int startStatpoints = 48;
 
     @ConfigEntry.Category("gameplay")
     @Comment("Experience required for each level (array)")
@@ -184,7 +184,7 @@ public class ModConfig implements ConfigData {
     };
     @ConfigEntry.Category("gameplay")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 4096)
-    public static short maxStatValue = 99;
+    public static int maxStatValue = 99;
 
     @ConfigEntry.Category("gameplay")
     public static boolean unlearnskill = true;
@@ -207,10 +207,4 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 1)
     @Comment("Percentage of next level experience lost on death (0.0 - 1.0)")
     public static float deathPenaltyPercentage = 0.1f;
-
-    @ConfigEntry.Category("dev")
-    public static boolean damageAfterArmorDebug = false;
-    @ConfigEntry.Category("dev")
-    public static boolean elementDamageDebug = false;
-
 }

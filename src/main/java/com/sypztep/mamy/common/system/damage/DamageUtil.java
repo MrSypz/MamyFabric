@@ -23,7 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = ModConfig.damageAfterArmorDebug;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));

@@ -1,6 +1,5 @@
 package com.sypztep.mamy.common.system.damage;
 
-import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.network.client.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.Mamy;
@@ -10,15 +9,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = ModConfig.elementDamageDebug;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
