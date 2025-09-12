@@ -3,13 +3,11 @@ package com.sypztep.mamy.common.system.classkill.swordman;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.world.ServerWorld;
@@ -54,14 +52,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        // Base damage + 20% per level
-        float attackFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float attackMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
-        float baseMagicDamage = attackFlat * (1 + attackMult);
-
-        float damageMultiplier = 1.0f + (0.2f * skillLevel);
-
-        data.baseDamage = baseMagicDamage * damageMultiplier; // Minimum 10 damage
+        data.baseDamage = 10 + (1 + (skillLevel * 0.3f)); // Minimum 10 damage
         data.damageType = DamageType.PHYSICAL; // Fire type
         data.maxHits = 1;
 
@@ -78,12 +69,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
 
-        // Calculate damage
-        float attackFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float attackMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
-        float baseMagicDamage = attackFlat * (1 + attackMult);
-        float damageMultiplier = 1.0f + (0.2f * skillLevel);
-        float finalDamage = baseMagicDamage * damageMultiplier;
+        float finalDamage = 10 + (1 + (skillLevel * 0.3f));
 
         // Create 5x5 AOE damage area centered on player
         Vec3d playerPos = player.getPos();

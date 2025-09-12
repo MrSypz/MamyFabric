@@ -1,19 +1,17 @@
 package com.sypztep.mamy.common.system.classkill.swordman;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.init.ModClasses;
-import com.sypztep.mamy.common.init.ModDamageTypes;
-import com.sypztep.mamy.common.init.ModEntityAttributes;
-import com.sypztep.mamy.common.init.ModParticles;
+import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Box;
@@ -32,20 +30,16 @@ public class BashingBlowSkill extends Skill {
 
     @Override
     public float getResourceCost(int skillLevel) {
-        return skillLevel <= 5 ? super.getResourceCost(skillLevel) : super.getResourceCost(skillLevel) * 2f;
+        return skillLevel <= 5 ? super.getResourceCost(skillLevel) : 16; // base * 2
     }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
+        float baseSkill = 5;
 
-        float meleeFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float meleeMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
-        float baseMeleeDamage = meleeFlat * (1 + meleeMult);
-        float damageMultiplier = 1.0f + (0.3f * skillLevel);
-
-        data.baseDamage = baseMeleeDamage * damageMultiplier;
-        data.damageType = DamageType.ELEMENT;
+        data.baseDamage = baseSkill + (1 + (.2f * skillLevel));
+        data.damageType = DamageType.PHYSICAL;
         data.maxHits = 1;
 
         return data;
@@ -53,20 +47,20 @@ public class BashingBlowSkill extends Skill {
 
     @Override
     public boolean canUse(LivingEntity caster, int skillLevel) {
-        return caster instanceof PlayerEntity && caster.isAlive();
+        if (!(caster instanceof PlayerEntity player)) return false;
+        if (!caster.isAlive()) return false;
+
+        ItemStack mainHand = player.getStackInHand(Hand.MAIN_HAND);
+        return mainHand.isIn(ModTags.Items.ONE_HAND_SWORDS) || mainHand.isIn(ModTags.Items.TWO_HAND_SWORDS) || mainHand.isIn(ModTags.Items.SPEARS);
     }
 
     @Override
     public boolean use(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return false;
-
+        float baseSkill = 5;
         // Calculate damage
-        float meleeFlat = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        float meleeMult = (float) player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT);
-        float baseMeleeDamage = meleeFlat * (1 + meleeMult);
-        float damageMultiplier = 1.0f + (0.3f * skillLevel);
-        float finalDamage = baseMeleeDamage * damageMultiplier;
+        float finalDamage = baseSkill + (1 + (.2f * skillLevel));
 
         // Get player's facing direction for targeting
         Vec3d direction = player.getRotationVector().normalize();
