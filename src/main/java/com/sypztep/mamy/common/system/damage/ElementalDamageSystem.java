@@ -143,7 +143,8 @@ public final class ElementalDamageSystem {
             }
         }
 
-        if (elementalDamage.isEmpty()) return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
+        if (elementalDamage.isEmpty())
+            return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
 
         return new ElementalBreakdown(elementalDamage, source);
     }
@@ -228,24 +229,11 @@ public final class ElementalDamageSystem {
      * Check if damage source has any elemental tag
      */
     private static boolean hasElementalTag(DamageSource source) {
-        return source.isIn(ModTags.DamageTags.FIRE_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.COLD_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.WATER_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.WIND_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.HOLY_DAMAGE) ||
-                source.isIn(ModTags.DamageTags.MAGIC_DAMAGE);
+        return source.isIn(ModTags.DamageTags.FIRE_DAMAGE) || source.isIn(ModTags.DamageTags.COLD_DAMAGE) || source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE) || source.isIn(ModTags.DamageTags.WATER_DAMAGE) || source.isIn(ModTags.DamageTags.WIND_DAMAGE) || source.isIn(ModTags.DamageTags.HOLY_DAMAGE) || source.isIn(ModTags.DamageTags.MAGIC_DAMAGE);
     }
 
     public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {
         if (target.getWorld().isClient()) return;
-
-        Set<ServerPlayerEntity> recipients = new HashSet<>(PlayerLookup.tracking(target));
-
-        if (breakdown.originalSource.getAttacker() instanceof ServerPlayerEntity attacker) recipients.add(attacker);
-
-        if (target instanceof ServerPlayerEntity player) recipients.add(player);
-
-        recipients.forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
+        PlayerLookup.tracking(target).forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
     }
 }
