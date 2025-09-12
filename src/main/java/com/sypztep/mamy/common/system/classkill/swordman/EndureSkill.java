@@ -31,7 +31,7 @@ public class EndureSkill extends Skill {
 
         // This is a buff skill, not a damage skill
         data.baseDamage = 0;
-        data.damageType = DamageType.PHYSICAL;
+        data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 0;
 
         return data;

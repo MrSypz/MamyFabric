@@ -4,6 +4,8 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.damage.ElementType;
+import com.sypztep.mamy.common.system.damage.CombatType;
+import com.sypztep.mamy.common.util.NumberUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -34,6 +36,12 @@ public final class ElementalTooltipHelper {
     private static final String KNOCKBACK_ICON = "\u0013";
     private static final String POWER_ICON = "\u0010";
 
+    // Combat Type icons
+    private static final String MELEE_ICON = "\u0014";
+    private static final String RANGED_ICON = "\u0015";
+    private static final String MAGIC_ICON = "\u0016";
+    private static final String HYBRID_ICON = "\u0017";
+
     // Main entry points for different item types
     public static void appendWeaponTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
         var modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
@@ -45,6 +53,7 @@ public final class ElementalTooltipHelper {
 
         if (ItemElementDataEntry.hasEntry(stack.getItem())) {
             appendElementalDamage(stack, textConsumer, player, hasShownHeader);
+            appendCombatTypeBonuses(stack, textConsumer);
         }
 
         appendOtherAttributes(stack, textConsumer);
@@ -77,6 +86,7 @@ public final class ElementalTooltipHelper {
 
             if (!hasShownHeader.get() && ItemElementDataEntry.hasEntry(stack.getItem())) {
                 appendElementalResistances(stack, textConsumer);
+                appendCombatTypeResistances(stack, textConsumer);
             }
         }
     }
@@ -147,8 +157,47 @@ public final class ElementalTooltipHelper {
             baseDamage = attackDamageModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
         }
 
-        appendElementalSection(stack, textConsumer,
-                baseDamage);
+        appendElementalSection(stack, textConsumer, baseDamage);
+    }
+
+    private static void appendCombatTypeBonuses(ItemStack stack, Consumer<Text> textConsumer) {
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
+
+        if (itemData.combatRatios().isEmpty()) return;
+
+        boolean hasShownCombatHeader = false;
+
+        for (var entry : itemData.combatRatios().entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue())).toList()) {
+
+            CombatType combatType = CombatType.fromDamageAttribute(entry.getKey());
+            double ratio = entry.getValue();
+
+            if (ratio <= 0) continue;
+
+            if (!hasShownCombatHeader) {
+                textConsumer.accept(ScreenTexts.EMPTY);
+                MutableText combatHeader =Text.literal(" ");
+                combatHeader.append(createIconText(getCombatTypeIcon(combatType)));
+                combatHeader.append(Text.translatable("tooltip.mamy.combat_bonuses").formatted(Formatting.WHITE));
+                textConsumer.accept(combatHeader);
+                hasShownCombatHeader = true;
+            }
+
+            String percentage = String.format("%.1f%%", ratio * 100);
+            MutableText combatComp = Text.literal("  ")
+                    .append(createIconText(getCombatTypeIcon(combatType)))
+                    .append(Text.translatable("combat_type." + combatType.name).withColor(getCombatTypeColor(combatType)))
+                    .append(Text.literal(": " + percentage).formatted(Formatting.GRAY));
+
+            if (Math.abs(itemData.combatWeight() - 1.0) > 0.01) {
+                combatComp.append(Text.literal(" (").formatted(Formatting.DARK_GRAY))
+                        .append(Text.literal("×" + format(itemData.combatWeight())).formatted(Formatting.AQUA))
+                        .append(Text.literal(")").formatted(Formatting.DARK_GRAY));
+            }
+
+            textConsumer.accept(ScreenTexts.space().append(combatComp));
+        }
     }
 
     private static void appendCustomArmorValue(Consumer<Text> textConsumer, double armorValue) {
@@ -177,22 +226,38 @@ public final class ElementalTooltipHelper {
     private static void appendElementalResistances(ItemStack stack, Consumer<Text> textConsumer) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
-        boolean hasElementalResistances = itemData.damageRatios().entrySet().stream()
+        boolean hasElementalResistances = itemData.elementalRatios().entrySet().stream()
                 .anyMatch(entry -> entry.getValue() != 0.0);
 
         if (!hasElementalResistances) return;
 
         textConsumer.accept(ScreenTexts.EMPTY);
-        MutableText comp = Text.empty();
+        MutableText comp = Text.literal(" ");
         comp.append(createIconText(SHIELD_ICON));
         comp.append(Text.translatable("tooltip.mamy.elemental_resistances").formatted(Formatting.WHITE));
         textConsumer.accept(comp);
 
-        appendResistanceSection(stack, textConsumer);
+        appendElementalResistanceSection(stack, textConsumer);
     }
 
-    private static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer,
-                                               double baseDamage) {
+    private static void appendCombatTypeResistances(ItemStack stack, Consumer<Text> textConsumer) {
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
+
+        boolean hasCombatResistances = itemData.combatRatios().entrySet().stream()
+                .anyMatch(entry -> entry.getValue() != 0.0);
+
+        if (!hasCombatResistances) return;
+
+        textConsumer.accept(ScreenTexts.EMPTY);
+        MutableText comp = Text.literal(" ");
+        comp.append(createIconText(HYBRID_ICON));
+        comp.append(Text.translatable("tooltip.mamy.combat_resistances").formatted(Formatting.WHITE));
+        textConsumer.accept(comp);
+
+        appendCombatResistanceSection(stack, textConsumer);
+    }
+
+    private static void appendElementalSection(ItemStack stack, Consumer<Text> textConsumer, double baseDamage) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
@@ -203,14 +268,14 @@ public final class ElementalTooltipHelper {
                     .formatted(Formatting.YELLOW));
         }
 
-        double powerRatio = itemData.powerBudget() / itemData.damageRatios().values().stream().mapToDouble(Double::doubleValue).sum();
+        double powerRatio = itemData.powerBudget() / itemData.elementalRatios().values().stream().mapToDouble(Double::doubleValue).sum();
 
-        itemData.damageRatios().entrySet().stream()
+        itemData.elementalRatios().entrySet().stream()
                 .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
                 .forEach(entry -> {
                     ElementType element = ElementType.fromDamageAttribute(entry.getKey());
                     double ratio = entry.getValue();
-                    String percentage = String.format("%.1f%%", ratio * 100 / itemData.damageRatios().values().stream().mapToDouble(Double::doubleValue).sum());
+                    String percentage = String.format("%.1f%%", ratio * 100 / itemData.elementalRatios().values().stream().mapToDouble(Double::doubleValue).sum());
 
                     MutableText elementComp = Text.literal("  ")
                             .append(createIconText(element.icon))
@@ -228,7 +293,7 @@ public final class ElementalTooltipHelper {
                 });
     }
 
-    private static void appendResistanceSection(ItemStack stack, Consumer<Text> textConsumer) {
+    private static void appendElementalResistanceSection(ItemStack stack, Consumer<Text> textConsumer) {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
 
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
@@ -238,13 +303,14 @@ public final class ElementalTooltipHelper {
                     .formatted(Formatting.YELLOW));
         }
 
-        itemData.damageRatios().entrySet().stream()
+        itemData.elementalRatios().entrySet().stream()
                 .filter(entry -> entry.getValue() != 0.0)
                 .sorted((a, b) -> Double.compare(Math.abs(b.getValue()), Math.abs(a.getValue())))
                 .forEach(entry -> {
                     ElementType element = ElementType.fromResistanceAttribute(entry.getKey());
                     double resistance = entry.getValue() * itemData.powerBudget();
-                    String percentage = String.format("%.1f%%", Math.abs(resistance * 100));
+//                    String percentage = String.format("%.1f%%", Math.abs(resistance * 100));
+                    String percentage = NumberUtil.formatDouble(Math.abs(resistance * 100),2) + "%";
 
                     MutableText elementComp = Text.literal("  ")
                             .append(createIconText(element.icon))
@@ -258,6 +324,32 @@ public final class ElementalTooltipHelper {
                     }
 
                     textConsumer.accept(ScreenTexts.space().append(elementComp));
+                });
+    }
+
+    private static void appendCombatResistanceSection(ItemStack stack, Consumer<Text> textConsumer) {
+        ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(stack.getItem());
+
+        itemData.combatRatios().entrySet().stream()
+                .filter(entry -> entry.getValue() != 0.0)
+                .sorted((a, b) -> Double.compare(Math.abs(b.getValue()), Math.abs(a.getValue())))
+                .forEach(entry -> {
+                    CombatType combatType = CombatType.fromResistanceAttribute(entry.getKey());
+                    double resistance = entry.getValue() * itemData.powerBudget();
+                    String percentage = String.format("%.1f%%", Math.abs(resistance * 100));
+
+                    MutableText combatComp = Text.literal("  ")
+                            .append(createIconText(getCombatTypeIcon(combatType)))
+                            .append(Text.translatable("combat_resistance." + combatType.name).withColor(getCombatTypeColor(combatType)))
+                            .append(Text.literal(": ").formatted(Formatting.GRAY));
+
+                    if (resistance >= 0) {
+                        combatComp.append(Text.literal("+" + percentage).formatted(Formatting.BLUE));
+                    } else {
+                        combatComp.append(Text.literal("-" + percentage).formatted(Formatting.RED));
+                    }
+
+                    textConsumer.accept(ScreenTexts.space().append(combatComp));
                 });
     }
 
@@ -279,7 +371,28 @@ public final class ElementalTooltipHelper {
         });
     }
 
-    // Utility methods
+    // Utility methods for Combat Types
+    private static String getCombatTypeIcon(CombatType combatType) {
+        return switch (combatType) {
+            case MELEE -> MELEE_ICON;
+            case RANGED -> RANGED_ICON;
+            case MAGIC -> MAGIC_ICON;
+            case HYBRID -> HYBRID_ICON;
+            case PURE -> SWORD_ICON; // Fallback
+        };
+    }
+
+    private static int getCombatTypeColor(CombatType combatType) {
+        return switch (combatType) {
+            case MELEE -> 16733525;
+            case RANGED -> 5635925;
+            case MAGIC -> 0x599AFF;
+            case HYBRID -> 16755200;
+            case PURE -> 16777215;
+        };
+    }
+
+    // General utility methods
     public static MutableText createIconText(String iconChar) {
         return Text.literal(iconChar).setStyle(ICONS);
     }

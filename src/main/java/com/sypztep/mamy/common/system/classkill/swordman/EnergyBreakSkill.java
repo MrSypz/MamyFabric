@@ -53,7 +53,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 10 + (1 + (skillLevel * 0.3f)); // Minimum 10 damage
-        data.damageType = DamageType.PHYSICAL; // Fire type
+        data.damageType = DamageTypeRef.PHYSICAL; // Fire type
         data.maxHits = 1;
 
         return data;

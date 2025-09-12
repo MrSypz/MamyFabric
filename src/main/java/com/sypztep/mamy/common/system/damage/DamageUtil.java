@@ -79,46 +79,8 @@ public final class DamageUtil {
         }),
 
         // ==========================================
-        // NON-ELEMENTAL DAMAGE BONUSES (Pre-Element System)
+        // SPECIAL SKILL BONUSES
         // ==========================================
-
-        PROJECTILE_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-                float projectileFlat = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_FLAT);
-                float extra = projectileFlat + specialAttack(attacker);
-                debugLog("Projectile Damage: +%.1f (%.1f projectile, %.1f special)", extra, projectileFlat, specialAttack(attacker));
-                return extra;
-            }
-            return 0.0f;
-        }),
-
-        PROJECTILE_MULTIPLIER(ModifierOperationType.MULTIPLY, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-                float projectileMult = (float) attacker.getAttributeValue(ModEntityAttributes.PROJECTILE_ATTACK_DAMAGE_MULT);
-                debugLog("Projectile Multiplier: %.2fx", projectileMult);
-                return projectileMult;
-            }
-            return 0.0f;
-        }),
-
-        MAGIC_DAMAGE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-                float magicFlat = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
-                float extra = magicFlat + specialAttack(attacker);
-                debugLog("Magic Damage: +%.1f (%.1f magic, %.1f special)", extra, magicFlat, specialAttack(attacker));
-                return extra;
-            }
-            return 0.0f;
-        }),
-
-        MAGIC_MULTIPLIER(ModifierOperationType.MULTIPLY, (attacker, target, source, isCrit) -> {
-            if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-                float magicMult = (float) attacker.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_MULT);
-                debugLog("Magic Multiplier: %.2fx", magicMult);
-                return magicMult;
-            }
-            return 0.0f;
-        }),
 
         DEMON_BANE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (isDemonBaneApplicable(source, target)) {
@@ -129,8 +91,8 @@ public final class DamageUtil {
             return 0.0f;
         });
 
-        // NOTE: ELEMENTAL damage (fire, electric, etc.) is handled by ElementalDamageSystem
-        // Don't add them here to avoid double-processing!
+        // NOTE: Combat type damage bonuses (MELEE/PROJECTILE/MAGIC) are now handled
+        // by ElementalDamageSystem to avoid double calculation!
 
         private final ModifierOperationType opType;
         private final DamageModifier modifier;
@@ -161,7 +123,7 @@ public final class DamageUtil {
             LivingEntityUtil.playCriticalSound(projectile);
         }
 
-        // ===== 3. ENVIRONMENTAL & DIFFICULTY MODIFIERS =====
+        // ===== 2. ENVIRONMENTAL & DIFFICULTY MODIFIERS =====
         boolean attackerIsPlayer = LivingEntityUtil.isPlayer(attacker);
         boolean targetIsPlayer = LivingEntityUtil.isPlayer(target);
 
@@ -192,7 +154,7 @@ public final class DamageUtil {
             }
         }
 
-        // ===== 4. APPLY UNIVERSAL COMBAT MODIFIERS =====
+        // ===== 3. APPLY UNIVERSAL COMBAT MODIFIERS =====
         float additiveBonus = 0.0f;
         float multiplicativeMultiplier = 1.0f;
 
@@ -219,39 +181,12 @@ public final class DamageUtil {
 
     public static float damageResistanceModifier(LivingEntity defender, float amount, DamageSource source) {
         debugLog("====RESISTANCE MODIFIER START - INPUT: %.2f====", amount);
+
+        // ElementalDamageSystem now handles ALL damage type calculations (elemental + combat type)
         float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
 
+        // Apply special skill resistances
         float flatReduction = 0.0f;
-
-        // Combat type flat reductions
-        if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION);
-            debugLog("Magic flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MAGIC_REDUCTION));
-        }
-        if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION);
-            debugLog("Projectile flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_PROJECTILE_REDUCTION));
-        }
-        if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
-            flatReduction += (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION);
-            debugLog("Melee flat reduction: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.FLAT_MELEE_REDUCTION));
-        }
-
-        // Step 3: Apply combat type percentage resistances
-        float percentageReduction = 0.0f;
-
-        if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
-            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE);
-            debugLog("Projectile resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.PROJECTILE_RESISTANCE));
-        }
-        if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE)) {
-            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE);
-            debugLog("Melee resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MELEE_RESISTANCE));
-        }
-        if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
-            percentageReduction += (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE);
-            debugLog("Magic resistance: %.2f", (float) defender.getAttributeValue(ModEntityAttributes.MAGIC_RESISTANCE));
-        }
 
         if (isDivineProtectionApplicable(source, defender)) {
             PlayerEntity player = (PlayerEntity) defender;
@@ -263,12 +198,10 @@ public final class DamageUtil {
             }
         }
 
-        float afterPercentageReduction = elementalDamage * (1.0f - Math.min(0.95f, percentageReduction));
-
         // Apply flat reduction
-        float finalDamage = Math.max(0.0f, afterPercentageReduction - flatReduction);
-        debugLog("Elemental damage: %.2f, Percentage reduction: %.2f, After percentage: %.2f, Flat reduction: %.2f, Final: %.2f",
-                elementalDamage, percentageReduction, afterPercentageReduction, flatReduction, finalDamage);
+        float finalDamage = Math.max(0.0f, elementalDamage - flatReduction);
+        debugLog("Elemental damage: %.2f, Special flat reduction: %.2f, Final: %.2f",
+                elementalDamage, flatReduction, finalDamage);
         debugLog("====RESISTANCE MODIFIER END====");
 
         return finalDamage;
@@ -302,6 +235,7 @@ public final class DamageUtil {
     public static float getArmorDamageReduction(float armor) {
         return armor / (armor + 20.0f);
     }
+
     public static boolean isDivineProtectionApplicable(DamageSource source, LivingEntity defender) {
         LivingEntity attacker = getActualAttacker(source);
 
@@ -320,6 +254,7 @@ public final class DamageUtil {
 
         return target.getType().isIn(EntityTypeTags.UNDEAD);
     }
+
     private static LivingEntity getActualAttacker(DamageSource source) {
         Entity directSource = source.getSource();
         Entity attacker = source.getAttacker();
@@ -333,5 +268,4 @@ public final class DamageUtil {
 
         return null;
     }
-
 }

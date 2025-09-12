@@ -64,10 +64,10 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
 
         float damageMultiplier = calculateDamageMultiplier(skillLevel);
         data.baseDamage = damageMultiplier;
-        data.damageType = DamageType.PHYSICAL;
+        data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 1;
         data.secondaryDamages = Collections.singletonList(
-                new SecondaryDamage(DamageType.PHYSICAL, damageMultiplier, 1, 1)
+                new SecondaryDamage(DamageTypeRef.PHYSICAL, damageMultiplier, 1, 1)
         );
 
         return data;

@@ -136,7 +136,7 @@ public class CureSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL;
+        data.damageType = DamageTypeRef.HEAL;
         data.maxHits = 1;
 
         return data;

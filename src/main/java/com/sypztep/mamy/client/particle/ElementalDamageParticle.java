@@ -9,6 +9,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -27,7 +28,7 @@ public final class ElementalDamageParticle extends Particle {
 
     public ElementalDamageParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, String damageText, ElementType elementType, int color) {
         super(world, x, y, z, velocityX, velocityY, velocityZ);
-        this.collidesWithWorld = false;
+        this.collidesWithWorld = true;
         this.maxAge = 45;
         this.weight = 0.25f;
         this.gravityStrength = 0.981f;
@@ -87,7 +88,7 @@ public final class ElementalDamageParticle extends Particle {
 
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer textRenderer = client.textRenderer;
-        var vertexConsumers = client.getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumerProvider.Immediate vertexConsumers = client.getBufferBuilders().getEntityVertexConsumers();
         // Idk testing in benchmark and it 3 time faster
         Matrix4f matrix = new Matrix4f()
                 .translation(particleX, particleY, particleZ)

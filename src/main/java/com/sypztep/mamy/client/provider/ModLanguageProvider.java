@@ -50,6 +50,19 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("tooltip.mamy.melee_bonus", "Melee Bonus");
         translate.add("tooltip.mamy.other_attributes", "Other Attributes");
 
+        translate.add("tooltip.mamy.combat_bonuses", "Combat Bonuses");
+        translate.add("tooltip.mamy.combat_resistances", "Combat Resistances");
+
+        translate.add("combat_type.melee", "Melee");
+        translate.add("combat_type.ranged", "Ranged");
+        translate.add("combat_type.magic", "Magic");
+        translate.add("combat_type.hybrid", "Hybrid");
+
+
+        translate.add("combat_resistance.melee", "Melee Resistance");
+        translate.add("combat_resistance.ranged", "Ranged Resistance");
+        translate.add("combat_resistance.magic", "Magic Resistance");
+
         // Armor tooltips
         translate.add("tooltip.mamy.elemental_resistances", "Elemental Resistances");
         translate.add("tooltip.mamy.resistance_budget", "Resistance: %s");

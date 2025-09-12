@@ -60,7 +60,7 @@ public class AngelusSkill extends Skill implements CastableSkill {
 
         // This is an area buff skill
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL; // Use heal type for beneficial effects
+        data.damageType = DamageTypeRef.HEAL; // Use heal type for beneficial effects
         data.maxHits = 0; // Area effect, not single target
 
         return data;

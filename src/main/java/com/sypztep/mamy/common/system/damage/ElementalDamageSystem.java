@@ -1,17 +1,24 @@
 package com.sypztep.mamy.common.system.damage;
 
+import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.network.client.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class ElementalDamageSystem {
     private static final boolean DEBUG = true;
@@ -66,7 +73,13 @@ public final class ElementalDamageSystem {
         debugLog("  - MAGIC_DAMAGE: %b", source.isIn(ModTags.DamageTags.MAGIC_DAMAGE));
         debugLog("  - MELEE_DAMAGE: %b", source.isIn(ModTags.DamageTags.MELEE_DAMAGE));
 
-        // PRIORITY 1: Check damage source first for elemental types
+        // PRIORITY 1: Check if source implements HybridDamageSource (skills, projectiles)
+        if (source instanceof HybridDamageSource hybridSource) {
+            debugLog("ROUTE: Using hybrid damage source components");
+            return createElementalBreakdownFromHybridSource(attacker, source, hybridSource, totalDamage);
+        }
+
+        // PRIORITY 2: Check damage source first for elemental types
         ElementType sourceElement = getElementTypeFromDamageSource(source);
         boolean hasElemental = hasElementalTag(source);
         boolean isBasicWeapon = isBasicWeaponAttack(source);
@@ -82,16 +95,63 @@ public final class ElementalDamageSystem {
             return createElementalBreakdownFromSource(attacker, source, sourceElement, totalDamage);
         }
 
-        // PRIORITY 2: Use weapon elemental ratios for basic weapon attacks
+        // PRIORITY 3: Use weapon elemental ratios for basic weapon attacks
         ItemStack weapon = attacker.getMainHandStack();
         if (isBasicWeapon && ItemElementDataEntry.hasEntry(weapon.getItem())) {
             debugLog("ROUTE: Using weapon elemental ratios for item: %s", weapon.getItem());
             return createElementalBreakdownFromWeapon(attacker, source, weapon, totalDamage);
         }
 
-        // PRIORITY 3: Fallback to source element or physical
+        // PRIORITY 4: Fallback to source element or physical
         debugLog("ROUTE: Fallback to source element: %s", sourceElement.name());
         return createElementalBreakdownFromSource(attacker, source, sourceElement, totalDamage);
+    }
+
+    /**
+     * Create elemental breakdown from hybrid damage source (skills, projectiles)
+     */
+    private static ElementalBreakdown createElementalBreakdownFromHybridSource(LivingEntity attacker, DamageSource source, HybridDamageSource hybridSource, float totalDamage) {
+        Map<ElementType, Float> elementalDamage = new HashMap<>();
+        List<DamageComponent> components = DamageComponentUtils.normalizeWeights(hybridSource.getDamageComponents());
+
+        debugLog("Processing %d damage components", components.size());
+
+        for (DamageComponent component : components) {
+            ElementType elementType = component.elementType;
+            CombatType combatType = component.combatType;
+
+            // Calculate base damage for this component
+            float baseDamage = totalDamage * component.elementalWeight;
+
+            // Apply elemental bonuses
+            float elementalBonus = (float) attacker.getAttributeValue(elementType.damageFlat);
+            float elementalAffinity = (float) attacker.getAttributeValue(elementType.damageMult);
+
+            // Apply combat type bonuses (scaled by combatWeight)
+            float combatBonus = 0.0f;
+            float combatMultiplier = 1.0f;
+
+            if (combatType.hasAttributes() && component.combatWeight > 0.0f) {
+                combatBonus = (float) attacker.getAttributeValue(combatType.damageFlat) * component.combatWeight;
+                combatMultiplier = 1.0f + ((float) attacker.getAttributeValue(combatType.damageMult) * component.combatWeight);
+            }
+
+            // Calculate final damage: (base + elemental_bonus + combat_bonus) * elemental_mult * combat_mult
+            float finalComponentDamage = (baseDamage + elementalBonus + combatBonus) * (1.0f + elementalAffinity) * combatMultiplier;
+
+            if (finalComponentDamage > 0) {
+                elementalDamage.merge(elementType, finalComponentDamage, Float::sum);
+                debugLog("%s/%s: %.2f base + %.2f ele_bonus + %.2f combat_bonus × %.2f ele_mult × %.2f combat_mult = %.2f",
+                        elementType.name(), combatType.name(), baseDamage, elementalBonus, combatBonus,
+                        1.0f + elementalAffinity, combatMultiplier, finalComponentDamage);
+            }
+        }
+
+        if (elementalDamage.isEmpty()) {
+            return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
+        }
+
+        return new ElementalBreakdown(elementalDamage, source);
     }
 
     /**
@@ -122,7 +182,7 @@ public final class ElementalDamageSystem {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(weapon.getItem());
         double powerBudget = itemData.powerBudget();
 
-        for (var entry : itemData.damageRatios().entrySet()) {
+        for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : itemData.damageRatios().entrySet()) {
             ElementType elementType = ElementType.fromDamageAttribute(entry.getKey());
             if (elementType != null && entry.getValue() > 0) {
                 double ratio = entry.getValue();
@@ -139,8 +199,7 @@ public final class ElementalDamageSystem {
             }
         }
 
-        if (elementalDamage.isEmpty())
-            return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
+        if (elementalDamage.isEmpty()) return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
 
         return new ElementalBreakdown(elementalDamage, source);
     }
@@ -149,25 +208,34 @@ public final class ElementalDamageSystem {
         debugLog("=== APPLYING ELEMENTAL RESISTANCES ===");
 
         Map<ElementType, Float> armorResistances = calculateArmorResistances(defender);
+        Map<ElementType, Float> finalDamageBreakdown = new HashMap<>();
         float totalFinalDamage = 0.0f;
 
         for (var entry : breakdown.elementalDamage.entrySet()) {
             ElementType element = entry.getKey();
             float elementDamage = entry.getValue();
 
+            // Apply player resistance and armor resistance separately (multiplicative)
             float playerResistance = (float) defender.getAttributeValue(element.resistance);
             float armorResistance = armorResistances.getOrDefault(element, 0.0f);
-            float totalResistance = Math.min(0.95f, playerResistance + armorResistance);
 
-            float afterResistance = elementDamage * (1.0f - totalResistance);
+            float afterPlayerRes = elementDamage * (1.0f - Math.min(0.95f, playerResistance));
+            float afterArmorRes = afterPlayerRes * (1.0f - Math.min(0.95f, armorResistance));
+
             float flatReduction = (float) defender.getAttributeValue(element.flatReduction);
-            float finalElementDamage = Math.max(0.0f, afterResistance - flatReduction);
+            float finalElementDamage = Math.max(0.0f, afterArmorRes - flatReduction);
 
+            if (finalElementDamage > 0) {
+                finalDamageBreakdown.put(element, finalElementDamage);
+            }
             totalFinalDamage += finalElementDamage;
 
-            debugLog("%s: %.2f × (1 - %.3f total) = %.2f - %.2f flat = %.2f", element.name(), elementDamage, totalResistance, afterResistance, flatReduction, finalElementDamage);
+            debugLog("%s: %.2f × (1 - %.3f player) × (1 - %.3f armor) = %.2f - %.2f flat = %.2f",
+                    element.name(), elementDamage, playerResistance, armorResistance, afterArmorRes, flatReduction, finalElementDamage);
         }
-        sendDamageNumbers(defender, breakdown);
+
+        // Send damage numbers with final values (after resistance)
+        sendDamageNumbers(defender, new ElementalBreakdown(finalDamageBreakdown, breakdown.originalSource));
         return Math.max(0.0f, totalFinalDamage);
     }
 
@@ -180,7 +248,7 @@ public final class ElementalDamageSystem {
             ItemElementDataEntry entry = ItemElementDataEntry.getEntry(armorPiece.getItem());
             double powerBudget = entry.powerBudget();
 
-            for (var ratioEntry : entry.damageRatios().entrySet()) {
+            for (Map.Entry<RegistryEntry<EntityAttribute>, Double> ratioEntry : entry.damageRatios().entrySet()) {
                 ElementType elementType = ElementType.fromResistanceAttribute(ratioEntry.getKey());
                 if (elementType != null) {
                     float resistance = (float) (ratioEntry.getValue() * powerBudget);
@@ -225,7 +293,13 @@ public final class ElementalDamageSystem {
      * Check if damage source has any elemental tag
      */
     private static boolean hasElementalTag(DamageSource source) {
-        return source.isIn(ModTags.DamageTags.FIRE_DAMAGE) || source.isIn(ModTags.DamageTags.COLD_DAMAGE) || source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE) || source.isIn(ModTags.DamageTags.WATER_DAMAGE) || source.isIn(ModTags.DamageTags.WIND_DAMAGE) || source.isIn(ModTags.DamageTags.HOLY_DAMAGE) || source.isIn(ModTags.DamageTags.MAGIC_DAMAGE);
+        return source.isIn(ModTags.DamageTags.FIRE_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.COLD_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.ELECTRIC_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.WATER_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.WIND_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.HOLY_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.MAGIC_DAMAGE);
     }
 
     public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {

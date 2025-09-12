@@ -65,7 +65,7 @@ public class HidingSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 0;
-        data.damageType = DamageType.MAGIC;
+        data.damageType = DamageTypeRef.MAGIC;
         data.maxHits = 1;
 
         return data;

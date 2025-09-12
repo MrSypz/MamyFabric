@@ -37,4 +37,7 @@ public final class NumberUtil {
         }
         return formatted;
     }
+    public static String formatDouble(double value) {
+        return formatDouble(value,2);
+    }
 }

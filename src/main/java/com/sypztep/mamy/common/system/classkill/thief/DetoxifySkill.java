@@ -60,7 +60,7 @@ public class DetoxifySkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL;
+        data.damageType = DamageTypeRef.HEAL;
         data.maxHits = 1;
 
         return data;

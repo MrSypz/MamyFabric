@@ -10,12 +10,15 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.ResourceType;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.damage.HybridDamageSource;
+import com.sypztep.mamy.common.system.damage.DamageComponent;
+import com.sypztep.mamy.common.system.damage.CombatType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-public abstract class Skill {
+public abstract class Skill implements HybridDamageSource {
     protected final Identifier id;
     protected final String name;
     protected final String description;
@@ -44,6 +47,7 @@ public abstract class Skill {
         this.icon = icon;
         this.prerequisites = prerequisites != null ? prerequisites : new ArrayList<>();
     }
+
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown,
                  int maxSkillLevel, Identifier icon,
@@ -51,6 +55,7 @@ public abstract class Skill {
         this(id, name, description, baseResourceCost, baseCooldown, 1,
                 1, maxSkillLevel, false, icon, prerequisites);
     }
+
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown,
                  int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
@@ -71,6 +76,52 @@ public abstract class Skill {
         this(id, name, description, baseResourceCost, baseCooldown,
                 baseClassPointCost, upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, null);
     }
+
+    // ============================================================================
+    // HYBRID DAMAGE SOURCE IMPLEMENTATION
+    // ============================================================================
+
+    /**
+     * Default implementation returns Physical Melee damage
+     * Override this method in skills that need custom elemental/combat type combinations
+     */
+    @Override
+    public List<DamageComponent> getDamageComponents() {
+        return List.of(DamageComponent.pureCombat(CombatType.MELEE, 1.0f));
+    }
+
+    /**
+     * Helper method to create simple elemental skills
+     */
+    protected List<DamageComponent> createElementalDamage(com.sypztep.mamy.common.system.damage.ElementType elementType) {
+        return List.of(DamageComponent.pureElemental(elementType, 1.0f));
+    }
+
+    /**
+     * Helper method to create simple combat type skills
+     */
+    protected List<DamageComponent> createCombatDamage(CombatType combatType) {
+        return List.of(DamageComponent.pureCombat(combatType, 1.0f));
+    }
+
+    /**
+     * Helper method to create hybrid skills
+     */
+    protected List<DamageComponent> createHybridDamage(com.sypztep.mamy.common.system.damage.ElementType elementType, float elementalWeight,
+                                                       CombatType combatType, float combatWeight) {
+        return List.of(DamageComponent.hybrid(elementType, elementalWeight, combatType, combatWeight));
+    }
+
+    /**
+     * Helper method to create multi-component skills
+     */
+    protected List<DamageComponent> createMultiComponentDamage(DamageComponent... components) {
+        return Arrays.asList(components);
+    }
+
+    // ============================================================================
+    // SKILL REQUIREMENTS AND PREREQUISITES
+    // ============================================================================
 
     public static SkillRequirement requires(Identifier skillId, int minLevel) {
         return new SkillRequirement(skillId, minLevel);
@@ -112,6 +163,10 @@ public abstract class Skill {
         return missing;
     }
 
+    // ============================================================================
+    // TOOLTIP GENERATION
+    // ============================================================================
+
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
         List<Text> tooltip = new ArrayList<>();
 
@@ -152,7 +207,7 @@ public abstract class Skill {
 
     }
 
-    private Text buildDamageText(DamageType damageType, float damagePercentage, float baseDamage, int maxHits) {
+    private Text buildDamageText(DamageTypeRef damageType, float damagePercentage, float baseDamage, int maxHits) {
         MutableText text = Text.literal(getDamageTypeText(damageType) + " ").formatted(Formatting.GRAY);
 
         if (damagePercentage > 0) {
@@ -163,9 +218,9 @@ public abstract class Skill {
 
         if (maxHits > 1) text.append(Text.literal(", " + maxHits + " hits").formatted(Formatting.YELLOW));
 
-
         return text;
     }
+
     private void addRecoveryEffects(List<Text> tooltip, PlayerEntity player, SkillTooltipData data) {
         if (data.healthPerHit > 0) {
             tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
@@ -187,14 +242,14 @@ public abstract class Skill {
         ResourceType resourceType = classComponent.getClassManager().getResourceType();
 
         float cost = getResourceCost(skillLevel);
-            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+        tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
 
         float cooldown = getCooldown(skillLevel);
-            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                .append(Text.literal(" sec").formatted(Formatting.GRAY)));
     }
 
     protected void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
@@ -241,7 +296,7 @@ public abstract class Skill {
         tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.GRAY));
     }
 
-    private String getDamageTypeText(DamageType damageType) {
+    private String getDamageTypeText(DamageTypeRef damageType) {
         return switch (damageType) {
             case MELEE -> "Melee";
             case MAGIC -> "Magic";
@@ -252,10 +307,14 @@ public abstract class Skill {
         };
     }
 
+    // ============================================================================
+    // DATA CLASSES
+    // ============================================================================
+
     public static class SkillTooltipData {
         public float baseDamage = 0;
         public float damagePercentage = 0; // As decimal (0.2 = 20%)
-        public DamageType damageType = DamageType.PHYSICAL;
+        public DamageTypeRef damageType = DamageTypeRef.PHYSICAL;
         public int maxHits = 1;
         public float healthPerHit = 0;
         public float resourcePerHit = 0;
@@ -263,13 +322,13 @@ public abstract class Skill {
     }
 
     public record SecondaryDamage(
-            DamageType damageType,
+            DamageTypeRef damageType,
             float baseDamage,
             float damagePercentage,
             int maxHits
     ) {}
 
-    public enum DamageType {
+    public enum DamageTypeRef {
         MELEE, MAGIC, PHYSICAL, ELEMENT, HEAL
     }
 
@@ -290,10 +349,13 @@ public abstract class Skill {
     public float getResourceCost(int skillLevel) {
         return baseResourceCost;
     }
+
     public float getCooldown(int skillLevel) {
         return baseCooldown;
     }
 
+    // ============================================================================
+    // ABSTRACT METHODS FOR SKILL BEHAVIOR
     // ============================================================================
 
     public abstract boolean canUse(LivingEntity caster, int skillLevel);

@@ -41,7 +41,7 @@ public class ProvokeSkill extends Skill {
 
         // This is a debuff skill, not a damage skill
         data.baseDamage = 0;
-        data.damageType = DamageType.PHYSICAL;
+        data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 0;
 
         return data;

@@ -42,7 +42,7 @@ public class BlessingSkill extends Skill {
 
         // This is a buff skill
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL; // Use heal type for beneficial effects
+        data.damageType = DamageTypeRef.HEAL; // Use heal type for beneficial effects
         data.maxHits = 1;
 
         return data;

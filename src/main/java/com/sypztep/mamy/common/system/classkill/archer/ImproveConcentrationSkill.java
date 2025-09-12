@@ -35,7 +35,7 @@ public class ImproveConcentrationSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 0;
-        data.damageType = DamageType.HEAL; // Use heal type for beneficial effects
+        data.damageType = DamageTypeRef.HEAL; // Use heal type for beneficial effects
         data.maxHits = 0; // Self-target, not hitting anyone
 
         return data;

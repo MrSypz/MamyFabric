@@ -44,6 +44,7 @@ public record ElementalDamagePayloadS2C(
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<ElementalDamagePayloadS2C> {
         @Override
         public void receive(ElementalDamagePayloadS2C payload, ClientPlayNetworking.Context context) {
+            if (context.client() == null) return;
             Entity target = context.client().world.getEntityById(payload.targetEntityId());
             if (target == null) return;
             // Convert string back to ElementType using Java 21 pattern matching
@@ -65,6 +66,7 @@ public record ElementalDamagePayloadS2C(
                         .max(Map.Entry.comparingByValue())
                         .ifPresent(entry -> ElementalDamageDisplay.showElementalDamage(target, entry.getKey(), entry.getValue()));
             }
+
         }
     }
 }

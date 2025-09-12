@@ -72,9 +72,9 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = calculateDamage(skillLevel);
-        data.damageType = DamageType.PHYSICAL;
+        data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 5;
-        data.secondaryDamages = Collections.singletonList(new SecondaryDamage(DamageType.PHYSICAL, calculateDamage(skillLevel), 2, 1));
+        data.secondaryDamages = Collections.singletonList(new SecondaryDamage(DamageTypeRef.PHYSICAL, calculateDamage(skillLevel), 2, 1));
 
         return data;
     }

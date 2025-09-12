@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.util;
 
 import com.sypztep.mamy.client.particle.ElementalDamageParticle;
 import com.sypztep.mamy.common.system.damage.ElementType;
+import com.sypztep.mamy.common.util.NumberUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -47,7 +48,7 @@ public class ElementalDamageDisplay {
         ClientWorld world = client.world;
         if (world == null || client.player == null) return;
 
-        String damageText = String.format("%.1f", damage);
+        String damageText = NumberUtil.formatDouble(damage);
         Vec3d spawnPos = target.getPos().add(0.0, target.getHeight() + 0.3, 0.0);
 
         ElementalDamageParticle particle = new ElementalDamageParticle(
@@ -71,7 +72,7 @@ public class ElementalDamageDisplay {
         int count = sortedDamage.size();
         for (int i = 0; i < count; i++) {
             var entry = sortedDamage.get(i);
-            String text = String.format("%.1f", entry.getValue());
+            String text = NumberUtil.formatDouble(entry.getValue());
 
             double horizontalOffset = (i - (count - 1) * 0.5) * 0.4;
             double verticalOffset = i * 0.1;

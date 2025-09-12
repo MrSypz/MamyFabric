@@ -6,13 +6,14 @@ import net.minecraft.registry.entry.RegistryEntry;
 
 /**
  * Single source of truth for all element types
+ * Separated from combat methods (CombatType)
  */
 public enum ElementType {
     PHYSICAL("physical", 0x9C9393, "\u0003",
-            ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT,
-            ModEntityAttributes.MELEE_ATTACK_DAMAGE_MULT,
-            ModEntityAttributes.MELEE_RESISTANCE,
-            ModEntityAttributes.FLAT_MELEE_REDUCTION),
+            ModEntityAttributes.PHYSICAL_ATTACK_DAMAGE_FLAT,
+            ModEntityAttributes.PHYSICAL_ATTACK_DAMAGE_MULT,
+            ModEntityAttributes.PHYSICAL_RESISTANCE,
+            ModEntityAttributes.FLAT_PHYSICAL_REDUCTION),
 
     FIRE("fire", 0xFF4500, "\u0004",
             ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT,

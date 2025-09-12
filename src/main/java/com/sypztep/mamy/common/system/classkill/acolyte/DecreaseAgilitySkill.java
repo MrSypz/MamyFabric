@@ -65,7 +65,7 @@ public class DecreaseAgilitySkill extends Skill implements CastableSkill {
 
         // This is a debuff skill
         data.baseDamage = 0;
-        data.damageType = DamageType.MAGIC; // Use dark type for debuffs
+        data.damageType = DamageTypeRef.MAGIC; // Use dark type for debuffs
         data.maxHits = 1;
 
         return data;

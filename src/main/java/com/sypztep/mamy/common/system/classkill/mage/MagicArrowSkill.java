@@ -58,7 +58,7 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + (0.7f * skillLevel);
-        data.damageType = DamageType.MAGIC;
+        data.damageType = DamageTypeRef.MAGIC;
         data.maxHits = getMaxTargets(skillLevel);
 
         return data;

@@ -69,7 +69,7 @@ public class StealSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 0;
-        data.damageType = DamageType.ELEMENT;
+        data.damageType = DamageTypeRef.ELEMENT;
         data.maxHits = 1;
 
         return data;

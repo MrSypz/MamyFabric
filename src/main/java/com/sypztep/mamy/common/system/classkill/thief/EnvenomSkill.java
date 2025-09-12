@@ -69,7 +69,7 @@ public class EnvenomSkill extends Skill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = skillLevel * 9;
-        data.damageType = DamageType.PHYSICAL;
+        data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 1;
 
         return data;
