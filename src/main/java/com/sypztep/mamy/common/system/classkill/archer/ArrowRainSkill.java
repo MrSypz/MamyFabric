@@ -49,17 +49,12 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return 8;
+        return 6;
     }
 
     @Override
     public int getBaseFCT(int skillLevel) {
         return 2;
-    }
-
-    @Override
-    public boolean shouldLockMovement() {
-        return true;
     }
 
     @Override
