@@ -67,7 +67,7 @@ public class SkillCastingManager {
 
         // Start casting animation if available
         if (castable.hasCastAnimation())
-            this.hasAnimation = SkillAnimationManager.startCastAnimation(castable.getCastAnimation());
+            this.hasAnimation = SkillAnimationManager.startCastAnimation(castable.getCastAnimation()) || SkillAnimationManager.startSkillCastedAnimation(castable.getCastAnimation()) ;
 
 
         // Play cast start sound
