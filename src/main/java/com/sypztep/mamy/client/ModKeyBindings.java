@@ -20,7 +20,6 @@ public class ModKeyBindings {
     // UI Keys
     public static KeyBinding SWITCH_STANCE;
     public static KeyBinding CLASS_SELECTOR;
-    public static KeyBinding TEST;
 
     // Skill Slots
     public static KeyBinding SKILL_SLOT_1; // Z
@@ -38,13 +37,6 @@ public class ModKeyBindings {
                 "key.mamy.switch_stance",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
-                "category.mamy.combat"
-        ));
-
-        TEST = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.mamy.test",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_O,
                 "category.mamy.combat"
         ));
 
@@ -87,20 +79,14 @@ public class ModKeyBindings {
     }
 
     private static void handleKeyInputs(MinecraftClient client) {
-        if (client.player == null || client.currentScreen != null) return;
+        if (client.player == null) return;
+        if (client.isPaused()) return;
 
         SkillCastingManager.getInstance().tick();
 
-        // Handle non-skill related keys
-        if (SWITCH_STANCE.wasPressed()) {
-            ToggleStancePayloadC2S.send();
-        }
-        if (CLASS_SELECTOR.wasPressed()) {
-            client.setScreen(new ClassEvolutionScreen(client));
-        }
-        if (TEST.wasPressed()) {
-            // Test functionality
-        }
+        if (SWITCH_STANCE.wasPressed()) ToggleStancePayloadC2S.send();
+        if (CLASS_SELECTOR.wasPressed()) client.setScreen(new ClassEvolutionScreen(client));
+
 
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
@@ -110,10 +96,8 @@ public class ModKeyBindings {
         long currentTime = System.currentTimeMillis();
         updateVisualStates(currentTime);
 
-        // Check for Shift key
         boolean shiftPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT);
 
-        // Handle skill key presses
         handleSkillKeyPress(SKILL_SLOT_1, shiftPressed ? 4 : 0, classComponent);
         handleSkillKeyPress(SKILL_SLOT_2, shiftPressed ? 5 : 1, classComponent);
         handleSkillKeyPress(SKILL_SLOT_3, shiftPressed ? 6 : 2, classComponent);
