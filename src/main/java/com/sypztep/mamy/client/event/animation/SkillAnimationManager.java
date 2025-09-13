@@ -47,7 +47,7 @@ public class SkillAnimationManager {
             // Stop any current animation with fade
             if (castingLayer.getAnimation() != null) {
                 castingLayer.replaceAnimationWithFade(
-                        AbstractFadeModifier.standardFadeIn(5, Ease.INOUTCUBIC), null);
+                        AbstractFadeModifier.standardFadeIn(5, Ease.INQUAD), null);
             }
 
             // Start the new casting animation
@@ -77,14 +77,52 @@ public class SkillAnimationManager {
     }
 
     /**
+     * Start playing a post-cast (skill casted) animation
+     */
+    public static boolean startSkillCastedAnimation(Identifier animationId) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null || animationId == null) return false;
+
+        try {
+            castingLayer = (ModifierLayer<IAnimation>) PlayerAnimationAccess
+                    .getPlayerAssociatedData(player).get(Mamy.id(CASTING_LAYER_KEY));
+
+            if (castingLayer == null) return false;
+
+            // Start the casted animation (no fade out from previous - snap transition for continuity)
+            var animation = PlayerAnimationRegistry.getAnimation(animationId);
+            if (animation != null) {
+                // Use minimal fade for smooth snap transition
+                castingLayer.replaceAnimationWithFade(
+                        AbstractFadeModifier.standardFadeIn(10, Ease.INOUTSINE),
+                        animation.playAnimation()
+                                .setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
+                                .setFirstPersonConfiguration(new FirstPersonConfiguration()
+                                        .setShowRightArm(true)
+                                        .setShowLeftArm(true)
+                                        .setShowLeftItem(true)
+                                        .setShowRightItem(true))
+                );
+
+                PlayerAnimationSyncPayloadC2S.sendToServer(animationId, true);
+
+                return true;
+            }
+        } catch (Exception e) {
+            Mamy.LOGGER.error("Failed to start skill casted animation: {}", animationId, e);
+        }
+
+        return false;
+    }
+
+    /**
      * Stop the current casting animation
      */
     public static void stopCastAnimation() {
         if (castingLayer != null && castingLayer.getAnimation() != null) {
             castingLayer.replaceAnimationWithFade(
-                    AbstractFadeModifier.standardFadeIn(10, Ease.INOUTSINE), null);
+                    AbstractFadeModifier.standardFadeIn(5, Ease.OUTCUBIC), null);
 
-            // Send network packet to sync with other clients (use a null identifier for stop)
             PlayerAnimationSyncPayloadC2S.sendToServer(Mamy.id("stop"), false);
         }
     }

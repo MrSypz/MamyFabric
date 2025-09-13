@@ -23,4 +23,12 @@ public interface CastableSkill extends MovementLock {
     default boolean hasCastAnimation() {
         return getCastAnimation() != null;
     }
+
+    default Identifier getCastedAnimation() {
+        return null;
+    }
+
+    default boolean hasCastedAnimation() {
+        return getCastedAnimation() != null;
+    }
 }

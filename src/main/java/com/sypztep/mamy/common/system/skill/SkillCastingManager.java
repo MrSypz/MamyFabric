@@ -114,15 +114,20 @@ public class SkillCastingManager {
                     0.5f, 1.5f);
         }
 
-        // Stop animation before sending skill use
-        if (hasAnimation) {
-            SkillAnimationManager.stopCastAnimation();
-        }
+        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        boolean hasCastedAnimation = false;
 
+        if (skill instanceof CastableSkill castable && castable.hasCastedAnimation())
+            hasCastedAnimation = SkillAnimationManager.startSkillCastedAnimation(castable.getCastedAnimation());
+         else if (hasAnimation)
+            SkillAnimationManager.stopCastAnimation();
+
+        // Send skill use packet
         UseSkillPayloadC2S.send(currentSkillId);
 
+        // Reset casting state
         isCasting = false;
-        hasAnimation = false;
+        hasAnimation = hasCastedAnimation; // Keep animation flag if post-cast animation is playing
     }
 
     public void interruptCast() {

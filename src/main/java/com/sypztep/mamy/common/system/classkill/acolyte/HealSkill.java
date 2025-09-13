@@ -54,6 +54,10 @@ public class HealSkill extends Skill implements CastableSkill {
     public Identifier getCastAnimation() {
         return Mamy.id("pray");
     }
+    @Override
+    public Identifier getCastedAnimation() {
+        return Mamy.id("prise");
+    }
 
     @Override
     public boolean canBeInterupt() {
