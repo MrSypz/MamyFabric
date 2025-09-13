@@ -1,0 +1,11 @@
+{
+  "combatRatios": {
+    "melee": 0.04
+  },
+  "elementalRatios": {
+    "cold": 0.08,
+    "physical": 0.04,
+    "water": 0.05
+  },
+  "powerBudget": 0.8
+}

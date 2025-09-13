@@ -7,10 +7,8 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModTags;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -182,19 +180,47 @@ public final class ElementalDamageSystem {
         ItemElementDataEntry itemData = ItemElementDataEntry.getEntry(weapon.getItem());
         double powerBudget = itemData.powerBudget();
 
-        for (Map.Entry<RegistryEntry<EntityAttribute>, Double> entry : itemData.damageRatios().entrySet()) {
+        // Determine which combat type to use based on damage source
+        CombatType activeCombatType = determineCombatTypeFromSource(source, itemData);
+
+        // Apply combat scaling first
+        float scaledDamage = totalDamage;
+        if (activeCombatType != null && activeCombatType.hasAttributes()) {
+            double combatRatio = itemData.combatRatios().getOrDefault(activeCombatType.damageFlat, 1.0);
+            scaledDamage = totalDamage * (float) combatRatio;
+            debugLog("Combat scaling: %.2f × %.2f (%s ratio) = %.2f", totalDamage, combatRatio, activeCombatType.name, scaledDamage);
+        } else {
+            debugLog("No combat scaling applied (no active combat type)");
+        }
+
+        // Now distribute the scaled damage across elemental ratios
+        for (var entry : itemData.elementalRatios().entrySet()) {
             ElementType elementType = ElementType.fromDamageAttribute(entry.getKey());
             if (elementType != null && entry.getValue() > 0) {
                 double ratio = entry.getValue();
 
-                float baseDamage = (float) (totalDamage * ratio * powerBudget);
+                float baseDamage = (float) (scaledDamage * ratio * powerBudget);
                 float elementalBonus = (float) attacker.getAttributeValue(elementType.damageFlat);
                 float affinity = (float) attacker.getAttributeValue(elementType.damageMult);
-                float finalElementDamage = (baseDamage + elementalBonus) * (1.0f + affinity);
+
+                // Apply combat type bonuses if active combat type matches
+                float combatBonus = 0.0f;
+                float combatMultiplier = 1.0f;
+
+                if (activeCombatType != null && activeCombatType.hasAttributes()) {
+                    float combatWeight = (float) itemData.combatWeight();
+                    combatBonus = (float) attacker.getAttributeValue(activeCombatType.damageFlat) * combatWeight;
+                    combatMultiplier = 1.0f + ((float) attacker.getAttributeValue(activeCombatType.damageMult) * combatWeight);
+                }
+
+                float finalElementDamage = (baseDamage + elementalBonus + combatBonus) * (1.0f + affinity) * combatMultiplier;
 
                 if (finalElementDamage > 0) {
                     elementalDamage.put(elementType, finalElementDamage);
-                    debugLog("%s (from weapon): %.2f base + %.2f bonus × %.2f affinity = %.2f", elementType.name(), baseDamage, elementalBonus, 1.0f + affinity, finalElementDamage);
+                    debugLog("%s (from weapon): %.2f scaled_base + %.2f ele_bonus + %.2f %s_bonus × %.2f ele_mult × %.2f combat_mult = %.2f",
+                            elementType.name(), baseDamage, elementalBonus, combatBonus,
+                            activeCombatType != null ? activeCombatType.name : "none",
+                            1.0f + affinity, combatMultiplier, finalElementDamage);
                 }
             }
         }
@@ -202,6 +228,46 @@ public final class ElementalDamageSystem {
         if (elementalDamage.isEmpty()) return createElementalBreakdownFromSource(attacker, source, ElementType.PHYSICAL, totalDamage);
 
         return new ElementalBreakdown(elementalDamage, source);
+    }
+
+    /**
+     * Determine which combat type should be active based on the damage source
+     */
+    private static CombatType determineCombatTypeFromSource(DamageSource source, ItemElementDataEntry itemData) {
+        // Check damage source tags to determine combat type
+        if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
+            // For projectile attacks, prefer RANGED if available
+            if (itemData.combatRatios().containsKey(CombatType.RANGED.damageFlat)) {
+                debugLog("Combat type: RANGED (projectile attack)");
+                return CombatType.RANGED;
+            }
+        } else if (source.isIn(ModTags.DamageTags.MELEE_DAMAGE) || source.isIn(DamageTypeTags.IS_PLAYER_ATTACK)) {
+            // For melee attacks, prefer MELEE if available
+            if (itemData.combatRatios().containsKey(CombatType.MELEE.damageFlat)) {
+                debugLog("Combat type: MELEE (melee attack)");
+                return CombatType.MELEE;
+            }
+        } else if (source.isIn(ModTags.DamageTags.MAGIC_DAMAGE)) {
+            // For magic attacks, prefer MAGIC if available
+            if (itemData.combatRatios().containsKey(CombatType.MAGIC.damageFlat)) {
+                debugLog("Combat type: MAGIC (magic attack)");
+                return CombatType.MAGIC;
+            }
+        }
+
+        // Fallback: use the combat type with highest ratio
+        var highestCombat = itemData.combatRatios().entrySet().stream()
+                .max((a, b) -> Double.compare(a.getValue(), b.getValue()))
+                .orElse(null);
+
+        if (highestCombat != null) {
+            CombatType fallbackType = CombatType.fromDamageAttribute(highestCombat.getKey());
+            debugLog("Combat type: %s (fallback - highest ratio)", fallbackType != null ? fallbackType.name : "unknown");
+            return fallbackType;
+        }
+
+        debugLog("Combat type: none (no combat ratios)");
+        return null;
     }
 
     private static float applyElementalResistances(LivingEntity defender, ElementalBreakdown breakdown) {
@@ -248,7 +314,7 @@ public final class ElementalDamageSystem {
             ItemElementDataEntry entry = ItemElementDataEntry.getEntry(armorPiece.getItem());
             double powerBudget = entry.powerBudget();
 
-            for (Map.Entry<RegistryEntry<EntityAttribute>, Double> ratioEntry : entry.damageRatios().entrySet()) {
+            for (var ratioEntry : entry.damageRatios().entrySet()) {
                 ElementType elementType = ElementType.fromResistanceAttribute(ratioEntry.getKey());
                 if (elementType != null) {
                     float resistance = (float) (ratioEntry.getValue() * powerBudget);
@@ -286,7 +352,9 @@ public final class ElementalDamageSystem {
     private static boolean isBasicWeaponAttack(DamageSource source) {
         if (hasElementalTag(source)) return false;
 
-        return source.isIn(DamageTypeTags.IS_PLAYER_ATTACK) || source.isIn(ModTags.DamageTags.MELEE_DAMAGE);
+        return source.isIn(DamageTypeTags.IS_PLAYER_ATTACK) ||
+                source.isIn(ModTags.DamageTags.MELEE_DAMAGE) ||
+                source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE);
     }
 
     /**
@@ -304,6 +372,13 @@ public final class ElementalDamageSystem {
 
     public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {
         if (target.getWorld().isClient()) return;
-        PlayerLookup.tracking(target).forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
+
+        Set<ServerPlayerEntity> recipients = new HashSet<>(PlayerLookup.tracking(target));
+
+        if (breakdown.originalSource.getAttacker() instanceof ServerPlayerEntity attacker) recipients.add(attacker);
+
+        if (target instanceof ServerPlayerEntity player) recipients.add(player);
+
+        recipients.forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
     }
 }

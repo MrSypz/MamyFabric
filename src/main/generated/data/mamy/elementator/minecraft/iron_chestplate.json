@@ -1,0 +1,11 @@
+{
+  "combatRatios": {
+    "melee": 0.2,
+    "ranged": 0.08
+  },
+  "elementalRatios": {
+    "electric": 0.08,
+    "fire": 0.15,
+    "physical": 0.18
+  }
+}

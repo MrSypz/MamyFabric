@@ -1,0 +1,14 @@
+{
+  "combatRatios": {
+    "melee": 0.25,
+    "ranged": 0.1
+  },
+  "combatWeight": 0.9,
+  "elementalRatios": {
+    "cold": 0.1,
+    "fire": 0.25,
+    "physical": 0.2,
+    "wind": 0.1
+  },
+  "powerBudget": 1.2
+}

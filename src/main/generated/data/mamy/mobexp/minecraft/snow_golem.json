@@ -3,11 +3,11 @@
   "classReward": 20,
   "expReward": 30,
   "stats": {
-    "agility": 6,
-    "dexterity": 8,
+    "agility": 8,
+    "dexterity": 6,
     "intelligence": 8,
     "luck": 4,
-    "strength": 4,
-    "vitality": 15
+    "strength": 15,
+    "vitality": 4
   }
 }

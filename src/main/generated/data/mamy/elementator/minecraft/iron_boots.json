@@ -1,0 +1,10 @@
+{
+  "combatRatios": {
+    "melee": 0.1
+  },
+  "elementalRatios": {
+    "fire": 0.06,
+    "physical": 0.08,
+    "water": 0.1
+  }
+}

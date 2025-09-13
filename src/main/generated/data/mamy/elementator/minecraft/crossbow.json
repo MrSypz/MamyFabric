@@ -1,0 +1,9 @@
+{
+  "combatRatios": {
+    "ranged": 1.0
+  },
+  "elementalRatios": {
+    "physical": 1.0
+  },
+  "powerBudget": 1.1
+}

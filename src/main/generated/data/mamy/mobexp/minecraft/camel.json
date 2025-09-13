@@ -7,7 +7,7 @@
     "dexterity": 2,
     "intelligence": 1,
     "luck": 1,
-    "strength": 3,
-    "vitality": 15
+    "strength": 15,
+    "vitality": 3
   }
 }

@@ -1,0 +1,14 @@
+{
+  "combatRatios": {
+    "magic": 0.15,
+    "melee": 0.25
+  },
+  "combatWeight": 0.9,
+  "elementalRatios": {
+    "electric": 0.08,
+    "fire": 0.35,
+    "holy": 0.05,
+    "physical": 0.18
+  },
+  "powerBudget": 1.4
+}
