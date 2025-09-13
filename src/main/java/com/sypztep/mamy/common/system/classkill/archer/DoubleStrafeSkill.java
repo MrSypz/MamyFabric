@@ -45,7 +45,7 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return 0;
+        return 6;
     }
 
     @Override
@@ -127,10 +127,10 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
         if (firstArrow != null) combinedEffects.addAll(firstArrow.effects);
 
         // Calculate damage multiplier
-        float damageMultiplier = calculateDamageMultiplier(skillLevel);
+        float finalDamage = calculateDamageMultiplier(skillLevel);
 
         // Create and spawn ArrowStrafeEntity
-        DoubleStrafeEntity arrowStrafe = new DoubleStrafeEntity(world, target, BASE_DAMAGE, damageMultiplier, combinedEffects);
+        DoubleStrafeEntity arrowStrafe = new DoubleStrafeEntity(world, target, finalDamage, combinedEffects);
 
         // Set proper starting position
         Vec3d startPos = new Vec3d(player.getX(), player.getEyeY(), player.getZ());

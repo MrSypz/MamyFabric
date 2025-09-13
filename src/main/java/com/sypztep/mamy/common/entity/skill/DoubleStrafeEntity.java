@@ -19,19 +19,17 @@ public class DoubleStrafeEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 100;
     private static final int DAMAGE_DELAY_TICKS = 4; // 0.2 seconds
 
-    private final float baseDamage;
-    private final float damageMultiplier;
+    private final float damage;
     private final List<StatusEffectInstance> arrowEffects;
     private final LivingEntity targetEntity;
 
     private int ticksAlive = 0;
     private int arrowsFired = 0;
 
-    public DoubleStrafeEntity(World world, LivingEntity target, float baseDamage, float damageMultiplier, List<StatusEffectInstance> arrowEffects) {
+    public DoubleStrafeEntity(World world, LivingEntity target, float damage, List<StatusEffectInstance> arrowEffects) {
         super(ModEntityTypes.DOUBLE_STRAFE, world);
         this.targetEntity = target;
-        this.baseDamage = baseDamage;
-        this.damageMultiplier = damageMultiplier;
+        this.damage = damage;
         this.arrowEffects = arrowEffects != null ? arrowEffects : List.of();
         this.setVelocity(Vec3d.ZERO);
     }
@@ -39,8 +37,7 @@ public class DoubleStrafeEntity extends PersistentProjectileEntity {
     public DoubleStrafeEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.targetEntity = null;
-        this.baseDamage = 0f;
-        this.damageMultiplier = 1.0f;
+        this.damage = 0f;
         this.arrowEffects = List.of();
     }
 
@@ -81,12 +78,11 @@ public class DoubleStrafeEntity extends PersistentProjectileEntity {
         if (this.getWorld().isClient || targetEntity == null || !targetEntity.isAlive()) return;
 
         // Calculate damage
-        float finalDamage = baseDamage * damageMultiplier;
 
         // Deal damage directly to target
         boolean damageDealt = targetEntity.damage(
                 getWorld().getDamageSources().create(ModDamageTypes.ARROW_RAIN, this, getOwner()),
-                finalDamage
+                damage
         );
 
         if (damageDealt) {
