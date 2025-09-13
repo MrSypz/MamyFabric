@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.reloadlistener;
 
 import com.google.gson.JsonObject;
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.component.item.MobComponent;
 import com.sypztep.mamy.common.data.MobExpEntry;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.ReloadHelper;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class MamyMobExpReloadListener implements SimpleSynchronousResourceReloadListener {
 
-    private static final Identifier ID = Mamy.id("mobexp");
+    private static final Identifier ID = Mamy.id(MobComponent.RESOURCE_LOCATION);
 
     @Override
     public Identifier getFabricId() {
@@ -28,7 +29,7 @@ public class MamyMobExpReloadListener implements SimpleSynchronousResourceReload
 
         ReloadHelper.processJsonResources(
                 manager,
-                "mobexp",
+                MobComponent.RESOURCE_LOCATION,
                 object -> object.has("expReward") && object.has("classReward"), // validator
                 filePath -> Identifier.of(filePath.substring(filePath.indexOf("/") + 1, filePath.length() - 5).replace("/", ":")),
                 Registries.ENTITY_TYPE::get,

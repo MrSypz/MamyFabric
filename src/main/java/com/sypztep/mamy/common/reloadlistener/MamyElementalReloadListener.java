@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.reloadlistener;
 
 import com.google.gson.JsonObject;
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.component.item.ElementalComponent;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.system.damage.ElementType;
 import com.sypztep.mamy.common.system.damage.CombatType;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 public class MamyElementalReloadListener implements SimpleSynchronousResourceReloadListener {
 
-    private static final Identifier ID = Mamy.id("elementator");
+    private static final Identifier ID = Mamy.id(ElementalComponent.RESOURCE_LOCATION);
 
     @Override
     public Identifier getFabricId() {
@@ -33,7 +34,7 @@ public class MamyElementalReloadListener implements SimpleSynchronousResourceRel
 
         ReloadHelper.processJsonResources(
                 manager,
-                "elementator",
+                ElementalComponent.RESOURCE_LOCATION,
                 object -> object.has("elementalRatios") || object.has("combatRatios") ||
                         object.has("damageRatios") || object.has("powerBudget"), // Backward compatibility
                 filePath -> Identifier.of(filePath.substring(filePath.indexOf("/") + 1, filePath.length() - 5).replace("/", ":")),
