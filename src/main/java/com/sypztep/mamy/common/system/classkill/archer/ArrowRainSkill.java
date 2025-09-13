@@ -49,7 +49,7 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return 0;
+        return 8;
     }
 
     @Override
@@ -65,6 +65,11 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     @Override
     public boolean canBeInterupt() {
         return true;
+    }
+
+    @Override
+    public Identifier getCastedAnimation() {
+        return Mamy.id("arrowrain");
     }
 
     @Override
