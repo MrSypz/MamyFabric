@@ -1,6 +1,5 @@
 package com.sypztep.mamy.common.system.damage;
 
-import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.network.client.ElementalDamagePayloadS2C;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.Mamy;
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
