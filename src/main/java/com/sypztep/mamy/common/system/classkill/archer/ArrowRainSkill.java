@@ -41,7 +41,7 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
     public ArrowRainSkill(Identifier id, List<SkillRequirement> skillRequirements) {
         super(id, "Arrow Rain", "Rain arrows from the sky in target area",
-                15f,0.3f,
+                15f,0.5f,
                 10,
                 Mamy.id("skill/arrow_rain"),
                 skillRequirements);

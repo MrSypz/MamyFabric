@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.system.classkill.mage;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.common.entity.skill.MagicArrowEntity;
+import com.sypztep.mamy.common.entity.skill.FireballEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
@@ -13,17 +13,20 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
-public class MagicArrowSkill extends Skill implements CastableSkill {
+import java.util.List;
 
-    public MagicArrowSkill(Identifier id) {
-        super(id, "Magic Arrow", "Fires magic arrows that can pierce through multiple enemies",
-                5, 2f, 10,  Mamy.id("skill/magic_arrow"));
+public class FireballSkill extends Skill implements CastableSkill {
+
+    public FireballSkill(Identifier id, List<SkillRequirement> skillRequirements) {
+        super(id, "Fireball", "Launches an explosive fireball that deals AoE fire damage in a 5x5 area",
+                25, 0.7f, 10, Mamy.id("skill/fireball"), skillRequirements);
     }
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return 30; // 16 ticks
+        return (int) (0.8f * 20); // 16 ticks
     }
 
     @Override
@@ -42,24 +45,12 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
     }
 
     @Override
-    public float getResourceCost(int skillLevel) {
-        return super.getResourceCost(skillLevel) + skillLevel * 5;
-    }
-
-    private int getMaxTargets(int skillLevel) {
-        if (skillLevel >= 6) return 10;
-        if (skillLevel == 5) return 5;
-        if (skillLevel == 2) return 3;
-        return 2;
-    }
-
-    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        data.baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + (0.7f * skillLevel);
-        data.damageType = DamageTypeRef.MAGIC;
-        data.maxHits = getMaxTargets(skillLevel);
+        data.baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + 1 + (2 * skillLevel);
+        data.damageType = DamageTypeRef.ELEMENT;
+        data.maxHits = 1; // 5x5 area (2.5 block radius)
 
         return data;
     }
@@ -74,15 +65,21 @@ public class MagicArrowSkill extends Skill implements CastableSkill {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(caster.getWorld() instanceof ServerWorld world)) return false;
 
-        float matk = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + (0.7f * skillLevel);
+        float damage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + 1 + (2 * skillLevel);
 
-        MagicArrowEntity arrow = new MagicArrowEntity(world, player, matk, skillLevel, 0);
-        arrow.setPosition(player.getX(), player.getEyeY(), player.getZ());
-        world.spawnEntity(arrow);
+        // Create fireball
+        FireballEntity fireball = new FireballEntity(world, player, damage, skillLevel);
 
+        // Set starting position (slightly in front of player)
+        Vec3d startPos = player.getEyePos().add(player.getRotationVec(1.0f).multiply(0.5));
+        fireball.setPosition(startPos.x, startPos.y, startPos.z);
+
+        world.spawnEntity(fireball);
+
+        // Play casting sound - deeper than firebolt
         world.playSound(null, player.getBlockPos(),
-                SoundEvents.ENTITY_EVOKER_CAST_SPELL, SoundCategory.PLAYERS,
-                1.0f, 1.0f);
+                SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS,
+                1.0f, 0.8f);
 
         return true;
     }

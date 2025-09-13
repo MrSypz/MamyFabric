@@ -13,47 +13,46 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
-public class ShockwaveParticle extends SpriteBillboardParticle {
-    private final SpriteProvider spriteProvider;
-    private static final Quaternionf QUATERNION = new Quaternionf(0F, -0.7F, 0.7F, 0F);
+public abstract class ShockwaveParticle extends SpriteBillboardParticle {
+    protected final SpriteProvider spriteProvider;
+    protected static final Quaternionf QUATERNION = new Quaternionf(0F, -0.7F, 0.7F, 0F);
+    protected final float startAlpha;
+    protected final float fadeStartRatio;
 
-    private final float startAlpha;
-    private final float fadeStartRatio;
-
-    ShockwaveParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, double velocityX, double velocityY, double velocityZ) {
+    protected ShockwaveParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, double velocityX, double velocityY, double velocityZ) {
         super(world, x, y, z, 0.0, 0.0, 0.0);
         this.spriteProvider = spriteProvider;
-        this.maxAge = 10;
-        this.scale = 0.75F;
-        this.gravityStrength = 0.008F;
+        this.maxAge = 10; // Short lifespan for dust effect
+        this.scale = 0.75F; // Base scale, overridden by getScale
+        this.gravityStrength = 0.0F; // No gravity for ground dust
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.velocityZ = velocityZ;
-
-        this.startAlpha = 1.0F;
+        this.startAlpha = 1F;
         this.fadeStartRatio = 0.15F;
         this.alpha = startAlpha;
-
-        this.setSpriteForAge(this.spriteProvider);
+        this.setSpriteForAge(spriteProvider);
     }
+
+    // Abstract method for subclasses to define size scaling
+    protected abstract float getScale(float ticks);
 
     @Override
     public void tick() {
         super.tick();
         this.setSpriteForAge(this.spriteProvider);
+        this.scale = getScale((float) this.age / this.maxAge); // Update scale dynamically
         updateAlpha();
     }
 
-    private void updateAlpha() {
+    protected void updateAlpha() {
         float ageRatio = (float) this.age / (float) this.maxAge;
-
-        if (ageRatio <= fadeStartRatio)
+        if (ageRatio <= fadeStartRatio) {
             this.alpha = startAlpha;
-        else {
+        } else {
             float fadeProgress = (ageRatio - fadeStartRatio) / (1.0F - fadeStartRatio);
             this.alpha = startAlpha * (1.0F - (fadeProgress * fadeProgress));
         }
-
         this.alpha = Math.max(0.0F, this.alpha);
     }
 
@@ -64,49 +63,36 @@ public class ShockwaveParticle extends SpriteBillboardParticle {
         float y = (float) (MathHelper.lerp(ticks, this.prevPosY, this.y) - vec3.getY());
         float z = (float) (MathHelper.lerp(ticks, this.prevPosZ, this.z) - vec3.getZ());
 
-        Vector3f[] vector3fs = new Vector3f[]{
+        Vector3f[] vertices = new Vector3f[]{
                 new Vector3f(-1.0F, -1.0F, 0.0F),
                 new Vector3f(-1.0F, 1.0F, 0.0F),
                 new Vector3f(1.0F, 1.0F, 0.0F),
                 new Vector3f(1.0F, -1.0F, 0.0F)
         };
 
-        Vector3f[] vector3fsBottom = new Vector3f[]{
-                new Vector3f(-1.0F, -1.0F, 0.0F),
-                new Vector3f(1.0F, -1.0F, 0.0F),
-                new Vector3f(1.0F, -1.0F, 0.0F),
-                new Vector3f(-1.0F, -1.0F, 0.0F)
-        };
-
-        float f4 = this.getSize(ticks);
-
+        float scale = this.getScale(ticks);
         for (int i = 0; i < 4; ++i) {
-            Vector3f vector3f = vector3fs[i];
-            vector3f.rotate(QUATERNION);
-            vector3f.mul(f4);
-            vector3f.add(x, y, z);
-
-            Vector3f vector3fBottom = vector3fsBottom[i];
-            vector3fBottom.rotate(QUATERNION);
-            vector3fBottom.mul(f4);
-            vector3fBottom.add(x, y - 0.1F, z);
+            Vector3f vertex = vertices[i];
+            vertex.rotate(QUATERNION);
+            vertex.mul(scale);
+            vertex.add(x, y, z);
         }
 
-        float f7 = this.getMinU();
-        float f8 = this.getMaxU();
-        float f5 = this.getMinV();
-        float f6 = this.getMaxV();
+        float minU = this.getMinU();
+        float maxU = this.getMaxU();
+        float minV = this.getMinV();
+        float maxV = this.getMaxV();
         int light = this.getBrightness(ticks);
 
-        buffer.vertex(vector3fs[0].x(), vector3fs[0].y(), vector3fs[0].z()).texture(f8, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[1].x(), vector3fs[1].y(), vector3fs[1].z()).texture(f8, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[2].x(), vector3fs[2].y(), vector3fs[2].z()).texture(f7, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[3].x(), vector3fs[3].y(), vector3fs[3].z()).texture(f7, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).texture(maxU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).texture(maxU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).texture(minU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[3].x(), vertices[3].y(), vertices[3].z()).texture(minU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
 
-        buffer.vertex(vector3fs[3].x(), vector3fs[3].y(), vector3fs[3].z()).texture(f7, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[2].x(), vector3fs[2].y(), vector3fs[2].z()).texture(f7, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[1].x(), vector3fs[1].y(), vector3fs[1].z()).texture(f8, f5).color(this.red, this.green, this.blue, this.alpha).light(light);
-        buffer.vertex(vector3fs[0].x(), vector3fs[0].y(), vector3fs[0].z()).texture(f8, f6).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[3].x(), vertices[3].y(), vertices[3].z()).texture(minU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[2].x(), vertices[2].y(), vertices[2].z()).texture(minU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[1].x(), vertices[1].y(), vertices[1].z()).texture(maxU, minV).color(this.red, this.green, this.blue, this.alpha).light(light);
+        buffer.vertex(vertices[0].x(), vertices[0].y(), vertices[0].z()).texture(maxU, maxV).color(this.red, this.green, this.blue, this.alpha).light(light);
     }
 
     @Override
@@ -116,8 +102,9 @@ public class ShockwaveParticle extends SpriteBillboardParticle {
 
     @Environment(EnvType.CLIENT)
     public record Factory(SpriteProvider sprites) implements ParticleFactory<SimpleParticleType> {
+        @Override
         public Particle createParticle(SimpleParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new ShockwaveParticle(world, x, y, z, sprites, xSpeed, ySpeed, zSpeed);
+            throw new UnsupportedOperationException("Use subclass factories instead");
         }
     }
 }

@@ -10,7 +10,10 @@ import com.sypztep.mamy.common.system.classkill.archer.DoubleStrafeSkill;
 import com.sypztep.mamy.common.system.classkill.archer.ImproveConcentrationSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.OwlsEyePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.archer.passive.VulturesEyePassiveSkill;
+import com.sypztep.mamy.common.system.classkill.mage.FireballSkill;
+import com.sypztep.mamy.common.system.classkill.mage.FireboltSkill;
 import com.sypztep.mamy.common.system.classkill.mage.MagicArrowSkill;
+import com.sypztep.mamy.common.system.classkill.mage.MeteorShowerSkill;
 import com.sypztep.mamy.common.system.classkill.mage.passive.ResourceRecoveryPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.novice.passive.BasicPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.swordman.BashingBlowSkill;
@@ -71,6 +74,9 @@ public class SkillRegistry {
     //Magician
     public static final Identifier IRR = Mamy.id("increase_resource_recovery");
     public static final Identifier MAGIC_ARROW = Mamy.id("magic_arrow");
+    public static final Identifier FIREBOLT = Mamy.id("firebolt");
+    public static final Identifier FIREBALL = Mamy.id("fireball");
+    public static final Identifier METEOR_SHOWER = Mamy.id("meteor_shower");
 
     public static void registerSkills() {
         //Novice
@@ -109,8 +115,12 @@ public class SkillRegistry {
         register(new StealSkill(STEAL));
         register(new HidingSkill(HIDING, Skill.requiresSkills(Skill.requires(STEAL, 5))));
 
+        // Magician
         register(new ResourceRecoveryPassiveSkill(IRR));
         register(new MagicArrowSkill(MAGIC_ARROW));
+        register(new FireboltSkill(FIREBOLT));
+        register(new FireballSkill(FIREBALL, Skill.requiresSkills(Skill.requires(FIREBOLT, 4))));
+        register(new MeteorShowerSkill(METEOR_SHOWER, Skill.requiresSkills(Skill.requires(FIREBALL, 7))));
     }
 
     private static void register(Skill skill) {

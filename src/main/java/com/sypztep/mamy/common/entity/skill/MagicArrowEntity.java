@@ -25,15 +25,14 @@ import java.util.UUID;
 public class MagicArrowEntity extends PersistentProjectileEntity {
     private float damage = 0;
     private int maxTargets = 1;
-    private int arrowIndex = 0; // Which arrow in the sequence (0, 1, 2)
+    private int arrowIndex = 0;
     private boolean hasSpawnedSiblings = false;
 
-    // Multiple hit system similar to ArrowRainEntity
     private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
     private int ticksAlive = 0;
     private int damageTimer = 0;
-    private static final int DAMAGE_INTERVAL = 4; // Every 4 ticks like ArrowRain
-    private static final int MAX_LIFETIME = 40; // 2 seconds
+    private static final int DAMAGE_INTERVAL = 4;
+    private static final int MAX_LIFETIME = 40;
     private boolean hasHitTarget = false;
     private LivingEntity hitTarget = null;
 
@@ -47,11 +46,8 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         this.maxTargets = maxTargets;
         this.arrowIndex = arrowIndex;
 
-        // Set initial velocity with slight spread for multiple arrows
         Vec3d baseDirection = owner.getRotationVec(1.0f);
-        float spreadAngle = (arrowIndex - 1) * 5.0f; // -5°, 0°, +5° spread
-
-        // Apply horizontal spread
+        float spreadAngle = (arrowIndex - 1) * 5.0f;
         double radians = Math.toRadians(spreadAngle);
         Vec3d spread = new Vec3d(
                 baseDirection.x * Math.cos(radians) - baseDirection.z * Math.sin(radians),
@@ -78,11 +74,10 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         ticksAlive++;
         damageTimer++;
 
-        if (this.getWorld().isClient) {
+        if (getWorld().isClient) {
             createTrailParticles();
         }
 
-        // Multiple hit system when arrow has hit a target
         if (hasHitTarget && hitTarget != null && hitTarget.isAlive() && !getWorld().isClient) {
             if (damageTimer >= DAMAGE_INTERVAL) {
                 dealDamageToTarget();
@@ -90,7 +85,6 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
             }
         }
 
-        // Remove after lifetime or if target is dead
         if (ticksAlive >= MAX_LIFETIME || (hasHitTarget && (hitTarget == null || !hitTarget.isAlive()))) {
             discard();
         }
@@ -101,14 +95,12 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
     }
 
     private void createTrailParticles() {
-        World world = getWorld();
-
         for (int i = 0; i < 3; i++) {
             double offsetX = (random.nextDouble() - 0.5) * 0.2;
             double offsetY = (random.nextDouble() - 0.5) * 0.2;
             double offsetZ = (random.nextDouble() - 0.5) * 0.2;
 
-            world.addParticle(ParticleTypes.ENCHANT,
+            getWorld().addParticle(ParticleTypes.ENCHANT,
                     getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
                     0.0, 0.0, 0.0);
         }
@@ -125,17 +117,13 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
     }
 
     private void adjustAimTowardsTarget() {
-        if (hasHitTarget) return; // Don't adjust if already hit something
+        if (hasHitTarget) return;
 
         LivingEntity target = findNearestTarget();
         if (target != null) {
             Vec3d currentVel = getVelocity();
-
-            // Target center of entity (body/chest area) instead of feet
             Vec3d targetPos = target.getPos().add(0, target.getHeight() * 0.5, 0);
             Vec3d toTarget = targetPos.subtract(getPos()).normalize();
-
-            // Reduced adjustment for smoother homing - less aggressive
             Vec3d adjustedVel = currentVel.multiply(0.85).add(toTarget.multiply(0.15));
             setVelocity(adjustedVel.normalize().multiply(currentVel.length()));
         }
@@ -151,82 +139,6 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
                 .orElse(null);
     }
 
-    private void dealDamageToTarget() {
-        if (hitTarget == null || !hitTarget.isAlive()) return;
-
-        UUID targetId = hitTarget.getUuid();
-        int currentHits = hitCounts.getOrDefault(targetId, 0);
-
-        // Calculate max hits based on skill level
-        int maxHitsForThisTarget = getMaxHitsForSkillLevel();
-
-        // Check if entity has reached hit limit
-        if (currentHits >= maxHitsForThisTarget) {
-            return; // Skip - hit limit reached
-        }
-
-        // Deal normal damage (no final burst multiplier)
-        boolean damageDealt = hitTarget.damage(
-                getWorld().getDamageSources().create(ModDamageTypes.MAGIC_ARROW, this, getOwner()),
-                damage
-        );
-
-        if (damageDealt) {
-            // Increment hit count
-            int newHitCount = currentHits + 1;
-            hitCounts.put(targetId, newHitCount);
-
-            // Enhanced hit sound with different pitch based on hit count
-            float pitch = 1.0f + (newHitCount * 0.15f) + (this.random.nextFloat() - this.random.nextFloat()) * 0.1f;
-
-            getWorld().playSound(null, hitTarget.getBlockPos(),
-                    SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.sound.SoundCategory.PLAYERS,
-                    0.7f, pitch);
-
-            getWorld().playSound(null, hitTarget.getBlockPos(),
-                    SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, net.minecraft.sound.SoundCategory.PLAYERS,
-                    0.4f, 1.5f + (newHitCount * 0.1f));
-
-            createdHitEffect();
-        }
-    }
-
-    private int getMaxHitsForSkillLevel() {
-        // Based on your requirement: level 10 should do damage twice
-        if (maxTargets >= 10) {
-            return 2; // Level 10+ gets 2 hits total
-        } else if (maxTargets >= 5) {
-            return 1; // Level 5-9 gets 1 hit total
-        } else {
-            return 1; // Level 1-4 gets 1 hit total
-        }
-    }
-
-    @Override
-    protected SoundEvent getHitSound() {
-        return SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE;
-    }
-
-    @Override
-    protected ItemStack getDefaultItemStack() {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    protected void onBlockHit(BlockHitResult blockHitResult) {
-        if (!getWorld().isClient) {
-            // Enhanced block hit sound
-            playSound(ModSoundEvents.ENTITY_GENERIC_MAGIC_ARROW_EXPLODE, 2f, 1.2f);
-            Vec3d blockPos = blockHitResult.getPos();
-            double range = 15;
-            PlayerLookup.around((ServerWorld) getWorld(),blockPos,range)
-                    .forEach(player -> CameraShakePayloadS2C.send(player, blockPos.x, blockPos.y,blockPos.z,10,range,10));
-
-            createBlockHitEffect();
-        }
-        discard();
-    }
-
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
         if (!getWorld().isClient && entityHitResult.getEntity() instanceof LivingEntity target) {
@@ -238,7 +150,64 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         }
     }
 
-    private void createdHitEffect() {
+    @Override
+    protected void onBlockHit(BlockHitResult blockHitResult) {
+        if (!getWorld().isClient) {
+            playSound(ModSoundEvents.ENTITY_GENERIC_MAGIC_ARROW_EXPLODE, 2f, 1.2f);
+            Vec3d blockPos = blockHitResult.getPos();
+            double range = 15;
+            PlayerLookup.around((ServerWorld) getWorld(), blockPos, range)
+                    .forEach(player -> CameraShakePayloadS2C.send(player,
+                            blockPos.x, blockPos.y, blockPos.z, 10, range, 10));
+            createBlockHitEffect();
+        }
+        discard();
+    }
+
+    private void dealDamageToTarget() {
+        if (hitTarget == null || !hitTarget.isAlive()) return;
+
+        UUID targetId = hitTarget.getUuid();
+        int currentHits = hitCounts.getOrDefault(targetId, 0);
+        int maxHitsForThisTarget = getMaxHitsForSkillLevel();
+
+        if (currentHits >= maxHitsForThisTarget) {
+            return;
+        }
+
+        boolean damageDealt = hitTarget.damage(
+                getWorld().getDamageSources().create(ModDamageTypes.MAGIC_ARROW, this, getOwner()),
+                damage
+        );
+
+        if (damageDealt) {
+            int newHitCount = currentHits + 1;
+            hitCounts.put(targetId, newHitCount);
+
+            float pitch = 1.0f + (newHitCount * 0.15f) + (random.nextFloat() - random.nextFloat()) * 0.1f;
+            getWorld().playSound(null, hitTarget.getBlockPos(),
+                    SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, net.minecraft.sound.SoundCategory.PLAYERS,
+                    0.7f, pitch);
+
+            getWorld().playSound(null, hitTarget.getBlockPos(),
+                    SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, net.minecraft.sound.SoundCategory.PLAYERS,
+                    0.4f, 1.5f + (newHitCount * 0.1f));
+
+            createHitEffect();
+        }
+    }
+
+    private int getMaxHitsForSkillLevel() {
+        if (maxTargets >= 10) {
+            return 2;
+        } else if (maxTargets >= 5) {
+            return 1;
+        } else {
+            return 1;
+        }
+    }
+
+    private void createHitEffect() {
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
         for (int i = 0; i < 15; i++) {
@@ -304,6 +273,16 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
                     getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
                     1, 0.0, 0.1, 0.0, 0.1);
         }
+    }
+
+    @Override
+    protected SoundEvent getHitSound() {
+        return SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE;
+    }
+
+    @Override
+    protected ItemStack getDefaultItemStack() {
+        return ItemStack.EMPTY;
     }
 
     @Override

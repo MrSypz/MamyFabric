@@ -19,6 +19,10 @@
     {
       "id": "mamy:magic_arrow",
       "required": false
+    },
+    {
+      "id": "mamy:fireball",
+      "required": false
     }
   ]
 }

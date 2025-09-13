@@ -2,7 +2,6 @@ package com.sypztep.mamy.client.provider;
 
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModTags;
-import com.terraformersmc.modmenu.util.mod.Mod;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.entity.damage.DamageType;
@@ -44,19 +43,20 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.MAGIC_ARROW);
+				.addOptional(ModDamageTypes.MAGIC_ARROW)
+				.addOptional(ModDamageTypes.FIREBALL);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.FIRE_DAMAGE)
+				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.MAGIC_ARROW);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.FIRE_DAMAGE)
+				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
 				.addOptional(ModDamageTypes.MAGIC_ARROW);
@@ -66,7 +66,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.FIRE_DAMAGE)
 				.addOptionalTag(DamageTypeTags.IS_FIRE)
-				.addOptional(ModDamageTypes.FIRE_DAMAGE);
+				.addOptional(ModDamageTypes.ENERGY_BREAK)
+				.addOptional(ModDamageTypes.FIREBALL);
 
 		// ==========================================
 		// ELECTRIC DAMAGE - Just reference vanilla IS_LIGHTNING tag

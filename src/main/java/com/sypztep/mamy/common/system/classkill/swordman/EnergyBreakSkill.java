@@ -86,7 +86,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         );
 
         DamageSource damageSource = serverWorld.getDamageSources().create(
-                ModDamageTypes.FIRE_DAMAGE, player
+                ModDamageTypes.ENERGY_BREAK, player
         );
 
         for (LivingEntity target : targets) {

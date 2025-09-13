@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.render.entity;
 
+import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.skill.DoubleStrafeEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
 public class DoubleStrafeEntityRenderer<T extends DoubleStrafeEntity> extends EntityRenderer<T> {
-    private static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/projectiles/arrow.png");
+    private static final Identifier TEXTURE = Mamy.id("textures/entity/empty.png");
 
     public DoubleStrafeEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
