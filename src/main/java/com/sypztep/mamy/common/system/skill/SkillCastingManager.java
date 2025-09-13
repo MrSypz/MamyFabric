@@ -34,8 +34,7 @@ public class SkillCastingManager {
         if (player == null) return;
 
         // Comprehensive usability check using the new utility
-        SkillUsabilityChecker.UsabilityCheck usabilityCheck =
-                SkillUsabilityChecker.checkClientUsability(player, skillId, skillLevel);
+        SkillUsabilityChecker.UsabilityCheck usabilityCheck = SkillUsabilityChecker.checkClientUsability(player, skillId, skillLevel);
 
         if (!usabilityCheck.isUsable()) {
             // Send feedback for failed attempts
@@ -69,14 +68,12 @@ public class SkillCastingManager {
         this.hasAnimation = false;
 
         // Start casting animation if available
-        if (castable.hasCastAnimation()) {
+        if (castable.hasCastAnimation())
             this.hasAnimation = SkillAnimationManager.startCastAnimation(castable.getCastAnimation());
-        }
+
 
         // Play cast start sound
-        player.getWorld().playSound(player, player.getBlockPos(),
-                SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS,
-                0.3f, 1.2f);
+        castable.playSound(player, castable.getCastStartSound());
     }
 
     public void tick() {
@@ -92,8 +89,7 @@ public class SkillCastingManager {
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
         int skillLevel = classComponent.getSkillLevel(currentSkillId);
 
-        SkillUsabilityChecker.UsabilityCheck check =
-                SkillUsabilityChecker.checkClientUsability(player, currentSkillId, skillLevel);
+        SkillUsabilityChecker.UsabilityCheck check = SkillUsabilityChecker.checkClientUsability(player, currentSkillId, skillLevel);
         if (!check.isUsable()) {
             // If it's not usable anymore, interrupt the cast
             interruptCast();
@@ -101,49 +97,42 @@ public class SkillCastingManager {
             return;
         }
 
-        if (++castTicks >= maxCastTicks) {
-            completeCast();
-        }
+        if (++castTicks >= maxCastTicks) completeCast();
     }
 
     private void completeCast() {
         PlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            player.getWorld().playSound(player, player.getBlockPos(),
-                    SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), SoundCategory.PLAYERS,
-                    0.5f, 1.5f);
-        }
+        if (player == null) return;
 
         Skill skill = SkillRegistry.getSkill(currentSkillId);
         boolean hasCastedAnimation = false;
 
-        if (skill instanceof CastableSkill castable && castable.hasCastedAnimation())
-            hasCastedAnimation = SkillAnimationManager.startSkillCastedAnimation(castable.getCastedAnimation());
-         else if (hasAnimation)
-            SkillAnimationManager.stopCastAnimation();
+        if (skill instanceof CastableSkill castable) {
+            // เล่น animation หลัง cast เสร็จ
+            if (castable.hasCastedAnimation())
+                hasCastedAnimation = SkillAnimationManager.startSkillCastedAnimation(castable.getCastedAnimation());
+            else if (hasAnimation) SkillAnimationManager.stopCastAnimation();
 
-        // Send skill use packet
+
+            castable.playSound(player, castable.getCastCompleteSound());
+        } else if (hasAnimation) SkillAnimationManager.stopCastAnimation();
+
         UseSkillPayloadC2S.send(currentSkillId);
 
         // Reset casting state
         isCasting = false;
-        hasAnimation = hasCastedAnimation; // Keep animation flag if post-cast animation is playing
+        hasAnimation = hasCastedAnimation;
     }
 
     public void interruptCast() {
         if (!isCasting) return;
-
         PlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null) {
-            player.getWorld().playSound(player, player.getBlockPos(),
-                    SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.PLAYERS,
-                    0.3f, 0.8f);
-        }
+        if (player == null) return;
+        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        if (skill instanceof CastableSkill castable) castable.playSound(player, castable.getCastInterruptSound());
 
         // Stop animation on interrupt
-        if (hasAnimation) {
-            SkillAnimationManager.stopCastAnimation();
-        }
+        if (hasAnimation) SkillAnimationManager.stopCastAnimation();
 
         isCasting = false;
         hasAnimation = false;
@@ -154,18 +143,13 @@ public class SkillCastingManager {
 
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            player.sendMessage(Text.literal("Cast cancelled")
-                    .formatted(Formatting.YELLOW), true);
+            player.sendMessage(Text.literal("Cast cancelled").formatted(Formatting.YELLOW), true);
 
-            player.getWorld().playSound(player, player.getBlockPos(),
-                    SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.PLAYERS,
-                    0.5f, 1.0f);
+            Skill skill = SkillRegistry.getSkill(currentSkillId);
+            if (skill instanceof CastableSkill castable) castable.playSound(player, castable.getCastCancelSound());
         }
 
-        // Stop animation on cancel
-        if (hasAnimation) {
-            SkillAnimationManager.stopCastAnimation();
-        }
+        if (hasAnimation) SkillAnimationManager.stopCastAnimation();
 
         isCasting = false;
         hasAnimation = false;
