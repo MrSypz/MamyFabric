@@ -18,7 +18,7 @@ import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
 public class DoubleStrafeEntityRenderer<T extends DoubleStrafeEntity> extends EntityRenderer<T> {
-    private static final Identifier TEXTURE = Mamy.id("textures/entity/empty.png");
+    private static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/projectiles/arrow.png");
 
     public DoubleStrafeEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
