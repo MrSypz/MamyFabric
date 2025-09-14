@@ -9,16 +9,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
@@ -31,34 +28,31 @@ public final class ElementalDamageSystem {
         }
     }
 
-    public static float calculateElementalModifier(LivingEntity defender, float incomingDamage, DamageSource source) {
+    public static ElementalBreakdown calculateElementalModifierWithBreakdown(LivingEntity defender, float incomingDamage, DamageSource source) {
         debugLog("====ELEMENTAL MODIFIER START====");
         debugLog("Original damage: %.2f, Source: %s", incomingDamage, source.getType());
 
         if (!(source.getAttacker() instanceof LivingEntity attacker)) {
             debugLog("Non-living attacker, applying damage source element check");
-            return applyEnvironmentalDamage(defender, incomingDamage, source);
+            return applyEnvironmentalDamageWithBreakdown(defender, incomingDamage, source);
         }
 
         ElementalBreakdown breakdown = splitDamageIntoElements(attacker, source, incomingDamage);
-        float finalDamage = applyElementalResistances(defender, breakdown);
+        ElementalBreakdown finalBreakdown = applyElementalResistancesWithBreakdown(defender, breakdown);
 
-        debugLog("Final damage after elemental calculation: %.2f", finalDamage);
+        debugLog("Final damage after elemental calculation: %.2f", finalBreakdown.totalDamage());
         debugLog("====ELEMENTAL MODIFIER END====");
 
-        return finalDamage;
+        return finalBreakdown;
     }
-
-    private static float applyEnvironmentalDamage(LivingEntity defender, float damage, DamageSource source) {
+    private static ElementalBreakdown applyEnvironmentalDamageWithBreakdown(LivingEntity defender, float damage, DamageSource source) {
         ElementType sourceElement = getElementTypeFromDamageSource(source);
         float resistance = (float) defender.getAttributeValue(sourceElement.resistance);
         float finalDamage = Math.max(0.0f, damage * (1.0f - resistance));
         debugLog("Environmental damage: %s, Resistance: %.2f, Final: %.2f", sourceElement.name(), resistance, finalDamage);
 
-        sendDamageNumbers(defender, new ElementalBreakdown(Map.of(sourceElement, finalDamage), source));
-        return finalDamage;
+        return new ElementalBreakdown(Map.of(sourceElement, finalDamage), source);
     }
-
     private static ElementalBreakdown splitDamageIntoElements(LivingEntity attacker, DamageSource source, float totalDamage) {
         debugLog("=== SPLITTING DAMAGE INTO ELEMENTS ===");
 
@@ -270,11 +264,14 @@ public final class ElementalDamageSystem {
     }
 
     private static float applyElementalResistances(LivingEntity defender, ElementalBreakdown breakdown) {
+        return applyElementalResistancesWithBreakdown(defender, breakdown).totalDamage();
+    }
+
+    private static ElementalBreakdown applyElementalResistancesWithBreakdown(LivingEntity defender, ElementalBreakdown breakdown) {
         debugLog("=== APPLYING ELEMENTAL RESISTANCES ===");
 
         Map<ElementType, Float> armorResistances = calculateArmorResistances(defender);
         Map<ElementType, Float> finalDamageBreakdown = new HashMap<>();
-        float totalFinalDamage = 0.0f;
 
         for (var entry : breakdown.elementalDamage.entrySet()) {
             ElementType element = entry.getKey();
@@ -293,15 +290,13 @@ public final class ElementalDamageSystem {
             if (finalElementDamage > 0) {
                 finalDamageBreakdown.put(element, finalElementDamage);
             }
-            totalFinalDamage += finalElementDamage;
 
             debugLog("%s: %.2f × (1 - %.3f player) × (1 - %.3f armor) = %.2f - %.2f flat = %.2f",
                     element.name(), elementDamage, playerResistance, armorResistance, afterArmorRes, flatReduction, finalElementDamage);
         }
 
-        // Send damage numbers with final values (after resistance)
-        sendDamageNumbers(defender, new ElementalBreakdown(finalDamageBreakdown, breakdown.originalSource));
-        return Math.max(0.0f, totalFinalDamage);
+        // Don't send damage numbers here - will be handled after special reductions
+        return new ElementalBreakdown(finalDamageBreakdown, breakdown.originalSource);
     }
 
     private static Map<ElementType, Float> calculateArmorResistances(LivingEntity entity) {
@@ -371,13 +366,6 @@ public final class ElementalDamageSystem {
 
     public static void sendDamageNumbers(LivingEntity target, ElementalBreakdown breakdown) {
         if (target.getWorld().isClient()) return;
-
-        Set<ServerPlayerEntity> recipients = new HashSet<>(PlayerLookup.tracking(target));
-
-        if (breakdown.originalSource.getAttacker() instanceof ServerPlayerEntity attacker) recipients.add(attacker);
-
-        if (target instanceof ServerPlayerEntity player) recipients.add(player);
-
-        recipients.forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
+        PlayerLookup.tracking(target).forEach(player -> ElementalDamagePayloadS2C.send(player, target.getId(), breakdown.elementalDamage, breakdown.elementalDamage.size() > 1));
     }
 }

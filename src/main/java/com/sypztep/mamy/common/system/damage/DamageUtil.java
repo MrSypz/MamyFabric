@@ -1,7 +1,6 @@
 package com.sypztep.mamy.common.system.damage;
 
 import com.sypztep.mamy.Mamy;
-import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
@@ -22,8 +21,11 @@ import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class DamageUtil {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));
@@ -183,7 +185,8 @@ public final class DamageUtil {
         debugLog("====RESISTANCE MODIFIER START - INPUT: %.2f====", amount);
 
         // ElementalDamageSystem now handles ALL damage type calculations (elemental + combat type)
-        float elementalDamage = ElementalDamageSystem.calculateElementalModifier(defender, amount, source);
+        ElementalDamageSystem.ElementalBreakdown originalBreakdown = ElementalDamageSystem.calculateElementalModifierWithBreakdown(defender, amount, source);
+        float elementalDamage = originalBreakdown.totalDamage();
 
         // Apply special skill resistances
         float flatReduction = 0.0f;
@@ -200,6 +203,26 @@ public final class DamageUtil {
 
         // Apply flat reduction
         float finalDamage = Math.max(0.0f, elementalDamage - flatReduction);
+
+        // Send damage numbers with proportionally reduced breakdown
+        if (flatReduction > 0 && finalDamage > 0 && elementalDamage > 0) {
+            float reductionRatio = finalDamage / elementalDamage;
+            Map<ElementType, Float> reducedBreakdown = new HashMap<>();
+
+            for (var entry : originalBreakdown.elementalDamage().entrySet()) {
+                float reducedAmount = entry.getValue() * reductionRatio;
+                if (reducedAmount > 0) {
+                    reducedBreakdown.put(entry.getKey(), reducedAmount);
+                }
+            }
+
+            ElementalDamageSystem.sendDamageNumbers(defender,
+                    new ElementalDamageSystem.ElementalBreakdown(reducedBreakdown, originalBreakdown.originalSource()));
+        } else if (flatReduction == 0) {
+            ElementalDamageSystem.sendDamageNumbers(defender, originalBreakdown);
+        }
+        // If finalDamage = 0, don't send damage numbers
+
         debugLog("Elemental damage: %.2f, Special flat reduction: %.2f, Final: %.2f",
                 elementalDamage, flatReduction, finalDamage);
         debugLog("====RESISTANCE MODIFIER END====");
