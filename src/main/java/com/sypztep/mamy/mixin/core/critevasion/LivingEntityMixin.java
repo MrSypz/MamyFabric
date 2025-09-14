@@ -1,5 +1,6 @@
 package com.sypztep.mamy.mixin.core.critevasion;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.MissingAccessor;
@@ -55,9 +56,9 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
     }
 
     // Inject code after get Enchantment Protection
-    @Inject(method = "modifyAppliedDamage", at = @At(value = "RETURN"), cancellable = true)
-    private void replaceModifyAppliedDamage(DamageSource source, float amount, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(DamageUtil.damageResistanceModifier((LivingEntity) (Object) this, cir.getReturnValue(), source));
+    @ModifyReturnValue(method = "modifyAppliedDamage", at = @At("RETURN"))
+    private float modifyDamageReturn(float original, DamageSource source) {
+        return DamageUtil.damageResistanceModifier((LivingEntity) (Object) this, original, source);
     }
 
     @Override
