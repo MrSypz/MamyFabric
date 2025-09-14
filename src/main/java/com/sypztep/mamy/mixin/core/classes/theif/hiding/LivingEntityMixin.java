@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LivingEntityMixin {
     @ModifyReturnValue(method = "getAttackDistanceScalingFactor", at = @At("RETURN"))
     private double hidingReduceDetection(double original, Entity entity) {
-        if (ModEntityComponents.HIDING.get(this).getBuryPos() != null) return original * 0.05;
+        if (ModEntityComponents.HIDING.get(this).getHiddingPos() != null) return original * 0.05;
         return original;
     }
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
@@ -25,7 +25,7 @@ public class LivingEntityMixin {
         LivingEntity target = (LivingEntity)(Object)this;
 
         if (target instanceof PlayerEntity player) {
-            if (ModEntityComponents.HIDING.get(player).getBuryPos() != null) {
+            if (ModEntityComponents.HIDING.get(player).getHiddingPos() != null) {
                 if (damageSource.getAttacker() instanceof PlayerEntity ||
                         damageSource.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE) ||
                         damageSource.isIn(DamageTypeTags.IS_PLAYER_ATTACK)) {

@@ -26,7 +26,7 @@ public class KeyboardInputMixin extends Input {
 
         boolean shouldLock = SkillCastingManager.getInstance().shouldLockMovement() || hasMovementLockingEffect(player);
         //TODO : using interface for easy than hardcode. 9/10/2025 5:42AM
-        if (shouldLock || ModEntityComponents.HIDING.get(player).getBuryPos() != null) {
+        if (shouldLock || ModEntityComponents.HIDING.get(player).getHiddingPos() != null) {
             pressingForward = false;
             pressingBack = false;
             pressingLeft = false;

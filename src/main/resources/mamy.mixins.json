@@ -13,6 +13,7 @@
     "core.classes.correctequipment.PlayerScreenHandlerMixin",
     "core.classes.theif.hiding.AbstractBlockMixin",
     "core.classes.theif.hiding.LivingEntityMixin",
+    "core.classes.theif.hiding.MobEntityMixin",
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
     "core.damage.PlayerEntityMixin",

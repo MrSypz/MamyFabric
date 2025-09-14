@@ -9,34 +9,35 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class LivingHidingComponent implements AutoSyncedComponent, CommonTickingComponent {
+public class LivingHidingComponent implements AutoSyncedComponent, ServerTickingComponent {
     private final LivingEntity obj;
-    private BlockPos buryPos = null;
+    private BlockPos hiddingPos = null;
     public LivingHidingComponent(LivingEntity obj) {
         this.obj = obj;
     }
     @Override
     public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        if (tag.contains("BuryPos")) {
-            buryPos = BlockPos.fromLong(tag.getLong("BuryPos"));
+        if (tag.contains("HiddingPos")) {
+            hiddingPos = BlockPos.fromLong(tag.getLong("HiddingPos"));
         } else {
-            buryPos = null;
+            hiddingPos = null;
         }
     }
     @Override
     public void writeToNbt(@NotNull NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        if (buryPos != null) {
-            tag.putLong("BuryPos", buryPos.asLong());
+        if (hiddingPos != null) {
+            tag.putLong("HiddingPos", hiddingPos.asLong());
         }
     }
 
     @Override
-    public void tick() {
-        if (buryPos != null) {
-            if (obj.getX() != buryPos.getX() + 0.5 || obj.getY() != buryPos.getY() + 1 || obj.getZ() != buryPos.getZ() + 0.5) {
-                obj.refreshPositionAfterTeleport(buryPos.getX() + 0.5, buryPos.getY(), buryPos.getZ() + 0.5);
-            }
+    public void serverTick() {
+        if (hiddingPos != null) {
+            if (obj.getX() != hiddingPos.getX() + 0.5 || obj.getY() != hiddingPos.getY() + 1 || obj.getZ() != hiddingPos.getZ() + 0.5)
+                obj.refreshPositionAfterTeleport(hiddingPos.getX() + 0.5, hiddingPos.getY(), hiddingPos.getZ() + 0.5);
+
             if (obj.getVelocity() != Vec3d.ZERO) {
                 obj.setVelocity(Vec3d.ZERO);
                 obj.velocityModified = true;
@@ -48,14 +49,14 @@ public class LivingHidingComponent implements AutoSyncedComponent, CommonTicking
     public void sync() {
         ModEntityComponents.HIDING.sync(obj);
     }
-    public BlockPos getBuryPos() {
-        return buryPos;
+    public BlockPos getHiddingPos() {
+        return hiddingPos;
     }
-    public void setBuryPos(BlockPos buryPos) {
-        this.buryPos = buryPos;
+    public void setHiddingPos(BlockPos hiddingPos) {
+        this.hiddingPos = hiddingPos;
     }
     public void unbury() {
-        setBuryPos(null);
+        setHiddingPos(null);
         sync();
     }
 }

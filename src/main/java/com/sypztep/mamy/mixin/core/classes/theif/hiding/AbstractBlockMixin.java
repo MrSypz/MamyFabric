@@ -24,7 +24,7 @@ public class AbstractBlockMixin {
 		if (state.equals(newState)) return;
 		world.getEntitiesByClass(LivingEntity.class, new Box(pos), entity -> !entity.isDead()).forEach(foundEntity -> {
 			LivingHidingComponent buryComponent = ModEntityComponents.HIDING.get(foundEntity);
-			if (buryComponent.getBuryPos() != null && buryComponent.getBuryPos().equals(pos)) {
+			if (buryComponent.getHiddingPos() != null && buryComponent.getHiddingPos().equals(pos)) {
 				if (newState.isAir() || !newState.isOpaque() || newState.getBlock().getBlastResistance() < 1.0f) {
 					buryComponent.unbury();
 					if (foundEntity instanceof PlayerEntity player) {

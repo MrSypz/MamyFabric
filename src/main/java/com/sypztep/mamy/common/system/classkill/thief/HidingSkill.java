@@ -77,7 +77,7 @@ public class HidingSkill extends Skill {
         if (!player.isAlive()) return false;
 
         LivingHidingComponent buryComponent = ModEntityComponents.HIDING.get(player);
-        if (buryComponent.getBuryPos() != null) return true;
+        if (buryComponent.getHiddingPos() != null) return true;
 
         return LivingEntityUtil.isValidGround(caster);
     }
@@ -88,7 +88,7 @@ public class HidingSkill extends Skill {
         LivingHidingComponent buryComponent = ModEntityComponents.HIDING.get(player);
         if (!player.getWorld().isClient() && player.getWorld() instanceof ServerWorld serverWorld) {
 
-            if (buryComponent.getBuryPos() != null) {
+            if (buryComponent.getHiddingPos() != null) {
                 player.removeStatusEffect(ModStatusEffects.HIDING);
 
                 serverWorld.spawnParticles(ParticleTypes.POOF, player.getX(), player.getY() + 1, player.getZ(), 8, 0.3, 0.3, 0.3, 0.1);
@@ -98,7 +98,7 @@ public class HidingSkill extends Skill {
                 player.sendMessage(Text.literal("You emerge from hiding").formatted(Formatting.GRAY), true);
 
             } else {
-                buryComponent.setBuryPos(player.getBlockPos().down(1));
+                buryComponent.setHiddingPos(player.getBlockPos().down(1));
                 buryComponent.sync();
 
                 int duration = (skillLevel * 30) * 20;
