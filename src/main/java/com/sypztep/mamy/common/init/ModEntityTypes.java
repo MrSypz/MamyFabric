@@ -21,6 +21,9 @@ public final class ModEntityTypes {
     public static EntityType<FireboltEntity> FIREBOLT;
     public static EntityType<MeteorFloorEntity> METEOR_FLOOR;
     public static EntityType<MeteorEntity> METEOR;
+    public static EntityType<ThunderBoltEntity> THUNDER_BOLT;
+    public static EntityType<ThunderStormEntity> THUNDERSTORM;
+    public static EntityType<ThunderSphereEntity> THUNDER_SPHERE;
 
     public static void init() {
         HEALING_LIGHT = registerEntity("healing_light", createSkillProjectile(HealingLightEntity::new));
@@ -31,6 +34,9 @@ public final class ModEntityTypes {
         FIREBOLT = registerEntity("firebolt", createSkillProjectile(FireboltEntity::new));
         METEOR = registerEntity("meteor", createSkillProjectile(MeteorEntity::new,8,8));
         METEOR_FLOOR = registerEntity("meteor_floor", createSkillProjectile(MeteorFloorEntity::new,8,0.1f));
+        THUNDER_BOLT = registerEntity("thunder_bolt", createSkillProjectile(ThunderBoltEntity::new));
+        THUNDERSTORM = registerEntity("thunderstorm", createSkillProjectile(ThunderStormEntity::new,8,0.1f));
+        THUNDER_SPHERE = registerEntity("thunder_sphere", createSkillProjectile(ThunderSphereEntity::new));
     }
 
     @Environment(EnvType.CLIENT)
@@ -44,6 +50,9 @@ public final class ModEntityTypes {
             EntityRendererRegistry.register(ModEntityTypes.FIREBOLT, FireboltEntityRenderer::new);
             EntityRendererRegistry.register(ModEntityTypes.METEOR, MeteorEntityRenderer::new);
             EntityRendererRegistry.register(ModEntityTypes.METEOR_FLOOR, MeteorFloorEntityRenderer::new);
+            EntityRendererRegistry.register(ModEntityTypes.THUNDER_BOLT, ThunderBoltEntityRenderer::new);
+            EntityRendererRegistry.register(ModEntityTypes.THUNDERSTORM, ThunderStormEntityRenderer::new);
+            EntityRendererRegistry.register(ModEntityTypes.THUNDER_SPHERE, ThunderSphereEntityRenderer::new);
         }
     }
 

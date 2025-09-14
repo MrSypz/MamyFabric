@@ -23,6 +23,10 @@
     {
       "id": "mamy:fireball",
       "required": false
+    },
+    {
+      "id": "mamy:lighting",
+      "required": false
     }
   ]
 }

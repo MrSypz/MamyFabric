@@ -3,6 +3,10 @@
     {
       "id": "#minecraft:is_lightning",
       "required": false
+    },
+    {
+      "id": "mamy:lighting",
+      "required": false
     }
   ]
 }

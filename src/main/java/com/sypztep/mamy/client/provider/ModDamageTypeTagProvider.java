@@ -44,14 +44,16 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.ARROW_RAIN)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.MAGIC_ARROW)
-				.addOptional(ModDamageTypes.FIREBALL);
+				.addOptional(ModDamageTypes.FIREBALL)
+				.addOptional(ModDamageTypes.LIGHTING);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
-				.addOptional(ModDamageTypes.MAGIC_ARROW);
+				.addOptional(ModDamageTypes.MAGIC_ARROW)
+				.addOptional(ModDamageTypes.LIGHTING);
 
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
@@ -59,7 +61,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
-				.addOptional(ModDamageTypes.MAGIC_ARROW);
+				.addOptional(ModDamageTypes.MAGIC_ARROW)
+				.addOptional(ModDamageTypes.LIGHTING);
 
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
@@ -73,7 +76,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// ELECTRIC DAMAGE - Just reference vanilla IS_LIGHTNING tag
 		// ==========================================
 		getOrCreateTagBuilder(ModTags.DamageTags.ELECTRIC_DAMAGE)
-				.addOptionalTag(DamageTypeTags.IS_LIGHTNING);
+				.addOptionalTag(DamageTypeTags.IS_LIGHTNING)
+				.addOptional(ModDamageTypes.LIGHTING);
 
 		// ==========================================
 		// PROJECTILE DAMAGE - Just reference vanilla IS_PROJECTILE tag

@@ -24,6 +24,7 @@ public class ModDamageTypeProvider extends FabricDynamicRegistryProvider {
         entries.add(ModDamageTypes.HOLY, new DamageType("holy",0.1f));
         entries.add(ModDamageTypes.MAGIC_ARROW, new DamageType("magic_arrow",0.1f));
         entries.add(ModDamageTypes.FIREBALL, new DamageType("fireball",0.1f));
+        entries.add(ModDamageTypes.LIGHTING, new DamageType("lighting",0.1f));
     }
     @Override
     public String getName() {

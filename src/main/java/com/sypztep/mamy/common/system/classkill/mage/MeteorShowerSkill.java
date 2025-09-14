@@ -15,6 +15,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MeteorShowerSkill extends Skill implements CastableSkill {
@@ -62,7 +63,10 @@ public class MeteorShowerSkill extends Skill implements CastableSkill {
 
         data.baseDamage = 20 + (15 * skillLevel);
         data.damageType = DamageTypeRef.ELEMENT;
-        data.maxHits = 4; // Ground effect 8x8, meteor explosion 15x15
+        data.maxHits = 3;
+        data.secondaryDamages = Collections.singletonList(
+                new SecondaryDamage(DamageTypeRef.ELEMENT, data.baseDamage, 2, 2) // 6 block radius, 2 hits
+        );
         return data;
     }
 

@@ -17,6 +17,7 @@ public class ModDamageTypes {
     public static final RegistryKey<DamageType> MAGIC_ARROW = createType("magic_arrow");
     public static final RegistryKey<DamageType> HOLY = createType("holy");
     public static final RegistryKey<DamageType> FIREBALL = createType("fireball");
+    public static final RegistryKey<DamageType> LIGHTING = createType("lighting");
     public static RegistryKey<DamageType> createType(String name) {
         return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Mamy.id(name));
     }
