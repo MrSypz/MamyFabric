@@ -30,6 +30,7 @@
     "core.weight.PlayerInventoryMixin",
     "core.weight.ServerPlayerEntityMixin",
     "vanilla.balanceshield.LivingEntityMixin",
+    "vanilla.bowdrawspeed.BowItemMixin",
     "vanilla.changeattributerange.ArmorItemMixin",
     "vanilla.changeattributerange.EntityAttributesMixin",
     "vanilla.disablefoodregen.PlayerEntityMixin",
@@ -61,6 +62,7 @@
     "core.skillcast.client.LivingEntityMixin",
     "core.stats.dexterity.ClientPlayerEntityMixin",
     "core.weight.client.InventoryScreenMixin",
+    "vanilla.bowdrawspeed.client.ModelPredicateProviderRegistryMixin",
     "vanilla.changeheartdraw.InGameHudHealthMixin"
   ],
   "injectors": {
