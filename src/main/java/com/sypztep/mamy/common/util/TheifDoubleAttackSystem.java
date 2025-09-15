@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-public final class MultiHitSystem {
+public final class TheifDoubleAttackSystem {
     private static final Map<UUID, MultiHitData> activeHits = new HashMap<>();
 
     private static class MultiHitData {

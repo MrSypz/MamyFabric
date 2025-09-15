@@ -1,6 +1,6 @@
 package com.sypztep.mamy.common.network.server;
 
-import com.sypztep.mamy.common.util.MultiHitSystem;
+import com.sypztep.mamy.common.util.TheifDoubleAttackSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -29,7 +29,7 @@ public record MultiHitPayloadC2S(int entityId, int hitcount) implements CustomPa
         public void receive(MultiHitPayloadC2S payload, ServerPlayNetworking.Context context) {
             Entity target = context.player().getWorld().getEntityById(payload.entityId());
             if (target != null && payload.hitcount <= 2) {
-                MultiHitSystem.scheduleMultiHit(context.player(), target, payload.hitcount);
+                TheifDoubleAttackSystem.scheduleMultiHit(context.player(), target, payload.hitcount);
             }
         }
     }
