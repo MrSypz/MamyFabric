@@ -181,9 +181,9 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
                     ));
 
                     // Hit sound
-//                    getWorld().playSound(null, target.getBlockPos(),
-//                            SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.PLAYERS,
-//                            0.5f, 1.5f);
+                    getWorld().playSound(null, target.getBlockPos(),
+                            ModSoundEvents.ENTITY_ELECTRIC_BLAST, SoundCategory.PLAYERS,
+                            0.5f, 1.5f);
 
                 }
             }

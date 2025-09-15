@@ -1,11 +1,11 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModSoundEvents;
+import com.sypztep.mamy.common.util.MultiHitRecord;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -23,8 +23,6 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class ThunderStormEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 25; // 1.25 seconds
@@ -32,7 +30,7 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
     private static final int MAX_DAMAGE_HITS = 10; // 5 lightning strikes
     private static final double STORM_RADIUS = 8.0; // Storm area radius
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
+    private final MultiHitRecord hitTracker;
     private final float baseDamage;
     private final int skillLevel;
 
@@ -44,12 +42,15 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
         super(entityType, world);
         this.baseDamage = 0f;
         this.skillLevel = 1;
+        this.hitTracker = new MultiHitRecord(MAX_DAMAGE_HITS);
     }
 
     public ThunderStormEntity(World world, LivingEntity owner, float baseDamage, int skillLevel) {
         super(ModEntityTypes.THUNDERSTORM, owner, world, ItemStack.EMPTY, null);
         this.baseDamage = baseDamage;
         this.skillLevel = skillLevel;
+
+        this.hitTracker = new MultiHitRecord(MAX_DAMAGE_HITS);
 
         this.setNoGravity(true);
         this.setVelocity(Vec3d.ZERO);
@@ -163,7 +164,6 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
         int strikeCount = 2 + serverWorld.getRandom().nextInt(3);
         List<Vec3d> strikePositions = new ArrayList<>();
 
-        // Calculate skill level-based targeting probability: 50% + 5% * skillLevel
         float targetingChance = 0.5f + (0.05f * skillLevel);
         targetingChance = Math.min(targetingChance, 0.95f); // Cap at 95% to maintain some randomness
 
@@ -171,15 +171,11 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
             Vec3d strikePos;
 
             if (!potentialTargets.isEmpty() && serverWorld.getRandom().nextFloat() < targetingChance) {
-                // Target an enemy based on skill level probability
                 LivingEntity target = potentialTargets.get(serverWorld.getRandom().nextInt(potentialTargets.size()));
                 strikePos = target.getPos();
 
                 // Deal damage
-                UUID targetId = target.getUuid();
-                int currentHits = hitCounts.getOrDefault(targetId, 0);
-
-                if (currentHits < damageHitCount + 1) {
+                if (hitTracker.canHit(target)) {
                     boolean damageDealt = target.damage(
                             ModDamageTypes.create(getWorld(), ModDamageTypes.LIGHTING, this, getOwner()),
                             baseDamage
@@ -191,9 +187,9 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
                                 false, true, true
                         ));
 
-                        hitCounts.put(targetId, damageHitCount + 1);
+                        int hitCount = hitTracker.recordHitAndGet(target);
 
-                        float pitch = 0.8f + (damageHitCount * 0.1f) + (serverWorld.getRandom().nextFloat() * 0.4f);
+                        float pitch = 0.8f + (hitCount * 0.1f) + (serverWorld.getRandom().nextFloat() * 0.4f);
                         getWorld().playSound(null, target.getBlockPos(),
                                 ModSoundEvents.ENTITY_GENERIC_HEADSHOT, SoundCategory.PLAYERS,
                                 1.5f, pitch);
@@ -211,7 +207,7 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
             strikePositions.add(strikePos);
         }
 
-        // สร้าง lightning strike effects
+        // Create lightning strike effects
         createMultipleLightningStrikes(serverWorld, strikePositions);
 
         // Main thunder sound for each strike wave

@@ -1,7 +1,7 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.common.init.ModParticles;
+import com.sypztep.mamy.common.util.MultiHitRecord;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -19,14 +19,12 @@ import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class ArrowRainEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 20; // 1 second
     private static final int MAX_HITS_PER_TARGET = 4;
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
+    private final MultiHitRecord hitTracker;
     private final float baseDamage;
     private final int skillLevel;
     private final List<StatusEffectInstance> arrowEffects;
@@ -41,6 +39,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
         this.skillLevel = skillLevel;
         this.arrowEffects = arrowEffects != null ? arrowEffects : List.of();
         this.damage_interval = damage_interval;
+        this.hitTracker = new MultiHitRecord(MAX_HITS_PER_TARGET);
         this.setNoGravity(true);
         this.setVelocity(Vec3d.ZERO);
     }
@@ -50,6 +49,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
         this.baseDamage = 0f;
         this.skillLevel = 1;
         this.arrowEffects = List.of();
+        this.hitTracker = new MultiHitRecord(MAX_HITS_PER_TARGET);
     }
 
     public int getSkillLevel() {
@@ -161,8 +161,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
                     return this.getOwner() == null || !entity.getUuid().equals(this.getOwner().getUuid());// Include all other entities for hit checking
                 }
         )) {
-            UUID targetId = target.getUuid();
-            int currentHits = hitCounts.getOrDefault(targetId, 0);
+            int currentHits = hitTracker.getHitCount(target);
 
             // Determine max hits for this attack
             int maxHitsForThisAttack = isFinalBurst ? MAX_HITS_PER_TARGET + 1 : MAX_HITS_PER_TARGET;
@@ -194,15 +193,9 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
                     }
                 }
 
-                // Increment hit count only after successful damage
-                int newHitCount = currentHits + 1;
-                hitCounts.put(targetId, newHitCount);
-
-                // Play hit sound with different pitch based on hit count
+                int newHitCount = hitTracker.recordHitAndGet(target);
                 float pitch = 1.0f + (newHitCount * 0.1f) + (this.random.nextFloat() - this.random.nextFloat()) * 0.1f;
-                if (isFinalBurst) {
-                    pitch += 0.3f; // Higher pitch for final burst
-                }
+                if (isFinalBurst) pitch += 0.3f; // Higher pitch for final burst
 
                 getWorld().playSound(null, target.getBlockPos(),
                         SoundEvents.ENTITY_ARROW_HIT, SoundCategory.PLAYERS,

@@ -1,10 +1,10 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
+import com.sypztep.mamy.common.util.MultiHitRecord;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -19,16 +19,15 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.Map;
-import java.util.UUID;
 
 public class MagicArrowEntity extends PersistentProjectileEntity {
     private float damage = 0;
     private int maxTargets = 1;
     private int arrowIndex = 0;
     private boolean hasSpawnedSiblings = false;
+    private static final int MAX_HIT = 2;
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
+    private final MultiHitRecord hitRecord;
     private int ticksAlive = 0;
     private int damageTimer = 0;
     private static final int DAMAGE_INTERVAL = 4;
@@ -38,6 +37,7 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
 
     public MagicArrowEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
+        hitRecord = new MultiHitRecord(MAX_HIT);
     }
 
     public MagicArrowEntity(World world, LivingEntity owner, float damage, int maxTargets, int arrowIndex) {
@@ -55,6 +55,7 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
                 baseDirection.x * Math.sin(radians) + baseDirection.z * Math.cos(radians)
         );
 
+        hitRecord = new MultiHitRecord(MAX_HIT);
         this.setVelocity(spread.multiply(1));
         this.velocityModified = true;
     }
@@ -79,7 +80,7 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         }
 
         if (hasHitTarget && hitTarget != null && hitTarget.isAlive() && !getWorld().isClient) {
-            if (damageTimer >= DAMAGE_INTERVAL) {
+            if (damageTimer >= DAMAGE_INTERVAL && hitRecord.getHitCount(hitTarget) <= MAX_HIT) {
                 dealDamageToTarget();
                 damageTimer = 0;
             }
@@ -167,8 +168,7 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
     private void dealDamageToTarget() {
         if (hitTarget == null || !hitTarget.isAlive()) return;
 
-        UUID targetId = hitTarget.getUuid();
-        int currentHits = hitCounts.getOrDefault(targetId, 0);
+        int currentHits = hitRecord.getHitCount(hitTarget);
         int maxHitsForThisTarget = getMaxHitsForSkillLevel();
 
         if (currentHits >= maxHitsForThisTarget) {
@@ -181,8 +181,7 @@ public class MagicArrowEntity extends PersistentProjectileEntity {
         );
 
         if (damageDealt) {
-            int newHitCount = currentHits + 1;
-            hitCounts.put(targetId, newHitCount);
+            int newHitCount = hitRecord.recordHitAndGet(hitTarget);
 
             float pitch = 1.0f + (newHitCount * 0.15f) + (random.nextFloat() - random.nextFloat()) * 0.1f;
             getWorld().playSound(null, hitTarget.getBlockPos(),

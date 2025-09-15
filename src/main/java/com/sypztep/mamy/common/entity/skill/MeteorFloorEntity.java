@@ -1,8 +1,8 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.util.MultiHitRecord;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -17,15 +17,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class MeteorFloorEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 20; // 1 second
     private static final int DAMAGE_INTERVAL = 4; // Every 4 ticks
     private static final int MAX_DAMAGE_HITS = 4; // 4 damage hits, then spawn meteor
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
+    private final MultiHitRecord hitRecord;
     private final float baseDamage;
 
     private int ticksAlive = 0;
@@ -36,11 +33,13 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
     public MeteorFloorEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.baseDamage = 0f;
+        hitRecord = new MultiHitRecord(MAX_DAMAGE_HITS);
     }
 
     public MeteorFloorEntity(World world, LivingEntity owner, float baseDamage) {
         super(ModEntityTypes.METEOR_FLOOR, owner, world, ItemStack.EMPTY, null);
         this.baseDamage = baseDamage;
+        hitRecord = new MultiHitRecord(MAX_DAMAGE_HITS);
 
         this.setNoGravity(true);
         this.setVelocity(Vec3d.ZERO);
@@ -107,8 +106,7 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
                 entity -> entity != getOwner() && entity.isAlive() &&
                         (getOwner() == null || !entity.isTeammate(getOwner()))
         )) {
-            UUID targetId = target.getUuid();
-            int currentHits = hitCounts.getOrDefault(targetId, 0);
+            int currentHits = hitRecord.getHitCount(target);
 
             // Each damage cycle can hit each target once
             if (currentHits >= damageHitCount) {
@@ -122,7 +120,7 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
 
             if (damageDealt) {
                 target.setOnFireFor(3); // Set on fire
-                hitCounts.put(targetId, damageHitCount); // Mark as hit for this cycle
+                hitRecord.recordHit(target);
 
                 // Play hit sound with increasing pitch
                 float pitch = 1.0f + (damageHitCount * 0.2f);
