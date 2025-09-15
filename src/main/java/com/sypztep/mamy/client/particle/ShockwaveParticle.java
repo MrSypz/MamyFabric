@@ -46,7 +46,9 @@ public abstract class ShockwaveParticle extends SpriteBillboardParticle {
     }
 
     protected void updateAlpha() {
-        float ageRatio = (float) this.age / (float) this.maxAge;
+        float scaledAge = this.age * 0.05f;
+        float ageRatio = scaledAge / (float) this.maxAge;
+
         if (ageRatio <= fadeStartRatio) {
             this.alpha = startAlpha;
         } else {
@@ -55,6 +57,7 @@ public abstract class ShockwaveParticle extends SpriteBillboardParticle {
         }
         this.alpha = Math.max(0.0F, this.alpha);
     }
+
 
     @Override
     public void buildGeometry(VertexConsumer buffer, Camera camera, float ticks) {

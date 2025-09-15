@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.entity.skill;
 import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -11,6 +12,7 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -33,7 +35,7 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
         super(entityType, world);
     }
 
-    public ThunderBoltEntity(World world, LivingEntity owner, float damage, int maxTargets) {
+    public ThunderBoltEntity(World world, LivingEntity owner, float damage) {
         super(ModEntityTypes.THUNDER_BOLT, owner, world, ItemStack.EMPTY, null);
         this.damage = damage;
 
@@ -118,7 +120,6 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
 
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
-        Vec3d previousPos = hitPos;
         List<Vec3d> hitPositions = new ArrayList<>();
         hitPositions.add(hitPos);
 
@@ -141,9 +142,9 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
                 ));
 
                 // Lightning hit sound
-                getWorld().playSound(null, target.getBlockPos(),
-                        SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, net.minecraft.sound.SoundCategory.PLAYERS,
-                        0.8f, 1.5f + (i * 0.1f));
+                getWorld().playSound(null, getBlockPos(),
+                        ModSoundEvents.ENTITY_GENERIC_HEADSHOT, SoundCategory.PLAYERS,
+                        1.5f, 1f + (i * 0.1f));
 
                 createLightningHitEffect(targetPos, false);
             }
@@ -151,11 +152,6 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
 
         // สร้าง chain lightning connections ระหว่าง targets
         createChainLightningEffects(serverWorld, hitPositions);
-
-        // Main lightning strike sound
-        getWorld().playSound(null, getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, net.minecraft.sound.SoundCategory.PLAYERS,
-                1.0f, 1.2f);
     }
 
     private void createChainLightningEffects(ServerWorld serverWorld, List<Vec3d> hitPositions) {
@@ -204,11 +200,11 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
         int sparkCount = isBlockHit ? 8 : 6;
         for (int i = 0; i < sparkCount; i++) {
             double angle = (i / (double) sparkCount) * 2 * Math.PI;
-            double distance = 1.5 + serverWorld.getRandom().nextDouble() * 1.0;
+            double distance = 1.5 + serverWorld.getRandom().nextDouble();
 
             Vec3d sparkEnd = pos.add(
                     Math.cos(angle) * distance,
-                    (serverWorld.getRandom().nextDouble() - 0.5) * 1.0,
+                    (serverWorld.getRandom().nextDouble() - 0.5),
                     Math.sin(angle) * distance
             );
 
@@ -222,6 +218,10 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
         serverWorld.spawnParticles(ParticleTypes.FLASH,
                 pos.x, pos.y, pos.z,
                 1, 0.0, 0.0, 0.0, 0.0);
+
+        getWorld().playSound(null, getBlockPos(),
+                ModSoundEvents.ENTITY_ELECTRIC_BLAST, SoundCategory.PLAYERS,
+                2f, 1);
     }
 
     private void createBlockHitEffect() {

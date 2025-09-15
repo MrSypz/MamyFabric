@@ -52,7 +52,7 @@ public class MeteorEntityRenderer extends EntityRenderer<MeteorEntity> {
         matrices.push();
 
         // Render magma block
-        renderMagmaBlock(entity, matrices, vertexConsumers, light);
+        renderMagmaBlock(matrices, vertexConsumers, light);
 
         // Render fire effects around the meteor
         renderFireEffects(entity, tickDelta, matrices, vertexConsumers);
@@ -62,7 +62,7 @@ public class MeteorEntityRenderer extends EntityRenderer<MeteorEntity> {
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 
-    private void renderMagmaBlock(MeteorEntity entity, MatrixStack matrices,
+    private void renderMagmaBlock(MatrixStack matrices,
                                   VertexConsumerProvider vertexConsumers, int light) {
         matrices.push();
 
@@ -112,11 +112,6 @@ public class MeteorEntityRenderer extends EntityRenderer<MeteorEntity> {
         // Medium inner flame layer
         drawRotatingBeamSides(context, consumer, matrix, 4.0f, 18.0f,
                 innerR, innerG, innerB, alpha * 0.8f, endAlpha, innerRotation);
-
-        // Bright center core
-        drawRotatingBeamSides(context, consumer, matrix, 2.0f, 16.0f,
-                1.0f, 1.0f, 0.6f, alpha, endAlpha, innerRotation * 1.2f);
-
         matrices.pop();
     }
 

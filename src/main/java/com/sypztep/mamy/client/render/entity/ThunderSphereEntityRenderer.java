@@ -10,13 +10,12 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEntity> {
     private static final Identifier TEXTURE = Mamy.id("textures/entity/empty.png");
+    private static final float SPHERE_RADIUS = 1.0f;
 
     public ThunderSphereEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -26,12 +25,6 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
     public void render(ThunderSphereEntity entity, float yaw, float tickDelta,
                        MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         matrices.push();
-
-        float lerpedYaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
-        float lerpedPitch = MathHelper.lerp(tickDelta, entity.prevPitch, entity.getPitch());
-
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(lerpedYaw - 90.0f));
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(lerpedPitch + 90.0f));
 
         renderElectricSphere(matrices, vertexConsumers, entity, tickDelta);
 
@@ -46,94 +39,147 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
         VertexContext context = new VertexContext(matrices, vertexConsumers);
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
-        float smoothTime = (entity.age + tickDelta) * 0.1f;
+        float smoothTime = (entity.age + tickDelta) * 0.05f;
 
         VertexConsumer consumer = vertexConsumers.getBuffer(getLightningRenderLayer());
 
-        // Electric sphere with multiple rotating lightning rings
-        renderLightningRings(context, consumer, matrix, entity, smoothTime);
-
-        // Central electric core
+        // Render main electric sphere
         renderElectricCore(context, consumer, matrix, smoothTime);
+
+        // Render rotating lightning arcs around the sphere
+        renderLightningArcs(context, consumer, matrix, smoothTime);
 
         matrices.pop();
     }
 
-    private void renderLightningRings(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
-                                      ThunderSphereEntity entity, float smoothTime) {
-        // Multiple concentric lightning rings rotating at different speeds
-        for (int ring = 0; ring < 3; ring++) {
-            float ringRadius = 1.5f + (ring * 0.8f);
-            float ringRotation = smoothTime * (1.0f + ring * 0.5f) * (float) Math.PI;
-            float ringTilt = ring * 60.0f; // Different tilt for each ring
-
-            // Lightning ring colors - from bright white core to electric blue edge
-            float r, g, b, alpha;
-            switch (ring) {
-                case 0: // Inner ring - bright white
-                    r = 1.0f; g = 1.0f; b = 1.0f; alpha = 0.9f;
-                    break;
-                case 1: // Middle ring - electric cyan
-                    r = 0.4f; g = 0.9f; b = 1.0f; alpha = 0.7f;
-                    break;
-                default: // Outer ring - deep blue
-                    r = 0.2f; g = 0.6f; b = 1.0f; alpha = 0.5f;
-                    break;
-            }
-
-            // Create lightning arcs around the ring
-            int arcsInRing = 12 + (ring * 4); // More arcs in outer rings
-            for (int arc = 0; arc < arcsInRing; arc++) {
-                float arcAngle = (float) ((arc / (float) arcsInRing) * 2 * Math.PI + ringRotation);
-
-                // Position on the ring
-                float x = (float) (Math.cos(arcAngle) * ringRadius);
-                float z = (float) (Math.sin(arcAngle) * ringRadius);
-                float y = (float) (Math.sin(arcAngle + ringTilt * Math.PI / 180.0f) * 0.3f);
-
-                // Next position for arc
-                float nextArcAngle = (float) (((arc + 1) / (float) arcsInRing) * 2 * Math.PI + ringRotation);
-                float nextX = (float) (Math.cos(nextArcAngle) * ringRadius);
-                float nextZ = (float) (Math.sin(nextArcAngle) * ringRadius);
-                float nextY = (float) (Math.sin(nextArcAngle + ringTilt * Math.PI / 180.0f) * 0.3f);
-
-                // Draw lightning arc between points
-                drawLightningArc(context, consumer, matrix,
-                        x, y, z, nextX, nextY, nextZ,
-                        0.05f, r, g, b, alpha);
-            }
-        }
-    }
-
     private void renderElectricCore(VertexContext context, VertexConsumer consumer, Matrix4f matrix, float smoothTime) {
-        // Pulsing electric core at the center
         float coreIntensity = 0.8f + 0.2f * (float) Math.sin(smoothTime * 8);
-        float coreRadius = 0.3f + 0.1f * (float) Math.sin(smoothTime * 6);
+        float radius = SPHERE_RADIUS * (0.9f + 0.1f * (float) Math.sin(smoothTime * 6));
 
-        // Bright electric core - pure white with electric blue edge
-        float coreR = 1.0f, coreG = 1.0f, coreB = 1.0f;
-        float edgeR = 0.3f, edgeG = 0.8f, edgeB = 1.0f;
+        float coreR = 0.4f, coreG = 0.8f, coreB = 1.0f;
+        float edgeR = 1.0f, edgeG = 1.0f, edgeB = 1.0f;
 
-        // Draw core sphere using multiple rotating beams
-        for (int i = 0; i < 8; i++) {
-            float rotation = (float) (smoothTime * 4.0f * (float) Math.PI + (i * Math.PI / 4.0f));
+        int faces = 12; // Number of faces to create sphere illusion
+        for (int i = 0; i < faces; i++) {
+            float rotationY = smoothTime * 2.0f * (float)Math.PI + i * (float)Math.PI / faces;
+            float rotationX = smoothTime * 1.5f * (float)Math.PI + i * (float)Math.PI / (faces * 0.5f);
 
-            drawRotatingBeamSides(context, consumer, matrix, coreRadius, 0.6f,
-                    coreR, coreG, coreB, coreIntensity, 0.0f, rotation);
-        }
-
-        // Edge glow
-        for (int i = 0; i < 6; i++) {
-            float rotation = (float) (smoothTime * -3.0f * (float) Math.PI + (i * Math.PI / 3.0f));
-
-            drawRotatingBeamSides(context, consumer, matrix, coreRadius * 1.5f, 0.8f,
-                    edgeR, edgeG, edgeB, coreIntensity * 0.4f, 0.0f, rotation);
+            drawSphereFace(context, consumer, matrix, radius,
+                    coreR, coreG, coreB, edgeR, edgeG, edgeB,
+                    coreIntensity, rotationY, rotationX);
         }
     }
 
-    private void drawLightningArc(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
-                                  float x1, float y1, float z1, float x2, float y2, float z2,
-                                  float width, float r, float g, float b, float alpha) {
+    private void drawSphereFace(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
+                                float radius,
+                                float coreR, float coreG, float coreB,
+                                float edgeR, float edgeG, float edgeB,
+                                float intensity, float rotationY, float rotationX) {
+
+        float sin = (float) Math.sin(rotationY);
+        float cos = (float) Math.cos(rotationY);
+        float sinX = (float) Math.sin(rotationX);
+        float cosX = (float) Math.cos(rotationX);
+
+        // Create quad vertices for sphere face
+        float halfSize = radius * 0.7f;
+
+        float x1 = -halfSize * cos * cosX;
+        float y1 = -halfSize * sinX;
+        float z1 = -halfSize * sin * cosX;
+
+        float x2 = halfSize * cos * cosX;
+        float y2 = -halfSize * sinX;
+        float z2 = halfSize * sin * cosX;
+
+        float x3 = halfSize * cos * cosX;
+        float y3 = halfSize * sinX;
+        float z3 = halfSize * sin * cosX;
+
+        float x4 = -halfSize * cos * cosX;
+        float y4 = halfSize * sinX;
+        float z4 = -halfSize * sin * cosX;
+
+        // UV coordinates for sphere mapping
+        float u1 = 0.0f, v1 = 0.0f;
+        float u2 = 0.125f, v2 = 1.0f;
+
+        // Draw the face with gradient from core to edge
+        context.fillGradientWithTexture(consumer, matrix,
+                x1, y1, z1, u1, v1, edgeR, edgeG, edgeB, intensity * 0.6f,
+                x2, y2, z2, u2, v1, edgeR, edgeG, edgeB, intensity * 0.6f,
+                x3, y3, z3, u2, v2, coreR, coreG, coreB, intensity,
+                x4, y4, z4, u1, v2, coreR, coreG, coreB, intensity);
+    }
+
+    private void renderLightningArcs(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
+                                     float smoothTime) {
+        int arcCount = 6;
+        int segments = 16; // fewer needed with jitter
+
+        float arcRadius = SPHERE_RADIUS * 1.5f;
+
+        // Global spin for all arcs
+        float globalSpin = smoothTime * 5f;
+        float cosSpin = (float) Math.cos(globalSpin);
+        float sinSpin = (float) Math.sin(globalSpin);
+
+        for (int arc = 0; arc < arcCount; arc++) {
+            // Unique tilt per arc
+            float tilt = (arc * (float)Math.PI / arcCount) + 0.6f;
+            float cosTilt = (float)Math.cos(tilt);
+            float sinTilt = (float)Math.sin(tilt);
+
+            // Color variation per arc
+            float r = 0.4f + 0.6f * (float)Math.sin(smoothTime * 3 + arc);
+            float g = 0.7f + 0.3f * (float)Math.cos(smoothTime * 2 + arc);
+            float b = 1.0f;
+            float alpha = 0.5f + 0.5f * (float)Math.sin(smoothTime * 4 + arc);
+
+            float prevX = 0, prevY = 0, prevZ = 0;
+            boolean first = true;
+
+            for (int i = 0; i <= segments; i++) {
+                float t = (float)i / segments;
+
+                // Base circle around sphere
+                float phi = t * (float)Math.PI * 2;
+                float x = (float)(arcRadius * Math.cos(phi));
+                float y = 0;
+                float z = (float)(arcRadius * Math.sin(phi));
+
+                // Apply tilt (rotate around X)
+                float ty = cosTilt * y - sinTilt * z;
+                float tz = sinTilt * y + cosTilt * z;
+                y = ty; z = tz;
+
+                // Apply global spin (rotate around Y)
+                float rx = cosSpin * x + sinSpin * z;
+                float rz = -sinSpin * x + cosSpin * z;
+                x = rx; z = rz;
+
+                // Add jitter for lightning feel
+                float jitter = 0.2f * (float)Math.sin(smoothTime * 10 + t * 12.0f + arc * 5);
+                x += jitter * (float)Math.cos(phi * 3 + arc);
+                y += jitter * (float)Math.sin(phi * 5 + arc);
+
+                if (!first) {
+                    drawLightningSegment(context, consumer, matrix,
+                            prevX, prevY, prevZ,
+                            x, y, z,
+                            0.06f, r, g, b, alpha);
+                }
+                prevX = x;
+                prevY = y;
+                prevZ = z;
+                first = false;
+            }
+        }
+    }
+
+    private void drawLightningSegment(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
+                                      float x1, float y1, float z1, float x2, float y2, float z2,
+                                      float width, float r, float g, float b, float alpha) {
         float halfWidth = width * 0.5f;
 
         // Calculate perpendicular vector for width
@@ -142,7 +188,7 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
         float dz = z2 - z1;
         float length = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (length < 0.001f) return; // Avoid division by zero
+        if (length < 0.001f) return;
 
         // Normalize direction
         dx /= length;
@@ -152,57 +198,23 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
         float px = -dz * halfWidth;
         float pz = dx * halfWidth;
 
-        // Draw quad for the lightning arc
+        // Draw quad for the lightning segment
         context.fillGradientWithTexture(consumer, matrix,
                 x1 - px, y1, z1 - pz, 0, 0, r, g, b, alpha,
                 x1 + px, y1, z1 + pz, 0.125f, 0, r, g, b, alpha,
-                x2 + px, y2, z2 + pz, 0.125f, 1, r, g, b, alpha,
-                x2 - px, y2, z2 - pz, 0, 1, r, g, b, alpha);
-    }
-
-    private void drawRotatingBeamSides(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
-                                       float halfWidth, float height,
-                                       float r, float g, float b,
-                                       float alpha, float endAlpha, float rotation) {
-        float sin = (float) Math.sin(rotation);
-        float cos = (float) Math.cos(rotation);
-
-        float x1 = -halfWidth * cos - (-halfWidth) * sin;
-        float z1 = -halfWidth * sin + (-halfWidth) * cos;
-        float x2 = halfWidth * cos - (-halfWidth) * sin;
-        float z2 = halfWidth * sin + (-halfWidth) * cos;
-        float x3 = halfWidth * cos - halfWidth * sin;
-        float z3 = halfWidth * sin + halfWidth * cos;
-        float x4 = -halfWidth * cos - halfWidth * sin;
-        float z4 = -halfWidth * sin + halfWidth * cos;
-
-        drawBeamSide(context, consumer, matrix, x1, z1, x2, z2, height, r, g, b, alpha, endAlpha);
-        drawBeamSide(context, consumer, matrix, x3, z3, x4, z4, height, r, g, b, alpha, endAlpha);
-        drawBeamSide(context, consumer, matrix, x4, z4, x1, z1, height, r, g, b, alpha, endAlpha);
-        drawBeamSide(context, consumer, matrix, x2, z2, x3, z3, height, r, g, b, alpha, endAlpha);
-    }
-
-    private void drawBeamSide(VertexContext context, VertexConsumer consumer, Matrix4f matrix,
-                              float x1, float z1, float x2, float z2, float height,
-                              float r, float g, float b, float alpha, float endAlpha) {
-        float u1 = 0, v1 = 0.0f;
-        float u2 = 1.0f / 8, v2 = 1.0f;
-
-        context.fillGradientWithTexture(consumer, matrix,
-                x1, 0, z1, u1, v2, r, g, b, alpha,
-                x1, height, z1, u1, v1, r, g, b, endAlpha,
-                x2, height, z2, u2, v1, r, g, b, endAlpha,
-                x2, 0, z2, u2, v2, r, g, b, alpha);
+                x2 + px, y2, z2 + pz, 0.125f, 1, r, g, b, alpha * 0.6f,
+                x2 - px, y2, z2 - pz, 0, 1, r, g, b, alpha * 0.6f);
     }
 
     @Override
     public Identifier getTexture(ThunderSphereEntity entity) {
         return TEXTURE;
     }
-    // Shared Lightning Render Layer - can be used by other thunder entities
+
+    // Lightning Render Layer using cleck.png texture like magic arrow
     public static RenderLayer getLightningRenderLayer() {
         return RenderLayer.of(
-                "lightning_beam",
+                "thunder_sphere",
                 VertexFormats.POSITION_COLOR_TEXTURE_LIGHT,
                 VertexFormat.DrawMode.QUADS,
                 1536,
@@ -210,7 +222,7 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
                 true,
                 RenderLayer.MultiPhaseParameters.builder()
                         .program(RenderPhase.POSITION_COLOR_TEXTURE_LIGHTMAP_PROGRAM)
-                        .texture(new RenderLayer.Texture(Mamy.id("textures/vfx/lightning_alpha.png"), false, false))
+                        .texture(new RenderLayer.Texture(Mamy.id("textures/vfx/cleck.png"), false, false))
                         .transparency(RenderLayer.ADDITIVE_TRANSPARENCY)
                         .depthTest(RenderLayer.LEQUAL_DEPTH_TEST)
                         .cull(RenderLayer.DISABLE_CULLING)
@@ -220,5 +232,4 @@ public class ThunderSphereEntityRenderer extends EntityRenderer<ThunderSphereEnt
                         .build(false)
         );
     }
-
 }

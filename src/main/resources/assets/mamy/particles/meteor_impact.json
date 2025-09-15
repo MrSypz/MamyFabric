@@ -1,23 +1,15 @@
 {
   "textures": [
-    "mamy:shockwave1",
-    "mamy:shockwave2",
-    "mamy:shockwave3",
-    "mamy:shockwave4",
-    "mamy:shockwave5",
-    "mamy:shockwave6",
-    "mamy:shockwave7",
-    "mamy:shockwave7",
-    "mamy:shockwave8",
-    "mamy:shockwave8",
-    "mamy:shockwave9",
-    "mamy:shockwave9",
-    "mamy:shockwave10",
-    "mamy:shockwave11",
-    "mamy:shockwave12",
-    "mamy:shockwave13",
-    "mamy:shockwave14",
-    "mamy:shockwave15",
-    "mamy:shockwave16"
+    "mamy:blastwave_1",
+    "mamy:blastwave_2",
+    "mamy:blastwave_3",
+    "mamy:blastwave_4",
+    "mamy:blastwave_5",
+    "mamy:blastwave_6",
+    "mamy:blastwave_7",
+    "mamy:blastwave_7",
+    "mamy:blastwave_8",
+    "mamy:blastwave_8",
+    "mamy:blastwave_8"
   ]
 }

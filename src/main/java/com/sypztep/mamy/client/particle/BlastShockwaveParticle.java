@@ -7,13 +7,13 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
 
 @Environment(EnvType.CLIENT)
-public class DustShockwaveParticle extends ShockwaveParticle {
-    public DustShockwaveParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, double velocityX, double velocityY, double velocityZ) {
+public class BlastShockwaveParticle extends ShockwaveParticle {
+    public BlastShockwaveParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, double velocityX, double velocityY, double velocityZ) {
         super(world, x, y, z, spriteProvider, velocityX, velocityY, velocityZ);
-        this.red = 1F; // Brownish color (approx 0x8B4513)
+        this.red = 1F;
         this.green =1;
         this.blue = 1;
-        this.maxAge = 12; // Slightly longer for dust to linger
+        this.maxAge = 20; // Slightly longer for dust to linger
         this.scale = 5;
         this.velocityY = 0.01; // No vertical motion to stay on ground
     }
@@ -34,7 +34,7 @@ public class DustShockwaveParticle extends ShockwaveParticle {
 
         @Override
         public Particle createParticle(SimpleParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new DustShockwaveParticle(world, x, y, z, sprites, xSpeed, ySpeed, zSpeed);
+            return new BlastShockwaveParticle(world, x, y, z, sprites, xSpeed, ySpeed, zSpeed);
         }
     }
 }

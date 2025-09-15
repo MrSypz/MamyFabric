@@ -21,7 +21,6 @@ public class ThunderStormEntityRenderer extends EntityRenderer<ThunderStormEntit
     @Override
     public void render(ThunderStormEntity entity, float yaw, float tickDelta,
                        MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        // ไม่ต้อง render อะไรเพิ่ม เพราะใช้ SparkParticleEffect แทนแล้ว
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 

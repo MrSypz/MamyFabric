@@ -1,11 +1,13 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
+import com.sypztep.mamy.client.sound.ThunderSphereSoundInstance;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -15,61 +17,38 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class ThunderSphereEntity extends PersistentProjectileEntity {
-    private static final int MAX_LIFETIME = 60; // 3 seconds
-    private static final int DAMAGE_INTERVAL = 10; // Every 10 ticks for 2 hits
-    private static final double EXPLOSION_RADIUS = 6.0; // Large sphere radius
+    private static final int MAX_LIFETIME = 100; // 5 seconds
+    private static final double AOE_RANGE = 2.5; // 5x5 area (2.5 radius)
     private static final double CAMERA_SHAKE_RANGE = 30.0;
-    private static final int CIRCLE_POINTS = 12; // จำนวนจุดในวงกลม
+    private static final int DAMAGE_INTERVAL = 4; // Every 10 ticks for AOE damage
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
     private final float baseDamage;
-    private final int skillLevel;
-
-    // เก็บตำแหน่งของจุดในวงกลมสำหรับ spark connections
-    private final List<Vec3d> circlePoints = new ArrayList<>();
 
     private int ticksAlive = 0;
-    private int damageTimer = 0;
-    private int explosionHits = 0; // Track explosion damage hits (max 2)
     private boolean hasExploded = false;
+    private boolean soundStarted = false;
 
     public ThunderSphereEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.baseDamage = 0f;
-        this.skillLevel = 1;
-        initializeCirclePoints();
     }
 
-    public ThunderSphereEntity(World world, LivingEntity owner, float baseDamage, int skillLevel) {
+    public ThunderSphereEntity(World world, LivingEntity owner, float baseDamage) {
         super(ModEntityTypes.THUNDER_SPHERE, owner, world, ItemStack.EMPTY, null);
         this.baseDamage = baseDamage;
-        this.skillLevel = skillLevel;
-        initializeCirclePoints();
 
         Vec3d direction = owner.getRotationVec(1.0f);
-        this.setVelocity(direction.multiply(1.3)); // Medium speed
+        this.setVelocity(direction.multiply(1.5)); // Faster speed
         this.velocityModified = true;
-    }
-
-    private void initializeCirclePoints() {
-        circlePoints.clear();
-        for (int i = 0; i < CIRCLE_POINTS; i++) {
-            double angle = (i / (double) CIRCLE_POINTS) * 2 * Math.PI;
-            circlePoints.add(new Vec3d(angle, 0, 0)); // เก็บเป็น angle ไว้ก่อน
-        }
     }
 
     @Override
@@ -79,38 +58,42 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
 
         if (getWorld().isClient) {
             createElectricSphereEffects();
+
+            if (!soundStarted && ticksAlive == 1) {
+                soundStarted = true;
+                MinecraftClient.getInstance().getSoundManager()
+                        .play(new ThunderSphereSoundInstance(this));
+            }
         } else {
-            // Server-side: สร้าง spark connections สำหรับ clients ทุกๆ 3 ticks
+            if (!hasExploded && ticksAlive % DAMAGE_INTERVAL == 0) {
+                dealAOEDamage();
+            }
+
+            // Create spark effects
             if (ticksAlive % 3 == 0) {
-                createSparkConnections();
+                createSparkEffects();
             }
         }
 
-        // If exploded, handle explosion damage cycles
-        if (hasExploded && explosionHits < 2 && !getWorld().isClient) {
-            damageTimer++;
-            if (damageTimer >= DAMAGE_INTERVAL) {
-                dealSphereExplosion();
-                damageTimer = 0;
-                explosionHits++;
+        // Remove after lifetime
+        if (ticksAlive >= MAX_LIFETIME) {
+            if (!hasExploded) {
+                explode();
+            } else {
+                discard();
             }
-        }
-
-        // Remove after lifetime or after 2 explosion hits
-        if (ticksAlive >= MAX_LIFETIME || explosionHits >= 2) {
-            discard();
         }
     }
 
     private void createElectricSphereEffects() {
-        // Electric sphere aura while traveling - ใช้ built-in particles สำหรับพื้นฐาน
-        for (int i = 0; i < 4; i++) {
-            double angle = (i / 4.0) * 2 * Math.PI + (ticksAlive * 0.1);
-            double radius = 1.0 + Math.sin((ticksAlive + i * 10) * 0.1) * 0.2;
+        // Electric sphere aura while traveling
+        for (int i = 0; i < 6; i++) {
+            double angle = (i / 6.0) * 2 * Math.PI + (ticksAlive * 0.15);
+            double radius = 1.2 + Math.sin((ticksAlive + i * 10) * 0.12) * 0.3;
 
             double offsetX = Math.cos(angle) * radius;
             double offsetZ = Math.sin(angle) * radius;
-            double offsetY = Math.sin((ticksAlive + i * 15) * 0.15) * 0.3;
+            double offsetY = Math.sin((ticksAlive + i * 15) * 0.18) * 0.4;
 
             getWorld().addParticle(ParticleTypes.ELECTRIC_SPARK,
                     getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
@@ -119,99 +102,103 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
 
         // Core electric energy
         if (ticksAlive % 2 == 0) {
-            for (int i = 0; i < 2; i++) {
-                double offsetX = (random.nextDouble() - 0.5) * 0.5;
-                double offsetY = (random.nextDouble() - 0.5) * 0.5;
-                double offsetZ = (random.nextDouble() - 0.5) * 0.5;
+            for (int i = 0; i < 3; i++) {
+                double offsetX = (random.nextDouble() - 0.5) * 0.8;
+                double offsetY = (random.nextDouble() - 0.5) * 0.8;
+                double offsetZ = (random.nextDouble() - 0.5) * 0.8;
 
                 getWorld().addParticle(ParticleTypes.END_ROD,
                         getX() + offsetX, getY() + offsetY, getZ() + offsetZ,
                         0.0, 0.0, 0.0);
             }
         }
-
-        // Electric charging sound
-        if (ticksAlive % 20 == 0) {
-            getWorld().playSound(getX(), getY(), getZ(),
-                    SoundEvents.BLOCK_BEACON_AMBIENT, SoundCategory.PLAYERS,
-                    0.2f, 1.8f, false);
-        }
     }
 
-    private void createSparkConnections() {
+    private void createSparkEffects() {
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
         Vec3d center = getPos();
 
-        // สร้าง 2 วงกลมที่หมุนในทิศทางตรงข้าม
-        createRotatingCircle(serverWorld, center, 1.8, ticksAlive * 0.15, false); // วงกลมใหญ่
-        createRotatingCircle(serverWorld, center, 1.2, -ticksAlive * 0.2, true);  // วงกลมเล็ก หมุนย้อน
-
-        // สร้าง vertical connections ทุกๆ 5 ticks
-        if (ticksAlive % 5 == 0) {
-            createVerticalSparks(serverWorld, center);
-        }
-    }
-
-    private void createRotatingCircle(ServerWorld world, Vec3d center, double radius, double rotationOffset, boolean reverse) {
-        List<Vec3d> currentPoints = new ArrayList<>();
-
-        // คำนวณตำแหน่งจุดในวงกลม
-        for (int i = 0; i < CIRCLE_POINTS; i++) {
-            double angle = (i / (double) CIRCLE_POINTS) * 2 * Math.PI + rotationOffset;
-            if (reverse) angle = -angle;
+        // Create rotating spark ring around the sphere
+        int sparkCount = 8;
+        for (int i = 0; i < sparkCount; i++) {
+            double angle = (i / (double) sparkCount) * 2 * Math.PI + (ticksAlive * 0.2);
+            double radius = 1.8;
 
             double x = center.x + Math.cos(angle) * radius;
             double z = center.z + Math.sin(angle) * radius;
-            double y = center.y + Math.sin(angle * 3 + ticksAlive * 0.1) * 0.3; // เคลื่อนไหวในแนวตั้ง
+            double y = center.y + Math.sin(angle * 2 + ticksAlive * 0.15) * 0.5;
 
-            currentPoints.add(new Vec3d(x, y, z));
+            Vec3d sparkPos = new Vec3d(x, y, z);
+
+            // Create spark effect towards center
+            SparkParticleEffect sparkEffect = new SparkParticleEffect(center);
+            serverWorld.spawnParticles(sparkEffect, sparkPos.x, sparkPos.y, sparkPos.z, 1, 0.0, 0.0, 0.0, 0.0);
         }
 
-        // สร้าง spark connections ระหว่างจุดที่ติดกัน
-        for (int i = 0; i < currentPoints.size(); i++) {
-            Vec3d start = currentPoints.get(i);
-            Vec3d end = currentPoints.get((i + 1) % currentPoints.size()); // จุดถัดไป (วนกลับไปจุดแรก)
+        // Vertical sparks
+        if (ticksAlive % 5 == 0) {
+            Vec3d topPoint = center.add(0, 2, 0);
+            Vec3d bottomPoint = center.add(0, -1, 0);
 
-            // สร้าง SparkParticleEffect ระหว่าง 2 จุด (velocityX = 0 สำหรับ normal spark)
-            SparkParticleEffect sparkEffect = new SparkParticleEffect(end);
-            world.spawnParticles(sparkEffect, start.x, start.y, start.z, 1, 0.0, 0.0, 0.0, 0.0);
+            SparkParticleEffect upwardSpark = new SparkParticleEffect(topPoint);
+            serverWorld.spawnParticles(upwardSpark, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
+
+            SparkParticleEffect downwardSpark = new SparkParticleEffect(bottomPoint);
+            serverWorld.spawnParticles(downwardSpark, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
         }
+    }
 
-        // สร้างการเชื่อมต่อข้ามวงกลม (เป็นครั้งคราว)
-        if (ticksAlive % 8 == 0) {
-            for (int i = 0; i < currentPoints.size(); i += 3) {
-                Vec3d start = currentPoints.get(i);
-                Vec3d end = currentPoints.get((i + 6) % currentPoints.size()); // จุดตรงข้าม
+    private void dealAOEDamage() {
+        Box damageBox = Box.of(getPos(), AOE_RANGE * 2, AOE_RANGE * 2, AOE_RANGE * 2);
 
-                SparkParticleEffect crossSparkEffect = new SparkParticleEffect(end);
-                world.spawnParticles(crossSparkEffect, start.x, start.y, start.z, 1, 0.0, 0.0, 0.0, 0.0);
+        List<LivingEntity> targets = getWorld().getEntitiesByClass(
+                LivingEntity.class,
+                damageBox,
+                entity -> entity != getOwner() && entity.isAlive() &&
+                        (getOwner() == null || !entity.isTeammate(getOwner()))
+        );
+
+        if (targets.isEmpty()) return;
+
+        // Calculate damage per entity (damage split among all targets)
+        float damagePerEntity = baseDamage / targets.size();
+
+        for (LivingEntity target : targets) {
+            double distance = target.getPos().distanceTo(getPos());
+
+            if (distance <= AOE_RANGE) {
+                boolean damageDealt = target.damage(
+                        ModDamageTypes.create(getWorld(), ModDamageTypes.LIGHTING, this, getOwner()),
+                        damagePerEntity
+                );
+
+                if (damageDealt) {
+                    // Apply brief slowness effect
+                    target.addStatusEffect(new StatusEffectInstance(
+                            StatusEffects.SLOWNESS, 20, 0, // 1 second, level 1
+                            false, true, true
+                    ));
+
+                    // Hit sound
+//                    getWorld().playSound(null, target.getBlockPos(),
+//                            SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.PLAYERS,
+//                            0.5f, 1.5f);
+
+                }
             }
         }
     }
 
-    private void createVerticalSparks(ServerWorld world, Vec3d center) {
-        // สร้าง vertical sparks ขึ้นลง
-        Vec3d topPoint = center.add(0, 2, 0);
-        Vec3d bottomPoint = center.add(0, -1, 0);
-
-        // Spark จากศูนย์กลางขึ้นบน
-        SparkParticleEffect upwardSpark = new SparkParticleEffect(topPoint);
-        world.spawnParticles(upwardSpark, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
-
-        // Spark จากศูนย์กลางลงล่าง
-        SparkParticleEffect downwardSpark = new SparkParticleEffect(bottomPoint);
-        world.spawnParticles(downwardSpark, center.x, center.y, center.z, 1, 0.0, 0.0, 0.0, 0.0);
-    }
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
         if (!getWorld().isClient) {
-            explode();
             entityHitResult.getEntity().damage(
-                    ModDamageTypes.create(getWorld(), ModDamageTypes.LIGHTING, this, getOwner()), // Thunder damage type
-                    baseDamage * 2
+                    ModDamageTypes.create(getWorld(), ModDamageTypes.LIGHTING, this, getOwner()),
+                    baseDamage * 2 // Double damage for direct hit
             );
+            explode();
         }
     }
 
@@ -223,198 +210,129 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
     }
 
     private void explode() {
-        if (hasExploded) return; // Prevent multiple explosions
+        if (hasExploded) return;
 
         hasExploded = true;
-        setVelocity(Vec3d.ZERO); // Stop moving
+        setVelocity(Vec3d.ZERO);
 
-        // Play massive electric explosion sound
         getWorld().playSound(null, getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS,
-                2.5f, 0.8f);
+                ModSoundEvents.ENTITY_ELECTRIC_BIG_EXPLODE, SoundCategory.PLAYERS,
+                1.5f, 1f);
 
-        // Electric discharge sound
-        getWorld().playSound(null, getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.PLAYERS,
-                2.0f, 1.2f);
+        createExplosionEffects();
 
-        // Create electric sphere explosion effects
-        createElectricExplosionEffects();
-
-        // Camera shake for nearby players
         if (getWorld() instanceof ServerWorld serverWorld) {
             PlayerLookup.around(serverWorld, getPos(), CAMERA_SHAKE_RANGE)
                     .forEach(player -> CameraShakePayloadS2C.send(player,
-                            getX(), getY(), getZ(), 15, CAMERA_SHAKE_RANGE, 12));
+                            getX(), getY(), getZ(), 18, CAMERA_SHAKE_RANGE, 20));
         }
 
-        // Start explosion damage cycle
-        damageTimer = 0;
+        dealFinalExplosion();
+
+        discard();
     }
 
-    private void dealSphereExplosion() {
-        Box damageBox = Box.of(getPos(), EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2);
+    private void dealFinalExplosion() {
+        Box damageBox = Box.of(getPos(), AOE_RANGE * 3, AOE_RANGE * 3, AOE_RANGE * 3);
 
-        for (LivingEntity target : getWorld().getEntitiesByClass(
+        List<LivingEntity> targets = getWorld().getEntitiesByClass(
                 LivingEntity.class,
                 damageBox,
                 entity -> entity != getOwner() && entity.isAlive() &&
                         (getOwner() == null || !entity.isTeammate(getOwner()))
-        )) {
+        );
+
+        if (targets.isEmpty()) return;
+
+        float explosionDamage = baseDamage * 1.5f / targets.size(); // falloff base on target hit
+
+        for (LivingEntity target : targets) {
             double distance = target.getPos().distanceTo(getPos());
 
-            if (distance <= EXPLOSION_RADIUS) {
-                UUID targetId = target.getUuid();
-                int currentHits = hitCounts.getOrDefault(targetId, 0);
-
-                // Each target can be hit once per explosion cycle
-                if (currentHits >= explosionHits + 1) {
-                    continue;
-                }
-
-                // Calculate damage falloff (100% at center, 40% at edge)
-                double falloffMultiplier = Math.max(0.4, 1.0 - (distance / EXPLOSION_RADIUS) * 0.6);
-                float finalDamage = (float) (baseDamage * falloffMultiplier);
-
+            if (distance <= AOE_RANGE * 1.5) {
                 boolean damageDealt = target.damage(
-                        ModDamageTypes.create(getWorld(), ModDamageTypes.FIREBALL, this, getOwner()), // Thunder damage type
-                        finalDamage
+                        ModDamageTypes.create(getWorld(), ModDamageTypes.LIGHTING, this, getOwner()),
+                        explosionDamage
                 );
 
                 if (damageDealt) {
-                    // Apply slowness effect (Speed -40%)
-                    int duration = (int) (80 + (1.0 - (distance / EXPLOSION_RADIUS)) * 40); // 4-6 seconds based on distance
                     target.addStatusEffect(new StatusEffectInstance(
-                            StatusEffects.SLOWNESS, duration, 1,
+                            StatusEffects.SLOWNESS, 100, 1, // 5 seconds, level 2
                             false, true, true
                     ));
 
-                    hitCounts.put(targetId, explosionHits + 1);
-
-                    // Hit sound with pitch based on explosion number
-                    float pitch = explosionHits == 0 ? 1.0f : 1.4f;
-                    getWorld().playSound(null, target.getBlockPos(),
-                            SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.PLAYERS,
-                            0.9f, pitch);
-
-                    createElectricHitEffect(target.getPos(), falloffMultiplier);
+                    createExplosionHitEffect(target.getPos());
                 }
             }
         }
     }
 
-    private void createElectricExplosionEffects() {
+    private void createExplosionEffects() {
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
         Vec3d center = getPos();
 
-        // สร้าง explosion sparks แบบวงกลมหลายชั้น
-        for (int ring = 1; ring <= 8; ring++) {
-            int pointsInRing = ring * 6;
-            double ringRadius = ring * 0.8;
+        // Multiple expanding rings of sparks
+        for (int ring = 1; ring <= 5; ring++) {
+            int pointsInRing = ring * 8;
+            double ringRadius = ring * 1.0;
 
-            List<Vec3d> ringPoints = new ArrayList<>();
-
-            // คำนวณจุดในแต่ละชั้น
             for (int i = 0; i < pointsInRing; i++) {
                 double angle = (i / (double) pointsInRing) * 2 * Math.PI;
                 double x = center.x + Math.cos(angle) * ringRadius;
                 double z = center.z + Math.sin(angle) * ringRadius;
                 double y = center.y + (random.nextDouble() - 0.5) * 2.0;
 
-                ringPoints.add(new Vec3d(x, y, z));
-            }
-
-            // สร้าง spark connections ในแต่ละชั้น
-            for (int i = 0; i < ringPoints.size(); i++) {
-                Vec3d start = ringPoints.get(i);
-                Vec3d end = ringPoints.get((i + 1) % ringPoints.size());
-
-                // Spark ระหว่างจุดติดกัน (velocityX = 1.0 สำหรับ explosion spark)
-                SparkParticleEffect ringSparkEffect = new SparkParticleEffect(end);
-                serverWorld.spawnParticles(ringSparkEffect, start.x, start.y, start.z, 1, 1.0, 0.0, 0.0, 0.0);
-
-                // Spark จากศูนย์กลางไปยังจุดในชั้น
-                if (i % 2 == 0) { // ทำแค่บางจุดเพื่อไม่ให้หนาเกินไป
-                    SparkParticleEffect centerToRingSpark = new SparkParticleEffect(start);
-                    serverWorld.spawnParticles(centerToRingSpark, center.x, center.y, center.z, 1, 1.0, 0.0, 0.0, 0.0);
-                }
+                Vec3d sparkEnd = new Vec3d(x, y, z);
+                SparkParticleEffect explosionSpark = new SparkParticleEffect(sparkEnd);
+                serverWorld.spawnParticles(explosionSpark, center.x, center.y, center.z, 1, 1.0, 0.0, 0.0, 0.0);
             }
         }
 
-        // Central electric pillar ด้วย sparks
-        for (int y = -3; y <= 6; y++) {
-            Vec3d pillarStart = center.add(0, y, 0);
-            Vec3d pillarEnd = center.add(0, y + 1, 0);
-
-            SparkParticleEffect pillarSpark = new SparkParticleEffect(pillarEnd);
-            serverWorld.spawnParticles(pillarSpark, pillarStart.x, pillarStart.y, pillarStart.z, 1, 1.0, 0.0, 0.0, 0.0);
+        // Central pillar of sparks
+        for (int y = -2; y <= 4; y++) {
+            Vec3d pillarPos = center.add(0, y, 0);
+            serverWorld.spawnParticles(ParticleTypes.FLASH,
+                    pillarPos.x, pillarPos.y, pillarPos.z,
+                    1, 0.0, 0.0, 0.0, 0.0);
         }
 
         // Random chaotic sparks
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             Vec3d randomStart = center.add(
-                    (random.nextDouble() - 0.5) * 4.0,
                     (random.nextDouble() - 0.5) * 3.0,
-                    (random.nextDouble() - 0.5) * 4.0
+                    (random.nextDouble() - 0.5) * 2.0,
+                    (random.nextDouble() - 0.5) * 3.0
             );
 
             Vec3d randomEnd = center.add(
-                    (random.nextDouble() - 0.5) * 8.0,
-                    (random.nextDouble() - 0.5) * 4.0,
-                    (random.nextDouble() - 0.5) * 8.0
+                    (random.nextDouble() - 0.5) * 6.0,
+                    (random.nextDouble() - 0.5) * 3.0,
+                    (random.nextDouble() - 0.5) * 6.0
             );
 
             SparkParticleEffect chaoticSpark = new SparkParticleEffect(randomEnd);
             serverWorld.spawnParticles(chaoticSpark, randomStart.x, randomStart.y, randomStart.z, 1, 1.0, 0.0, 0.0, 0.0);
         }
-
-        // Flash และ electric discharge particles เพิ่มเติม
-        for (int i = 0; i < 8; i++) {
-            double offsetX = (random.nextDouble() - 0.5) * 4.0;
-            double offsetY = (random.nextDouble() - 0.5) * 3.0;
-            double offsetZ = (random.nextDouble() - 0.5) * 4.0;
-
-            serverWorld.spawnParticles(ParticleTypes.FLASH,
-                    center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                    1, 0.0, 0.0, 0.0, 0.0);
-        }
     }
 
-    private void createElectricHitEffect(Vec3d pos, double intensity) {
+    private void createExplosionHitEffect(Vec3d pos) {
         if (!(getWorld() instanceof ServerWorld serverWorld)) return;
 
-        // สร้าง hit effect ด้วย spark connections
-        Vec3d center = pos;
-
-        // สร้างวงกลมเล็กๆ รอบจุดที่โดน
-        int points = (int) (6 * intensity);
-        List<Vec3d> hitPoints = new ArrayList<>();
-
-        for (int i = 0; i < points; i++) {
-            double angle = (i / (double) points) * 2 * Math.PI;
-            double radius = 1.0 * intensity;
-
-            double x = center.x + Math.cos(angle) * radius;
-            double z = center.z + Math.sin(angle) * radius;
-            double y = center.y + (random.nextDouble() - 0.5) * 0.5;
-
-            hitPoints.add(new Vec3d(x, y, z));
-        }
-
-        // สร้าง spark connections ระหว่างจุด hit
-        for (int i = 0; i < hitPoints.size(); i++) {
-            Vec3d start = hitPoints.get(i);
-            Vec3d end = hitPoints.get((i + 1) % hitPoints.size());
-
-            SparkParticleEffect hitSpark = new SparkParticleEffect(end);
-            serverWorld.spawnParticles(hitSpark, start.x, start.y, start.z, 1, 0.0, 0.0, 0.0, 0.0);
-        }
-
         // Lightning pillar at hit location
-        for (int y = 0; y <= 3; y++) {
+        for (int y = 0; y <= 2; y++) {
             serverWorld.spawnParticles(ParticleTypes.END_ROD,
                     pos.x, pos.y + y, pos.z,
+                    1, 0.0, 0.0, 0.0, 0.0);
+        }
+
+        for (int i = 0; i < 5; i++) {
+            double offsetX = (random.nextDouble() - 0.5);
+            double offsetY = (random.nextDouble() - 0.5);
+            double offsetZ = (random.nextDouble() - 0.5);
+
+            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,
+                    pos.x + offsetX, pos.y + offsetY, pos.z + offsetZ,
                     1, 0.0, 0.0, 0.0, 0.0);
         }
     }
@@ -432,10 +350,5 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
     @Override
     public boolean hasNoGravity() {
         return true;
-    }
-
-    @Override
-    public boolean shouldRender(double distance) {
-        return distance < 96.0 * 96.0;
     }
 }

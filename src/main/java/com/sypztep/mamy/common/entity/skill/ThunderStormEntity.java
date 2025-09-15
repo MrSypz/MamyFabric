@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
+import com.sypztep.mamy.common.init.ModParticles;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -13,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
@@ -27,8 +28,8 @@ import java.util.UUID;
 
 public class ThunderStormEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 25; // 1.25 seconds
-    private static final int DAMAGE_INTERVAL = 5; // Every 5 ticks
-    private static final int MAX_DAMAGE_HITS = 5; // 5 lightning strikes
+    private static final int DAMAGE_INTERVAL = 4; // Every 5 ticks
+    private static final int MAX_DAMAGE_HITS = 10; // 5 lightning strikes
     private static final double STORM_RADIUS = 8.0; // Storm area radius
 
     private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
@@ -63,35 +64,27 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
         if (getWorld().isClient) {
             createStormEffects();
         } else {
-            // Server-side storm effects
-            if (ticksAlive % 3 == 0) {
-                createServerStormEffects();
-            }
+            if (ticksAlive % 3 == 0) createServerStormEffects();
         }
 
-        // Deal lightning damage every 5 ticks, max 5 times
         if (damageTimer >= DAMAGE_INTERVAL && !getWorld().isClient && damageHitCount < MAX_DAMAGE_HITS) {
             dealLightningStrike();
             damageTimer = 0;
             damageHitCount++;
         }
 
-        // Remove after lifetime
-        if (ticksAlive >= MAX_LIFETIME) {
-            discard();
-        }
+        if (ticksAlive >= MAX_LIFETIME) discard();
     }
 
     private void createStormEffects() {
-        // Dark storm clouds above the area
         for (int i = 0; i < 4; i++) {
             double offsetX = (random.nextDouble() - 0.5) * 12.0;
             double offsetZ = (random.nextDouble() - 0.5) * 12.0;
-            double cloudHeight = 8.0 + (random.nextDouble() * 4.0);
+            double cloudHeight = 12.0 + (random.nextDouble() * 4.0);
 
-            getWorld().addParticle(ParticleTypes.LARGE_SMOKE,
+            getWorld().addParticle(ModParticles.CLOUD,
                     getX() + offsetX, getY() + cloudHeight, getZ() + offsetZ,
-                    (random.nextDouble() - 0.5) * 0.1, -0.02, (random.nextDouble() - 0.5) * 0.1);
+                    0, 0, 0);
         }
 
         // Electric particles in the storm area
@@ -104,11 +97,10 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
                     0.0, 0.1, 0.0);
         }
 
-        // Thunder sound every few ticks
-        if (ticksAlive % 12 == 0) {
+        if (ticksAlive % 10 == 0) {
             getWorld().playSound(getX(), getY(), getZ(),
-                    SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS,
-                    0.4f, 0.8f + (random.nextFloat() * 0.4f), false);
+                    ModSoundEvents.ENTITY_ELECTRIC_BIG_EXPLODE, SoundCategory.PLAYERS,
+                    1f, 0.8f + (random.nextFloat() * 0.4f), false);
         }
     }
 
@@ -154,7 +146,6 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
     }
 
     private void dealLightningStrike() {
-        // Use expanded area for damage
         Box damageBox = Box.of(getPos(), STORM_RADIUS * 2, 30, STORM_RADIUS * 2);
 
         List<LivingEntity> potentialTargets = getWorld().getEntitiesByClass(
@@ -169,19 +160,22 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
 
         Vec3d center = getPos();
 
-        // สร้าง 2-4 lightning strikes ต่อครั้ง
         int strikeCount = 2 + serverWorld.getRandom().nextInt(3);
         List<Vec3d> strikePositions = new ArrayList<>();
+
+        // Calculate skill level-based targeting probability: 50% + 5% * skillLevel
+        float targetingChance = 0.5f + (0.05f * skillLevel);
+        targetingChance = Math.min(targetingChance, 0.95f); // Cap at 95% to maintain some randomness
 
         for (int i = 0; i < strikeCount; i++) {
             Vec3d strikePos;
 
-            if (!potentialTargets.isEmpty() && serverWorld.getRandom().nextFloat() < 0.7f) {
-                // 70% โอกาสโจมตี target
+            if (!potentialTargets.isEmpty() && serverWorld.getRandom().nextFloat() < targetingChance) {
+                // Target an enemy based on skill level probability
                 LivingEntity target = potentialTargets.get(serverWorld.getRandom().nextInt(potentialTargets.size()));
                 strikePos = target.getPos();
 
-                // ทำ damage
+                // Deal damage
                 UUID targetId = target.getUuid();
                 int currentHits = hitCounts.getOrDefault(targetId, 0);
 
@@ -199,14 +193,14 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
 
                         hitCounts.put(targetId, damageHitCount + 1);
 
-                        float pitch = 1.0f + (damageHitCount * 0.1f) + (serverWorld.getRandom().nextFloat() * 0.2f);
+                        float pitch = 0.8f + (damageHitCount * 0.1f) + (serverWorld.getRandom().nextFloat() * 0.4f);
                         getWorld().playSound(null, target.getBlockPos(),
-                                SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.PLAYERS,
-                                0.8f, pitch);
+                                ModSoundEvents.ENTITY_GENERIC_HEADSHOT, SoundCategory.PLAYERS,
+                                1.5f, pitch);
                     }
                 }
             } else {
-                // 30% โอกาสโจมตีพื้นที่สุ่ม
+                // Strike random ground position
                 strikePos = center.add(
                         (serverWorld.getRandom().nextDouble() - 0.5) * STORM_RADIUS * 1.6,
                         0,
@@ -218,16 +212,16 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
         }
 
         // สร้าง lightning strike effects
-        createMultipleLightningStrikes(serverWorld, center, strikePositions);
+        createMultipleLightningStrikes(serverWorld, strikePositions);
 
         // Main thunder sound for each strike wave
-        float pitch = 0.8f + (damageHitCount * 0.05f);
+        float pitch = 1.25f + (damageHitCount * 0.05f);
         getWorld().playSound(null, getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS,
+                ModSoundEvents.ENTITY_ELECTRIC_BLAST, SoundCategory.PLAYERS,
                 1.2f, pitch);
     }
 
-    private void createMultipleLightningStrikes(ServerWorld serverWorld, Vec3d center, List<Vec3d> strikePositions) {
+    private void createMultipleLightningStrikes(ServerWorld serverWorld, List<Vec3d> strikePositions) {
         for (int i = 0; i < strikePositions.size(); i++) {
             Vec3d strikePos = strikePositions.get(i);
 
@@ -318,12 +312,10 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
-        // Don't react to entity hits - this is a ground effect
     }
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-        // Stop movement and stick to ground
         setVelocity(Vec3d.ZERO);
         this.inGround = true;
     }
@@ -336,10 +328,5 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
     @Override
     public boolean hasNoGravity() {
         return true;
-    }
-
-    @Override
-    public boolean shouldRender(double distance) {
-        return distance < 64.0 * 64.0;
     }
 }

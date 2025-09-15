@@ -35,9 +35,9 @@ public record CameraShakePayloadS2C(
     public Id<? extends CustomPayload> getId() {
         return ID;
     }
-
-    public static void send(ServerPlayerEntity player, double x, double y, double z, double time, double radius, double amplitude) {
-        ServerPlayNetworking.send(player, new CameraShakePayloadS2C(x, y, z, time, radius, amplitude));
+    //Higher frequncy faster camera shake
+    public static void send(ServerPlayerEntity player, double x, double y, double z, double frequncy, double radius, double amplitude) {
+        ServerPlayNetworking.send(player, new CameraShakePayloadS2C(x, y, z, frequncy, radius, amplitude));
     }
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<CameraShakePayloadS2C> {
         @Override

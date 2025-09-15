@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.skill.ThunderSphereEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -11,7 +12,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -20,7 +20,7 @@ import java.util.Collections;
 public class ThunderSphereSkill extends Skill implements CastableSkill {
 
     public ThunderSphereSkill(Identifier id) {
-        super(id, "Thunder Sphere", "Launch an electric sphere that creates a massive thunder explosion",
+        super(id, "Thunder Sphere", "Launch an electric sphere that moves forward slowly, creating lightning strikes on the ground. Explodes after 3 seconds with massive AOE damage",
                 18f, 0.4f, 10, Mamy.id("skill/thunder_sphere"));
     }
 
@@ -43,6 +43,10 @@ public class ThunderSphereSkill extends Skill implements CastableSkill {
     public Identifier getCastedAnimation() {
         return Mamy.id("thunder_sphere_cast");
     }
+    @Override
+    public SoundContainer getCastCompleteSound() {
+        return new SoundContainer(ModSoundEvents.ENTITY_ELECTRIC_SHOOT, SoundCategory.PLAYERS, 1.2f, 1.1f);
+    }
 
     @Override
     public float getResourceCost(int skillLevel) {
@@ -56,11 +60,11 @@ public class ThunderSphereSkill extends Skill implements CastableSkill {
         float baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         data.baseDamage = baseDamage + (15 + (skillLevel * 5)); // 15 + 5*level base damage
         data.damageType = DamageTypeRef.ELEMENT;
-        data.maxHits = 2; // Two explosion hits
+        data.maxHits = 3; // Three explosion hits
 
-        // Secondary damage info for explosion radius
+        // Movement damage info
         data.secondaryDamages = Collections.singletonList(
-                new SecondaryDamage(DamageTypeRef.ELEMENT, data.baseDamage, 1, 2) // 6 block radius, 2 hits
+                new SecondaryDamage(DamageTypeRef.ELEMENT, data.baseDamage * 0.1f, 1, 1) // 1/10 damage while moving
         );
 
         return data;
@@ -79,19 +83,22 @@ public class ThunderSphereSkill extends Skill implements CastableSkill {
         float baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         float damage = baseDamage + (15 + (skillLevel * 5));
 
-        // Create thunder sphere projectile
-        ThunderSphereEntity thunderSphere = new ThunderSphereEntity(world, player, damage, skillLevel);
+        ThunderSphereEntity thunderSphere = new ThunderSphereEntity(world, player, damage);
 
-        // Set starting position slightly in front of player
-        Vec3d startPos = player.getEyePos().add(player.getRotationVec(1.0f).multiply(0.5));
-        thunderSphere.setPosition(startPos.x, startPos.y, startPos.z);
+        Vec3d playerDirection = player.getRotationVec(1.0f);
+        Vec3d horizontalDirection = new Vec3d(playerDirection.x, 0, playerDirection.z).normalize();
+
+        Vec3d playerPos = player.getPos();
+        Vec3d spawnPos = playerPos.add(horizontalDirection.multiply(1.5));
+        double chestLevel = playerPos.y + 1.2; // Chest level, not eye level
+
+        thunderSphere.setPos(spawnPos.x, chestLevel, spawnPos.z);
 
         world.spawnEntity(thunderSphere);
 
-        // Play charging electric sound
-        world.playSound(null, player.getBlockPos(),
-                SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.PLAYERS,
-                1.0f, 1.8f);
+        world.playSound(null, thunderSphere.getBlockPos(),
+                ModSoundEvents.ENTITY_ELECTRIC_SHOOT, SoundCategory.PLAYERS,
+                1f, 1f);
 
         return true;
     }

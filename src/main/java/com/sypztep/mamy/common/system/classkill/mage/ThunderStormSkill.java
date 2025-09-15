@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.entity.skill.ThunderStormEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -13,7 +14,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -29,12 +29,12 @@ public class ThunderStormSkill extends Skill implements CastableSkill {
 
     @Override
     public int getBaseVCT(int skillLevel) {
-        return Math.max(30, 80 - (skillLevel * 5)); // 80 -> 35 ticks (4.0 -> 1.75 seconds)
+        return 0;
     }
 
     @Override
     public int getBaseFCT(int skillLevel) {
-        return 15 + (skillLevel * 2); // 0.75 -> 1.35 seconds
+        return 5;
     }
 
     @Override
@@ -53,8 +53,13 @@ public class ThunderStormSkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public SoundContainer getCastCompleteSound() {
+        return new SoundContainer(ModSoundEvents.ENTITY_ELECTRIC_SHOOT, SoundCategory.PLAYERS, 1.2f, 1.1f);
+    }
+
+    @Override
     public float getResourceCost(int skillLevel) {
-        return 25f + (skillLevel * 3f); // 25 -> 55 resource cost
+        return 1;
     }
 
     @Override
@@ -85,16 +90,10 @@ public class ThunderStormSkill extends Skill implements CastableSkill {
         float baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         float damage = baseDamage + (12 + (skillLevel * 4));
 
-        // Create thunderstorm entity at target location
+        // Create thunderstorm entity at target location with skill level
         ThunderStormEntity thunderstorm = new ThunderStormEntity(world, player, damage, skillLevel);
         thunderstorm.setPosition(targetLocation.x, targetLocation.y, targetLocation.z);
         world.spawnEntity(thunderstorm);
-
-        // Play dramatic thunder sound
-        world.playSound(null, player.getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS,
-                1.2f, 0.7f);
-
         return true;
     }
 

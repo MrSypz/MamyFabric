@@ -1,10 +1,4 @@
 {
-  "entity.generic.bloodhit": {
-    "sounds": [
-      "mamy:entity/bloodhit"
-    ],
-    "subtitle": "subtitles.mamy.entity.generic.bloodhit"
-  },
   "entity.generic.headshot": {
     "sounds": [
       "mamy:entity/headshot"
@@ -40,5 +34,37 @@
       "mamy:entity/ahhh"
     ],
     "subtitle": "subtitles.mamy.entity.generic.ahhh"
+  },
+  "entity.generic.electric_spark": {
+    "sounds": [
+      "mamy:entity/electric_spark"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.electric_spark"
+  },
+  "entity.generic.zap": {
+    "sounds": [
+      "mamy:entity/zap_0",
+      "mamy:entity/zap_1",
+      "mamy:entity/zap_2"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.zap"
+  },
+  "entity.generic.electric_big_explode": {
+    "sounds": [
+      "mamy:entity/electric_big_explode"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.electric_big_explode"
+  },
+  "entity.generic.electric_shoot": {
+    "sounds": [
+      "mamy:entity/electric_shoot"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.electric_shoot"
+  },
+  "entity.generic.electric_blast": {
+    "sounds": [
+      "mamy:entity/electric_blast"
+    ],
+    "subtitle": "subtitles.mamy.entity.generic.electric_blast"
   }
 }

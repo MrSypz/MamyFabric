@@ -4,6 +4,7 @@ import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.entity.skill.ThunderBoltEntity;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
+import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
@@ -11,11 +12,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.List;
 
 public class ThunderBoltSkill extends Skill implements CastableSkill {
 
@@ -45,6 +43,11 @@ public class ThunderBoltSkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public SoundContainer getCastCompleteSound() {
+        return new SoundContainer(ModSoundEvents.ENTITY_ELECTRIC_SHOOT, SoundCategory.PLAYERS, 1.2f, 1.3f);
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
@@ -68,19 +71,13 @@ public class ThunderBoltSkill extends Skill implements CastableSkill {
 
         float baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
         float damage = baseDamage + (8 + (skillLevel * 3));
-        int maxTargets = Math.min(5, 3 + (skillLevel / 3));
 
-        ThunderBoltEntity thunderBolt = new ThunderBoltEntity(world, player, damage, maxTargets);
+        ThunderBoltEntity thunderBolt = new ThunderBoltEntity(world, player, damage);
 
         Vec3d startPos = player.getEyePos().add(player.getRotationVec(1.0f).multiply(0.3));
         thunderBolt.setPosition(startPos.x, startPos.y, startPos.z);
 
         world.spawnEntity(thunderBolt);
-
-        world.playSound(null, player.getBlockPos(),
-                SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS,
-                0.8f, 1.3f);
-
         return true;
     }
 

@@ -23,7 +23,7 @@ import java.util.UUID;
 public class MeteorFloorEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 20; // 1 second
     private static final int DAMAGE_INTERVAL = 4; // Every 4 ticks
-    private static final int MAX_DAMAGE_HITS = 3; // 3 damage hits, then spawn meteor
+    private static final int MAX_DAMAGE_HITS = 4; // 4 damage hits, then spawn meteor
 
     private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
     private final float baseDamage;
