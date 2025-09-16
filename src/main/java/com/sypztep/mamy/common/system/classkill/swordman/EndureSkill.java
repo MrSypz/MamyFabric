@@ -11,6 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.particle.ParticleTypes;
 
@@ -77,6 +79,30 @@ public class EndureSkill extends Skill {
                 0.8f, 1.5f);
 
         return true;
+    }
+
+    @Override
+    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
+
+        if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
+            tooltip.add(Text.literal("Endure Effects:").formatted(Formatting.YELLOW, Formatting.BOLD));
+            int durationSeconds = 10 + (3 * skillLevel);
+
+            tooltip.add(Text.literal("• Armor: +" + skillLevel).formatted(Formatting.GOLD));
+            tooltip.add(Text.literal("• Duration: " + durationSeconds + " seconds").formatted(Formatting.GRAY));
+            tooltip.add(Text.literal("• Cooldown: 10 seconds").formatted(Formatting.DARK_GRAY));
+
+            if (skillLevel < getMaxSkillLevel()) {
+                tooltip.add(Text.literal(""));
+                tooltip.add(Text.literal("Next Level:").formatted(Formatting.DARK_GRAY));
+                int nextArmorBonus = skillLevel + 1;
+                int nextDurationSeconds = 10 + (3 * (skillLevel + 1));
+                tooltip.add(Text.literal("• Armor: +" + nextArmorBonus).formatted(Formatting.GOLD));
+                tooltip.add(Text.literal("• Duration: " + nextDurationSeconds + " seconds").formatted(Formatting.GRAY));
+            }
+        }
+        return tooltip;
     }
 
     @Override
