@@ -29,39 +29,34 @@ public class DetoxifySkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add description
-        if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Removes:").formatted(Formatting.GOLD));
-            tooltip.add(Text.literal("• Poison").formatted(Formatting.GREEN));
-            tooltip.add(Text.literal("• Wither").formatted(Formatting.GREEN));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Target Range: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("9 blocks").formatted(Formatting.YELLOW)));
-            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("None").formatted(Formatting.YELLOW)));
-
-            // Usage tip
-            if (context == TooltipContext.LEARNING_SCREEN) {
-                tooltip.add(Text.literal(""));
-                tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW)
-                        .append(Text.literal("Quick poison and wither removal for yourself or allies").formatted(Formatting.GRAY)));
-            }
-        }
-
-        return tooltip;
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
+        // Basic skill properties
         data.baseDamage = 0;
         data.damageType = DamageTypeRef.HEAL;
         data.maxHits = 1;
+
+        // Status effects removed
+        data.statusEffectsRemoved.add("Poison");
+        data.statusEffectsRemoved.add("Wither");
+
+        // Target and range
+        data.targetType = "Single Target or Self";
+        data.targetRange = 9f;
+
+        // Cooldown override
+        data.overrideCooldown = true;
+        data.customCooldownText = "None";
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Quick poison and wither removal for yourself or allies";
 
         return data;
     }

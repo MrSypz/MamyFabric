@@ -107,37 +107,34 @@ public class CureSkill extends Skill implements CastableSkill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add detailed effect information
-        tooltip.add(Text.literal(""));
-        tooltip.add(Text.literal("Removes Status Effects:").formatted(Formatting.GOLD));
-        tooltip.add(Text.literal("• Poison & Wither").formatted(Formatting.GREEN));
-        tooltip.add(Text.literal("• Blindness").formatted(Formatting.GREEN));
-        tooltip.add(Text.literal("• Nausea").formatted(Formatting.GREEN));
-
-        tooltip.add(Text.literal(""));
-        tooltip.add(Text.literal("Target Range: ").formatted(Formatting.GRAY)
-                .append(Text.literal("9 blocks").formatted(Formatting.YELLOW)));
-        tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
-                .append(Text.literal("6 seconds").formatted(Formatting.YELLOW)));
-
-        // Usage tip
-        if (context == TooltipContext.LEARNING_SCREEN) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW)
-                    .append(Text.literal("Essential support skill for removing debuffs").formatted(Formatting.GRAY)));
-        }
-
-        return tooltip;
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
+
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
+        // Basic skill properties
         data.baseDamage = 0;
         data.damageType = DamageTypeRef.HEAL;
         data.maxHits = 1;
+
+        // Status effects removed
+        data.statusEffectsRemoved.add("Poison & Wither");
+        data.statusEffectsRemoved.add("Blindness");
+        data.statusEffectsRemoved.add("Nausea");
+
+        // Target and range
+        data.targetType = "Single Target or Self";
+        data.targetRange = 9f;
+
+        // Casting properties
+        data.isChanneled = true;
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Essential support skill for removing debuffs";
 
         return data;
     }

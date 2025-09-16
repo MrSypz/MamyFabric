@@ -168,143 +168,8 @@ public abstract class Skill implements HybridDamageSource {
     // ============================================================================
 
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = new ArrayList<>();
-
-        addSkillHeader(tooltip, skillLevel, isLearned);
-        tooltip.add(Text.literal(""));
-        addSkillEffects(tooltip, player, skillLevel);
-        tooltip.add(Text.literal(""));
-        addResourceInfo(tooltip, player, skillLevel);
-        addContextInfo(tooltip, player, skillLevel, isLearned, context);
-
-        return tooltip;
-    }
-
-    private void addSkillHeader(List<Text> tooltip, int skillLevel, boolean isLearned) {
-        if (isLearned) {
-            tooltip.add(Text.literal(name).formatted(Formatting.WHITE, Formatting.BOLD)
-                    .append(Text.literal(" (Level " + skillLevel + "/" + maxSkillLevel + ")")
-                            .formatted(Formatting.GRAY)));
-        } else {
-            tooltip.add(Text.literal(name).formatted(Formatting.GRAY, Formatting.BOLD)
-                    .append(Text.literal(" (Not Learned)").formatted(Formatting.DARK_GRAY)));
-        }
-    }
-
-    private void addSkillEffects(List<Text> tooltip, PlayerEntity player, int skillLevel) {
         SkillTooltipData data = getSkillTooltipData(player, skillLevel);
-
-        addDamageLines(tooltip, data);
-        addRecoveryEffects(tooltip, player, data);
-    }
-
-    private void addDamageLines(List<Text> tooltip, SkillTooltipData data) {
-        if (data.baseDamage > 0 || data.damagePercentage > 0)
-            tooltip.add(buildDamageText(data.damageType, data.damagePercentage, data.baseDamage, data.maxHits));
-
-        for (SecondaryDamage secondary : data.secondaryDamages)
-            tooltip.add(buildDamageText(secondary.damageType, secondary.damagePercentage, secondary.baseDamage, secondary.maxHits));
-
-    }
-
-    private Text buildDamageText(DamageTypeRef damageType, float damagePercentage, float baseDamage, int maxHits) {
-        MutableText text = Text.literal(getDamageTypeText(damageType) + " ").formatted(Formatting.GRAY);
-
-        if (damagePercentage > 0) {
-            text.append(Text.literal(String.format("%.1f%%", damagePercentage * 100)).formatted(Formatting.YELLOW));
-            if (baseDamage > 0)
-                text.append(Text.literal(" + ").formatted(Formatting.GRAY)).append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
-        } else if (baseDamage > 0) text.append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
-
-        if (maxHits > 1) text.append(Text.literal(", " + maxHits + " hits").formatted(Formatting.YELLOW));
-
-        return text;
-    }
-
-    private void addRecoveryEffects(List<Text> tooltip, PlayerEntity player, SkillTooltipData data) {
-        if (data.healthPerHit > 0) {
-            tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.1f", data.healthPerHit)).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" HP per hit").formatted(Formatting.GRAY)));
-        }
-
-        if (data.resourcePerHit > 0) {
-            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-            ResourceType resourceType = classComponent.getClassManager().getResourceType();
-            tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.1f", data.resourcePerHit)).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" " + resourceType.getDisplayName() + " per hit").formatted(Formatting.GRAY)));
-        }
-    }
-
-    private void addResourceInfo(List<Text> tooltip, PlayerEntity player, int skillLevel) {
-        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-        ResourceType resourceType = classComponent.getClassManager().getResourceType();
-
-        float cost = getResourceCost(skillLevel);
-        tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
-                .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
-                .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
-
-        float cooldown = getCooldown(skillLevel);
-        tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
-                .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
-                .append(Text.literal(" sec").formatted(Formatting.GRAY)));
-    }
-
-    protected void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        switch (context) {
-            case LEARNING_SCREEN -> addLearningInfo(tooltip, player, skillLevel, isLearned);
-            case BINDING_SCREEN -> addBindingInfo(tooltip, isLearned);
-            case BINDING_SLOT -> addBindingSlotInfo(tooltip);
-        }
-    }
-
-    private void addLearningInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned) {
-        tooltip.add(Text.literal(""));
-
-        if (isLearned) {
-            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
-            int availablePoints = classComponent.getClassManager().getClassStatPoints();
-            boolean canUpgrade = skillLevel < maxSkillLevel && availablePoints >= upgradeClassPointCost;
-
-            if (canUpgrade) {
-                tooltip.add(Text.literal("Upgrade Cost: ").formatted(Formatting.GRAY)
-                        .append(Text.literal(String.valueOf(upgradeClassPointCost)).formatted(Formatting.YELLOW))
-                        .append(Text.literal(" points").formatted(Formatting.GRAY)));
-            }
-
-            if (!isDefaultSkill) {
-                tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.GRAY));
-            }
-        } else {
-            tooltip.add(Text.literal("Learn Cost: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.valueOf(baseClassPointCost)).formatted(Formatting.YELLOW))
-                    .append(Text.literal(" points").formatted(Formatting.GRAY)));
-        }
-    }
-
-    private void addBindingInfo(List<Text> tooltip, boolean isLearned) {
-        if (isLearned) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Click to select for binding").formatted(Formatting.GRAY));
-        }
-    }
-
-    private void addBindingSlotInfo(List<Text> tooltip) {
-        tooltip.add(Text.literal(""));
-        tooltip.add(Text.literal("Right-click to unbind").formatted(Formatting.GRAY));
-    }
-
-    private String getDamageTypeText(DamageTypeRef damageType) {
-        return switch (damageType) {
-            case MELEE -> "Melee";
-            case MAGIC -> "Magic";
-            case PHYSICAL -> "Physical";
-            case HEAL -> "Heal";
-            case ELEMENT -> "Element";
-            default -> "Attack";
-        };
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 
     // ============================================================================
@@ -319,6 +184,21 @@ public abstract class Skill implements HybridDamageSource {
         public float healthPerHit = 0;
         public float resourcePerHit = 0;
         public List<SecondaryDamage> secondaryDamages = new ArrayList<>();
+        
+        // Enhanced fields for universal tooltip system
+        public List<String> statusEffectsRemoved = new ArrayList<>();
+        public List<String> statusEffectsApplied = new ArrayList<>();
+        public String targetType = "Single Target";
+        public float targetRange = 0;
+        public String specialDescription = "";
+        public String contextTip = "";
+        public boolean overrideCooldown = false;
+        public String customCooldownText = "";
+        public boolean overrideResourceCost = false;
+        public String customResourceCostText = "";
+        public List<String> additionalEffects = new ArrayList<>();
+        public boolean isChanneled = false;
+        public boolean isPassive = false;
     }
 
     public record SecondaryDamage(
@@ -369,9 +249,9 @@ public abstract class Skill implements HybridDamageSource {
     public Identifier getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
+    public int getMaxSkillLevel() { return maxSkillLevel; }
     public int getBaseClassPointCost() { return baseClassPointCost; }
     public int getUpgradeClassPointCost() { return upgradeClassPointCost; }
-    public int getMaxSkillLevel() { return maxSkillLevel; }
     public boolean isDefaultSkill() { return isDefaultSkill; }
     public Identifier getIcon() { return icon; }
     public List<SkillRequirement> getPrerequisites() { return new ArrayList<>(prerequisites); }

@@ -117,56 +117,57 @@ public class HealSkill extends Skill implements CastableSkill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add healing formula explanation
-        if (skillLevel > 0) {
-            int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
-            int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
-            float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
-            float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Healing Details:").formatted(Formatting.GOLD));
-
-            // Show current stats contribution
-            float statHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
-            float minimumHealing = skillLevel * 5f;
-            float baseHealing = Math.max(statHealing, minimumHealing);
-            float totalHealing = calculateHealingAmount(player, skillLevel);
-
-            tooltip.add(Text.literal("• Base Healing: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", baseHealing)).formatted(Formatting.GREEN)));
-
-            if (magicAttack > 0) {
-                tooltip.add(Text.literal("• Magic Attack Bonus: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + String.format("%.0f", magicAttack)).formatted(Formatting.YELLOW)));
-            }
-
-            if (healingEffectiveness > 0) {
-                tooltip.add(Text.literal("• Healing Effectiveness: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + String.format("%.0f%%", healingEffectiveness * 100)).formatted(Formatting.AQUA)));
-            }
-
-            tooltip.add(Text.literal("• Total Healing: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", totalHealing)).formatted(Formatting.WHITE)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("vs Undead: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", totalHealing * 0.5f) + " Holy Damage").formatted(Formatting.GOLD)));
-
-        }
-
-        return tooltip;
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
+        // Calculate healing values
+        float totalHealing = calculateHealingAmount(player, skillLevel);
+        
+        // Basic skill properties
         data.baseDamage = 0;
         data.damageType = DamageTypeRef.HEAL;
         data.maxHits = 1;
+        data.healthPerHit = totalHealing;
+
+        // Target and range
+        data.targetType = "Single Target or Self";
+        data.targetRange = 9f;
+
+        // Casting properties
+        data.isChanneled = true;
+
+        // Additional effects
+        if (skillLevel > 0) {
+            int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
+            int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
+            float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
+            float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
+
+            float statHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
+            float minimumHealing = skillLevel * 5f;
+            float baseHealing = Math.max(statHealing, minimumHealing);
+
+            data.additionalEffects.add("Base Healing: " + String.format("%.0f", baseHealing));
+            
+            if (magicAttack > 0) {
+                data.additionalEffects.add("Magic Attack Bonus: +" + String.format("%.0f", magicAttack));
+            }
+            
+            if (healingEffectiveness > 0) {
+                data.additionalEffects.add("Healing Effectiveness: +" + String.format("%.0f%%", healingEffectiveness * 100));
+            }
+            
+            data.additionalEffects.add("vs Undead: " + String.format("%.0f Holy Damage", totalHealing * 0.5f));
+        }
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Single target healing that damages undead enemies";
 
         return data;
     }
