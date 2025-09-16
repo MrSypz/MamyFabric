@@ -16,8 +16,7 @@ public final class ModParticles {
     public static SimpleParticleType METEOR_IMPACT;
     public static ParticleType<SparkParticleEffect> SPARK;
     public static SimpleParticleType CLOUD;
-
-
+    public static SimpleParticleType AIRHIKE;
 
     public static class Client{
         public static void init(){
@@ -26,6 +25,7 @@ public final class ModParticles {
             registry.register(METEOR_IMPACT, BlastShockwaveParticle.Factory::new);
             registry.register(SPARK, new ThunderSparkParticle.Factory());
             registry.register(CLOUD, CloudParticle.Factory::new);
+            registry.register(AIRHIKE, AirHikeParticle.Factory::new);
         }
     }
 
@@ -35,6 +35,7 @@ public final class ModParticles {
         SPARK = Registry.register(Registries.PARTICLE_TYPE, Mamy.id("spark"),
                 FabricParticleTypes.complex(SparkParticleEffect.CODEC, SparkParticleEffect.PACKET_CODEC));
         CLOUD = register("cloud");
+        AIRHIKE = register("airhike");
     }
 
     private static SimpleParticleType register(String name) {

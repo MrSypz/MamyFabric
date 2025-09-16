@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.init;
 
+import com.sypztep.mamy.common.network.client.AddAirhikeParticlesPayloadS2C;
 import com.sypztep.mamy.common.network.client.*;
 import com.sypztep.mamy.common.network.server.*;
 import net.fabricmc.api.EnvType;
@@ -21,6 +22,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playS2C().register(CameraShakePayloadS2C.ID, CameraShakePayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(ShockwavePayloadS2C.ID, ShockwavePayloadS2C.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerAnimationSyncPayloadS2C.ID, PlayerAnimationSyncPayloadS2C.CODEC);
+        PayloadTypeRegistry.playS2C().register(AddAirhikeParticlesPayloadS2C.ID, AddAirhikeParticlesPayloadS2C.CODEC);
 
         PayloadTypeRegistry.playC2S().register(IncreaseStatsPayloadC2S.ID, IncreaseStatsPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(ToggleStancePayloadC2S.ID, ToggleStancePayloadC2S.CODEC);
@@ -30,6 +32,7 @@ public final class ModPayloads {
         PayloadTypeRegistry.playC2S().register(ClassEvolutionPayloadC2S.ID, ClassEvolutionPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(MultiHitPayloadC2S.ID, MultiHitPayloadC2S.CODEC);
         PayloadTypeRegistry.playC2S().register(PlayerAnimationSyncPayloadC2S.ID, PlayerAnimationSyncPayloadC2S.CODEC);
+        PayloadTypeRegistry.playC2S().register(AirHikePayloadC2S.ID, AirHikePayloadC2S.CODEC);
 
         registerPayloads();
     }
@@ -43,6 +46,7 @@ public final class ModPayloads {
         ServerPlayNetworking.registerGlobalReceiver(ClassEvolutionPayloadC2S.ID, new ClassEvolutionPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(MultiHitPayloadC2S.ID, new MultiHitPayloadC2S.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(PlayerAnimationSyncPayloadC2S.ID, new PlayerAnimationSyncPayloadC2S.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(AirHikePayloadC2S.ID, new AirHikePayloadC2S.Receiver());
     }
 
     @Environment(EnvType.CLIENT)
@@ -56,6 +60,7 @@ public final class ModPayloads {
             ClientPlayNetworking.registerGlobalReceiver(CameraShakePayloadS2C.ID, new CameraShakePayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(ShockwavePayloadS2C.ID, new ShockwavePayloadS2C.Receiver());
             ClientPlayNetworking.registerGlobalReceiver(PlayerAnimationSyncPayloadS2C.ID, new PlayerAnimationSyncPayloadS2C.Receiver());
+            ClientPlayNetworking.registerGlobalReceiver(AddAirhikeParticlesPayloadS2C.ID, new AddAirhikeParticlesPayloadS2C.Receiver());
         }
     }
 }

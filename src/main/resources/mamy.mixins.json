@@ -40,6 +40,7 @@
     "vanilla.fixprojectileserde.PersistentProjectileEntityMixin",
     "vanilla.freerepair.AnvilScreenHandlerMixin",
     "vanilla.itemcraftsignature.ItemMixin",
+    "vanilla.passive.windwalker.LivingEntityMixin",
     "vanilla.rebalanceconsumables.EnderPearlEntityMixin",
     "vanilla.rebalanceconsumables.ItemMixin",
     "vanilla.rebalanceconsumables.PersistentProjectileEntityMixin",

@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.living.*;
+import com.sypztep.mamy.common.component.living.AirHikeComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,6 +21,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<PlayerShieldScoreComponent> PLAYERSHIELDSCORE = ComponentRegistry.getOrCreate(Mamy.id("playershieldscore"), PlayerShieldScoreComponent.class);
     public static final ComponentKey<StealComponent> LIVINGSTEAL = ComponentRegistry.getOrCreate(Mamy.id("livingsteal"), StealComponent.class);
     public static final ComponentKey<LivingHidingComponent> HIDING = ComponentRegistry.getOrCreate(Mamy.id("livinghiding"), LivingHidingComponent.class);
+    public static final ComponentKey<AirHikeComponent> PHANTOMWALKER = ComponentRegistry.getOrCreate(Mamy.id("airhike"), AirHikeComponent.class);
 
 //    public static final ComponentKey<DungeonDataComponent> DUNGEON_DATA = ComponentRegistry.getOrCreate(Mamy.id("dungeon_data"), DungeonDataComponent.class);
 
@@ -33,6 +35,8 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerForPlayers(PLAYERSHIELDSCORE, PlayerShieldScoreComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
         registry.registerFor(LivingEntity.class, LIVINGSTEAL, StealComponent::new);
         registry.registerFor(LivingEntity.class, HIDING, LivingHidingComponent::new);
+        registry.registerFor(PlayerEntity.class, PHANTOMWALKER, AirHikeComponent::new);
+
 //        registry.registerForPlayers(DUNGEON_DATA, DungeonDataComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
 }
