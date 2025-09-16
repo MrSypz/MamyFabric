@@ -24,10 +24,7 @@ public class ElementalDamageDisplay {
         ClientWorld world = client.world;
         if (world == null || client.player == null) return;
 
-        List<Map.Entry<ElementType, Float>> sortedDamage = elementalDamage.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0)
-                .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
-                .toList();
+        List<Map.Entry<ElementType, Float>> sortedDamage = elementalDamage.entrySet().stream().filter(entry -> entry.getValue() > 0).sorted((a, b) -> Float.compare(b.getValue(), a.getValue())).toList();
 
         if (sortedDamage.isEmpty()) return;
 
@@ -36,7 +33,7 @@ public class ElementalDamageDisplay {
         if (sortedDamage.size() > 1) {
             createHorizontalSpread(world, spawnPos, sortedDamage, client);
         } else {
-            var entry = sortedDamage.getFirst();
+            Map.Entry<ElementType, Float> entry = sortedDamage.getFirst();
             showElementalDamage(target, entry.getKey(), entry.getValue());
         }
     }
@@ -51,18 +48,12 @@ public class ElementalDamageDisplay {
         String damageText = NumberUtil.formatDouble(damage);
         Vec3d spawnPos = target.getPos().add(0.0, target.getHeight() + 0.3, 0.0);
 
-        ElementalDamageParticle particle = new ElementalDamageParticle(
-                world,
-                spawnPos.x, spawnPos.y, spawnPos.z,
-                0, 0.3, 0,
-                damageText, element, element.color
-        );
+        ElementalDamageParticle particle = new ElementalDamageParticle(world, spawnPos.x, spawnPos.y, spawnPos.z, 0, 0.3, 0, damageText, element, element.color);
 
         client.particleManager.addParticle(particle);
     }
-    private static void createHorizontalSpread(ClientWorld world, Vec3d spawnPos,
-                                               List<Map.Entry<ElementType, Float>> sortedDamage,
-                                               MinecraftClient client) {
+
+    private static void createHorizontalSpread(ClientWorld world, Vec3d spawnPos, List<Map.Entry<ElementType, Float>> sortedDamage, MinecraftClient client) {
         if (client.player == null) return;
 
         Vector3f lookVector = client.gameRenderer.getCamera().getHorizontalPlane();
@@ -71,7 +62,7 @@ public class ElementalDamageDisplay {
 
         int count = sortedDamage.size();
         for (int i = 0; i < count; i++) {
-            var entry = sortedDamage.get(i);
+            Map.Entry<ElementType, Float> entry = sortedDamage.get(i);
             String text = NumberUtil.formatDouble(entry.getValue());
 
             double horizontalOffset = (i - (count - 1) * 0.5) * 0.4;
@@ -86,12 +77,7 @@ public class ElementalDamageDisplay {
 
             double velocityZ = (newZ * horizontalOffset) * 0.25;
 
-            ElementalDamageParticle particle = new ElementalDamageParticle(
-                    world,
-                    spawnPos.x, spawnPos.y + verticalOffset, spawnPos.z,
-                    velocityX, velocityY, velocityZ,
-                    text, entry.getKey(), entry.getKey().color
-            );
+            ElementalDamageParticle particle = new ElementalDamageParticle(world, spawnPos.x, spawnPos.y + verticalOffset, spawnPos.z, velocityX, velocityY, velocityZ, text, entry.getKey(), entry.getKey().color);
 
             client.particleManager.addParticle(particle);
         }
