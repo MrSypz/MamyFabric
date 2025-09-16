@@ -132,15 +132,8 @@ public abstract class PassiveSkill extends Skill {
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
-        SkillTooltipData data = new SkillTooltipData();
-        populatePassiveTooltipData(data, player, skillLevel);
-        return data;
+        return new SkillTooltipData();
     }
-
-    /**
-     * Override this to populate tooltip data for passive effects
-     */
-    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {}
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
