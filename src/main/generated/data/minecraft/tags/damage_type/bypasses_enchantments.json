@@ -1,3 +1,8 @@
 {
-  "values": []
+  "values": [
+    {
+      "id": "mamy:shockwave_flame",
+      "required": false
+    }
+  ]
 }

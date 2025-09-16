@@ -3,13 +3,12 @@ package com.sypztep.mamy.common.system.damage;
 /**
  * Represents a single damage component with both elemental and combat type scaling
  * Used for hybrid damage calculations (e.g., Fire Melee Attack)
+ *
+ * @param elementalWeight 0.0 - 1.0, how much this element scales
+ * @param combatWeight    0.0 - 1.0, how much combat type bonuses apply
  */
-public class DamageComponent {
-    public final ElementType elementType;
-    public final float elementalWeight;    // 0.0 - 1.0, how much this element scales
-    public final CombatType combatType;
-    public final float combatWeight;       // 0.0 - 1.0, how much combat type bonuses apply
-
+public record DamageComponent(ElementType elementType, float elementalWeight, CombatType combatType,
+                              float combatWeight) {
     public DamageComponent(ElementType elementType, float elementalWeight,
                            CombatType combatType, float combatWeight) {
         this.elementType = elementType;

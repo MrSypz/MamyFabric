@@ -35,7 +35,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
 
     private int ticksAlive = 0;
     private int damageTimer = 0;
-    private int explosionHits = 0; // Track explosion damage hits (max 2)
+    private int explosionHits = 0; // Track explosion damage hits (max 3)
     private boolean hasExploded = false;
 
     public MeteorEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
@@ -58,7 +58,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
         if (getWorld().isClient) createFallingEffects();
 
         // If exploded, handle explosion damage cycles
-        if (hasExploded && explosionHits < 2 && !getWorld().isClient) {
+        if (hasExploded && explosionHits < MAX_HITS_PER_TARGET && !getWorld().isClient) {
             damageTimer++;
             if (damageTimer >= DAMAGE_INTERVAL) {
                 dealExplosionDamage();
@@ -160,7 +160,6 @@ public class MeteorEntity extends PersistentProjectileEntity {
             double distance = target.getPos().distanceTo(getPos());
 
             if (distance <= EXPLOSION_RADIUS) {
-                // Calculate damage falloff (100% at center, 30% at edge)
                 double falloffMultiplier = Math.max(0.3, 1.0 - (distance / EXPLOSION_RADIUS) * 0.7);
                 float finalDamage = (float) (baseDamage * falloffMultiplier);
 

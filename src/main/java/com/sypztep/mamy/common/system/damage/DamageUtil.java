@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class DamageUtil {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[DamageUtil] {}", String.format(message, args));

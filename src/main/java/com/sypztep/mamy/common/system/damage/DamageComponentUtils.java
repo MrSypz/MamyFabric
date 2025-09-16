@@ -17,7 +17,7 @@ class DamageComponentUtils {
         }
 
         float totalWeight = (float) components.stream()
-                .mapToDouble(c -> c.elementalWeight)
+                .mapToDouble(DamageComponent::elementalWeight)
                 .sum();
 
         if (totalWeight <= 0.0f) {
@@ -26,10 +26,10 @@ class DamageComponentUtils {
 
         return components.stream()
                 .map(c -> new DamageComponent(
-                        c.elementType,
-                        c.elementalWeight / totalWeight,
-                        c.combatType,
-                        c.combatWeight))
+                        c.elementType(),
+                        c.elementalWeight() / totalWeight,
+                        c.combatType(),
+                        c.combatWeight()))
                 .toList();
     }
 
@@ -47,7 +47,7 @@ class DamageComponentUtils {
         Map<ElementType, Float> breakdown = new java.util.HashMap<>();
 
         for (DamageComponent component : components) {
-            breakdown.merge(component.elementType, component.elementalWeight, Float::sum);
+            breakdown.merge(component.elementType(), component.elementalWeight(), Float::sum);
         }
 
         return breakdown;

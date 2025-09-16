@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
@@ -108,11 +108,11 @@ public final class ElementalDamageSystem {
         debugLog("Processing %d damage components", components.size());
 
         for (DamageComponent component : components) {
-            ElementType elementType = component.elementType;
-            CombatType combatType = component.combatType;
+            ElementType elementType = component.elementType();
+            CombatType combatType = component.combatType();
 
             // Calculate base damage for this component
-            float baseDamage = totalDamage * component.elementalWeight;
+            float baseDamage = totalDamage * component.elementalWeight();
 
             // Apply elemental bonuses
             float elementalBonus = (float) attacker.getAttributeValue(elementType.damageFlat);
@@ -122,9 +122,9 @@ public final class ElementalDamageSystem {
             float combatBonus = 0.0f;
             float combatMultiplier = 1.0f;
 
-            if (combatType.hasAttributes() && component.combatWeight > 0.0f) {
-                combatBonus = (float) attacker.getAttributeValue(combatType.damageFlat) * component.combatWeight;
-                combatMultiplier = 1.0f + ((float) attacker.getAttributeValue(combatType.damageMult) * component.combatWeight);
+            if (combatType.hasAttributes() && component.combatWeight() > 0.0f) {
+                combatBonus = (float) attacker.getAttributeValue(combatType.damageFlat) * component.combatWeight();
+                combatMultiplier = 1.0f + ((float) attacker.getAttributeValue(combatType.damageMult) * component.combatWeight());
             }
 
             // Calculate final damage: (base + elemental_bonus + combat_bonus) * elemental_mult * combat_mult
@@ -227,7 +227,6 @@ public final class ElementalDamageSystem {
      * Determine which combat type should be active based on the damage source
      */
     private static CombatType determineCombatTypeFromSource(DamageSource source, ItemElementDataEntry itemData) {
-        // Check damage source tags to determine combat type
         if (source.isIn(ModTags.DamageTags.PROJECTILE_DAMAGE)) {
             // For projectile attacks, prefer RANGED if available
             if (itemData.combatRatios().containsKey(CombatType.RANGED.damageFlat)) {
@@ -262,7 +261,7 @@ public final class ElementalDamageSystem {
         debugLog("Combat type: none (no combat ratios)");
         return null;
     }
-
+    @Deprecated
     private static float applyElementalResistances(LivingEntity defender, ElementalBreakdown breakdown) {
         return applyElementalResistancesWithBreakdown(defender, breakdown).totalDamage();
     }

@@ -1,6 +1,10 @@
 {
   "values": [
     {
+      "id": "mamy:shockwave_flame",
+      "required": false
+    },
+    {
       "id": "mamy:bashing_blow",
       "required": false
     }

@@ -2,6 +2,8 @@ package com.sypztep.mamy.client.provider;
 
 import com.sypztep.mamy.client.util.MamyCodecDataProvider;
 import com.sypztep.mamy.common.component.item.ElementalComponent;
+import com.sypztep.mamy.common.system.damage.CombatType;
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
@@ -14,7 +16,7 @@ import java.util.function.BiConsumer;
 public class ModElementalProvider extends MamyCodecDataProvider<ElementalComponent> {
 
     public ModElementalProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(dataOutput, registriesFuture, ElementalComponent.RESOURCE_LOCATION, ElementalComponent.CODEC); // Changed to "elemental" folder
+        super(dataOutput, registriesFuture, ElementalComponent.RESOURCE_LOCATION, ElementalComponent.CODEC);
     }
 
     @Override
@@ -26,65 +28,62 @@ public class ModElementalProvider extends MamyCodecDataProvider<ElementalCompone
         // Basic Weapons - Pure combat types
         provider.accept(Identifier.ofVanilla("wooden_sword"),
                 weapon()
-                        .elemental("physical", 1.0)
-                        .combat("melee", 1.0)
+                        .elemental(ElementType.PHYSICAL, 1.0)
+                        .combat(CombatType.MELEE, 1.0)
                         .build());
 
         provider.accept(Identifier.ofVanilla("stone_sword"),
                 weapon()
-                        .elemental("physical", 1.0)
-                        .combat("melee", 1.0)
+                        .elemental(ElementType.PHYSICAL, 1.0)
+                        .combat(CombatType.MELEE, 1.0)
                         .build());
 
         provider.accept(Identifier.ofVanilla("iron_sword"),
                 weapon()
-                        .elemental("physical", 1.0)
-                        .combat("melee", 1.0)
+                        .elemental(ElementType.PHYSICAL, 1.0)
+                        .combat(CombatType.MELEE, 1.0)
                         .build());
 
-        // Diamond Sword - Multi-elemental
+        provider.accept(Identifier.ofVanilla("golden_sword"),
+                weapon()
+                        .elemental(ElementType.PHYSICAL, 1.0)
+                        .combat(CombatType.MELEE, 1.0)
+                        .build());
+
         provider.accept(Identifier.ofVanilla("diamond_sword"),
                 weapon()
-                        .elemental("physical", 0.6)
-                        .elemental("holy", 0.2)
-                        .elemental("cold", 0.1)
-                        .elemental("fire", 0.1)
-                        .combat("melee", 1.0)
+                        .elemental(ElementType.PHYSICAL, 1.0)
+                        .combat(CombatType.MELEE, 1.0)
                         .build());
 
-        // Netherite Sword - Fire-based
         provider.accept(Identifier.ofVanilla("netherite_sword"),
                 weapon()
-                        .elemental("physical", 0.5)
-                        .elemental("fire", 0.5)
-                        .combat("melee", 1.0)
+                        .elemental(ElementType.PHYSICAL, 0.85f)
+                        .elemental(ElementType.FIRE, 0.15)
+                        .combat(CombatType.MELEE, 1.0)
                         .build());
 
         // Ranged Weapons
         provider.accept(Identifier.ofVanilla("bow"),
                 weapon()
-                        .elemental("physical", 0.8)
-                        .elemental("wind", 0.2)
-                        .combat("ranged", 1.0)
-                        .powerBudget(1.0)
-                        .combatWeight(0.9)
+                        .elemental(ElementType.PHYSICAL, 1)
+                        .combat(CombatType.RANGED, 1.0)
                         .build());
 
         provider.accept(Identifier.ofVanilla("crossbow"),
                 weapon()
-                        .elemental("physical", 1.0)
-                        .combat("ranged", 1.0)
-                        .powerBudget(1.1)
+                        .elemental(ElementType.PHYSICAL, 1)
+                        .combat(CombatType.RANGED, 1.0)
+                        .powerBudget(1.2)
                         .build());
 
-        // Magic Weapons (if you have them)
         provider.accept(Identifier.ofVanilla("trident"),
                 weapon()
-                        .elemental("physical", 0.6)
-                        .elemental("water", 0.3)
-                        .elemental("electric", 0.1)
-                        .combat("melee", 0.7)
-                        .combat("ranged", 0.3)
+                        .elemental(ElementType.PHYSICAL, 0.6)
+                        .elemental(ElementType.WATER, 0.3)
+                        .elemental(ElementType.ELECTRIC, 0.1)
+                        .combat(CombatType.MELEE, 0.7)
+                        .combat(CombatType.RANGED, 0.3)
                         .build());
 
         // ============================================================================
@@ -342,6 +341,20 @@ public class ModElementalProvider extends MamyCodecDataProvider<ElementalCompone
         public Builder combat(String combat, double value) {
             if (isArmor || value > 0) {
                 combatRatios.put(combat, value);
+            }
+            return this;
+        }
+
+        public Builder elemental(ElementType element, double value) {
+            if (isArmor || value > 0) {
+                elementalRatios.put(element.name, value);
+            }
+            return this;
+        }
+
+        public Builder combat(CombatType combat, double value) {
+            if (isArmor || value > 0) {
+                combatRatios.put(combat.name, value);
             }
             return this;
         }

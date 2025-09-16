@@ -29,10 +29,12 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 
 		// Bypasses Shield - Damage that goes through shields
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_SHIELD)
+				.addOptional(ModDamageTypes.SHOCKWAVE_FLAME)
 				.addOptional(ModDamageTypes.BASHING_BLOW);
 
 		// Bypasses Enchantments - Damage that ignores Protection enchants
-		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS);
+		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_ENCHANTMENTS)
+				.addOptional(ModDamageTypes.SHOCKWAVE_FLAME);
 
 		// Bypasses Cooldown - Damage that doesn't trigger hurt immunity
 		getOrCreateTagBuilder(DamageTypeTags.BYPASSES_COOLDOWN)
@@ -45,7 +47,8 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
 				.addOptional(ModDamageTypes.MAGIC_ARROW)
 				.addOptional(ModDamageTypes.FIREBALL)
-				.addOptional(ModDamageTypes.LIGHTING);
+				.addOptional(ModDamageTypes.LIGHTING)
+				.addOptional(ModDamageTypes.SHOCKWAVE_FLAME);
 
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)

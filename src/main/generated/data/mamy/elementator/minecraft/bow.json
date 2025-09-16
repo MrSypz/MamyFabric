@@ -2,9 +2,7 @@
   "combatRatios": {
     "ranged": 1.0
   },
-  "combatWeight": 0.9,
   "elementalRatios": {
-    "physical": 0.8,
-    "wind": 0.2
+    "physical": 1.0
   }
 }

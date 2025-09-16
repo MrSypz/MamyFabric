@@ -26,7 +26,7 @@ public interface HybridDamageSource {
      */
     default float getTotalElementalWeight() {
         return (float) getDamageComponents().stream()
-                .mapToDouble(c -> c.elementalWeight)
+                .mapToDouble(DamageComponent::elementalWeight)
                 .sum();
     }
 
@@ -35,7 +35,7 @@ public interface HybridDamageSource {
      */
     default float getMaxCombatWeight() {
         return (float) getDamageComponents().stream()
-                .mapToDouble(c -> c.combatWeight)
+                .mapToDouble(DamageComponent::combatWeight)
                 .max()
                 .orElse(0.0);
     }
@@ -45,7 +45,7 @@ public interface HybridDamageSource {
      */
     default boolean hasElementalComponents() {
         return getDamageComponents().stream()
-                .anyMatch(c -> c.elementType != ElementType.PHYSICAL || c.elementalWeight > 0);
+                .anyMatch(c -> c.elementType() != ElementType.PHYSICAL || c.elementalWeight() > 0);
     }
 
     /**
@@ -53,7 +53,7 @@ public interface HybridDamageSource {
      */
     default boolean hasCombatComponents() {
         return getDamageComponents().stream()
-                .anyMatch(c -> c.combatType != CombatType.PURE && c.combatWeight > 0);
+                .anyMatch(c -> c.combatType() != CombatType.PURE && c.combatWeight() > 0);
     }
 
     /**
@@ -61,8 +61,8 @@ public interface HybridDamageSource {
      */
     default ElementType getPrimaryElementType() {
         return getDamageComponents().stream()
-                .max((a, b) -> Float.compare(a.elementalWeight, b.elementalWeight))
-                .map(c -> c.elementType)
+                .max((a, b) -> Float.compare(a.elementalWeight(), b.elementalWeight()))
+                .map(DamageComponent::elementType)
                 .orElse(ElementType.PHYSICAL);
     }
 
@@ -71,8 +71,8 @@ public interface HybridDamageSource {
      */
     default CombatType getPrimaryCombatType() {
         return getDamageComponents().stream()
-                .max((a, b) -> Float.compare(a.combatWeight, b.combatWeight))
-                .map(c -> c.combatType)
+                .max((a, b) -> Float.compare(a.combatWeight(), b.combatWeight()))
+                .map(DamageComponent::combatType)
                 .orElse(CombatType.PURE);
     }
 }

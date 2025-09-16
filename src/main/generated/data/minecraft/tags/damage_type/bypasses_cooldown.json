@@ -27,6 +27,10 @@
     {
       "id": "mamy:lighting",
       "required": false
+    },
+    {
+      "id": "mamy:shockwave_flame",
+      "required": false
     }
   ]
 }

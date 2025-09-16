@@ -3,7 +3,7 @@
     "melee": 1.0
   },
   "elementalRatios": {
-    "fire": 0.5,
-    "physical": 0.5
+    "fire": 0.15,
+    "physical": 0.8500000238418579
   }
 }
