@@ -71,11 +71,11 @@ public final class ClassRestrictionTooltipHelper {
                     .formatted(Formatting.DARK_RED));
         }
 
-        if (itemStack.contains(ModDataComponents.CRAFT_BY)) {
-            String craftMethod = (itemStack.getItem() instanceof ResourcePotionItem) ? " Brewed By: " : " Craft By: ";
-            textConsumer.accept(Text.literal(craftMethod).formatted(Formatting.GRAY)
-                    .append(Text.literal(itemStack.get(ModDataComponents.CRAFT_BY)).formatted(Formatting.WHITE)));
-        }
+//        if (itemStack.contains(ModDataComponents.CRAFT_BY)) {
+//            String craftMethod = (itemStack.getItem() instanceof ResourcePotionItem) ? " Brewed By: " : " Craft By: ";
+//            textConsumer.accept(Text.literal(craftMethod).formatted(Formatting.GRAY)
+//                    .append(Text.literal(itemStack.get(ModDataComponents.CRAFT_BY)).formatted(Formatting.WHITE)));
+//        }
     }
 
     /**
