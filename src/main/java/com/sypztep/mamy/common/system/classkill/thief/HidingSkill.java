@@ -8,6 +8,8 @@ import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,30 +34,43 @@ public class HidingSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
-            tooltip.add(Text.literal(""));
-
-            // Duration info
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
+        if (skillLevel > 0) {
             int duration = skillLevel * 30;
-            tooltip.add(Text.literal("Duration: ").formatted(Formatting.GRAY).append(Text.literal(duration + " seconds").formatted(Formatting.YELLOW)));
-
-            // Resource drain
             int drainInterval = 5 + skillLevel;
-            tooltip.add(Text.literal("Resource Drain: ").formatted(Formatting.GRAY).append(Text.literal("1 SP every " + drainInterval + " seconds").formatted(Formatting.RED)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("• Toggles invisibility on/off").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Cannot move, attack, or use skills").formatted(Formatting.DARK_RED));
-            tooltip.add(Text.literal("• Invisible to players and monsters").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Stops targeted attacks").formatted(Formatting.DARK_GREEN));
-
-            if (context == TooltipContext.LEARNING_SCREEN) {
-                tooltip.add(Text.literal(""));
-                tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW).append(Text.literal("Perfect for escaping dangerous situations").formatted(Formatting.GRAY)));
-            }
+            
+            data.effects.add("Duration: " + duration + " seconds");
+            data.effects.add("Resource Drain: 1 SP every " + drainInterval + " seconds");
+            data.effects.add("Toggles invisibility on/off");
+            data.effects.add("Cannot move, attack, or use skills");
+            data.effects.add("Invisible to players and monsters");
+            data.effects.add("Stops targeted attacks");
         }
+        data.tip = "Perfect for escaping dangerous situations";
+
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }

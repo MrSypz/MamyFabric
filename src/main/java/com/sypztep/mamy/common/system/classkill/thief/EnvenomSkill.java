@@ -8,6 +8,8 @@ import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.stat.StatTypes;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -34,32 +36,41 @@ public class EnvenomSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add description
-        if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
-            tooltip.add(Text.literal(""));
-
-            // Damage info
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
+        if (skillLevel > 0) {
             int damage = skillLevel * 9;
-            tooltip.add(Text.literal("Poison Damage: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + damage).formatted(Formatting.RED)));
-
-            // Poison chance
             int poisonChance = 14 + ((skillLevel - 1) * 4);
-            tooltip.add(Text.literal("Poison Chance: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(poisonChance + "%").formatted(Formatting.GREEN)));
-
-            tooltip.add(Text.literal("• Only deals damage on successful poison").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Chance reduced by target's VIT").formatted(Formatting.DARK_GREEN));
-
-            // Usage tip
-            if (context == TooltipContext.LEARNING_SCREEN) {
-                tooltip.add(Text.literal(""));
-                tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW)
-                        .append(Text.literal("Higher VIT targets are harder to poison").formatted(Formatting.GRAY)));
-            }
+            
+            data.effects.add("Poison Damage: +" + damage);
+            data.effects.add("Poison Chance: " + poisonChance + "%");
+            data.effects.add("Only deals damage on successful poison");
+            data.effects.add("Chance reduced by target's VIT");
         }
+        data.tip = "Higher VIT targets are harder to poison";
+
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }
