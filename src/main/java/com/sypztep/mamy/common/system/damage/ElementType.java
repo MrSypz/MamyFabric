@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.damage;
 
+import com.sypztep.mamy.client.util.IconAtlas;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -9,43 +10,43 @@ import net.minecraft.registry.entry.RegistryEntry;
  * Separated from combat methods (CombatType)
  */
 public enum ElementType {
-    PHYSICAL("physical", 0x9C9393, "\u0003",
+    PHYSICAL("physical", 0x9C9393, IconAtlas.PHYSIC_ICON,
             ModEntityAttributes.PHYSICAL_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.PHYSICAL_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.PHYSICAL_RESISTANCE,
             ModEntityAttributes.FLAT_PHYSICAL_REDUCTION),
 
-    FIRE("fire", 0xFF4500, "\u0004",
+    FIRE("fire", 0xFF4500, IconAtlas.FIRE_ICON,
             ModEntityAttributes.FIRE_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.FIRE_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.FIRE_RESISTANCE,
             ModEntityAttributes.FLAT_FIRE_REDUCTION),
 
-    COLD("cold", 0x70C1E3, "\u0005",
+    COLD("cold", 0x70C1E3, IconAtlas.COLD_ICON,
             ModEntityAttributes.COLD_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.COLD_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.COLD_RESISTANCE,
             ModEntityAttributes.FLAT_COLD_REDUCTION),
 
-    ELECTRIC("electric", 0xFFD700, "\u0006",
+    ELECTRIC("electric", 0xFFD700,  IconAtlas.ELECTRIC_ICON,
             ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.ELECTRIC_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.ELECTRIC_RESISTANCE,
             ModEntityAttributes.FLAT_ELECTRIC_REDUCTION),
 
-    WATER("water", 0x4169E1, "\u0007",
+    WATER("water", 0x4169E1,  IconAtlas.WATER_ICON,
             ModEntityAttributes.WATER_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.WATER_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.WATER_RESISTANCE,
             ModEntityAttributes.FLAT_WATER_REDUCTION),
 
-    WIND("wind", 0x98FB98, "\u0008",
+    WIND("wind", 0x98FB98,  IconAtlas.WIND_ICON,
             ModEntityAttributes.WIND_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.WIND_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.WIND_RESISTANCE,
             ModEntityAttributes.FLAT_WIND_REDUCTION),
 
-    HOLY("holy", 0xDDA0DD, "\u0009",
+    HOLY("holy", 0xDDA0DD,  IconAtlas.HOLY_ICON,
             ModEntityAttributes.HOLY_ATTACK_DAMAGE_FLAT,
             ModEntityAttributes.HOLY_ATTACK_DAMAGE_MULT,
             ModEntityAttributes.HOLY_RESISTANCE,

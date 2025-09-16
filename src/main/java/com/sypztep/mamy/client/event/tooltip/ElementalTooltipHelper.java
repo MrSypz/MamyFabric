@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.event.tooltip;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.client.util.IconAtlas;
 import com.sypztep.mamy.common.data.ItemElementDataEntry;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.system.damage.ElementType;
@@ -29,18 +30,6 @@ public final class ElementalTooltipHelper {
 
     // Custom font style and icons
     public static final Style ICONS = Style.EMPTY.withFont(Mamy.id("icons"));
-    private static final String SWORD_ICON = "\u0001";
-    private static final String SPEED_ICON = "\u0002";
-    private static final String ARMOR_ICON = "\u0011";
-    private static final String SHIELD_ICON = "\u0012";
-    private static final String KNOCKBACK_ICON = "\u0013";
-    private static final String POWER_ICON = "\u0010";
-
-    // Combat Type icons
-    private static final String MELEE_ICON = "\u0014";
-    private static final String RANGED_ICON = "\u0015";
-    private static final String MAGIC_ICON = "\u0016";
-    private static final String HYBRID_ICON = "\u0017";
 
     // Main entry points for different item types
     public static void appendWeaponTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
@@ -75,13 +64,13 @@ public final class ElementalTooltipHelper {
                     hasShownHeader.set(false);
                 }
 
-                if (attribute.equals(EntityAttributes.GENERIC_ARMOR)) {
+                if (attribute.equals(EntityAttributes.GENERIC_ARMOR)) 
                     appendCustomArmorValue(textConsumer, modifier.value());
-                } else if (attribute.equals(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE)) {
+                 else if (attribute.equals(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE))
                     appendCustomKnockbackResistance(textConsumer, modifier.value());
-                } else {
+                 else
                     appendVanillaAttributeModifier(textConsumer, attribute, modifier);
-                }
+
             });
 
             if (!hasShownHeader.get() && ItemElementDataEntry.hasEntry(stack.getItem())) {
@@ -108,7 +97,7 @@ public final class ElementalTooltipHelper {
         double totalDamage = baseDamage + playerAttackDamage + meleeDamageFlat;
 
         MutableText comp = Text.empty();
-        comp.append(createIconText(SWORD_ICON));
+        comp.append(createIconText(IconAtlas.SWORD_ICON));
         comp.append(Text.translatable("attribute.name.generic.attack_damage").formatted(Formatting.WHITE));
         comp.append(Text.literal(": ").formatted(Formatting.GRAY));
         comp.append(Text.literal(format(totalDamage)).formatted(Formatting.YELLOW));
@@ -136,7 +125,7 @@ public final class ElementalTooltipHelper {
         double speedValue = attackSpeedModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_SPEED);
 
         MutableText comp = Text.empty();
-        comp.append(createIconText(SPEED_ICON));
+        comp.append(createIconText(IconAtlas.SPEED_ICON));
         comp.append(Text.translatable("attribute.name.generic.attack_speed").formatted(Formatting.WHITE));
         comp.append(Text.literal(": ").formatted(Formatting.GRAY));
         comp.append(Text.literal(format(speedValue)).formatted(Formatting.YELLOW));
@@ -202,7 +191,7 @@ public final class ElementalTooltipHelper {
 
     private static void appendCustomArmorValue(Consumer<Text> textConsumer, double armorValue) {
         MutableText comp = Text.empty();
-        comp.append(createIconText(ARMOR_ICON));
+        comp.append(createIconText(IconAtlas.ARMOR_ICON));
         comp.append(Text.translatable("attribute.name.generic.armor").formatted(Formatting.WHITE));
         comp.append(Text.literal(": ").formatted(Formatting.GRAY));
         comp.append(Text.literal(format(armorValue)).formatted(Formatting.BLUE));
@@ -215,7 +204,7 @@ public final class ElementalTooltipHelper {
         if (knockbackPercentage <= 0) return;
 
         MutableText comp = Text.empty();
-        comp.append(createIconText(KNOCKBACK_ICON));
+        comp.append(createIconText(IconAtlas.KNOCKBACK_ICON));
         comp.append(Text.translatable("attribute.name.generic.knockback_resistance").formatted(Formatting.WHITE));
         comp.append(Text.literal(": ").formatted(Formatting.GRAY));
         comp.append(Text.literal(format(knockbackPercentage)).formatted(Formatting.BLUE));
@@ -233,7 +222,7 @@ public final class ElementalTooltipHelper {
 
         textConsumer.accept(ScreenTexts.EMPTY);
         MutableText comp = Text.literal(" ");
-        comp.append(createIconText(SHIELD_ICON));
+        comp.append(createIconText(IconAtlas.SHIELD_ICON));
         comp.append(Text.translatable("tooltip.mamy.elemental_resistances").formatted(Formatting.WHITE));
         textConsumer.accept(comp);
 
@@ -250,7 +239,7 @@ public final class ElementalTooltipHelper {
 
         textConsumer.accept(ScreenTexts.EMPTY);
         MutableText comp = Text.literal(" ");
-        comp.append(createIconText(HYBRID_ICON));
+        comp.append(createIconText(IconAtlas.HYBRID_ICON));
         comp.append(Text.translatable("tooltip.mamy.combat_resistances").formatted(Formatting.WHITE));
         textConsumer.accept(comp);
 
@@ -263,7 +252,7 @@ public final class ElementalTooltipHelper {
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(ScreenTexts.space()
                     .append(Text.literal("  "))
-                    .append(createIconText(POWER_ICON).formatted(Formatting.GOLD))
+                    .append(createIconText( IconAtlas.POWER_ICON).formatted(Formatting.GOLD))
                     .append(Text.translatable("tooltip.mamy.power_budget", String.format("%.1f%%", itemData.powerBudget() * 100)))
                     .formatted(Formatting.YELLOW));
         }
@@ -298,7 +287,7 @@ public final class ElementalTooltipHelper {
 
         if (Math.abs(itemData.powerBudget() - 1.0) > 0.01) {
             textConsumer.accept(ScreenTexts.space()
-                    .append(createIconText(POWER_ICON))
+                    .append(createIconText(IconAtlas.POWER_ICON))
                     .append(Text.translatable("tooltip.mamy.resistance_budget", String.format("%.1f%%", itemData.powerBudget() * 100)))
                     .formatted(Formatting.YELLOW));
         }
@@ -374,11 +363,11 @@ public final class ElementalTooltipHelper {
     // Utility methods for Combat Types
     private static String getCombatTypeIcon(CombatType combatType) {
         return switch (combatType) {
-            case MELEE -> MELEE_ICON;
-            case RANGED -> RANGED_ICON;
-            case MAGIC -> MAGIC_ICON;
-            case HYBRID -> HYBRID_ICON;
-            case PURE -> SWORD_ICON; // Fallback
+            case MELEE ->  IconAtlas.MELEE_ICON;
+            case RANGED ->  IconAtlas.RANGED_ICON;
+            case MAGIC ->  IconAtlas.MAGIC_ICON;
+            case HYBRID ->  IconAtlas.HYBRID_ICON;
+            case PURE ->  IconAtlas.SWORD_ICON; // Fallback
         };
     }
 

@@ -1,7 +1,7 @@
 package com.sypztep.mamy.client.screen.widget;
 
 import com.sypztep.mamy.client.event.tooltip.ElementalTooltipHelper;
-import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
+import com.sypztep.mamy.client.util.IconAtlas;
 import com.sypztep.mamy.common.component.living.PlayerWeightComponent;
 import com.sypztep.mamy.common.data.ItemWeightEntry;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -60,7 +60,7 @@ public class WeightBarWidget {
         int headerX = screenX;
 
         // Draw weight icon
-        context.drawText(client.textRenderer, ElementalTooltipHelper.createIconText(ItemWeightTooltip.WEIGHT_ICON),
+        context.drawText(client.textRenderer, ElementalTooltipHelper.createIconText(IconAtlas.WEIGHT_ICON),
                 headerX, headerY, TEXT_COLOR, false);
 
         // Check hover

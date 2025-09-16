@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ThunderSphereEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 100; // 5 seconds
-    private static final double AOE_RANGE = 2.5; // 5x5 area (2.5 radius)
+    private static final double AOE_RANGE = 5; // 10x10 area (5 radius)
     private static final double CAMERA_SHAKE_RANGE = 30.0;
     private static final int DAMAGE_INTERVAL = 4; // Every 10 ticks for AOE damage
 

@@ -18,22 +18,23 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(RangedWeaponItem.class)
 public class RangedWeaponItemMixin {
-    @WrapOperation(
-            method = "shootAll",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/RangedWeaponItem;shoot(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/projectile/ProjectileEntity;IFFFLnet/minecraft/entity/LivingEntity;)V"))
-    private void additionArrowDamage(
-            RangedWeaponItem instance, LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target,
-            Operation<Void> original) {
-        float dexterity = 0f;
-        float factor = 0;
-        if (shooter instanceof PlayerEntity player) dexterity = MathHelper.clamp(ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.DEXTERITY), 0, ModConfig.maxStatValue);
+    @WrapOperation(method = "shootAll", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/RangedWeaponItem;shoot(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/projectile/ProjectileEntity;IFFFLnet/minecraft/entity/LivingEntity;)V"))
+    private void additionArrowDamage(RangedWeaponItem instance, LivingEntity shooter, ProjectileEntity projectile, int index, float speed, float divergence, float yaw, @Nullable LivingEntity target, Operation<Void> original) {
+        float newSpeed;
+        float newDivergence = divergence;
 
-        float newDivergence = 10f * (1f - ((dexterity + factor) / ModConfig.maxStatValue));
-        newDivergence = MathHelper.clamp(newDivergence, 0f, 10f);
-        float newSpeed = (float) (speed + shooter.getAttributeValue(ModEntityAttributes.ARROW_SPEED));
+        float dexterity = MathHelper.clamp(ModEntityComponents.LIVINGLEVEL.get(shooter).getStatValue(StatTypes.DEXTERITY), 0, ModConfig.maxStatValue);
+        if (shooter instanceof PlayerEntity player) {
+
+            newDivergence = 10f * (1f - (dexterity / ModConfig.maxStatValue));
+            newDivergence = MathHelper.clamp(newDivergence, 0f, 10f);
+
+            newSpeed = (float) (speed + player.getAttributeValue(ModEntityAttributes.ARROW_SPEED));
+        } else newSpeed = speed + (dexterity * 0.025f);
 
         original.call(instance, shooter, projectile, index, newSpeed, newDivergence, yaw, target);
 
-        if (projectile instanceof PersistentProjectileEntity projectileEntity) projectileEntity.setCritical(false); // Disable particle
+        if (projectile instanceof PersistentProjectileEntity projectileEntity) projectileEntity.setCritical(false); // Disable crit particles
+
     }
 }
