@@ -3,7 +3,7 @@ package com.sypztep.mamy.common.system.damage;
 /**
  * Default implementations for common damage source patterns
  */
-class DefaultDamageSources {
+public class DefaultDamageSources {
 
     // Pure elemental sources (no combat bonuses)
     public static final HybridDamageSource PURE_FIRE = SimpleDamageSource.pureElemental(ElementType.FIRE);

@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -93,7 +94,7 @@ public abstract class Skill implements HybridDamageSource {
     /**
      * Helper method to create simple elemental skills
      */
-    protected List<DamageComponent> createElementalDamage(com.sypztep.mamy.common.system.damage.ElementType elementType) {
+    protected List<DamageComponent> createElementalDamage(ElementType elementType) {
         return List.of(DamageComponent.pureElemental(elementType, 1.0f));
     }
 
@@ -107,7 +108,7 @@ public abstract class Skill implements HybridDamageSource {
     /**
      * Helper method to create hybrid skills
      */
-    protected List<DamageComponent> createHybridDamage(com.sypztep.mamy.common.system.damage.ElementType elementType, float elementalWeight,
+    protected List<DamageComponent> createHybridDamage(ElementType elementType, float elementalWeight,
                                                        CombatType combatType, float combatWeight) {
         return List.of(DamageComponent.hybrid(elementType, elementalWeight, combatType, combatWeight));
     }

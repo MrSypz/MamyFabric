@@ -47,9 +47,7 @@ public class BashingBlowSkill extends Skill {
     @Override
     public List<DamageComponent> getDamageComponents() {
         return List.of(
-                // Physical component with full melee scaling
                 DamageComponent.hybrid(ElementType.PHYSICAL, 0.6f, CombatType.MELEE, 1.0f),
-                // Fire component with reduced melee scaling
                 DamageComponent.hybrid(ElementType.FIRE, 0.4f, CombatType.MELEE, 0.3f)
         );
     }
