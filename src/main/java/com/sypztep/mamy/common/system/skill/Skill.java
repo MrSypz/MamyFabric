@@ -319,6 +319,138 @@ public abstract class Skill implements HybridDamageSource {
         public float healthPerHit = 0;
         public float resourcePerHit = 0;
         public List<SecondaryDamage> secondaryDamages = new ArrayList<>();
+        
+        // New fields for enhanced tooltip system
+        public List<String> effects = new ArrayList<>();
+        public String tip = "";
+        public String targetInfo = "";
+        public String rangeInfo = "";
+        public String cooldownOverride = "";
+        public boolean hideDamage = false;
+        public boolean hideResourceCost = false;
+        public boolean hideCooldown = false;
+    }
+
+    public static class SkillTooltipRenderer {
+        public static List<Text> render(PlayerEntity player, int skillLevel, boolean isLearned, 
+                                       TooltipContext context, String skillName, String description, 
+                                       int maxSkillLevel, SkillTooltipData data) {
+            List<Text> tooltip = new ArrayList<>();
+
+            // Skill header
+            addSkillHeader(tooltip, skillName, skillLevel, maxSkillLevel, isLearned);
+            tooltip.add(Text.literal(""));
+
+            // Description and effects
+            if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
+                tooltip.add(Text.literal(description).formatted(Formatting.GRAY));
+                
+                // Add effects
+                if (!data.effects.isEmpty()) {
+                    tooltip.add(Text.literal(""));
+                    for (String effect : data.effects) {
+                        tooltip.add(Text.literal("• " + effect).formatted(Formatting.GREEN));
+                    }
+                }
+
+                // Add damage/healing information
+                if (!data.hideDamage) {
+                    addDamageLines(tooltip, data);
+                }
+
+                // Add target and range info
+                if (!data.targetInfo.isEmpty() || !data.rangeInfo.isEmpty()) {
+                    tooltip.add(Text.literal(""));
+                    if (!data.targetInfo.isEmpty()) {
+                        tooltip.add(Text.literal("Target: ").formatted(Formatting.GRAY)
+                                .append(Text.literal(data.targetInfo).formatted(Formatting.YELLOW)));
+                    }
+                    if (!data.rangeInfo.isEmpty()) {
+                        tooltip.add(Text.literal("Range: ").formatted(Formatting.GRAY)
+                                .append(Text.literal(data.rangeInfo).formatted(Formatting.YELLOW)));
+                    }
+                }
+
+                // Add cooldown info
+                if (!data.hideCooldown) {
+                    tooltip.add(Text.literal(""));
+                    if (!data.cooldownOverride.isEmpty()) {
+                        tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                                .append(Text.literal(data.cooldownOverride).formatted(Formatting.YELLOW)));
+                    }
+                }
+
+                // Add tip for LEARNING_SCREEN context
+                if (context == TooltipContext.LEARNING_SCREEN && !data.tip.isEmpty()) {
+                    tooltip.add(Text.literal(""));
+                    tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW)
+                            .append(Text.literal(data.tip).formatted(Formatting.GRAY)));
+                }
+            }
+
+            return tooltip;
+        }
+
+        private static void addSkillHeader(List<Text> tooltip, String skillName, int skillLevel, 
+                                         int maxSkillLevel, boolean isLearned) {
+            if (isLearned) {
+                tooltip.add(Text.literal(skillName).formatted(Formatting.WHITE, Formatting.BOLD)
+                        .append(Text.literal(" (Level " + skillLevel + "/" + maxSkillLevel + ")")
+                                .formatted(Formatting.GRAY)));
+            } else {
+                tooltip.add(Text.literal(skillName).formatted(Formatting.GRAY, Formatting.BOLD)
+                        .append(Text.literal(" (Not Learned)").formatted(Formatting.DARK_GRAY)));
+            }
+        }
+
+        private static void addDamageLines(List<Text> tooltip, SkillTooltipData data) {
+            if (data.baseDamage > 0 || data.damagePercentage > 0) {
+                tooltip.add(Text.literal(""));
+                tooltip.add(buildDamageText(data.damageType, data.damagePercentage, data.baseDamage, data.maxHits));
+            }
+
+            for (SecondaryDamage secondary : data.secondaryDamages) {
+                tooltip.add(buildDamageText(secondary.damageType, secondary.damagePercentage, secondary.baseDamage, secondary.maxHits));
+            }
+
+            // Add recovery effects
+            if (data.healthPerHit > 0) {
+                tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
+                        .append(Text.literal(String.format("%.1f", data.healthPerHit)).formatted(Formatting.YELLOW))
+                        .append(Text.literal(" HP per hit").formatted(Formatting.GRAY)));
+            }
+
+            if (data.resourcePerHit > 0) {
+                tooltip.add(Text.literal("Recovery ").formatted(Formatting.GRAY)
+                        .append(Text.literal(String.format("%.1f", data.resourcePerHit)).formatted(Formatting.YELLOW))
+                        .append(Text.literal(" Resource per hit").formatted(Formatting.GRAY)));
+            }
+        }
+
+        private static Text buildDamageText(DamageTypeRef damageType, float damagePercentage, float baseDamage, int maxHits) {
+            MutableText text = Text.literal(getDamageTypeText(damageType) + " ").formatted(Formatting.GRAY);
+
+            if (damagePercentage > 0) {
+                text.append(Text.literal(String.format("%.1f%%", damagePercentage * 100)).formatted(Formatting.YELLOW));
+                if (baseDamage > 0)
+                    text.append(Text.literal(" + ").formatted(Formatting.GRAY)).append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
+            } else if (baseDamage > 0) text.append(Text.literal(String.format("%.1f", baseDamage)).formatted(Formatting.YELLOW));
+
+            if (maxHits > 1) text.append(Text.literal(", " + maxHits + " hits").formatted(Formatting.YELLOW));
+
+            return text;
+        }
+
+        private static String getDamageTypeText(DamageTypeRef damageType) {
+            return switch (damageType) {
+                case MELEE -> "Melee";
+                case MAGIC -> "Magic";
+                case PHYSICAL -> "Physical";
+                case HEAL -> "Heal";
+                case ELEMENT -> "Element";
+                default -> "Attack";
+            };
+        }
     }
 
     public record SecondaryDamage(

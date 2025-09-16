@@ -27,20 +27,15 @@ public class SwordMasteryPassiveSkill extends PassiveSkill {
     }
 
     @Override
-    protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal("Extensive training with bladed weapons increases your melee damage.").formatted(Formatting.GRAY));
-
-        // Show current bonus
-        double damageBonus = skillLevel * 1.5D;
-        tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY).append(Text.literal("+" + String.format("%.1f", damageBonus)).formatted(Formatting.YELLOW)));
-
-        // Show next level preview if not at max
-        if (skillLevel < getMaxSkillLevel()) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next Level:").formatted(Formatting.GOLD));
-            double nextDamageBonus = (skillLevel + 1) * 1.5D;
-            tooltip.add(Text.literal("• Melee Attack Damage: ").formatted(Formatting.GRAY).append(Text.literal("+" + String.format("%.1f", nextDamageBonus)).formatted(Formatting.DARK_GREEN)));
-        }
+    protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
+        SkillTooltipData data = new SkillTooltipData();
+        
+        // Configure for passive skills - hide damage/resources/cooldown by default in the renderer
+        data.hideDamage = true;
+        data.hideResourceCost = true;
+        data.hideCooldown = true;
+        
+        return data;
     }
 
     @Override

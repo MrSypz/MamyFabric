@@ -121,32 +121,43 @@ public abstract class PassiveSkill extends Skill {
     }
 
     @Override
-    public boolean canUse(LivingEntity caster, int skillLevel) {
-        return true;
-    }
-
-    @Override
-    public boolean use(LivingEntity caster, int skillLevel) {
-        return false;
-    }
-
-    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         return new SkillTooltipData();
     }
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = new ArrayList<>();
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data for passive skills
+        data.hideDamage = true;
+        data.hideResourceCost = true;
+        data.hideCooldown = true;
+        
+        // Add attribute modifications as effects
+        for (AttributeModification modification : attributeModifications) {
+            double value = modification.effectFunction().applyAsDouble((double) skillLevel);
+            String attributeName = getAttributeDisplayName(modification.attribute());
+            String valueText = formatAttributeValue(value, modification.operation());
+            data.effects.add(attributeName + ": " + valueText);
+        }
 
-        // Skill name with level - add PASSIVE indicator
-        addPassiveSkillHeader(tooltip, skillLevel, isLearned);
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
 
-        // Empty line for spacing
-        tooltip.add(Text.literal(""));
-
-        // Passive effects description
-        addPassiveEffectsDescription(tooltip, skillLevel);
+        // Add passive indicator to header
+        if (!tooltip.isEmpty()) {
+            Text originalHeader = tooltip.get(0);
+            if (isLearned) {
+                tooltip.set(0, Text.literal(name).formatted(Formatting.WHITE, Formatting.BOLD)
+                        .append(Text.literal(" (PASSIVE)").formatted(Formatting.GREEN))
+                        .append(Text.literal(" (Level " + skillLevel + "/" + maxSkillLevel + ")")
+                                .formatted(Formatting.GRAY)));
+            } else {
+                tooltip.set(0, Text.literal(name).formatted(Formatting.GRAY, Formatting.BOLD)
+                        .append(Text.literal(" (PASSIVE)").formatted(Formatting.DARK_GREEN))
+                        .append(Text.literal(" (Not Learned)").formatted(Formatting.DARK_GRAY)));
+            }
+        }
 
         // Context-specific info (no resource cost/cooldown for passives)
         addContextInfo(tooltip, player, skillLevel, isLearned, context);
@@ -154,36 +165,39 @@ public abstract class PassiveSkill extends Skill {
         return tooltip;
     }
 
-    private void addPassiveSkillHeader(List<Text> tooltip, int skillLevel, boolean isLearned) {
-        if (isLearned) {
-            tooltip.add(Text.literal(name).formatted(Formatting.WHITE, Formatting.BOLD)
-                    .append(Text.literal(" (PASSIVE)").formatted(Formatting.GREEN))
-                    .append(Text.literal(" (Level " + skillLevel + "/" + maxSkillLevel + ")")
-                            .formatted(Formatting.GRAY)));
-        } else {
-            tooltip.add(Text.literal(name).formatted(Formatting.GRAY, Formatting.BOLD)
-                    .append(Text.literal(" (PASSIVE)").formatted(Formatting.DARK_GREEN))
-                    .append(Text.literal(" (Not Learned)").formatted(Formatting.DARK_GRAY)));
+    // Add a helper method to add context info since we need it
+    private void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+        switch (context) {
+            case LEARNING_SCREEN -> addLearningInfo(tooltip, player, skillLevel, isLearned);
+            case BINDING_SCREEN -> addBindingInfo(tooltip, isLearned);
+            case BINDING_SLOT -> addBindingSlotInfo(tooltip);
         }
     }
 
-    /**
-     * Override this to add custom passive effects description to tooltip
-     * This is now more flexible - you can completely override this method
-     * or use addCustomTooltipInfo() for additional info
-     */
-    protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal(description).formatted(Formatting.GRAY));
+    private void addLearningInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned) {
+        tooltip.add(Text.literal(""));
 
-        // Add attribute modifications to tooltip
-        for (AttributeModification modification : attributeModifications) {
-            double value = modification.effectFunction().applyAsDouble((double) skillLevel);
-            String attributeName = getAttributeDisplayName(modification.attribute());
-            String valueText = formatAttributeValue(value, modification.operation());
-
-            tooltip.add(Text.literal("• " + attributeName + ": ").formatted(Formatting.GRAY)
-                    .append(Text.literal(valueText).formatted(Formatting.YELLOW)));
+        if (isLearned) {
+            if (!isDefaultSkill) {
+                tooltip.add(Text.literal("Right-click to unlearn").formatted(Formatting.GRAY));
+            }
+        } else {
+            tooltip.add(Text.literal("Learn Cost: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.valueOf(baseClassPointCost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" points").formatted(Formatting.GRAY)));
         }
+    }
+
+    private void addBindingInfo(List<Text> tooltip, boolean isLearned) {
+        // Passive skills cannot be bound, so we show this info
+        tooltip.add(Text.literal(""));
+        tooltip.add(Text.literal("Passive skills cannot be bound").formatted(Formatting.GRAY));
+    }
+
+    private void addBindingSlotInfo(List<Text> tooltip) {
+        // This shouldn't happen for passive skills, but just in case
+        tooltip.add(Text.literal(""));
+        tooltip.add(Text.literal("Passive skills are always active").formatted(Formatting.GRAY));
     }
 
     private String getAttributeDisplayName(RegistryEntry<EntityAttribute> attribute) {

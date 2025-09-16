@@ -8,6 +8,8 @@ import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.SkillUtil;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -117,45 +119,56 @@ public class HealSkill extends Skill implements CastableSkill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
+        data.rangeInfo = "9 blocks";
+        data.tip = "Heals allies or damages undead with holy power";
 
-        // Add healing formula explanation
+        // Add healing formula details if skill is learned
         if (skillLevel > 0) {
+            float totalHealing = calculateHealingAmount(player, skillLevel);
             int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
             int intelligence = ModEntityComponents.LIVINGLEVEL.get(player).getStatValue(StatTypes.INTELLIGENCE);
             float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
             float healingEffectiveness = (float) player.getAttributeValue(ModEntityAttributes.HEAL_EFFECTIVE);
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Healing Details:").formatted(Formatting.GOLD));
-
-            // Show current stats contribution
+            
             float statHealing = (float) Math.floor((baseLevel + intelligence) / 5.0) * skillLevel * 3;
             float minimumHealing = skillLevel * 5f;
             float baseHealing = Math.max(statHealing, minimumHealing);
-            float totalHealing = calculateHealingAmount(player, skillLevel);
 
-            tooltip.add(Text.literal("• Base Healing: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", baseHealing)).formatted(Formatting.GREEN)));
-
+            data.effects.add("Base Healing: " + String.format("%.0f", baseHealing));
             if (magicAttack > 0) {
-                tooltip.add(Text.literal("• Magic Attack Bonus: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + String.format("%.0f", magicAttack)).formatted(Formatting.YELLOW)));
+                data.effects.add("Magic Attack Bonus: +" + String.format("%.0f", magicAttack));
             }
-
             if (healingEffectiveness > 0) {
-                tooltip.add(Text.literal("• Healing Effectiveness: ").formatted(Formatting.GRAY)
-                        .append(Text.literal("+" + String.format("%.0f%%", healingEffectiveness * 100)).formatted(Formatting.AQUA)));
+                data.effects.add("Healing Effectiveness: +" + String.format("%.0f%%", healingEffectiveness * 100));
             }
-
-            tooltip.add(Text.literal("• Total Healing: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", totalHealing)).formatted(Formatting.WHITE)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("vs Undead: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(String.format("%.0f", totalHealing * 0.5f) + " Holy Damage").formatted(Formatting.GOLD)));
-
+            data.effects.add("Total Healing: " + String.format("%.0f", totalHealing));
+            data.effects.add("vs Undead: " + String.format("%.0f", totalHealing * 0.5f) + " Holy Damage");
         }
+
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }
