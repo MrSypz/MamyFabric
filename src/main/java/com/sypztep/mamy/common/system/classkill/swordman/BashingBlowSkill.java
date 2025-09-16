@@ -40,17 +40,6 @@ public class BashingBlowSkill extends Skill {
         return skillLevel <= 5 ? super.getResourceCost(skillLevel) : 16; // base * 2
     }
 
-    /**
-     * Define this skill as Physical+Fire hybrid damage
-     * 60% Physical scaling + 40% Fire scaling, with Melee combat bonuses
-     */
-    @Override
-    public List<DamageComponent> getDamageComponents() {
-        return List.of(
-                DamageComponent.hybrid(ElementType.PHYSICAL, 0.6f, CombatType.MELEE, 1.0f),
-                DamageComponent.hybrid(ElementType.FIRE, 0.4f, CombatType.MELEE, 0.3f)
-        );
-    }
 
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
@@ -102,13 +91,8 @@ public class BashingBlowSkill extends Skill {
         // Damage the first target found
         if (!targets.isEmpty()) {
             LivingEntity target = targets.getFirst();
-
-            // Create custom damage source that carries hybrid damage information
-            DamageSource damageSource = new HybridSkillDamageSource(
-                    serverWorld.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(ModDamageTypes.BASHING_BLOW),
-                    player, this);
-
-            target.damage(damageSource, finalDamage);
+            DamageSource vanillaSource = ModDamageTypes.create(serverWorld, ModDamageTypes.ENERGY_BREAK, player);
+            target.damage(vanillaSource, finalDamage);
         }
 
         // Create vertical slash effect from above with fire elements
@@ -160,19 +144,5 @@ public class BashingBlowSkill extends Skill {
     @Override
     public boolean isAvailableForClass(PlayerClass playerClass) {
         return playerClass == ModClasses.SWORDMAN;
-    }
-    private static class HybridSkillDamageSource extends DamageSource implements HybridDamageSource {
-        private final Skill skill;
-
-        public HybridSkillDamageSource(RegistryEntry.Reference<DamageType> type,
-                                       LivingEntity attacker, Skill skill) {
-            super(type, attacker);
-            this.skill = skill;
-        }
-
-        @Override
-        public List<DamageComponent> getDamageComponents() {
-            return skill.getDamageComponents();
-        }
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
@@ -64,7 +64,6 @@ public final class ElementalDamageSystem {
         debugLog("  - MAGIC_DAMAGE: %b", source.isIn(ModTags.DamageTags.MAGIC_DAMAGE));
         debugLog("  - MELEE_DAMAGE: %b", source.isIn(ModTags.DamageTags.MELEE_DAMAGE));
 
-        // PRIORITY 1: Check if source implements HybridDamageSource (skills, projectiles)
         if (source instanceof HybridDamageSource hybridSource) {
             debugLog("ROUTE: Using hybrid damage source components");
             return createElementalBreakdownFromHybridSource(attacker, source, hybridSource, totalDamage);
