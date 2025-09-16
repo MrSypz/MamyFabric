@@ -109,9 +109,6 @@ public class BashingBlowSkill extends Skill {
                     player, this);
 
             target.damage(damageSource, finalDamage);
-
-            // Enhanced particles for hybrid damage
-            spawnHybridDamageParticles(serverWorld, target);
         }
 
         // Create vertical slash effect from above with fire elements
@@ -122,25 +119,6 @@ public class BashingBlowSkill extends Skill {
                 SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 1.0f, 1.2f);
 
         return true;
-    }
-
-    /**
-     * Spawn particles for hybrid Physical+Fire damage
-     */
-    private void spawnHybridDamageParticles(ServerWorld world, LivingEntity target) {
-        // Physical damage particles (existing)
-        world.spawnParticles(ParticleTypes.CRIT,
-                target.getX(), target.getY() + 1, target.getZ(),
-                10, 0.5, 0.5, 0.5, 0.1);
-
-        // Fire damage particles (new)
-        world.spawnParticles(ParticleTypes.FLAME,
-                target.getX(), target.getY() + 1, target.getZ(),
-                8, 0.3, 0.3, 0.3, 0.05);
-
-        world.spawnParticles(ModParticles.ARROW_IMPACT,
-                target.getX(), target.getBlockY() + 0.1f, target.getZ(),
-                1, 0, 0, 0, 0.0);
     }
 
     /**
