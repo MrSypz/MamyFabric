@@ -2,7 +2,6 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.item.ResourceComponents;
-import com.sypztep.mamy.common.item.GreatSword;
 import com.sypztep.mamy.common.item.ResourcePotionItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
@@ -12,8 +11,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public class ModItems {
-    public static Item GREAT_SWORD;
-
     public static Item CHILLING_LIGHT_WATER;
     public static Item THERMAL_ESSENCE;
 
@@ -25,9 +22,6 @@ public class ModItems {
     public static Item ULTIMATE_RESOURCE_WATER;
 
     public static void init() {
-        GREAT_SWORD = registeritem("great_sword", new GreatSword(ToolMaterials.IRON,
-                new Item.Settings().attributeModifiers(GreatSword.createAttributeModifiers())));
-
         CHILLING_LIGHT_WATER = registeritem("chilling_light_water", new PotionItem(new Item.Settings().maxCount(64)));
 
         THERMAL_ESSENCE = registeritem("thermal_essence", new PotionItem(new Item.Settings().maxCount(64)));
