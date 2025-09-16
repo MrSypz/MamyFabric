@@ -29,11 +29,6 @@ public class DemonBanePassiveSkill extends PassiveSkill {
     protected void initializePassiveEffects() {
     }
 
-    @Override
-    public void applyPassiveEffects(PlayerEntity player, int skillLevel) {
-        super.applyPassiveEffects(player, skillLevel);
-    }
-
     public static float calculateDamageBonus(PlayerEntity player, int skillLevel) {
         if (skillLevel <= 0) return 0;
 
