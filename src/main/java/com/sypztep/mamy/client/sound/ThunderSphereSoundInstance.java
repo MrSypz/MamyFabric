@@ -15,7 +15,7 @@ public class ThunderSphereSoundInstance extends MovingSoundInstance {
         this.entity = entity;
         this.repeat = true;
         this.repeatDelay = 0;
-        this.volume = 5f;
+        this.volume = 1f;
         this.pitch = 1.0f + (entity.getRandom().nextFloat() - 0.5f) * 0.2f; // Slight pitch variation
         this.x = entity.getX();
         this.y = entity.getY();
@@ -34,7 +34,7 @@ public class ThunderSphereSoundInstance extends MovingSoundInstance {
             fadeTimer += 1;
             // Fade out over 10 ticks (0.5 seconds)
             float fadeProgress = fadeTimer / 10.0f;
-            this.volume = Math.max(0, 5f * (1.0f - fadeProgress));
+            this.volume = Math.max(0, 1 * (1.0f - fadeProgress));
 
             if (fadeProgress >= 1.0f) {
                 this.setDone(); // Stop the sound
@@ -45,14 +45,13 @@ public class ThunderSphereSoundInstance extends MovingSoundInstance {
             this.z = entity.getZ();
 
             // Vary volume and pitch based on entity state
-            float baseVolume = 5f;
             float basePitch = 1.0f;
 
             // Increase volume and pitch when moving faster
             double velocity = entity.getVelocity().length();
             float velocityMultiplier = (float) Math.min(1.5f, 1.0f + velocity * 0.5f);
 
-            this.volume = baseVolume * velocityMultiplier;
+            this.volume *= velocityMultiplier;
             this.pitch = basePitch + (velocityMultiplier - 1.0f) * 0.3f;
 
             // Add slight random variation for electric crackling effect

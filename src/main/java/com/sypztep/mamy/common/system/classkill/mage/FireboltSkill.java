@@ -71,6 +71,11 @@ public class FireboltSkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public SoundContainer getCastCompleteSound() {
+        return SoundContainer.of(SoundEvents.ITEM_FIRECHARGE_USE, 0.8f,1.2f);
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
@@ -100,11 +105,6 @@ public class FireboltSkill extends Skill implements CastableSkill {
         firebolt.setPosition(startPos.x, startPos.y, startPos.z);
 
         world.spawnEntity(firebolt);
-
-        // Play casting sound
-        world.playSound(null, player.getBlockPos(),
-                SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS,
-                0.8f, 1.2f);
 
         return true;
     }

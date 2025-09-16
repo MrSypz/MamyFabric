@@ -36,7 +36,11 @@ public interface CastableSkill extends MovementLock {
         return getCastedAnimation() != null;
     }
 
-    record SoundContainer(SoundEvent sound, SoundCategory category, float volume, float pitch) {    }
+    record SoundContainer(SoundEvent sound, SoundCategory category, float volume, float pitch) {
+        public static SoundContainer of(SoundEvent sound, float volume, float pitch) {
+            return new SoundContainer(SoundEvent.of(sound.getId()), SoundCategory.PLAYERS, volume, pitch);
+        }
+    }
 
     default SoundContainer getCastStartSound() {
         return new SoundContainer(SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS, 0.3f, 1.2f);

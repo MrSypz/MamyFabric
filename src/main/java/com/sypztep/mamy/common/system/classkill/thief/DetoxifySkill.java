@@ -93,10 +93,8 @@ public class DetoxifySkill extends Skill {
                 }
 
                 if (cured) {
-                    // Play effects
                     ServerWorld serverWorld = (ServerWorld) player.getWorld();
 
-                    // Particle effects around target
                     serverWorld.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
                             target.getX(), target.getY() + 1, target.getZ(),
                             10, 0.5, 0.5, 0.5, 0.1);

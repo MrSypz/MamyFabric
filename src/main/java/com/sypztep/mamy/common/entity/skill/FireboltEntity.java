@@ -87,7 +87,7 @@ public class FireboltEntity extends PersistentProjectileEntity {
 
             if (damageDealt) {
                 target.setOnFireFor(2); // 2 seconds fire
-                playSound(SoundEvents.ITEM_FIRECHARGE_USE, 1.5f, 1.4f);
+                playSound(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), 1.5f, 1.4f);
                 createHitEffect();
             }
 
@@ -102,7 +102,7 @@ public class FireboltEntity extends PersistentProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         if (!getWorld().isClient) {
-            playSound(SoundEvents.ITEM_FIRECHARGE_USE, 1.5f, 1.4f);
+            playSound(SoundEvents.ENTITY_GENERIC_EXPLODE.value(), 1.5f, 1.4f);
             createBlockHitEffect();
 
             Vec3d blockPos = blockHitResult.getPos();

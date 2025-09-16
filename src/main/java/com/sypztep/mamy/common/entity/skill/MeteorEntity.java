@@ -1,11 +1,11 @@
 package com.sypztep.mamy.common.entity.skill;
 
-import com.google.common.collect.Maps;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
+import com.sypztep.mamy.common.util.MultiHitRecord;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -23,16 +23,14 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class MeteorEntity extends PersistentProjectileEntity {
     private static final int MAX_LIFETIME = 90; // 4.5 seconds
     private static final int DAMAGE_INTERVAL = 6; // Every 6 ticks for 2 hits
-    private static final double EXPLOSION_RADIUS = 7.5; // 15x15 area (7.5 radius)
+    private static final double EXPLOSION_RADIUS = 40; // 30x30 area (15 radius)
     private static final double CAMERA_SHAKE_RANGE = 50.0;
+    private static final int MAX_HITS_PER_TARGET = 3;
 
-    private final Map<UUID, Integer> hitCounts = Maps.newHashMap();
+    private final MultiHitRecord hitRecord;
     private final float baseDamage;
 
     private int ticksAlive = 0;
@@ -43,11 +41,13 @@ public class MeteorEntity extends PersistentProjectileEntity {
     public MeteorEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.baseDamage = 0f;
+        this.hitRecord = new MultiHitRecord(MAX_HITS_PER_TARGET);
     }
 
     public MeteorEntity(World world, LivingEntity owner, float baseDamage) {
         super(ModEntityTypes.METEOR, owner, world, ItemStack.EMPTY, null);
         this.baseDamage = baseDamage;
+        this.hitRecord = new MultiHitRecord(MAX_HITS_PER_TARGET);
     }
 
     @Override
@@ -55,9 +55,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
         super.tick();
         ticksAlive++;
 
-        if (getWorld().isClient) {
-            createFallingEffects();
-        }
+        if (getWorld().isClient) createFallingEffects();
 
         // If exploded, handle explosion damage cycles
         if (hasExploded && explosionHits < 2 && !getWorld().isClient) {
@@ -70,7 +68,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
         }
 
         // Remove after lifetime or after 2 explosion hits
-        if (ticksAlive >= MAX_LIFETIME || explosionHits >= 2) {
+        if (ticksAlive >= MAX_LIFETIME || explosionHits >= MAX_HITS_PER_TARGET) {
             discard();
         }
     }
@@ -162,14 +160,6 @@ public class MeteorEntity extends PersistentProjectileEntity {
             double distance = target.getPos().distanceTo(getPos());
 
             if (distance <= EXPLOSION_RADIUS) {
-                UUID targetId = target.getUuid();
-                int currentHits = hitCounts.getOrDefault(targetId, 0);
-
-                // Each target can be hit once per explosion cycle
-                if (currentHits >= explosionHits + 1) {
-                    continue;
-                }
-
                 // Calculate damage falloff (100% at center, 30% at edge)
                 double falloffMultiplier = Math.max(0.3, 1.0 - (distance / EXPLOSION_RADIUS) * 0.7);
                 float finalDamage = (float) (baseDamage * falloffMultiplier);
@@ -184,7 +174,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
                     int fireDuration = (int) (5 + (1.0 - (distance / EXPLOSION_RADIUS)) * 5);
                     target.setOnFireFor(fireDuration);
 
-                    hitCounts.put(targetId, explosionHits + 1);
+                    hitRecord.recordHit(target);
 
                     // Hit sound with pitch based on explosion number
                     float pitch = explosionHits == 0 ? 0.8f : 1.2f;
