@@ -63,6 +63,30 @@ public class AngelusSkill extends Skill implements CastableSkill {
         data.damageType = DamageTypeRef.HEAL; // Use heal type for beneficial effects
         data.maxHits = 0; // Area effect, not single target
 
+        // Target and range
+        data.targetType = "Area - Self + Party Members";
+        data.targetRange = 7f; // 14x14 area
+
+        // Casting properties
+        data.isChanneled = true;
+
+        if (skillLevel > 0) {
+            int defIncrease = skillLevel * 5;
+            int hpIncrease = skillLevel * 50;
+            int duration = skillLevel * 30;
+
+            // Status effects applied
+            data.statusEffectsApplied.add("Soft Defense: +" + defIncrease + "%");
+            data.statusEffectsApplied.add("Max HP: +" + hpIncrease);
+            data.statusEffectsApplied.add("Duration: " + duration + "s");
+
+            // Additional effects
+            data.additionalEffects.add("Area: 14×14 blocks");
+        }
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Area buff that protects the entire party";
+
         return data;
     }
 
@@ -152,30 +176,9 @@ public class AngelusSkill extends Skill implements CastableSkill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        if (skillLevel > 0) {
-            int defIncrease = skillLevel * 5;
-            int hpIncrease = skillLevel * 50;
-            int duration = skillLevel * 30;
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Area Buff Effects:").formatted(Formatting.GOLD));
-            tooltip.add(Text.literal("• Soft Defense: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + defIncrease + "%").formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• Max HP: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + hpIncrease).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• Duration: ").formatted(Formatting.GRAY)
-                    .append(Text.literal(duration + "s").formatted(Formatting.YELLOW)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Area: ").formatted(Formatting.AQUA)
-                    .append(Text.literal("14×14 blocks").formatted(Formatting.WHITE)));
-            tooltip.add(Text.literal("Targets: ").formatted(Formatting.AQUA)
-                    .append(Text.literal("Self + Party Members").formatted(Formatting.WHITE)));
-        }
-
-        return tooltip;
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 
     @Override

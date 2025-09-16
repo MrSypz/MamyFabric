@@ -63,12 +63,30 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         float damageMultiplier = calculateDamageMultiplier(skillLevel);
-        data.baseDamage = damageMultiplier;
+        data.baseDamage = BASE_DAMAGE;
+        data.damagePercentage = damageMultiplier;
         data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 1;
+        
+        // Second arrow with same damage
         data.secondaryDamages = Collections.singletonList(
-                new SecondaryDamage(DamageTypeRef.PHYSICAL, damageMultiplier, 1, 1)
+                new SecondaryDamage(DamageTypeRef.PHYSICAL, BASE_DAMAGE, damageMultiplier, 1)
         );
+
+        // Target and range
+        data.targetType = "Ranged - Single Target";
+        data.targetRange = 30f; // Bow range estimate
+
+        // Casting properties
+        data.isChanneled = true;
+
+        // Additional effects
+        data.additionalEffects.add("Requires bow equipped");
+        data.additionalEffects.add("Fires two arrows consecutively");
+        data.additionalEffects.add("Damage multiplier: " + String.format("%.0f%%", damageMultiplier * 100));
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Double attack that requires a bow to use effectively";
 
         return data;
     }

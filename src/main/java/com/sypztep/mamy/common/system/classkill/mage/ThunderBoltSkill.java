@@ -56,6 +56,23 @@ public class ThunderBoltSkill extends Skill implements CastableSkill {
         data.damageType = DamageTypeRef.ELEMENT;
         data.maxHits = Math.min(5, 3 + (skillLevel / 3)); // 3-5 targets based on level
 
+        // Target and range
+        data.targetType = "Projectile - Multi-target";
+        data.targetRange = 25f; // Estimate for projectile range
+
+        // Casting properties
+        data.isChanneled = true;
+
+        // Additional effects
+        data.additionalEffects.add("Thunder elemental projectile");
+        data.additionalEffects.add("Can hit multiple enemies");
+        if (data.maxHits > 1) {
+            data.additionalEffects.add("Max targets: " + data.maxHits);
+        }
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Lightning projectile that can chain to multiple enemies";
+
         return data;
     }
 
