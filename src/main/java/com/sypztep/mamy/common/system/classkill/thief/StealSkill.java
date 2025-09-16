@@ -8,6 +8,8 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import com.sypztep.mamy.common.util.SkillUtil;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -38,28 +40,41 @@ public class StealSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
+        int baseSuccessRate = 10 + ((skillLevel - 1) * 6);
+        
+        data.effects.add("Base Success Rate: " + baseSuccessRate + "%");
+        data.effects.add("Final Rate: Base + (Your DEX - Target DEX)/2");
+        data.effects.add("Uses target's loot table");
+        data.effects.add("Cannot steal from same target twice");
+        data.effects.add("Cannot steal from boss monsters");
+        data.effects.add("Doesn't affect death drops");
+        data.rangeInfo = "Interaction range";
+        data.tip = "Higher DEX improves success rate against fast enemies";
 
-        if (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN) {
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
             tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
 
-            int baseSuccessRate = 10 + ((skillLevel - 1) * 6);
-            tooltip.add(Text.literal("Base Success Rate: ").formatted(Formatting.GRAY).append(Text.literal(baseSuccessRate + "%").formatted(Formatting.GREEN)));
-
-            tooltip.add(Text.literal("Final Rate: ").formatted(Formatting.GRAY).append(Text.literal("Base + (Your DEX - Target DEX)/2").formatted(Formatting.YELLOW)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("• Uses target's loot table").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Cannot steal from same target twice").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Cannot steal from boss monsters").formatted(Formatting.DARK_RED));
-            tooltip.add(Text.literal("• Doesn't affect death drops").formatted(Formatting.DARK_GREEN));
-
-            // Usage tip
-            if (context == TooltipContext.LEARNING_SCREEN) {
-                tooltip.add(Text.literal(""));
-                tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW).append(Text.literal("Higher DEX improves success rate against fast enemies").formatted(Formatting.GRAY)));
-            }
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
         }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }

@@ -6,6 +6,9 @@ import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.util.SkillUtil;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -106,27 +109,44 @@ public class BlessingSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
         if (skillLevel > 0) {
             int hitIncrease = skillLevel * 2;
             int duration = 40 + (skillLevel * 20);
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Buff Effects:").formatted(Formatting.GOLD));
-            tooltip.add(Text.literal("• STR: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• DEX: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• INT: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• HIT: ").formatted(Formatting.GRAY).append(Text.literal("+" + hitIncrease).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• Duration: ").formatted(Formatting.GRAY).append(Text.literal(duration + "s").formatted(Formatting.YELLOW)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Special Effects:").formatted(Formatting.AQUA));
-//            if (skillLevel >= 2) {
-//                tooltip.add(Text.literal("• Purges Curse & Stone").formatted(Formatting.LIGHT_PURPLE));
-//            }
-            tooltip.add(Text.literal("• vs Undead/Demons: Reduces DEX & INT").formatted(Formatting.RED));
+            
+            data.effects.add("STR: +" + skillLevel);
+            data.effects.add("DEX: +" + skillLevel);
+            data.effects.add("INT: +" + skillLevel);
+            data.effects.add("HIT: +" + hitIncrease);
+            data.effects.add("Duration: " + duration + "s");
+            data.effects.add("vs Undead/Demons: Reduces DEX & INT");
         }
+        data.rangeInfo = "9 blocks";
+        data.tip = "Powerful buff for allies, debuff for undead and demons";
+
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }

@@ -5,6 +5,9 @@ import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModStatusEffects;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.component.living.PlayerClassComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.classes.ResourceType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.HostileEntity;
@@ -155,34 +158,49 @@ public class ProvokeSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add custom provoke information
-        tooltip.add(Text.literal(""));
-        tooltip.add(Text.literal("Provoke Effects:").formatted(Formatting.YELLOW, Formatting.BOLD));
-
-        // Calculate percentages for current level
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        
+        // Configure tooltip data
         int atkBonus = 5 + (skillLevel - 1) * 3;
         int defReduction = 10 + (skillLevel - 1) * 5;
         int successRate = 53 + skillLevel - 1;
-
-        tooltip.add(Text.literal("• Target ATK: +" + atkBonus + "%").formatted(Formatting.RED));
-        tooltip.add(Text.literal("• Target DEF: -" + defReduction + "%").formatted(Formatting.GREEN));
-        tooltip.add(Text.literal("• Success Rate: " + successRate + "%").formatted(Formatting.AQUA));
-        tooltip.add(Text.literal("• Duration: 30 seconds").formatted(Formatting.GRAY));
-        tooltip.add(Text.literal("• Range: 8 blocks").formatted(Formatting.GRAY));
-
+        
+        data.effects.add("Target ATK: +" + atkBonus + "%");
+        data.effects.add("Target DEF: -" + defReduction + "%");
+        data.effects.add("Success Rate: " + successRate + "%");
+        data.effects.add("Duration: 30 seconds");
+        data.rangeInfo = "8 blocks";
+        data.tip = "Forces enemies to target you while making them hit harder but take more damage";
+        
         // Show next level preview if not max level
         if (skillLevel < getMaxSkillLevel()) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next Level:").formatted(Formatting.DARK_GRAY));
             int nextAtkBonus = 5 + skillLevel * 3;
             int nextDefReduction = 10 + skillLevel * 5;
             int nextSuccessRate = 53 + skillLevel;
-            tooltip.add(Text.literal("• Target ATK: +" + nextAtkBonus + "%").formatted(Formatting.DARK_RED));
-            tooltip.add(Text.literal("• Target DEF: -" + nextDefReduction + "%").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Success Rate: " + nextSuccessRate + "%").formatted(Formatting.DARK_AQUA));
+            data.tip = "Next level: +" + nextAtkBonus + "% ATK, -" + nextDefReduction + "% DEF, " + nextSuccessRate + "% success";
         }
+
+        List<Text> tooltip = SkillTooltipRenderer.render(player, skillLevel, isLearned, context, name, description, maxSkillLevel, data);
+        
+        // Add resource info manually
+        if (!data.hideResourceCost && (skillLevel > 0 || context == TooltipContext.LEARNING_SCREEN)) {
+            PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+            ResourceType resourceType = classComponent.getClassManager().getResourceType();
+
+            float cost = getResourceCost(skillLevel);
+            tooltip.add(Text.literal(""));
+            tooltip.add(Text.literal("Require Resource: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.0f", cost)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" " + resourceType.getDisplayName()).formatted(Formatting.GRAY)));
+
+            float cooldown = getCooldown(skillLevel);
+            tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+
+        // Context-specific info
+        addContextInfo(tooltip, player, skillLevel, isLearned, context);
 
         return tooltip;
     }

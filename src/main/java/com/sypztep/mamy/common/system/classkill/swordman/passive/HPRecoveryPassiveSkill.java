@@ -54,28 +54,30 @@ public class HPRecoveryPassiveSkill extends PassiveSkill {
     }
 
     @Override
-    protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal("Enhanced health regeneration through training and conditioning.").formatted(Formatting.GRAY));
-        tooltip.add(Text.literal("Restores HP every 10 seconds when idle.").formatted(Formatting.GRAY));
-
+    protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
+        SkillTooltipData data = new SkillTooltipData();
+        
+        // Configure for passive skills
+        data.hideDamage = true;
+        data.hideResourceCost = true;
+        data.hideCooldown = true;
+        
+        // Add regeneration info as effects
         double baseRegen = 5 * skillLevel;
         double percentageRegen = 0.2 * skillLevel;
-
-        tooltip.add(Text.literal("• Base Health Regen: ").formatted(Formatting.GRAY)
-                .append(Text.literal("+" + String.format("%.0f", baseRegen) + " HP").formatted(Formatting.GREEN)));
-        tooltip.add(Text.literal("• Percentage Health Regen: ").formatted(Formatting.GRAY)
-                .append(Text.literal("+" + String.format("%.1f", percentageRegen) + "% of Max HP").formatted(Formatting.GREEN)));
-
+        
+        data.effects.add("Base Health Regen: +" + String.format("%.0f", baseRegen) + " HP");
+        data.effects.add("Percentage Health Regen: +" + String.format("%.1f", percentageRegen) + "% of Max HP");
+        data.effects.add("Restores HP every 10 seconds when idle");
+        
         if (skillLevel < getMaxSkillLevel()) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next Level:").formatted(Formatting.GOLD));
             double nextBaseRegen = 5 * (skillLevel + 1);
             double nextPercentageRegen = 0.2 * (skillLevel + 1);
-            tooltip.add(Text.literal("• Base Health Regen: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.0f", nextBaseRegen) + " HP").formatted(Formatting.DARK_GREEN)));
-            tooltip.add(Text.literal("• Percentage Health Regen: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", nextPercentageRegen) + "% of Max HP").formatted(Formatting.DARK_GREEN)));
+            data.tip = "Next level: +" + String.format("%.0f", nextBaseRegen) + " HP, " + 
+                      String.format("%.1f", nextPercentageRegen) + "% of Max HP";
         }
+        
+        return data;
     }
 
     @Override
