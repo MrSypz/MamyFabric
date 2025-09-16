@@ -133,6 +133,7 @@ public abstract class PassiveSkill extends Skill {
     @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
+        data.isPassive = true;
         populatePassiveTooltipData(data, player, skillLevel);
         return data;
     }
@@ -140,57 +141,21 @@ public abstract class PassiveSkill extends Skill {
     /**
      * Override this to populate tooltip data for passive effects
      */
-    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {}
-
-    @Override
-    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = new ArrayList<>();
-
-        // Skill name with level - add PASSIVE indicator
-        addPassiveSkillHeader(tooltip, skillLevel, isLearned);
-
-        // Empty line for spacing
-        tooltip.add(Text.literal(""));
-
-        // Passive effects description
-        addPassiveEffectsDescription(tooltip, skillLevel);
-
-        // Context-specific info (no resource cost/cooldown for passives)
-        addContextInfo(tooltip, player, skillLevel, isLearned, context);
-
-        return tooltip;
-    }
-
-    private void addPassiveSkillHeader(List<Text> tooltip, int skillLevel, boolean isLearned) {
-        if (isLearned) {
-            tooltip.add(Text.literal(name).formatted(Formatting.WHITE, Formatting.BOLD)
-                    .append(Text.literal(" (PASSIVE)").formatted(Formatting.GREEN))
-                    .append(Text.literal(" (Level " + skillLevel + "/" + maxSkillLevel + ")")
-                            .formatted(Formatting.GRAY)));
-        } else {
-            tooltip.add(Text.literal(name).formatted(Formatting.GRAY, Formatting.BOLD)
-                    .append(Text.literal(" (PASSIVE)").formatted(Formatting.DARK_GREEN))
-                    .append(Text.literal(" (Not Learned)").formatted(Formatting.DARK_GRAY)));
-        }
-    }
-
-    /**
-     * Override this to add custom passive effects description to tooltip
-     * This is now more flexible - you can completely override this method
-     * or use addCustomTooltipInfo() for additional info
-     */
-    protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal(description).formatted(Formatting.GRAY));
-
-        // Add attribute modifications to tooltip
+    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {
+        // Add attribute modifications to additional effects
         for (AttributeModification modification : attributeModifications) {
             double value = modification.effectFunction().applyAsDouble((double) skillLevel);
             String attributeName = getAttributeDisplayName(modification.attribute());
             String valueText = formatAttributeValue(value, modification.operation());
-
-            tooltip.add(Text.literal("• " + attributeName + ": ").formatted(Formatting.GRAY)
-                    .append(Text.literal(valueText).formatted(Formatting.YELLOW)));
+            data.additionalEffects.add(attributeName + ": " + valueText);
         }
+    }
+
+    @Override
+    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 
     private String getAttributeDisplayName(RegistryEntry<EntityAttribute> attribute) {

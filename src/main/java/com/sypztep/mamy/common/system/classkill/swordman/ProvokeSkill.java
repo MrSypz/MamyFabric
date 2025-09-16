@@ -44,6 +44,38 @@ public class ProvokeSkill extends Skill {
         data.damageType = DamageTypeRef.PHYSICAL;
         data.maxHits = 0;
 
+        // Target and range
+        data.targetType = "Single Enemy";
+        data.targetRange = 8f;
+
+        if (skillLevel > 0) {
+            // Calculate percentages for current level
+            int atkBonus = 5 + (skillLevel - 1) * 3;
+            int defReduction = 10 + (skillLevel - 1) * 5;
+            int successRate = 53 + skillLevel - 1;
+
+            // Status effects applied to target
+            data.statusEffectsApplied.add("Target ATK: +" + atkBonus + "%");
+            data.statusEffectsApplied.add("Target DEF: -" + defReduction + "%");
+            data.statusEffectsApplied.add("Duration: 30 seconds");
+
+            // Additional effects
+            data.additionalEffects.add("Success Rate: " + successRate + "%");
+
+            // Show next level preview if not max level
+            if (skillLevel < getMaxSkillLevel()) {
+                int nextAtkBonus = 5 + skillLevel * 3;
+                int nextDefReduction = 10 + skillLevel * 5;
+                int nextSuccessRate = 53 + skillLevel;
+                data.additionalEffects.add("Next Level - Target ATK: +" + nextAtkBonus + "%");
+                data.additionalEffects.add("Next Level - Target DEF: -" + nextDefReduction + "%");
+                data.additionalEffects.add("Next Level - Success Rate: " + nextSuccessRate + "%");
+            }
+        }
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Taunt enemies to make them stronger but vulnerable";
+
         return data;
     }
 
@@ -155,35 +187,8 @@ public class ProvokeSkill extends Skill {
 
     @Override
     public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        // Add custom provoke information
-        tooltip.add(Text.literal(""));
-        tooltip.add(Text.literal("Provoke Effects:").formatted(Formatting.YELLOW, Formatting.BOLD));
-
-        // Calculate percentages for current level
-        int atkBonus = 5 + (skillLevel - 1) * 3;
-        int defReduction = 10 + (skillLevel - 1) * 5;
-        int successRate = 53 + skillLevel - 1;
-
-        tooltip.add(Text.literal("• Target ATK: +" + atkBonus + "%").formatted(Formatting.RED));
-        tooltip.add(Text.literal("• Target DEF: -" + defReduction + "%").formatted(Formatting.GREEN));
-        tooltip.add(Text.literal("• Success Rate: " + successRate + "%").formatted(Formatting.AQUA));
-        tooltip.add(Text.literal("• Duration: 30 seconds").formatted(Formatting.GRAY));
-        tooltip.add(Text.literal("• Range: 8 blocks").formatted(Formatting.GRAY));
-
-        // Show next level preview if not max level
-        if (skillLevel < getMaxSkillLevel()) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next Level:").formatted(Formatting.DARK_GRAY));
-            int nextAtkBonus = 5 + skillLevel * 3;
-            int nextDefReduction = 10 + skillLevel * 5;
-            int nextSuccessRate = 53 + skillLevel;
-            tooltip.add(Text.literal("• Target ATK: +" + nextAtkBonus + "%").formatted(Formatting.DARK_RED));
-            tooltip.add(Text.literal("• Target DEF: -" + nextDefReduction + "%").formatted(Formatting.DARK_GREEN));
-            tooltip.add(Text.literal("• Success Rate: " + nextSuccessRate + "%").formatted(Formatting.DARK_AQUA));
-        }
-
-        return tooltip;
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
     }
 }

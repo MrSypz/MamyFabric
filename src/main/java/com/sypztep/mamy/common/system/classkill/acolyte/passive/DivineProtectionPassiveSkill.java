@@ -41,25 +41,26 @@ public class DivineProtectionPassiveSkill extends PassiveSkill {
     }
 
     @Override
-    protected void addPassiveEffectsDescription(List<Text> tooltip, int skillLevel) {
-        tooltip.add(Text.literal("Divine blessing protects against unholy creatures.").formatted(Formatting.GRAY));
-
+    protected void populatePassiveTooltipData(SkillTooltipData data, PlayerEntity player, int skillLevel) {
         if (skillLevel > 0) {
-            int baseLevel = 1; // Default for tooltip
+            int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
             float reduction = (1f * skillLevel) + (0.04f * (baseLevel + 1));
-            tooltip.add(Text.literal("• Damage Reduction vs Undead/Demons: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", reduction)).formatted(Formatting.YELLOW)));
-            tooltip.add(Text.literal("  (Scales with Base Level)").formatted(Formatting.DARK_GRAY));
+            
+            data.additionalEffects.add("Damage Reduction vs Undead/Demons: +" + String.format("%.1f", reduction));
+            data.additionalEffects.add("(Scales with Base Level)");
         }
 
         if (skillLevel < getMaxSkillLevel()) {
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Next Level:").formatted(Formatting.GOLD));
-            int baseLevel = 1;
+            int baseLevel = ModEntityComponents.LIVINGLEVEL.get(player).getLevel();
             float nextReduction = (1f * (skillLevel + 1)) + (0.04f * (baseLevel + 1));
-            tooltip.add(Text.literal("• Damage Reduction: ").formatted(Formatting.GRAY)
-                    .append(Text.literal("+" + String.format("%.1f", nextReduction)).formatted(Formatting.DARK_GREEN)));
+            data.additionalEffects.add("Next Level - Damage Reduction: +" + String.format("%.1f", nextReduction));
         }
+
+        // Set special description for passive skills
+        data.specialDescription = "Divine blessing protects against unholy creatures.";
+        
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Passive protection that grows stronger with your base level";
     }
 
     @Override

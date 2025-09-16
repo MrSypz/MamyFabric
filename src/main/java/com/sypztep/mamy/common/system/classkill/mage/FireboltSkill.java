@@ -79,8 +79,24 @@ public class FireboltSkill extends Skill implements CastableSkill {
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
-        data.baseDamage = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT) + 1 + skillLevel;
+        float magicAttack = (float) player.getAttributeValue(ModEntityAttributes.MAGIC_ATTACK_DAMAGE_FLAT);
+        data.baseDamage = magicAttack + 1 + skillLevel;
         data.damageType = DamageTypeRef.ELEMENT;
+        data.maxHits = 1;
+
+        // Target and range
+        data.targetType = "Projectile";
+        data.targetRange = 20f; // Estimate for projectile range
+
+        // Casting properties
+        data.isChanneled = true;
+
+        // Additional effects
+        data.additionalEffects.add("Fire damage projectile");
+        data.additionalEffects.add("Fast burning projectile");
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Basic fire magic attack that travels in a straight line";
 
         return data;
     }

@@ -37,6 +37,13 @@ public class BlessingSkill extends Skill {
     }
 
     @Override
+    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
+        // Use the universal tooltip renderer
+        SkillTooltipData data = getSkillTooltipData(player, skillLevel);
+        return SkillTooltipRenderer.render(this, data, player, skillLevel, isLearned, context);
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 
@@ -44,6 +51,35 @@ public class BlessingSkill extends Skill {
         data.baseDamage = 0;
         data.damageType = DamageTypeRef.HEAL; // Use heal type for beneficial effects
         data.maxHits = 1;
+
+        // Target and range
+        data.targetType = "Single Target or Self";
+        data.targetRange = 9f;
+
+        // Cooldown override
+        data.overrideCooldown = true;
+        data.customCooldownText = "None";
+
+        if (skillLevel > 0) {
+            int hitIncrease = skillLevel * 2;
+            int duration = 40 + (skillLevel * 20);
+
+            // Status effects applied
+            data.statusEffectsApplied.add("STR: +" + skillLevel);
+            data.statusEffectsApplied.add("DEX: +" + skillLevel);
+            data.statusEffectsApplied.add("INT: +" + skillLevel);
+            data.statusEffectsApplied.add("HIT: +" + hitIncrease);
+            data.statusEffectsApplied.add("Duration: " + duration + "s");
+
+            // Additional effects
+            if (skillLevel >= 2) {
+                data.additionalEffects.add("Purges Curse & Stone effects");
+            }
+            data.additionalEffects.add("vs Undead/Demons: Reduces DEX & INT instead");
+        }
+
+        // Context-sensitive tip for learning screen
+        data.contextTip = "Powerful blessing that enhances stats or weakens evil creatures";
 
         return data;
     }
@@ -102,33 +138,6 @@ public class BlessingSkill extends Skill {
     private boolean isDemon(LivingEntity entity) {
         String entityName = entity.getType().toString().toLowerCase();
         return entityName.contains("wither") || entityName.contains("blaze") || entityName.contains("ghast") || entityName.contains("demon") || entityName.contains("devil"); // Add more demon types as needed
-    }
-
-    @Override
-    public List<Text> generateTooltip(PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
-        List<Text> tooltip = super.generateTooltip(player, skillLevel, isLearned, context);
-
-        if (skillLevel > 0) {
-            int hitIncrease = skillLevel * 2;
-            int duration = 40 + (skillLevel * 20);
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Buff Effects:").formatted(Formatting.GOLD));
-            tooltip.add(Text.literal("• STR: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• DEX: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• INT: ").formatted(Formatting.GRAY).append(Text.literal("+" + skillLevel).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• HIT: ").formatted(Formatting.GRAY).append(Text.literal("+" + hitIncrease).formatted(Formatting.GREEN)));
-            tooltip.add(Text.literal("• Duration: ").formatted(Formatting.GRAY).append(Text.literal(duration + "s").formatted(Formatting.YELLOW)));
-
-            tooltip.add(Text.literal(""));
-            tooltip.add(Text.literal("Special Effects:").formatted(Formatting.AQUA));
-//            if (skillLevel >= 2) {
-//                tooltip.add(Text.literal("• Purges Curse & Stone").formatted(Formatting.LIGHT_PURPLE));
-//            }
-            tooltip.add(Text.literal("• vs Undead/Demons: Reduces DEX & INT").formatted(Formatting.RED));
-        }
-
-        return tooltip;
     }
 
     @Override

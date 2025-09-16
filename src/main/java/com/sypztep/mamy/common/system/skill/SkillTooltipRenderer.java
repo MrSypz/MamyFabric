@@ -148,6 +148,11 @@ public final class SkillTooltipRenderer {
     }
 
     private static void addResourceInfo(List<Text> tooltip, Skill skill, PlayerEntity player, int skillLevel, Skill.SkillTooltipData data) {
+        // Skip resource info for passive skills
+        if (data.isPassive) {
+            return;
+        }
+        
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
         ResourceType resourceType = classComponent.getClassManager().getResourceType();
 
