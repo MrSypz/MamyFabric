@@ -5,7 +5,9 @@ import com.sypztep.mamy.common.component.item.ResourceComponents;
 import com.sypztep.mamy.common.item.ResourcePotionItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.*;
+import net.minecraft.potion.Potions;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -13,6 +15,7 @@ import net.minecraft.registry.Registry;
 public class ModItems {
     public static Item CHILLING_LIGHT_WATER;
     public static Item THERMAL_ESSENCE;
+    public static Item HOLY_WATER;
 
     public static Item POCKET_RESOURCE_WATER;
     public static Item LESSER_RESOURCE_WATER;
@@ -23,8 +26,8 @@ public class ModItems {
 
     public static void init() {
         CHILLING_LIGHT_WATER = registeritem("chilling_light_water", new PotionItem(new Item.Settings().maxCount(64)));
-
         THERMAL_ESSENCE = registeritem("thermal_essence", new PotionItem(new Item.Settings().maxCount(64)));
+        HOLY_WATER = registeritem("holy_water", new PotionItem(new Item.Settings().maxCount(64)));
 
         POCKET_RESOURCE_WATER = registeritem("pocket_resource_water",
                 new ResourcePotionItem(new Item.Settings()
@@ -68,6 +71,7 @@ public class ModItems {
                     entries.add(GREATER_RESOURCE_WATER);
                     entries.add(SUPERIOR_RESOURCE_WATER);
                     entries.add(ULTIMATE_RESOURCE_WATER);
+                    entries.add(HOLY_WATER);
                 });
         FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> {
             builder.registerItemRecipe(
