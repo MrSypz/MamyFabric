@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
+import com.sypztep.mamy.common.system.damage.ElementType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -10,12 +11,15 @@ import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.ResourceType;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.system.damage.HybridDamageSource;
+import com.sypztep.mamy.common.system.damage.DamageComponent;
+import com.sypztep.mamy.common.system.damage.CombatType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-public abstract class Skill {
+public abstract class Skill implements HybridDamageSource {
     protected final Identifier id;
     protected final String name;
     protected final String description;
@@ -72,6 +76,48 @@ public abstract class Skill {
                  int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
         this(id, name, description, baseResourceCost, baseCooldown,
                 baseClassPointCost, upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, null);
+    }
+
+    // ============================================================================
+    // HYBRID DAMAGE SOURCE IMPLEMENTATION
+    // ============================================================================
+
+    /**
+     * Default implementation returns Physical Melee damage
+     * Override this method in skills that need custom elemental/combat type combinations
+     */
+    @Override
+    public List<DamageComponent> getDamageComponents() {
+        return List.of(DamageComponent.pureCombat(CombatType.MELEE, 1.0f));
+    }
+
+    /**
+     * Helper method to create simple elemental skills
+     */
+    protected List<DamageComponent> createElementalDamage(ElementType elementType) {
+        return List.of(DamageComponent.pureElemental(elementType, 1.0f));
+    }
+
+    /**
+     * Helper method to create simple combat type skills
+     */
+    protected List<DamageComponent> createCombatDamage(CombatType combatType) {
+        return List.of(DamageComponent.pureCombat(combatType, 1.0f));
+    }
+
+    /**
+     * Helper method to create hybrid skills
+     */
+    protected List<DamageComponent> createHybridDamage(ElementType elementType, float elementalWeight,
+                                                       CombatType combatType, float combatWeight) {
+        return List.of(DamageComponent.hybrid(elementType, elementalWeight, combatType, combatWeight));
+    }
+
+    /**
+     * Helper method to create multi-component skills
+     */
+    protected List<DamageComponent> createMultiComponentDamage(DamageComponent... components) {
+        return Arrays.asList(components);
     }
 
     // ============================================================================
