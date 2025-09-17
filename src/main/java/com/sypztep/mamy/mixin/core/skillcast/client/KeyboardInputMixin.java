@@ -31,6 +31,7 @@ public class KeyboardInputMixin extends Input {
             pressingBack = false;
             pressingLeft = false;
             pressingRight = false;
+            jumping = false;
             movementForward = 0;
             movementSideways = 0;
         }
@@ -39,9 +40,7 @@ public class KeyboardInputMixin extends Input {
     private boolean hasMovementLockingEffect(LivingEntity entity) {
         for (StatusEffectInstance effectInstance : entity.getStatusEffects()) {
             StatusEffect effect = effectInstance.getEffectType().value();
-            if (effect instanceof MovementLock movementLock && movementLock.shouldLockMovement()) {
-                return true;
-            }
+            if (effect instanceof MovementLock movementLock && movementLock.shouldLockMovement()) return true;
         }
         return false;
     }
