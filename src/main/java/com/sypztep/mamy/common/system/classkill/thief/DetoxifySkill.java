@@ -48,7 +48,7 @@ public class DetoxifySkill extends Skill {
             if (context == TooltipContext.LEARNING_SCREEN) {
                 tooltip.add(Text.literal(""));
                 tooltip.add(Text.literal("💡 Tip: ").formatted(Formatting.YELLOW)
-                        .append(Text.literal("Quick poison and wither removal for yourself or allies").formatted(Formatting.GRAY)));
+                        .append(Text.literal("Quick poison and wither removal for allies").formatted(Formatting.GRAY)));
             }
         }
 
