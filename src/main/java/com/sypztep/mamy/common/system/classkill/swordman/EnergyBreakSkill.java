@@ -4,19 +4,21 @@ package com.sypztep.mamy.common.system.classkill.swordman;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModDamageTypes;
+import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Box;
-import net.minecraft.particle.ParticleTypes;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
     public EnergyBreakSkill(Identifier identifier, List<SkillRequirement> prerequisites) {
         super(identifier, "Energy Break", "Unleash a devastating fire explosion in a 5x5 area",
                 30f, 2f,
-                10,  Mamy.id("skill/energy_break"), prerequisites);
+                10, Mamy.id("skill/energy_break"), prerequisites);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
         SkillTooltipData data = new SkillTooltipData();
 
         data.baseDamage = 10 + (1 + (skillLevel * 0.3f)); // Minimum 10 damage
-        data.damageType = DamageTypeRef.PHYSICAL; // Fire type
+        data.damageType = DamageTypeRef.ELEMENT; // Fire type
         data.maxHits = 1;
 
         return data;
@@ -71,29 +73,15 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
 
         float finalDamage = 10 + (1 + (skillLevel * 0.3f));
 
-        // Create 5x5 AOE damage area centered on player
         Vec3d playerPos = player.getPos();
-        Box aoeArea = new Box(
-                playerPos.x - 2.5, playerPos.y, playerPos.z - 2.5,
-                playerPos.x + 2.5, playerPos.y + 3, playerPos.z + 2.5
-        );
+        Box aoeArea = SkillUtil.makeBox(player, 5, 3, 5);
 
-        // Find and damage all enemies in area
-        List<LivingEntity> targets = serverWorld.getEntitiesByClass(
-                LivingEntity.class,
-                aoeArea,
-                entity -> entity != player && entity.isAlive()
-        );
+        List<LivingEntity> targets = serverWorld.getEntitiesByClass(LivingEntity.class, aoeArea, entity -> entity != player && entity.isAlive());
 
-        DamageSource damageSource = serverWorld.getDamageSources().create(
-                ModDamageTypes.ENERGY_BREAK, player
-        );
+        DamageSource damageSource = serverWorld.getDamageSources().create(ModDamageTypes.ENERGY_BREAK, player);
 
-        for (LivingEntity target : targets) {
-            target.damage(damageSource, finalDamage);
-        }
+        for (LivingEntity target : targets) target.damage(damageSource, finalDamage);
 
-        // Create massive fire explosion particles
         for (int x = -2; x <= 2; x++) {
             for (int z = -2; z <= 2; z++) {
                 for (int y = 0; y <= 2; y++) {
@@ -106,11 +94,9 @@ public class EnergyBreakSkill extends Skill implements CastableSkill {
                 }
             }
         }
+        serverWorld.spawnParticles(ModParticles.AIRHIKE, playerPos.x, playerPos.y , playerPos.z, 1, 0.0, 0.0, 0.0, 0.0);
 
-        // Play explosion sound
-        serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
-                1.5f, 0.8f);
+        serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 1.5f, 1.5f);
 
         return true;
     }
