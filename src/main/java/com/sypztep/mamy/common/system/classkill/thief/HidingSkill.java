@@ -87,7 +87,6 @@ public class HidingSkill extends Skill {
         if (!(caster instanceof PlayerEntity player)) return false;
         LivingHidingComponent buryComponent = ModEntityComponents.HIDING.get(player);
         if (!player.getWorld().isClient() && player.getWorld() instanceof ServerWorld serverWorld) {
-
             if (buryComponent.getHiddingPos() != null) {
                 player.removeStatusEffect(ModStatusEffects.HIDING);
 

@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class LivingHidingComponent implements AutoSyncedComponent, ServerTickingComponent {
@@ -35,9 +34,6 @@ public class LivingHidingComponent implements AutoSyncedComponent, ServerTicking
     @Override
     public void serverTick() {
         if (hiddingPos != null) {
-            if (obj.getX() != hiddingPos.getX() + 0.5 || obj.getY() != hiddingPos.getY() + 1 || obj.getZ() != hiddingPos.getZ() + 0.5)
-                obj.refreshPositionAfterTeleport(hiddingPos.getX() + 0.5, hiddingPos.getY(), hiddingPos.getZ() + 0.5);
-
             if (obj.getVelocity() != Vec3d.ZERO) {
                 obj.setVelocity(Vec3d.ZERO);
                 obj.velocityModified = true;
