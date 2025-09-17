@@ -7,6 +7,7 @@ import com.sypztep.mamy.common.system.damage.*;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
@@ -24,7 +25,7 @@ import java.util.List;
 public class BashingBlowSkill extends Skill {
 
     public BashingBlowSkill(Identifier identifier) {
-        super(identifier, "Bashing Blow", "Dash 5 blocks forward and deal massive Physical+Fire damage to the first enemy hit",
+        super(identifier, "Bashing Blow", "Attack the single target deal massive Physical+Fire damage to the first enemy hit",
                 8f, 0.5f,
                 10,
                 Mamy.id("skill/bashing_blow"));
@@ -75,9 +76,9 @@ public class BashingBlowSkill extends Skill {
         // Get player's facing direction for targeting
         Vec3d direction = player.getRotationVector().normalize();
         Vec3d startPos = player.getPos();
-        Vec3d endPos = startPos.add(direction.multiply(5.0)); // 5 block range
+        Vec3d endPos = startPos.add(direction.multiply(player.getAttributeValue(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE)));
 
-        Box damageArea = SkillUtil.makeBox(player, endPos.x + 2, endPos.y + 2, endPos.z + 2);
+        Box damageArea = SkillUtil.makePathBox(startPos, endPos, 2.0, 2.0);
 
         List<LivingEntity> targets = serverWorld.getEntitiesByClass(LivingEntity.class, damageArea, entity -> entity != player && entity.isAlive());
 
@@ -87,7 +88,6 @@ public class BashingBlowSkill extends Skill {
             target.damage(damageSource, finalDamage);
         }
 
-        // Create vertical slash effect from above with fire elements
         Vec3d centerPos = startPos.add(direction.multiply(2.5)); // Middle of dash path
         spawnSkillVisualEffects(serverWorld, centerPos);
 
@@ -96,11 +96,7 @@ public class BashingBlowSkill extends Skill {
         return true;
     }
 
-    /**
-     * Enhanced visual effects for hybrid skill
-     */
     private void spawnSkillVisualEffects(ServerWorld world, Vec3d centerPos) {
-        // Create vertical slash particles falling from above
         for (int i = 0; i < 15; i++) {
             double heightOffset = 3.0 - (i * 0.2); // Start 3 blocks above, work down
             double x = centerPos.x + (Math.random() - 0.5) * 2.0; // Spread horizontally
@@ -108,9 +104,8 @@ public class BashingBlowSkill extends Skill {
 
             world.spawnParticles(ParticleTypes.SWEEP_ATTACK, x, centerPos.y + heightOffset, z, 1, 0.1, 0.0, 0.1, 0.0);
 
-            if (i % 3 == 0) { // Every 3rd particle for fire
+            if (i % 3 == 0) // Every 3rd particle for fire
                 world.spawnParticles(ParticleTypes.FLAME, x, centerPos.y + heightOffset, z, 1, 0.1, 0.0, 0.1, 0.02);
-            }
 
             world.spawnParticles(ParticleTypes.CRIT, x, centerPos.y + heightOffset, z, 2, 0.3, 0.1, 0.3, 0.05);
         }

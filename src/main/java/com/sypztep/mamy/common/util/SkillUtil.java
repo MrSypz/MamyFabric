@@ -50,4 +50,20 @@ public class SkillUtil {
         DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
         return box;
     }
+
+    public static Box makePathBox(Vec3d start, Vec3d end, double width, double height) {
+        double halfW = width * 0.5;
+        Box box = new Box(Math.min(start.x, end.x) - halfW, Math.min(start.y, end.y), Math.min(start.z, end.z) - halfW, Math.max(start.x, end.x) + halfW, Math.max(start.y, end.y) + height, Math.max(start.z, end.z) + halfW);
+        DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
+        return box;
+    }
+    public static Box makePathBox(Entity entity,double range, double width, double height) {
+        double halfW = width * 0.5;
+        Vec3d direction = entity.getRotationVector().normalize();
+        Vec3d start = entity.getPos();
+        Vec3d end = start.add(direction.multiply(range)); // 5 block range
+        Box box = new Box(Math.min(start.x, end.x) - halfW, Math.min(start.y, end.y), Math.min(start.z, end.z) - halfW, Math.max(start.x, end.x) + halfW, Math.max(start.y, end.y) + height, Math.max(start.z, end.z) + halfW);
+        DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
+        return box;
+    }
 }
