@@ -70,10 +70,7 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
 
     @Override
     public boolean canUse(LivingEntity caster, int skillLevel) {
-        if (!(caster instanceof PlayerEntity player)) return false;
-
-        // Check if player is alive AND has enough HP
-        return player.isAlive() && player.getHealth() > HP_COST;
+        return caster instanceof PlayerEntity player && caster.isAlive() && player.getHealth() > HP_COST ;
     }
 
     @Override

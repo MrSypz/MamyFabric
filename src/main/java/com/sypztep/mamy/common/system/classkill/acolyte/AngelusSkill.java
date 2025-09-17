@@ -68,10 +68,8 @@ public class AngelusSkill extends Skill implements CastableSkill {
 
     @Override
     public boolean canUse(LivingEntity caster, int skillLevel) {
-        if (!(caster instanceof PlayerEntity player)) return false;
-        return player.isAlive();
+        return caster instanceof PlayerEntity && caster.isAlive();
     }
-
     @Override
     public boolean use(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;

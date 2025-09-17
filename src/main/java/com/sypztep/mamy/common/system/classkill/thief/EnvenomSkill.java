@@ -77,9 +77,7 @@ public class EnvenomSkill extends Skill {
 
     @Override
     public boolean canUse(LivingEntity caster, int skillLevel) {
-        if (!(caster instanceof PlayerEntity player)) return false;
-        if (!player.isAlive()) return false;
-        return !player.hasStatusEffect(ModStatusEffects.ENVENOM_WEAPON);
+        return caster instanceof PlayerEntity player && caster.isAlive() && !player.hasStatusEffect(ModStatusEffects.ENVENOM_WEAPON);
     }
 
     @Override
