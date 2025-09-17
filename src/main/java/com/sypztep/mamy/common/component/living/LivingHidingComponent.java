@@ -51,7 +51,7 @@ public class LivingHidingComponent implements AutoSyncedComponent, ServerTicking
     public void setHiddingPos(BlockPos hiddingPos) {
         this.hiddingPos = hiddingPos;
     }
-    public void unbury() {
+    public void unHidden() {
         setHiddingPos(null);
         sync();
     }

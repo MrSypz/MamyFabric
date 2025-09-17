@@ -22,7 +22,7 @@ public class AbstractBlockMixin {
             world.getPlayers().forEach(player -> {
                 LivingHidingComponent hiding = ModEntityComponents.HIDING.get(player);
                 if (hiding.getHiddingPos() != null && hiding.getHiddingPos().equals(pos)) {
-                    hiding.unbury();
+                    hiding.unHidden();
                     player.removeStatusEffect(ModStatusEffects.HIDING);
                     player.sendMessage(Text.literal("The ground crumbles beneath you!").formatted(Formatting.RED), true);
                 }

@@ -43,7 +43,7 @@ public class HidingStatusEffect extends CleanUpEffect{
     private static void unBury(LivingEntity entity) {
         if (entity instanceof PlayerEntity player) {
             LivingHidingComponent buryComponent = ModEntityComponents.HIDING.get(player);
-            buryComponent.unbury();
+            buryComponent.unHidden();
             player.sendMessage(Text.literal("You emerge from hiding").formatted(Formatting.GRAY), true);
         }
     }
