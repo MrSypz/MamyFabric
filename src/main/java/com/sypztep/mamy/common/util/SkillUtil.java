@@ -1,5 +1,7 @@
 package com.sypztep.mamy.common.util;
 
+import com.sypztep.mamy.client.render.DebugBoxRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
@@ -8,7 +10,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Optional;
 
 public class SkillUtil {
-    public static LivingEntity findTargetEntity(PlayerEntity player,double range) {
+    public static LivingEntity findTargetEntity(PlayerEntity player, double range) {
         Vec3d start = player.getCameraPosVec(1.0f);
         Vec3d direction = player.getRotationVec(1.0f);
         Vec3d end = start.add(direction.multiply(range));
@@ -30,5 +32,22 @@ public class SkillUtil {
         }
 
         return closestEntity;
+    }
+
+    public static Box makeBox(Vec3d center, double width, double height, double depth) {
+        double halfW = width * 0.5f;
+        double halfD = depth * 0.5f;
+        Box box = new Box(center.x - halfW, center.y, center.z - halfD, center.x + halfW, center.y + height, center.z + halfD);
+        DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
+        return box;
+    }
+
+    public static Box makeBox(Entity entity, double width, double height, double depth) {
+        double halfW = width * 0.5f;
+        double halfD = depth * 0.5f;
+        Vec3d center = entity.getPos();
+        Box box = new Box(center.x - halfW, center.y, center.z - halfD, center.x + halfW, center.y + height, center.z + halfD);
+        DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
+        return box;
     }
 }
