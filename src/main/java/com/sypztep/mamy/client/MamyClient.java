@@ -6,6 +6,7 @@ import com.sypztep.mamy.client.event.animation.NetworkAnimationManager;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.client.event.hud.*;
 import com.sypztep.mamy.client.event.tooltip.ItemWeightTooltip;
+import com.sypztep.mamy.client.render.DebugBoxRenderer;
 import com.sypztep.mamy.client.screen.CameraShakeManager;
 import com.sypztep.mamy.client.screen.overlay.IconOverlayManager;
 import com.sypztep.mamy.common.init.ModEntityTypes;
@@ -15,6 +16,9 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class MamyClient implements ClientModInitializer {
     public static ModConfig config = new ModConfig();
@@ -49,6 +53,10 @@ public class MamyClient implements ClientModInitializer {
         ItemWeightTooltip.register();
 
         ClientTickEvents.END_CLIENT_TICK.register(CameraShakeManager.Event::register);
-
+        WorldRenderEvents.AFTER_ENTITIES.register((context) -> {
+            MatrixStack matrices = context.matrixStack();
+            VertexConsumerProvider.Immediate consumers = (VertexConsumerProvider.Immediate) context.consumers();
+            DebugBoxRenderer.render(matrices, consumers, context.camera());
+        });
     }
 }
