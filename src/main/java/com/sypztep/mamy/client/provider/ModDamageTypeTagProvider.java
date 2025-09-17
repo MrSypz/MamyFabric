@@ -53,7 +53,6 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// No Impact - Damage that doesn't cause knockback/hitstun
 		getOrCreateTagBuilder(DamageTypeTags.NO_IMPACT)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.MAGIC_ARROW)
 				.addOptional(ModDamageTypes.LIGHTING);
@@ -61,7 +60,6 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 		// No Knockback - Damage that doesn't push entities
 		getOrCreateTagBuilder(DamageTypeTags.NO_KNOCKBACK)
 				.addOptional(ModDamageTypes.DOUBLE_ATTACK)
-				.addOptional(ModDamageTypes.ENERGY_BREAK)
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
 				.addOptional(ModDamageTypes.MAGIC_ARROW)
