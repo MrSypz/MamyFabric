@@ -12,7 +12,6 @@ import java.util.Map;
 public interface ModSoundEvents {
 	Map<SoundEvent, Identifier> SOUND_EVENTS = new LinkedHashMap<>();
 	//Sound
-    SoundEvent ENTITY_GENERIC_BLOODHIT = createSoundEvent("entity.generic.bloodhit");
     SoundEvent ENTITY_GENERIC_HEADSHOT = createSoundEvent("entity.generic.headshot");
     SoundEvent ENTITY_GENERIC_RICOCHET = createSoundEvent("entity.generic.ricochet");
     SoundEvent ENTITY_GENERIC_SHOCKWAVE = createSoundEvent("entity.generic.shockwave");
