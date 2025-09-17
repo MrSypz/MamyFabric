@@ -5,7 +5,7 @@ import com.sypztep.mamy.client.util.DrawContextUtils;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.network.server.SkillActionPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -72,7 +72,7 @@ public final class ScrollableSkillTree {
     }
 
     private void buildSkillTree() {
-        List<Skill> skills = SkillRegistry.getSkillsForClass(classComponent.getClassManager().getCurrentClass());
+        List<Skill> skills = ModClassesSkill.getSkillsForClass(classComponent.getClassManager().getCurrentClass());
 
         // Organize by tiers
         Map<Integer, List<Skill>> tierMap = new TreeMap<>();
@@ -122,7 +122,7 @@ public final class ScrollableSkillTree {
 
         int maxTier = 0;
         for (Skill.SkillRequirement req : skill.getPrerequisites()) {
-            Skill prereq = SkillRegistry.getSkill(req.skillId());
+            Skill prereq = ModClassesSkill.getSkill(req.skillId());
             if (prereq != null) {
                 maxTier = Math.max(maxTier, calculateTier(prereq, new HashSet<>(visited)));
             }
@@ -138,7 +138,7 @@ public final class ScrollableSkillTree {
         if (!ModConfig.unlearnskill) return false;
 
         // Can't unlearn basic skill
-        if (skill.getId().equals(SkillRegistry.BASICSKILL)) return false;
+        if (skill.getId().equals(ModClassesSkill.BASICSKILL)) return false;
 
         int currentLevel = classComponent.getSkillLevel(skill.getId());
 
@@ -156,7 +156,7 @@ public final class ScrollableSkillTree {
     private List<Identifier> findDependentSkills(Identifier skillId, int currentLevel) {
         List<Identifier> dependentSkills = new ArrayList<>();
 
-        List<Skill> allSkills = SkillRegistry.getSkillsForClass(classComponent.getClassManager().getCurrentClass());
+        List<Skill> allSkills = ModClassesSkill.getSkillsForClass(classComponent.getClassManager().getCurrentClass());
 
         for (Skill skill : allSkills) {
             // Skip if this skill is not learned
@@ -290,7 +290,7 @@ public final class ScrollableSkillTree {
             if (node.skill.getPrerequisites().isEmpty()) continue;
 
             for (Skill.SkillRequirement req : node.skill.getPrerequisites()) {
-                SkillTreeNode prereq = nodeMap.get(SkillRegistry.getSkill(req.skillId()));
+                SkillTreeNode prereq = nodeMap.get(ModClassesSkill.getSkill(req.skillId()));
                 if (prereq == null) continue;
 
                 int color = getConnectionColor(node.skill, req);
@@ -474,7 +474,7 @@ public final class ScrollableSkillTree {
             tooltip.add(Text.literal("  Requirements").formatted(Formatting.YELLOW));
 
             for (Skill.SkillRequirement req : node.skill.getPrerequisites()) {
-                Skill prereq = SkillRegistry.getSkill(req.skillId());
+                Skill prereq = ModClassesSkill.getSkill(req.skillId());
                 if (prereq != null) {
                     boolean learned = classComponent.hasLearnedSkill(req.skillId());
                     int level = learned ? classComponent.getSkillLevel(req.skillId()) : 0;
@@ -528,7 +528,7 @@ public final class ScrollableSkillTree {
 
                         StringBuilder dependentNames = new StringBuilder();
                         for (int i = 0; i < Math.min(dependentSkills.size(), 3); i++) {
-                            Skill dependentSkill = SkillRegistry.getSkill(dependentSkills.get(i));
+                            Skill dependentSkill = ModClassesSkill.getSkill(dependentSkills.get(i));
                             if (dependentSkill != null) {
                                 if (i > 0) dependentNames.append(", ");
                                 dependentNames.append(dependentSkill.getName());
@@ -538,7 +538,7 @@ public final class ScrollableSkillTree {
                             dependentNames.append("...");
                         }
                         tooltip.add(Text.literal("Dependencies: " + dependentNames).formatted(Formatting.GRAY));
-                    } else if (node.skill.getId().equals(SkillRegistry.BASICSKILL)) {
+                    } else if (node.skill.getId().equals(ModClassesSkill.BASICSKILL)) {
                         tooltip.add(Text.literal("Cannot unlearn: Basic skill").formatted(Formatting.DARK_RED));
                     } else if (node.skill.isDefaultSkill() && skillLevel <= 1) {
                         tooltip.add(Text.literal("Cannot unlearn: Default skill").formatted(Formatting.DARK_RED));

@@ -5,7 +5,7 @@ import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.entity.DominatusPlayerEntityEvents;
 import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.difficulty.ProgressiveDifficultySystem;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DemonBanePassiveSkill;
 import com.sypztep.mamy.common.system.classkill.acolyte.passive.DivineProtectionPassiveSkill;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
@@ -87,7 +87,7 @@ public final class DamageUtil {
         DEMON_BANE(ModifierOperationType.ADD, (attacker, target, source, isCrit) -> {
             if (isDemonBaneApplicable(source, target)) {
                 PlayerEntity player = (PlayerEntity) attacker;
-                int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DEMON_BANE);
+                int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(ModClassesSkill.DEMON_BANE);
                 return DemonBanePassiveSkill.calculateDamageBonus(player, skillLevel);
             }
             return 0.0f;
@@ -193,7 +193,7 @@ public final class DamageUtil {
 
         if (isDivineProtectionApplicable(source, defender)) {
             PlayerEntity player = (PlayerEntity) defender;
-            int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.DIVINE_PROTECTION);
+            int skillLevel = ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(ModClassesSkill.DIVINE_PROTECTION);
             if (skillLevel > 0) {
                 float divineReduction = DivineProtectionPassiveSkill.calculateDamageReduction(player, skillLevel);
                 flatReduction += divineReduction;

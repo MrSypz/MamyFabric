@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.system.skill;
+package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
@@ -25,11 +25,12 @@ import com.sypztep.mamy.common.system.classkill.thief.HidingSkill;
 import com.sypztep.mamy.common.system.classkill.thief.StealSkill;
 import com.sypztep.mamy.common.system.classkill.thief.passive.DoubleAttackPassiveSkill;
 import com.sypztep.mamy.common.system.classkill.thief.passive.ImproveDodgePassiveSkill;
+import com.sypztep.mamy.common.system.skill.Skill;
 import net.minecraft.util.Identifier;
 
 import java.util.*;
 
-public class SkillRegistry {
+public class ModClassesSkill {
     private static final Map<Identifier, Skill> SKILLS = new HashMap<>();
 
     //Novice
@@ -52,6 +53,8 @@ public class SkillRegistry {
     public static final Identifier BLESSING = Mamy.id("blessing");
     public static final Identifier ANGELUS = Mamy.id("angelus");
     public static final Identifier CURE = Mamy.id("cure");
+    public static final Identifier AQUABENEDICTA = Mamy.id("aquabenedicta");
+    public static final Identifier RUWACH  = Mamy.id("ruwach");
 
     //Archer
     public static final Identifier OWLS_EYE = Mamy.id("owls_eye");
@@ -99,6 +102,7 @@ public class SkillRegistry {
         register(new BlessingSkill(BLESSING, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,5))));
         register(new AngelusSkill(ANGELUS, Skill.requiresSkills(Skill.requires(DIVINE_PROTECTION,3))));
         register(new CureSkill(CURE, Skill.requiresSkills(Skill.requires(HEAL, 2))));
+        register(new AquaBenedictaSkill(AQUABENEDICTA));
 
         // Archer
         register(new OwlsEyePassiveSkill(OWLS_EYE));

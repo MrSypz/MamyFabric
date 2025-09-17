@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.system.skill;
 import com.sypztep.mamy.client.event.animation.SkillAnimationManager;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.network.server.UseSkillPayloadC2S;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -40,7 +41,7 @@ public class SkillCastingManager {
             return;
         }
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return; // Already checked in usability check, but keep for safety
 
         // If already casting this skill, cancel it
@@ -102,7 +103,7 @@ public class SkillCastingManager {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
 
-        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        Skill skill = ModClassesSkill.getSkill(currentSkillId);
         boolean hasCastedAnimation = false;
 
         if (skill instanceof CastableSkill castable) {
@@ -126,7 +127,7 @@ public class SkillCastingManager {
         if (!isCasting) return;
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
-        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        Skill skill = ModClassesSkill.getSkill(currentSkillId);
         if (skill instanceof CastableSkill castable) castable.playSound(player, castable.getCastInterruptSound());
 
         // Stop animation on interrupt
@@ -143,7 +144,7 @@ public class SkillCastingManager {
         if (player != null) {
             player.sendMessage(Text.literal("Cast cancelled").formatted(Formatting.YELLOW), true);
 
-            Skill skill = SkillRegistry.getSkill(currentSkillId);
+            Skill skill = ModClassesSkill.getSkill(currentSkillId);
             if (skill instanceof CastableSkill castable) castable.playSound(player, castable.getCastCancelSound());
         }
 
@@ -158,12 +159,12 @@ public class SkillCastingManager {
 
     public boolean shouldLockMovement() {
         if (!isCasting) return false;
-        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        Skill skill = ModClassesSkill.getSkill(currentSkillId);
         return skill instanceof CastableSkill castable && castable.shouldLockMovement();
     }
     public boolean canBeInterupt() {
         if (!isCasting) return false;
-        Skill skill = SkillRegistry.getSkill(currentSkillId);
+        Skill skill = ModClassesSkill.getSkill(currentSkillId);
         return skill instanceof CastableSkill castable && castable.canBeInterupt();
     }
 

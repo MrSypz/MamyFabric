@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.network.client.SkillCooldownPayloadS2C;
 import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
@@ -32,7 +33,7 @@ public class SkillManager {
         // Additional server-side cooldown check (since client might be out of sync)
         if (isOnCooldown(player, skillId)) return; // Don't send message, already handled by client
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return; // Already validated, but keep for safety
 
         // Try to use resources

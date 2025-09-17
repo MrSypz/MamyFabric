@@ -7,7 +7,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.LivingEntity;
@@ -241,7 +241,7 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
     }
 
     private Vec3d getGroundTargetLocation(PlayerEntity player) {
-        double maxDistance = 9.0 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.VULTURES_EYE);
+        double maxDistance = 9.0 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(ModClassesSkill.VULTURES_EYE);
         Vec3d start = player.getCameraPosVec(1.0f);
         Vec3d direction = player.getRotationVec(1.0f);
         Vec3d end = start.add(direction.multiply(maxDistance));

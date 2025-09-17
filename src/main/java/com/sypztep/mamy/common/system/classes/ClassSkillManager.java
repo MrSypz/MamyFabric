@@ -5,7 +5,7 @@ import com.sypztep.mamy.ModConfig;
 import com.sypztep.mamy.common.network.client.SendToastPayloadS2C;
 import com.sypztep.mamy.common.system.skill.PassiveSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -42,7 +42,7 @@ public class ClassSkillManager {
     private void learnSkill(Identifier skillId, boolean free, PlayerClassManager classManager) {
         if (hasLearnedSkill(skillId)) return;
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return;
 
         if (!free) {
@@ -57,7 +57,7 @@ public class ClassSkillManager {
 
                     for (int i = 0; i < missing.size(); i++) {
                         Skill.SkillRequirement req = missing.get(i);
-                        Skill prerequisiteSkill = SkillRegistry.getSkill(req.skillId());
+                        Skill prerequisiteSkill = ModClassesSkill.getSkill(req.skillId());
 
                         if (prerequisiteSkill != null) {
                             message.append(prerequisiteSkill.getName()).append(" Lv.").append(req.minLevel());
@@ -92,12 +92,12 @@ public class ClassSkillManager {
             return;
         }
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         int currentLevel = getSkillLevel(skillId);
 
         if (skill == null) return;
 
-        if (skillId.equals(SkillRegistry.BASICSKILL)) {
+        if (skillId.equals(ModClassesSkill.BASICSKILL)) {
             if (player instanceof ServerPlayerEntity serverPlayer) SendToastPayloadS2C.sendInfo(serverPlayer, "Basic Skill cannot be unlearned!");
             return;
         }
@@ -156,7 +156,7 @@ public class ClassSkillManager {
         for (Identifier learnedSkillId : learnedSkills) {
             if (learnedSkillId.equals(skillId)) continue;
 
-            Skill learnedSkill = SkillRegistry.getSkill(learnedSkillId);
+            Skill learnedSkill = ModClassesSkill.getSkill(learnedSkillId);
             if (learnedSkill == null) continue;
 
             for (Skill.SkillRequirement req : learnedSkill.getPrerequisites()) {
@@ -178,7 +178,7 @@ public class ClassSkillManager {
     public void upgradeSkill(Identifier skillId, PlayerClassManager classManager) {
         if (!hasLearnedSkill(skillId)) return;
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return;
 
         int currentLevel = getSkillLevel(skillId);
@@ -202,7 +202,7 @@ public class ClassSkillManager {
     @Deprecated
     public void reapplyPassiveSkills() {
         for (Map.Entry<Identifier, Integer> entry : skillLevels.entrySet()) {
-            Skill skill = SkillRegistry.getSkill(entry.getKey());
+            Skill skill = ModClassesSkill.getSkill(entry.getKey());
             if (skill instanceof PassiveSkill passiveSkill)
                 passiveSkill.applyPassiveEffects(player, entry.getValue());
         }
@@ -230,7 +230,7 @@ public class ClassSkillManager {
             return new HashSet<>(skillLevels.keySet());
         } else {
             return skillLevels.keySet().stream().filter(skillId -> {
-                Skill skill = SkillRegistry.getSkill(skillId);
+                Skill skill = ModClassesSkill.getSkill(skillId);
                 return skill != null && !(skill instanceof PassiveSkill);
             }).collect(Collectors.toSet());
         }
@@ -320,7 +320,7 @@ public class ClassSkillManager {
                     Identifier skillId = Identifier.of(key);
                     int level = skillLevelsNbt.getInt(key);
 
-                    if (SkillRegistry.getSkill(skillId) != null)
+                    if (ModClassesSkill.getSkill(skillId) != null)
                         skillLevels.put(skillId, level);
                      else
                         Mamy.LOGGER.info("[ClassSkillManager] Skipped unknown skill: {}", skillId);
@@ -340,7 +340,7 @@ public class ClassSkillManager {
                     try {
                         Identifier skillId = Identifier.of(skillIdStr);
 
-                        if (SkillRegistry.getSkill(skillId) != null && hasLearnedSkill(skillId))
+                        if (ModClassesSkill.getSkill(skillId) != null && hasLearnedSkill(skillId))
                             boundSkills[i] = skillId;
                          else
                             Mamy.LOGGER.info("[ClassSkillManager] Removed invalid bound skill: {}", skillId);

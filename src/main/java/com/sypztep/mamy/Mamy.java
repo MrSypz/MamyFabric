@@ -8,7 +8,7 @@ import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.reloadlistener.MamyElementalReloadListener;
 import com.sypztep.mamy.common.reloadlistener.MamyItemWeightReloadListener;
 import com.sypztep.mamy.common.reloadlistener.MamyMobExpReloadListener;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.util.TheifDoubleAttackSystem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -31,7 +31,7 @@ public class Mamy implements ModInitializer {
         ModEntityTypes.init();
         ModParticles.init();
         ModCustomParticles.init();
-        SkillRegistry.registerSkills();
+        ModClassesSkill.registerSkills();
         ModDataComponents.init();
         ModStatusEffects.init();
         ModItems.init();

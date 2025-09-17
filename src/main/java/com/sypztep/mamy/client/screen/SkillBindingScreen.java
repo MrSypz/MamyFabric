@@ -8,7 +8,7 @@ import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.network.server.BindSkillPayloadC2S;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -319,7 +319,7 @@ public final class SkillBindingScreen extends Screen {
     private void drawSkillInSlot(DrawContext context, int x, int y,int size, Identifier skillId) {
         if (skillId == null) return;
 
-        Skill skill = SkillRegistry.getSkill(skillId);
+        Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return;
 
         int iconSize = SKILL_BUTTON_SIZE - size;
@@ -371,7 +371,7 @@ public final class SkillBindingScreen extends Screen {
         // Learned skill tooltips
         if (hoveredSkill >= 0 && hoveredSkill < learnedSkills.size()) {
             Identifier skillId = learnedSkills.get(hoveredSkill);
-            Skill skill = SkillRegistry.getSkill(skillId);
+            Skill skill = ModClassesSkill.getSkill(skillId);
             if (skill != null && client.player != null) {
                 PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
                 int skillLevel = classComponent.getSkillLevel(skillId);
@@ -595,7 +595,7 @@ public final class SkillBindingScreen extends Screen {
                     .formatted(Formatting.YELLOW));
 
             if (boundSkill != null) {
-                Skill skill = SkillRegistry.getSkill(boundSkill);
+                Skill skill = ModClassesSkill.getSkill(boundSkill);
                 if (skill != null && client.player != null) {
                     PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
                     int skillLevel = classComponent.getSkillLevel(boundSkill);

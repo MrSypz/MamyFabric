@@ -6,7 +6,7 @@ import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.component.living.LivingLevelComponent;
 import com.sypztep.mamy.common.system.level.ClassLevelSystem;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.system.stat.Stat;
 import com.sypztep.mamy.common.system.stat.StatTypes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -90,7 +90,7 @@ public class PlayerClassManager {
 
         if (currentClass.getTier() == 0) {
             return getClassLevel() == currentClass.getMaxLevel() // Max lvl = 10
-                    && getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
+                    && getSkillLevel(ModClassesSkill.BASICSKILL) >= 10;
         } else {
             return getClassLevel() >= 45
                     && getClassStatPoints() == 0;
@@ -465,7 +465,7 @@ public class PlayerClassManager {
     public boolean isReadyForEvolution() {
         if (currentClass.getTier() == 0) {
             boolean levelReady = getClassLevel() >= 10;
-            boolean basicSkillReady = getSkillLevel(SkillRegistry.BASICSKILL) >= 10;
+            boolean basicSkillReady = getSkillLevel(ModClassesSkill.BASICSKILL) >= 10;
             boolean hasEvolutions = !getAvailableEvolutions().isEmpty();
 
             return levelReady && basicSkillReady && hasEvolutions;

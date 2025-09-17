@@ -6,7 +6,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.network.server.ClassEvolutionPayloadC2S;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.classes.PlayerClassManager;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.util.TextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -422,7 +422,7 @@ public final class ClassEvolutionScreen extends Screen {
             PlayerClass currentClass = classManager.getCurrentClass();
 
             if (currentClass.getTier() == 0) { // Novice evolving
-                int basicSkillLevel = classManager.getSkillLevel(SkillRegistry.BASICSKILL);
+                int basicSkillLevel = classManager.getSkillLevel(ModClassesSkill.BASICSKILL);
                 boolean basicSkillMet = basicSkillLevel == 10;
                 Formatting basicSkillColor = basicSkillMet ? Formatting.GREEN : Formatting.RED;
                 String basicSkillText = String.format("  Basic Skill Level 10 (Current: %d)", basicSkillLevel);

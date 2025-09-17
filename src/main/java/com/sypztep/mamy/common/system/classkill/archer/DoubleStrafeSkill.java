@@ -8,7 +8,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.skill.CastableSkill;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
@@ -115,7 +115,7 @@ public class DoubleStrafeSkill extends Skill implements CastableSkill {
         if (!(mainHand.getItem() instanceof BowItem)) return false;
 
         // Find target
-        LivingEntity target = SkillUtil.findTargetEntity(player,10 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(SkillRegistry.VULTURES_EYE));
+        LivingEntity target = SkillUtil.findTargetEntity(player,10 + ModEntityComponents.PLAYERCLASS.get(player).getSkillLevel(ModClassesSkill.VULTURES_EYE));
         if (target == null) return false;
 
         // Get arrow with effects (consume 2 arrows for the skill)

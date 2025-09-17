@@ -14,6 +14,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.damage.HybridDamageSource;
 import com.sypztep.mamy.common.system.damage.DamageComponent;
 import com.sypztep.mamy.common.system.damage.CombatType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -362,7 +363,7 @@ public abstract class Skill implements HybridDamageSource {
     public abstract boolean canUse(LivingEntity caster, int skillLevel);
     public abstract boolean use(LivingEntity caster, int skillLevel);
     public abstract boolean isAvailableForClass(PlayerClass playerClass);
-
+    public Text condition() {return Text.literal("Skill cannot be used right now");}
     // ============================================================================
     // GETTERS
     // ============================================================================

@@ -2,7 +2,7 @@ package com.sypztep.mamy.client.event.hud;
 
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -104,7 +104,7 @@ public final class CastingHudRenderer implements HudRenderCallback {
             Identifier skillId = castingManager.getCurrentCastingSkill();
             String skillName = "Unknown";
             if (skillId != null) {
-                Skill skill = SkillRegistry.getSkill(skillId);
+                Skill skill = ModClassesSkill.getSkill(skillId);
                 if (skill != null) {
                     skillName = skill.getName();
                 }

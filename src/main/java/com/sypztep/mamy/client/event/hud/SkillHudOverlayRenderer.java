@@ -7,7 +7,7 @@ import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.ClientSkillCooldowns;
 import com.sypztep.mamy.common.system.skill.Skill;
-import com.sypztep.mamy.common.system.skill.SkillRegistry;
+import com.sypztep.mamy.common.init.ModClassesSkill;
 import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
@@ -166,7 +166,7 @@ public final class SkillHudOverlayRenderer {
 
         // Render skill content
         if (skillId != null) {
-            Skill skill = SkillRegistry.getSkill(skillId);
+            Skill skill = ModClassesSkill.getSkill(skillId);
             if (skill != null) {
                 renderSkillIcon(context, x + 3, y + 3, skill, shouldDim);
                 renderSkillOverlays(context, x + 3, y + 3, skill, classComponent, shouldDim);
