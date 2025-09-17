@@ -5,7 +5,9 @@ import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModSoundEvents;
+import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.util.MultiHitRecord;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -147,7 +149,7 @@ public class ThunderStormEntity extends PersistentProjectileEntity {
     }
 
     private void dealLightningStrike() {
-        Box damageBox = Box.of(getPos(), STORM_RADIUS * 2, 30, STORM_RADIUS * 2);
+        Box damageBox = SkillUtil.makeBox(getPos(), STORM_RADIUS * 2, 15, STORM_RADIUS * 2);
 
         List<LivingEntity> potentialTargets = getWorld().getEntitiesByClass(
                 LivingEntity.class,

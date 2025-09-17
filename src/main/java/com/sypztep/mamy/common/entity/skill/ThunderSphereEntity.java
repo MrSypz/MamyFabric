@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
@@ -150,7 +151,7 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
     }
 
     private void dealAOEDamage() {
-        Box damageBox = Box.of(getPos(), AOE_RANGE * 2, AOE_RANGE * 2, AOE_RANGE * 2);
+        Box damageBox = SkillUtil.makeBox(getPos(), AOE_RANGE * 2, AOE_RANGE * 2, AOE_RANGE * 2,true);
 
         List<LivingEntity> targets = getWorld().getEntitiesByClass(
                 LivingEntity.class,
@@ -233,7 +234,7 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
     }
 
     private void dealFinalExplosion() {
-        Box damageBox = Box.of(getPos(), AOE_RANGE * 3, AOE_RANGE * 3, AOE_RANGE * 3);
+        Box damageBox = SkillUtil.makeBox(getPos(), AOE_RANGE * 3, AOE_RANGE * 3, AOE_RANGE * 3,true);
 
         List<LivingEntity> targets = getWorld().getEntitiesByClass(
                 LivingEntity.class,

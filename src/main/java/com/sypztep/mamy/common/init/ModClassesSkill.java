@@ -54,7 +54,6 @@ public class ModClassesSkill {
     public static final Identifier ANGELUS = Mamy.id("angelus");
     public static final Identifier CURE = Mamy.id("cure");
     public static final Identifier AQUABENEDICTA = Mamy.id("aquabenedicta");
-    public static final Identifier RUWACH  = Mamy.id("ruwach");
 
     //Archer
     public static final Identifier OWLS_EYE = Mamy.id("owls_eye");

@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.entity.skill;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -107,9 +108,10 @@ public class FireballEntity extends PersistentProjectileEntity {
         if (getWorld().isClient) return;
 
         double aoeRadius = 3.0; // 6x6 area
+        Box damageArea = SkillUtil.makeBox(centerPos,aoeRadius * 2, aoeRadius * 2, aoeRadius * 2,true);
 
         getWorld().getEntitiesByClass(LivingEntity.class,
-                Box.of(centerPos, aoeRadius * 2, aoeRadius * 2, aoeRadius * 2),
+                damageArea,
                 entity -> entity != getOwner() && entity.isAlive() &&
                         (getOwner() == null || !entity.isTeammate(getOwner()))
         ).forEach(entity -> {

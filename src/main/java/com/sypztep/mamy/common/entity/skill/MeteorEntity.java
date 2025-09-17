@@ -6,6 +6,7 @@ import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
 import com.sypztep.mamy.common.util.MultiHitRecord;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -149,7 +150,7 @@ public class MeteorEntity extends PersistentProjectileEntity {
     }
 
     private void dealExplosionDamage() {
-        Box damageBox = Box.of(getPos(), EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2);
+        Box damageBox = SkillUtil.makeBox(getPos(), EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2);
 
         for (LivingEntity target : getWorld().getEntitiesByClass(
                 LivingEntity.class,

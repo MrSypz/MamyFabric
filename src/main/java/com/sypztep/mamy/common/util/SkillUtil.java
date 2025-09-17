@@ -34,12 +34,19 @@ public class SkillUtil {
         return closestEntity;
     }
 
-    public static Box makeBox(Vec3d center, double width, double height, double depth) {
+    public static Box makeBox(Vec3d center, double width, double height, double depth, boolean anchorCenter) {
         double halfW = width * 0.5f;
         double halfD = depth * 0.5f;
-        Box box = new Box(center.x - halfW, center.y, center.z - halfD, center.x + halfW, center.y + height, center.z + halfD);
+        double halfH = height * 0.5f;
+        Box box;
+        if (anchorCenter) box = new Box(center.x - halfW, center.y - halfH, center.z - halfD, center.x + halfW, center.y + halfH, center.z + halfD);
+        else box = new Box(center.x - halfW, center.y, center.z - halfD, center.x + halfW, center.y + height, center.z + halfD);
         DebugBoxRenderer.addBox(box, 0f, 1f, 0f, 1f, 40);
         return box;
+    }
+
+    public static Box makeBox(Vec3d center, double width, double height, double depth) {
+        return makeBox(center, width, height, depth,false);
     }
 
     public static Box makeBox(Entity entity, double width, double height, double depth) {

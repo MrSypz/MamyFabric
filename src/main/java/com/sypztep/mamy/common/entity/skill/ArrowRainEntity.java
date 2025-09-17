@@ -2,6 +2,7 @@ package com.sypztep.mamy.common.entity.skill;
 
 import com.sypztep.mamy.common.init.ModParticles;
 import com.sypztep.mamy.common.util.MultiHitRecord;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -145,12 +146,7 @@ public class ArrowRainEntity extends PersistentProjectileEntity {
 
     private void dealAreaDamage(boolean isFinalBurst) {
         float areaSize = getAreaSize();
-        float halfSize = areaSize / 2.0f;
-
-        Box damageBox = new Box(
-                this.getX() - halfSize, this.getY() - 0.5, this.getZ() - halfSize,
-                this.getX() + halfSize, this.getY() + 15, this.getZ() + halfSize
-        );
+        Box damageBox = SkillUtil.makeBox(getPos(),areaSize, 15, areaSize);
 
         float finalDamage = calculateFinalDamage(isFinalBurst);
 

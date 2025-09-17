@@ -3,6 +3,7 @@ package com.sypztep.mamy.common.entity.skill;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.util.MultiHitRecord;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -75,7 +76,6 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
     }
 
     private void createSmokeEffects() {
-        // Campfire smoke scattered across the 8x8 area
         for (int i = 0; i < 4; i++) {
             double offsetX = (random.nextDouble() - 0.5) * 8.0; // 8x8 area
             double offsetZ = (random.nextDouble() - 0.5) * 8.0;
@@ -98,7 +98,7 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
 
     private void dealAreaDamage() {
         // Use entity's own hitbox for damage area (8x8)
-        Box damageBox = getBoundingBox().expand(0, 15, 0); // Extend vertically to hit flying entities
+        Box damageBox = SkillUtil.makeBox(getPos(),getBoundingBox().getLengthX(),15,getBoundingBox().getLengthZ());
 
         for (LivingEntity target : getWorld().getEntitiesByClass(
                 LivingEntity.class,
@@ -144,8 +144,8 @@ public class MeteorFloorEntity extends PersistentProjectileEntity {
             MeteorEntity meteor = new MeteorEntity(getWorld(), owner, baseDamage * 2);
 
             // Spawn meteor high above this position
-            meteor.setPosition(getX(), getY() + 50, getZ());
-            meteor.setVelocity(0, -1.5, 0); // Fall downward
+            meteor.setPosition(getX(), getY() + 8, getZ());
+            meteor.setVelocity(0, -3.5, 0); // Fall downward
 
             getWorld().spawnEntity(meteor);
 

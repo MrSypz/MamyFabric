@@ -4,6 +4,7 @@ import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModSoundEvents;
+import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -108,7 +109,7 @@ public class ThunderBoltEntity extends PersistentProjectileEntity {
         // Find up to 5 targets in a 8 block radius
         List<LivingEntity> targets = getWorld().getEntitiesByClass(
                 LivingEntity.class,
-                Box.of(hitPos, 16, 16, 16), // 8 block radius
+                SkillUtil.makeBox(hitPos,16,16,16),
                 entity -> entity != getOwner() && entity.isAlive() &&
                         (getOwner() == null || !entity.isTeammate(getOwner())) &&
                         entity.getPos().distanceTo(hitPos) <= 8.0
