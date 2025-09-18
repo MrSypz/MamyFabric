@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.render;
 
+import com.sypztep.mamy.ModConfig;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -20,6 +21,7 @@ public class DebugBoxRenderer {
     }
 
     public static void render(MatrixStack matrices, VertexConsumerProvider consumers, Camera camera) {
+        if (ModConfig.skillVisualDebug) return;
         if (BOXES.isEmpty()) return;
 
         VertexConsumer consumer = consumers.getBuffer(RenderLayer.getDebugLineStrip(1));
@@ -38,7 +40,7 @@ public class DebugBoxRenderer {
             if (dbg.ticks <= 0) it.remove();
         }
     }
-    public static void renderBox(MatrixStack matrices, VertexConsumer consumer, Box box, float r, float g, float b, float a) {
+    private static void renderBox(MatrixStack matrices, VertexConsumer consumer, Box box, float r, float g, float b, float a) {
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         double x1 = box.minX;
