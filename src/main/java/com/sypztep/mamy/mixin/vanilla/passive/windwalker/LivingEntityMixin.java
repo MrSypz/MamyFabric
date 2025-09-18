@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,14 +24,15 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyArg(method = "applyMovementInput", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;updateVelocity(FLnet/minecraft/util/math/Vec3d;)V"))
     private float phantomWalker(float value) {
         if (!isOnGround()) {
-            AirHikeComponent phantomWalker = ModEntityComponents.PHANTOMWALKER.getNullable(this);
-            if (phantomWalker != null && phantomWalker.isAirBorn()) return value * phantomWalker.getAirControlMultiplier();
+            AirHikeComponent airhike = ModEntityComponents.AIRHIKE.getNullable(this);
+            if ((LivingEntity) (Object) this instanceof PlayerEntity player && player.isCreative()) return value;
+            if (airhike != null && airhike.isAirBorn()) return value * airhike.getAirControlMultiplier();
         }
         return value;
     }
     @WrapOperation(method = "computeFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getAttributeValue(Lnet/minecraft/registry/entry/RegistryEntry;)D", ordinal = 0))
     private double safeFall(LivingEntity instance, RegistryEntry<EntityAttribute> attribute, Operation<Double> original) {
-        AirHikeComponent phantomWalker = ModEntityComponents.PHANTOMWALKER.getNullable(this);
+        AirHikeComponent phantomWalker = ModEntityComponents.AIRHIKE.getNullable(this);
         double value = original.call(instance, attribute);
 
         if (phantomWalker != null) return value + (phantomWalker.getMaxJumps() - phantomWalker.getJumpsLeft()) + 16;
