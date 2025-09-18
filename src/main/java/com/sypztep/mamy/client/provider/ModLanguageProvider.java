@@ -34,6 +34,8 @@ public class ModLanguageProvider extends FabricLanguageProvider {
         translate.add("item.mamy.chilling_light_water.effect.empty", "Chilling Light Water");
         translate.add("item.mamy.thermal_essence.effect.water", "Thermal Essence");
         translate.add("item.mamy.thermal_essence.effect.empty", "Thermal Essence");
+        translate.add("item.mamy.holy_water.effect.water", "Holy Water");
+        translate.add("item.mamy.holy_water.effect.empty", "Holy Water");
 
         translate.add("item.mamy.pocket_resource_water.effect.empty", "Pocket Resource Water");
         translate.add("item.mamy.lesser_resource_water.effect.empty", "Lesser Resource Water");
