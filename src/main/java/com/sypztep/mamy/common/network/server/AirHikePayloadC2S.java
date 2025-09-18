@@ -27,7 +27,7 @@ public record AirHikePayloadC2S() implements CustomPayload {
     public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<AirHikePayloadC2S> {
         @Override
         public void receive(AirHikePayloadC2S payload, ServerPlayNetworking.Context context) { // handle on server side
-            AirHikeComponent airComponent = ModEntityComponents.PHANTOMWALKER.get(context.player());
+            AirHikeComponent airComponent = ModEntityComponents.AIRHIKE.get(context.player());
             if (airComponent.canUseAirJump()) {
                 airComponent.performAirJump();
                 PlayerLookup.tracking(context.player()).forEach(foundPlayer -> AddAirhikeParticlesPayloadS2C.send(foundPlayer, context.player().getId()));
