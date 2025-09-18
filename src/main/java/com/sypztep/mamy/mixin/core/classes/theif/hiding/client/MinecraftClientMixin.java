@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Environment(EnvType.CLIENT)
 public abstract class MinecraftClientMixin {
     @Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
-    private void preventAttackWhileBuried(CallbackInfoReturnable<Boolean> cir) {
+    private void preventAttackWhileHidden(CallbackInfoReturnable<Boolean> cir) {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null && ModEntityComponents.HIDING.get(player).getHiddingPos() != null) {
             cir.setReturnValue(false);
@@ -23,7 +23,7 @@ public abstract class MinecraftClientMixin {
     }
 
     @Inject(method = "doItemUse", at = @At("HEAD"), cancellable = true)
-    private void preventUseWhileBuried(CallbackInfo ci) {
+    private void preventUseWhileHidden(CallbackInfo ci) {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null && ModEntityComponents.HIDING.get(player).getHiddingPos() != null) {
             ci.cancel();

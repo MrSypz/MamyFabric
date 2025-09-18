@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 public class ArmorFeatureRendererMixin {
     @Inject(method = "render*", at = @At("HEAD"), cancellable = true)
-    private void skipRenderIfBuried(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, LivingEntity livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
+    private void skipRenderIfHidden(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, LivingEntity livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (livingEntity instanceof PlayerEntity player) {
             if (ModEntityComponents.HIDING.get(player).getHiddingPos() != null) {
                 ci.cancel();
