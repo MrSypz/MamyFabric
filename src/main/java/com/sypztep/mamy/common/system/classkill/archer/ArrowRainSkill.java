@@ -86,27 +86,21 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
         // Check if player has bow in main hand
         ItemStack mainHand = player.getStackInHand(Hand.MAIN_HAND);
-        if (!(mainHand.getItem() instanceof BowItem)) {
-            return false;
-        }
+        if (!(mainHand.getItem() instanceof BowItem)) return false;
+
 
         // Creative mode doesn't need arrows (like vanilla Minecraft)
-        if (player.isCreative()) {
-            return true;
-        }
+        if (player.isCreative()) return true;
 
         // Survival mode needs arrows - check offhand first, then inventory
         ItemStack offHand = player.getStackInHand(Hand.OFF_HAND);
-        if (offHand.getItem() instanceof ArrowItem) {
-            return true;
-        }
+        if (offHand.getItem() instanceof ArrowItem) return true;
+
 
         // Check inventory for any arrows
         for (int i = 0; i < player.getInventory().size(); i++) {
             ItemStack stack = player.getInventory().getStack(i);
-            if (stack.getItem() instanceof ArrowItem) {
-                return true;
-            }
+            if (stack.getItem() instanceof ArrowItem) return true;
         }
 
         return false;
@@ -166,18 +160,14 @@ public class ArrowRainSkill extends Skill implements CastableSkill {
 
         // Priority 2: Search inventory (tipped → spectral → normal)
         ItemStack selectedArrow = findArrowInInventory(player, ArrowType.TIPPED);
-        if (selectedArrow == null) {
-            selectedArrow = findArrowInInventory(player, ArrowType.SPECTRAL);
-        }
-        if (selectedArrow == null) {
-            selectedArrow = findArrowInInventory(player, ArrowType.NORMAL);
-        }
+        if (selectedArrow == null) selectedArrow = findArrowInInventory(player, ArrowType.SPECTRAL);
+
+        if (selectedArrow == null) selectedArrow = findArrowInInventory(player, ArrowType.NORMAL);
+
 
         // If none found
         if (selectedArrow == null) {
-            if (player.isCreative()) {
-                return new ArrowInfo(Items.ARROW.getDefaultStack(), new ArrayList<>());
-            }
+            if (player.isCreative()) return new ArrowInfo(Items.ARROW.getDefaultStack(), new ArrayList<>());
             return null;
         }
 
