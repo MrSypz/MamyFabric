@@ -63,7 +63,9 @@ public class ModDamageTypeTagProvider extends FabricTagProvider<DamageType> {
 				.addOptional(ModDamageTypes.HOLY)
 				.addOptional(ModDamageTypes.ARROW_RAIN)
 				.addOptional(ModDamageTypes.MAGIC_ARROW)
-				.addOptional(ModDamageTypes.LIGHTING);
+				.addOptional(ModDamageTypes.LIGHTING)
+				.add(DamageTypes.ARROW)
+				.add(DamageTypes.MOB_PROJECTILE);
 
 		// ==========================================
 		// FIRE DAMAGE - Just reference vanilla IS_FIRE tag
