@@ -19,6 +19,8 @@
     {
       "id": "mamy:lighting",
       "required": false
-    }
+    },
+    "minecraft:arrow",
+    "minecraft:mob_projectile"
   ]
 }
