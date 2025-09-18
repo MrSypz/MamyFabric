@@ -21,7 +21,7 @@ public class DebugBoxRenderer {
     }
 
     public static void render(MatrixStack matrices, VertexConsumerProvider consumers, Camera camera) {
-        if (ModConfig.skillVisualDebug) return;
+        if (!ModConfig.skillVisualDebug) return;
         if (BOXES.isEmpty()) return;
 
         VertexConsumer consumer = consumers.getBuffer(RenderLayer.getDebugLineStrip(1));
