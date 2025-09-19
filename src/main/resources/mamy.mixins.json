@@ -47,6 +47,7 @@
     "vanilla.rebalancedamage.enviroment.EntityMixin",
     "vanilla.rebalancestatuseffects.InstantHealthOrDamageStatusEffectMixin",
     "vanilla.rebalancestatuseffects.StatusEffectMixin",
+    "vanilla.rebalancestatuseffects.StatusEffectsMixin",
     "vanilla.rebalancestatuseffects.WitherSkullEntityMixin"
   ],
   "client": [

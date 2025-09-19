@@ -26,6 +26,5 @@ public class IncreaseAgilityEffect extends CleanUpEffect {
     @Override
     public void onRemoved(LivingEntity entity) {
         StatModifierHelper.removeTemporaryModifier(entity, StatTypes.AGILITY, MODIFIER_SOURCE, true);
-
     }
 }
