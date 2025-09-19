@@ -28,8 +28,8 @@ public class ModKeyBindings {
     public static KeyBinding SKILL_SLOT_4; // V
 
     // Visual feedback for HUD
-    private static boolean[] keyVisualStates = new boolean[8]; // Visual states for all 8 slots
-    private static long[] keyVisualPressTimes = new long[8];
+    private static final boolean[] keyVisualStates = new boolean[8]; // Visual states for all 8 slots
+    private static final long[] keyVisualPressTimes = new long[8];
     private static final long KEY_HIGHLIGHT_DURATION = 150;
 
     public static void register() {
