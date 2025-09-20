@@ -35,12 +35,6 @@
     ],
     "subtitle": "subtitles.mamy.entity.generic.ahhh"
   },
-  "entity.generic.electric_spark": {
-    "sounds": [
-      "mamy:entity/electric_spark"
-    ],
-    "subtitle": "subtitles.mamy.entity.generic.electric_spark"
-  },
   "entity.generic.zap": {
     "sounds": [
       "mamy:entity/zap_0",
