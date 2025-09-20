@@ -16,6 +16,7 @@
     "core.classes.theif.hiding.MobEntityMixin",
     "core.critevasion.LivingEntityMixin",
     "core.critevasion.PlayerEntityMixin",
+    "core.customswordmethod.PlayerEntityMixin",
     "core.damage.PlayerEntityMixin",
     "core.registry.attribute.LivingEntityMixin",
     "core.registry.attribute.PlayerEntityMixin",

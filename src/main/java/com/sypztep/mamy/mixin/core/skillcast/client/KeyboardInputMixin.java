@@ -2,7 +2,7 @@ package com.sypztep.mamy.mixin.core.skillcast.client;
 
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
-import com.sypztep.mamy.common.util.MovementLock;
+import com.sypztep.mamy.common.api.entity.MovementLock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;

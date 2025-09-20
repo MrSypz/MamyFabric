@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.api;
+package com.sypztep.mamy.common.api.entity;
 
 public interface MissingAccessor {
     boolean isMissing();

@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.core.stats.agility.projectileclip;
 
-import com.sypztep.mamy.common.api.MissingAccessor;
+import com.sypztep.mamy.common.api.entity.MissingAccessor;
 import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.util.hit.EntityHitResult;
 import org.spongepowered.asm.mixin.Mixin;

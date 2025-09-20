@@ -1,6 +1,6 @@
 package com.sypztep.mamy.common.system.skill;
 
-import com.sypztep.mamy.common.util.MovementLock;
+import com.sypztep.mamy.common.api.entity.MovementLock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;

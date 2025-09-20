@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.core.skillcast;
 
-import com.sypztep.mamy.common.util.MovementLock;
+import com.sypztep.mamy.common.api.entity.MovementLock;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;

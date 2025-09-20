@@ -1,6 +1,6 @@
 package com.sypztep.mamy.mixin.core.stats.agility.projectileclip;
 
-import com.sypztep.mamy.common.api.MissingAccessor;
+import com.sypztep.mamy.common.api.entity.MissingAccessor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;

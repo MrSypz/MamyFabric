@@ -1,4 +1,4 @@
-package com.sypztep.mamy.common.util;
+package com.sypztep.mamy.common.api.entity;
 
 public interface MovementLock {
     default boolean shouldLockMovement() {
