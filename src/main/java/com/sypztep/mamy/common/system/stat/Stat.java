@@ -149,11 +149,8 @@ public abstract class Stat {
 
             if (modifierId == null) throw new IllegalArgumentException("modifierId cannot be null report this on github");
 
-            EntityAttributeModifier existingModifier = attributeInstance.getModifier(modifierId);
-            if (existingModifier != null) attributeInstance.removeModifier(existingModifier);
-
             EntityAttributeModifier mod = new EntityAttributeModifier(modifierId, effectValue, operation);
-            attributeInstance.addPersistentModifier(mod);
+            attributeInstance.overwritePersistentModifier(mod);
         }
     }
     protected void applyEffects(LivingEntity living, List<AttributeModification> modifications) {
@@ -165,11 +162,8 @@ public abstract class Stat {
 
                 if (modification.modifierId() == null) throw new IllegalArgumentException("modifierId cannot be null report this on github");
 
-                EntityAttributeModifier existingModifier = attributeInstance.getModifier(modification.modifierId());
-                if (existingModifier != null) attributeInstance.removeModifier(existingModifier);
-
                 EntityAttributeModifier mod = new EntityAttributeModifier(modification.modifierId(), effectValue, modification.operation());
-                attributeInstance.addPersistentModifier(mod);
+                attributeInstance.overwritePersistentModifier(mod);
             }
         }
     }
