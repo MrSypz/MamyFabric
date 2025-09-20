@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
 public final class LivingEntityUtil {
-    private static final float BASE_HIT_RATE = 0.67f, POINT_EFICENT = 0.0025f;
+    private static final float BASE_HIT_RATE = 0.67f, POINT_EFICENT = 0.005f;
     public static boolean isHitable(LivingEntity target, DamageSource source) {
         return !target.isInvulnerable() && !target.isInvulnerableTo(source) && target.hurtTime == 0 && ModEntityComponents.HIDING.get(target).getHiddingPos() != null;
     }
