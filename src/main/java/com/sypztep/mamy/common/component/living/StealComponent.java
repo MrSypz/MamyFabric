@@ -1,16 +1,10 @@
 package com.sypztep.mamy.common.component.living;
 
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import org.ladysnake.cca.api.v3.component.Component;
 
-public class StealComponent implements Component {
-    private LivingEntity livingEntity;
-
-    public StealComponent(LivingEntity livingEntity) {
-        this.livingEntity = livingEntity;
-    }
+public final class StealComponent implements Component {
 
     private boolean hasBeenStolenFrom = false;
 

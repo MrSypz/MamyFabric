@@ -1,6 +1,7 @@
 package com.sypztep.mamy.common.system.classkill.thief;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.component.living.StealComponent;
 import com.sypztep.mamy.common.init.ModClasses;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.init.ModTags;
@@ -133,9 +134,6 @@ public class StealSkill extends Skill {
 
         boolean success = player.getRandom().nextFloat() < (finalSuccessRate * 0.01f);
 
-        // Mark as stolen from regardless of success/failure
-        stealComponent.markAsStolen();
-
         if (success) {
             // Generate loot from target's loot table
             RegistryKey<LootTable> lootTableId = target.getLootTable();
@@ -158,23 +156,21 @@ public class StealSkill extends Skill {
 
                     if (!stolenItem.isEmpty()) {
                         player.giveItemStack(stolenItem);
-
-                        showSuccessEffect(serverWorld, target);
-                        player.sendMessage(Text.literal("Stole Success! ").formatted(Formatting.GREEN), true);
-
+                        this.stoleCallback(stealComponent, serverWorld, target,player,Text.literal("Stole Success! "), Formatting.GREEN);
                         return true;
                     }
                 }
             }
-
-            // Success but no items generated
-            showSuccessEffect(serverWorld, target);
-            player.sendMessage(Text.literal("Nothing to steal!").formatted(Formatting.YELLOW), true);
-        } else {
-            showFailureEffect(serverWorld, target, "failed");
-        }
+            this.stoleCallback(stealComponent, serverWorld, target,player,Text.literal("Nothing to steal!"), Formatting.YELLOW);
+        } else showFailureEffect(serverWorld, target, "failed");
 
         return true;
+    }
+    private void stoleCallback(StealComponent stealComponent,ServerWorld serverWorld, LivingEntity target, PlayerEntity player, Text message, Formatting colour) {
+        //Only Mark when Success
+        stealComponent.markAsStolen();
+        showSuccessEffect(serverWorld, target);
+        player.sendMessage(message.copy().formatted(colour), true);
     }
 
     private void showSuccessEffect(ServerWorld world, LivingEntity target) {
