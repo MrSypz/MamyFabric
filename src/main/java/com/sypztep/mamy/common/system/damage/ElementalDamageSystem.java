@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ElementalDamageSystem {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static void debugLog(String message, Object... args) {
         if (DEBUG) Mamy.LOGGER.info("[ElementalDamage] {}", String.format(message, args));
