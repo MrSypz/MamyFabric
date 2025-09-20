@@ -1,14 +1,12 @@
 package com.sypztep.mamy.common.entity.skill;
 
 import com.sypztep.mamy.client.particle.complex.SparkParticleEffect;
-import com.sypztep.mamy.client.sound.ThunderSphereSoundInstance;
 import com.sypztep.mamy.common.init.ModDamageTypes;
 import com.sypztep.mamy.common.init.ModEntityTypes;
 import com.sypztep.mamy.common.init.ModSoundEvents;
 import com.sypztep.mamy.common.network.client.CameraShakePayloadS2C;
 import com.sypztep.mamy.common.util.SkillUtil;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -36,7 +34,6 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
 
     private int ticksAlive = 0;
     private boolean hasExploded = false;
-    private boolean soundStarted = false;
 
     public ThunderSphereEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
         super(entityType, world);
@@ -59,12 +56,6 @@ public class ThunderSphereEntity extends PersistentProjectileEntity {
 
         if (getWorld().isClient) {
             createElectricSphereEffects();
-
-            if (!soundStarted && ticksAlive == 1) {
-                soundStarted = true;
-                MinecraftClient.getInstance().getSoundManager()
-                        .play(new ThunderSphereSoundInstance(this));
-            }
         } else {
             if (!hasExploded && ticksAlive % DAMAGE_INTERVAL == 0) {
                 dealAOEDamage();
