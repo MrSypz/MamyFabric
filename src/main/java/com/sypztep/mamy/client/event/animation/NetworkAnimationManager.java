@@ -1,6 +1,7 @@
 package com.sypztep.mamy.client.event.animation;
 
 import com.sypztep.mamy.Mamy;
+import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @Environment(EnvType.CLIENT)
 public class NetworkAnimationManager {
     private static final String NETWORK_LAYER_KEY = "network_animation";
-    private static final Map<UUID, ModifierLayer<IAnimation>> playerLayers = new HashMap<>();
+    private static final Map<Integer, ModifierLayer<IAnimation>> playerLayers = new HashMap<>();
 
     public static void initialize() {
         PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
@@ -32,7 +33,7 @@ public class NetworkAnimationManager {
                 ModifierLayer<IAnimation> layer = new ModifierLayer<>();
                 animationStack.addAnimLayer(99, layer); // Lower priority than casting (100)
                 PlayerAnimationAccess.getPlayerAssociatedData(player).set(Mamy.id(NETWORK_LAYER_KEY), layer);
-                playerLayers.put(player.getUuid(), layer);
+                playerLayers.put(player.getId(), layer);
             }
         });
     }
@@ -55,7 +56,7 @@ public class NetworkAnimationManager {
                         .getPlayerAssociatedData((AbstractClientPlayerEntity) player).get(Mamy.id(NETWORK_LAYER_KEY));
 
                 if (layer != null) {
-                    playerLayers.put(player.getUuid(), layer);
+                    playerLayers.put(player.getId(), layer);
                 }
             }
 
@@ -68,7 +69,7 @@ public class NetworkAnimationManager {
             }
 
             // Start the new animation
-            var animation = PlayerAnimationRegistry.getAnimation(animationId);
+            IPlayable animation = PlayerAnimationRegistry.getAnimation(animationId);
             if (animation != null) {
                 layer.replaceAnimationWithFade(
                         AbstractFadeModifier.standardFadeIn(10, Ease.INOUTSINE),

@@ -2,6 +2,7 @@ package com.sypztep.mamy.client.event.animation;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.network.server.PlayerAnimationSyncPayloadC2S;
+import dev.kosmx.playerAnim.api.IPlayable;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -18,7 +19,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class SkillAnimationManager {
-    private static final String CASTING_LAYER_KEY = "skill_casting";
+    private static final Identifier CASTING_LAYER_KEY = Mamy.id("skill_casting");
     private static ModifierLayer<IAnimation> castingLayer;
 
     public static void initialize() {
@@ -26,7 +27,7 @@ public class SkillAnimationManager {
             if (player instanceof ClientPlayerEntity) {
                 ModifierLayer<IAnimation> layer = new ModifierLayer<>();
                 animationStack.addAnimLayer(100, layer); // High priority for casting
-                PlayerAnimationAccess.getPlayerAssociatedData(player).set(Mamy.id(CASTING_LAYER_KEY), layer);
+                PlayerAnimationAccess.getPlayerAssociatedData(player).set(CASTING_LAYER_KEY, layer);
             }
         });
     }
@@ -40,7 +41,7 @@ public class SkillAnimationManager {
 
         try {
             castingLayer = (ModifierLayer<IAnimation>) PlayerAnimationAccess
-                    .getPlayerAssociatedData(player).get(Mamy.id(CASTING_LAYER_KEY));
+                    .getPlayerAssociatedData(player).get(CASTING_LAYER_KEY);
 
             if (castingLayer == null) return false;
 
@@ -51,7 +52,7 @@ public class SkillAnimationManager {
             }
 
             // Start the new casting animation
-            var animation = PlayerAnimationRegistry.getAnimation(animationId);
+            IPlayable animation = PlayerAnimationRegistry.getAnimation(animationId);
             if (animation != null) {
                 castingLayer.replaceAnimationWithFade(
                         AbstractFadeModifier.standardFadeIn(10, Ease.INOUTSINE),
@@ -85,12 +86,12 @@ public class SkillAnimationManager {
 
         try {
             castingLayer = (ModifierLayer<IAnimation>) PlayerAnimationAccess
-                    .getPlayerAssociatedData(player).get(Mamy.id(CASTING_LAYER_KEY));
+                    .getPlayerAssociatedData(player).get(CASTING_LAYER_KEY);
 
             if (castingLayer == null) return false;
 
             // Start the casted animation (no fade out from previous - snap transition for continuity)
-            var animation = PlayerAnimationRegistry.getAnimation(animationId);
+            IPlayable animation = PlayerAnimationRegistry.getAnimation(animationId);
             if (animation != null) {
                 // Use minimal fade for smooth snap transition
                 castingLayer.replaceAnimationWithFade(
