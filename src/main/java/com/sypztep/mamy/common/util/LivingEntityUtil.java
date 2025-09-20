@@ -1,5 +1,6 @@
 package com.sypztep.mamy.common.util;
 
+import com.sypztep.mamy.common.component.living.EvasionTimerComponent;
 import com.sypztep.mamy.common.init.ModEntityAttributes;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import net.minecraft.entity.Entity;
@@ -36,6 +37,10 @@ public final class LivingEntityUtil {
         float hitRate = BASE_HIT_RATE + ((aAccuracy - dEvasion) * POINT_EFICENT);
 
         return MathHelper.clamp(hitRate, 0,1);
+    }
+    public static void reducePlayerTargetEvasion(PlayerEntity player) {
+        EvasionTimerComponent reduceEvasion = ModEntityComponents.EVASIONTIMER.get(player);
+        reduceEvasion.markMissed();
     }
 
     public static void playCriticalSound(Entity target) {

@@ -50,7 +50,8 @@
       "mamy:playershieldscore",
       "mamy:livingsteal",
       "mamy:livinghiding",
-      "mamy:airhike"
+      "mamy:airhike",
+      "mamy:evasiontimer"
     ]
   }
 }

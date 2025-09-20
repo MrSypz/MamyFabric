@@ -4,6 +4,8 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.sypztep.mamy.client.util.TextParticleProvider;
 import com.sypztep.mamy.client.util.ParticleHandler;
 import com.sypztep.mamy.common.api.MissingAccessor;
+import com.sypztep.mamy.common.component.living.EvasionTimerComponent;
+import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.damage.DamageUtil;
 import com.sypztep.mamy.common.util.LivingEntityUtil;
 import com.sypztep.mamy.common.init.ModCustomParticles;
@@ -11,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,6 +42,7 @@ public abstract class LivingEntityMixin extends Entity implements MissingAccesso
         if (!isHit) {
             TextParticleProvider missParticle = LivingEntityUtil.isPlayer(attacker) ? ModCustomParticles.MISSING : ModCustomParticles.MISSING_MONSTER;
             ParticleHandler.sendToAll(target, attacker, missParticle);
+            if (target instanceof PlayerEntity player && !(attacker instanceof PlayerEntity)) LivingEntityUtil.reducePlayerTargetEvasion(player);
             cir.setReturnValue(false);
         }
     }

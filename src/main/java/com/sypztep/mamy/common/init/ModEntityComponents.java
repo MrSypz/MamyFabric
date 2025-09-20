@@ -22,6 +22,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
     public static final ComponentKey<StealComponent> LIVINGSTEAL = ComponentRegistry.getOrCreate(Mamy.id("livingsteal"), StealComponent.class);
     public static final ComponentKey<LivingHidingComponent> HIDING = ComponentRegistry.getOrCreate(Mamy.id("livinghiding"), LivingHidingComponent.class);
     public static final ComponentKey<AirHikeComponent> AIRHIKE = ComponentRegistry.getOrCreate(Mamy.id("airhike"), AirHikeComponent.class);
+    public static final ComponentKey<EvasionTimerComponent> EVASIONTIMER = ComponentRegistry.getOrCreate(Mamy.id("evasiontimer"), EvasionTimerComponent.class);
 
 //    public static final ComponentKey<DungeonDataComponent> DUNGEON_DATA = ComponentRegistry.getOrCreate(Mamy.id("dungeon_data"), DungeonDataComponent.class);
 
@@ -36,6 +37,7 @@ public final class ModEntityComponents implements EntityComponentInitializer {
         registry.registerFor(LivingEntity.class, LIVINGSTEAL, StealComponent::new);
         registry.registerFor(LivingEntity.class, HIDING, LivingHidingComponent::new);
         registry.registerFor(PlayerEntity.class, AIRHIKE, AirHikeComponent::new);
+        registry.registerFor(LivingEntity.class, EVASIONTIMER, EvasionTimerComponent::new);
 
 //        registry.registerForPlayers(DUNGEON_DATA, DungeonDataComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
     }
