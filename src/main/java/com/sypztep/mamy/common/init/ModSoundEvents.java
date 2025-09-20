@@ -17,7 +17,6 @@ public interface ModSoundEvents {
     SoundEvent ENTITY_GENERIC_SHOCKWAVE = createSoundEvent("entity.generic.shockwave");
     SoundEvent ENTITY_GENERIC_MAGIC_ARROW_EXPLODE = createSoundEvent("entity.generic.magic_arrow_explode");
     SoundEvent ENTITY_GENERIC_AHHH = createSoundEvent("entity.generic.ahhh");
-    SoundEvent ENTITY_ELECTRIC_SPARK = createSoundEvent("entity.generic.electric_spark")	;
     SoundEvent ENTITY_ZAP = createSoundEvent("entity.generic.zap");
     SoundEvent ENTITY_ELECTRIC_BIG_EXPLODE = createSoundEvent("entity.generic.electric_big_explode");
     SoundEvent ENTITY_ELECTRIC_SHOOT = createSoundEvent("entity.generic.electric_shoot");
