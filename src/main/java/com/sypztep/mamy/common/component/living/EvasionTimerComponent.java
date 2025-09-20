@@ -10,7 +10,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
-public class EvasionTimerComponent implements CommonTickingComponent {
+public final class EvasionTimerComponent implements CommonTickingComponent {
     private int resetTicks = 0, missedCount = 0;
     private final Identifier EVASION_REDUCE = Mamy.id("toomuch_damageincome");
 

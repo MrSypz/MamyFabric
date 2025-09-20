@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class LivingHidingComponent implements AutoSyncedComponent, ServerTickingComponent {
-    private final LivingEntity obj;
+public final class LivingHidingComponent implements AutoSyncedComponent, ServerTickingComponent {
+    private final LivingEntity living;
     private BlockPos hiddingPos = null;
     public LivingHidingComponent(LivingEntity obj) {
-        this.obj = obj;
+        this.living = obj;
     }
     @Override
     public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
@@ -34,16 +34,16 @@ public class LivingHidingComponent implements AutoSyncedComponent, ServerTicking
     @Override
     public void serverTick() {
         if (hiddingPos != null) {
-            if (obj.getVelocity() != Vec3d.ZERO) {
-                obj.setVelocity(Vec3d.ZERO);
-                obj.velocityModified = true;
+            if (living.getVelocity() != Vec3d.ZERO) {
+                living.setVelocity(Vec3d.ZERO);
+                living.velocityModified = true;
             }
-            obj.setInvisible(true);
+            living.setInvisible(true);
         }
     }
 
     public void sync() {
-        ModEntityComponents.HIDING.sync(obj);
+        ModEntityComponents.HIDING.sync(living);
     }
     public BlockPos getHiddingPos() {
         return hiddingPos;

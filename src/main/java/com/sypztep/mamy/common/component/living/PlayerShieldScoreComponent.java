@@ -12,7 +12,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
 
-public class PlayerShieldScoreComponent implements AutoSyncedComponent, CommonTickingComponent {
+public final class PlayerShieldScoreComponent implements AutoSyncedComponent, CommonTickingComponent {
     private final PlayerEntity player;
     private double maxShieldScore;
     private double currentShieldScore;
