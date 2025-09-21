@@ -3,16 +3,19 @@ package com.sypztep.mamy.common.init;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.item.ResourceComponents;
 import com.sypztep.mamy.common.item.ResourcePotionItem;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
-import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.*;
-import net.minecraft.potion.Potions;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
+import java.util.Set;
+
 public class ModItems {
+    public static final Set<Item> CUSTOM_RENDER = new ReferenceOpenHashSet<>();
+
     public static Item CHILLING_LIGHT_WATER;
     public static Item THERMAL_ESSENCE;
     public static Item HOLY_WATER;
@@ -23,6 +26,10 @@ public class ModItems {
     public static Item GREATER_RESOURCE_WATER;
     public static Item SUPERIOR_RESOURCE_WATER;
     public static Item ULTIMATE_RESOURCE_WATER;
+
+    public static Item NOVICE_DAGGER;
+    public static Item NOVICE_DIRK;
+    public static Item NOVICE_MACHETA;
 
     public static void init() {
         CHILLING_LIGHT_WATER = registeritem("chilling_light_water", new PotionItem(new Item.Settings().maxCount(64)));
@@ -58,6 +65,10 @@ public class ModItems {
                 new ResourcePotionItem(new Item.Settings()
                         .maxCount(16)
                         .component(ModDataComponents.RESOURCE_RESTORE, ResourceComponents.ULTIMATE_RESOURCE)));
+
+        NOVICE_DAGGER = registerCustomRenderItem("novice_dagger", new SwordItem(ToolMaterials.IRON, new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, -1.0F, -1.0F))));
+        NOVICE_DIRK = registerCustomRenderItem("novice_dirk", new SwordItem(ToolMaterials.IRON,new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, -0.5F, -1.25F))));
+        NOVICE_MACHETA = registerCustomRenderItem("novice_macheta", new SwordItem(ToolMaterials.IRON,new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, 1.0F, -1.5F))));
     }
     public static <T extends Item> T registeritem(String name, T item) {
         Registry.register(Registries.ITEM, Mamy.id(name), item);
@@ -83,6 +94,11 @@ public class ModItems {
                     Ingredient.ofItems(Items.FIRE_CHARGE),
                     ModItems.THERMAL_ESSENCE);
         });
+        return item;
+    }
+    public static <T extends Item> T registerCustomRenderItem(String name, T item) {
+        Registry.register(Registries.ITEM, Mamy.id(name), item);
+        CUSTOM_RENDER.add(item);
         return item;
     }
 }

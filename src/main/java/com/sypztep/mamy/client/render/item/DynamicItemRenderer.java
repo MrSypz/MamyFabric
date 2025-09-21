@@ -1,9 +1,11 @@
 package com.sypztep.mamy.client.render.item;
 
 import com.sypztep.mamy.Mamy;
+import com.sypztep.mamy.common.init.ModItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourceReloadListenerKeys;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -12,8 +14,11 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import java.util.Collection;
@@ -42,15 +47,10 @@ public class DynamicItemRenderer implements BuiltinItemRendererRegistry.DynamicI
         if (inventoryModes.contains(mode)) {
             this.itemRenderer.renderItem(stack, mode, false, matrices, vertexConsumers, light, overlay, this.inventoryModel);
         } else {
-            boolean leftHanded;
-            switch (mode) {
-                case FIRST_PERSON_LEFT_HAND:
-                case THIRD_PERSON_LEFT_HAND:
-                    leftHanded = true;
-                    break;
-                default:
-                    leftHanded = false;
-            }
+            boolean leftHanded = switch (mode) {
+                case FIRST_PERSON_LEFT_HAND, THIRD_PERSON_LEFT_HAND -> true;
+                default -> false;
+            };
             this.itemRenderer.renderItem(stack, mode, leftHanded, matrices, vertexConsumers, light, overlay, this.worldModel);
         }
     }
@@ -73,13 +73,13 @@ public class DynamicItemRenderer implements BuiltinItemRendererRegistry.DynamicI
         this.worldModel = client.getBakedModelManager().getModel(Mamy.id("item/" + this.weaponId + "_handheld"));
     }
     public static void initItemResource() {
-//        for (Item item : ModItems.ALL_CUSTOM3D) {
-//            String weaponName = Registries.ITEM.getId(item).getPath();
-//
-//            DynamicItemRenderer customItemRenderer = new DynamicItemRenderer(weaponName);
-//            ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(customItemRenderer);
-//            BuiltinItemRendererRegistry.INSTANCE.register(item.asItem(), customItemRenderer);
-//        }
+        for (Item item : ModItems.CUSTOM_RENDER) {
+            String weaponName = Registries.ITEM.getId(item).getPath();
+
+            DynamicItemRenderer customItemRenderer = new DynamicItemRenderer(weaponName);
+            ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(customItemRenderer);
+            BuiltinItemRendererRegistry.INSTANCE.register(item.asItem(), customItemRenderer);
+        }
     }
 
     static {
