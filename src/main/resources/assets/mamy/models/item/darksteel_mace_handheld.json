@@ -1,0 +1,35 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "item/handheld",
+	"textures": {
+		"layer0": "mamy:item/darksteel_mace_handheld"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-45, -90, 0],
+			"translation": [0, 8.25, 1.25],
+			"scale": [1.5, 1.5, 0.7]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-45, 90, 0],
+			"translation": [0, 8.25, 1.25],
+			"scale": [1.5, 1.5, 0.7]
+		},
+		"firstperson_righthand": {
+			"rotation": [32.25, 90, 0],
+			"translation": [1.13, 0.2, 1.13],
+			"scale": [1.5, 1.5, 0.5]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -90, -32.25],
+			"translation": [1.13, 4.7, 1.13],
+			"scale": [1.5, 1, 0.5]
+		},
+		"head": {
+			"rotation": [-180, 90, 0],
+			"translation": [-6.75, -26.75, 1],
+			"scale": [2, 2, 0.7]
+		}
+	}
+}

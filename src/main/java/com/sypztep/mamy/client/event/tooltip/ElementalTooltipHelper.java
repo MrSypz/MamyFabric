@@ -35,7 +35,7 @@ public final class ElementalTooltipHelper {
     public static void appendWeaponTooltip(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player) {
         var modifiers = stack.getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
         if (!modifiers.showInTooltip()) return;
-
+        if (player == null) return;
         boolean hasShownHeader = false;
         hasShownHeader = appendMeleeDamage(stack, textConsumer, player, hasShownHeader);
         hasShownHeader = appendAttackSpeed(stack, textConsumer, player, hasShownHeader);
@@ -83,7 +83,7 @@ public final class ElementalTooltipHelper {
     // Private helper methods
     private static boolean appendMeleeDamage(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
         var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
-        if (attackDamageModifier == null || player == null) return hasShownHeader;
+        if (attackDamageModifier == null) return hasShownHeader;
 
         if (!hasShownHeader) {
             textConsumer.accept(ScreenTexts.EMPTY);
@@ -114,7 +114,7 @@ public final class ElementalTooltipHelper {
 
     private static boolean appendAttackSpeed(ItemStack stack, Consumer<Text> textConsumer, PlayerEntity player, boolean hasShownHeader) {
         var attackSpeedModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_SPEED);
-        if (attackSpeedModifier == null || player == null) return hasShownHeader;
+        if (attackSpeedModifier == null) return hasShownHeader;
 
         if (!hasShownHeader) {
             textConsumer.accept(ScreenTexts.EMPTY);
@@ -139,11 +139,12 @@ public final class ElementalTooltipHelper {
             textConsumer.accept(ScreenTexts.EMPTY);
             textConsumer.accept(Text.translatable("item.modifiers.mainhand").formatted(Formatting.GRAY));
         }
-
         var attackDamageModifier = getAttributeModifier(stack, EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        double meleeDamageFlat = player.getAttributeValue(ModEntityAttributes.MELEE_ATTACK_DAMAGE_FLAT);
+
         double baseDamage = 0;
-        if (attackDamageModifier != null && player != null) {
-            baseDamage = attackDamageModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        if (attackDamageModifier != null) {
+            baseDamage = attackDamageModifier.value() + player.getAttributeBaseValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) + meleeDamageFlat;
         }
 
         appendElementalSection(stack, textConsumer, baseDamage);
@@ -426,14 +427,14 @@ public final class ElementalTooltipHelper {
 
         if (value > 0.0) {
             textConsumer.accept(ScreenTexts.space()
-                    .append(Text.literal("  + ").formatted(Formatting.GREEN))
+                    .append(Text.literal(" ").formatted(Formatting.GREEN))
                     .append(Text.translatable("attribute.modifier.plus." + modifier.operation().getId(),
                                     format(displayValue),
                                     Text.translatable(attribute.value().getTranslationKey()))
                             .formatted(attribute.value().getFormatting(true))));
         } else if (value < 0.0) {
             textConsumer.accept(ScreenTexts.space()
-                    .append(Text.literal("  - ").formatted(Formatting.RED))
+                    .append(Text.literal(" ").formatted(Formatting.RED))
                     .append(Text.translatable("attribute.modifier.take." + modifier.operation().getId(),
                                     format(-displayValue),
                                     Text.translatable(attribute.value().getTranslationKey()))

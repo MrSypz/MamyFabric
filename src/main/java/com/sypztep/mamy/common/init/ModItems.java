@@ -2,14 +2,18 @@ package com.sypztep.mamy.common.init;
 
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.component.item.ResourceComponents;
+import com.sypztep.mamy.common.item.DaggerItem;
+import com.sypztep.mamy.common.item.MaceItem;
 import com.sypztep.mamy.common.item.ResourcePotionItem;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.*;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.util.Rarity;
 
 import java.util.Set;
 
@@ -28,8 +32,7 @@ public class ModItems {
     public static Item ULTIMATE_RESOURCE_WATER;
 
     public static Item NOVICE_DAGGER;
-    public static Item NOVICE_DIRK;
-    public static Item NOVICE_MACHETA;
+    public static Item DARKSTEEL_MACE;
 
     public static void init() {
         CHILLING_LIGHT_WATER = registeritem("chilling_light_water", new PotionItem(new Item.Settings().maxCount(64)));
@@ -66,9 +69,16 @@ public class ModItems {
                         .maxCount(16)
                         .component(ModDataComponents.RESOURCE_RESTORE, ResourceComponents.ULTIMATE_RESOURCE)));
 
-        NOVICE_DAGGER = registerCustomRenderItem("novice_dagger", new SwordItem(ToolMaterials.IRON, new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, -1.0F, -1.0F))));
-        NOVICE_DIRK = registerCustomRenderItem("novice_dirk", new SwordItem(ToolMaterials.IRON,new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, -0.5F, -1.25F))));
-        NOVICE_MACHETA = registerCustomRenderItem("novice_macheta", new SwordItem(ToolMaterials.IRON,new Item.Settings().attributeModifiers(HoeItem.createAttributeModifiers(ToolMaterials.IRON, 1.0F, -1.5F))));
+        NOVICE_DAGGER = registerCustomRenderItem("novice_dagger", new DaggerItem(ToolMaterials.IRON, new Item.Settings().attributeModifiers(DaggerItem.createAttributeModifiers(ToolMaterials.IRON, -1.0F, -1.0F))));
+        DARKSTEEL_MACE = registerCustomRenderItem("darksteel_mace",
+                new MaceItem(
+                        new Item.Settings()
+                                .rarity(Rarity.UNCOMMON)
+                                .maxDamage(450)
+                                .component(DataComponentTypes.TOOL, MaceItem.createToolComponent())
+                                .attributeModifiers(MaceItem.createAttributeModifiers())
+                )
+        );
     }
     public static <T extends Item> T registeritem(String name, T item) {
         Registry.register(Registries.ITEM, Mamy.id(name), item);
