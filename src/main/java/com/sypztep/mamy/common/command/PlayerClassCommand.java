@@ -300,9 +300,11 @@ public class PlayerClassCommand {
                 classComponent.setLevel((short) 1);
                 classComponent.getClassManager().getClassLevelSystem().setExperience(0);
                 classComponent.getClassManager().getClassLevelSystem().setStatPoints((short) 0);
+                classComponent.getClassManager().getSkillManager().clearAllSkillSlots();
+                classComponent.getClassManager().getSkillManager().clearSkills();
             });
 
-            Text message = Text.literal(String.format("Reset %s to Novice level 1 (0 points)",
+            Text message = Text.literal(String.format("Reset %s to Novice level 1 (0 points) and clear all skills",
                             player.getName().getString()))
                     .formatted(Formatting.YELLOW);
 
