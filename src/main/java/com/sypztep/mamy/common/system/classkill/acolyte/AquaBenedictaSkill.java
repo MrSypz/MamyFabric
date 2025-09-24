@@ -69,11 +69,6 @@ public class AquaBenedictaSkill extends Skill implements CastableSkill {
     }
 
     @Override
-    public Text condition() {
-        return Text.of("Must be standing in water and holding water bottle!");
-    }
-
-    @Override
     public boolean use(LivingEntity caster, int skillLevel) {
         if (!(caster instanceof PlayerEntity player)) return false;
         if (!(player.getWorld() instanceof ServerWorld)) return false;
