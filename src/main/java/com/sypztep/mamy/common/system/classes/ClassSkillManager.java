@@ -286,6 +286,10 @@ public class ClassSkillManager {
         clearAllSkillSlots();
         // No auto-rebinding
     }
+    public void clearSkills() {
+        skillLevels.clear();
+    }
+
 
     // ====================
     // NBT SERIALIZATION
