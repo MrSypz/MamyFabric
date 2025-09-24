@@ -358,8 +358,9 @@ public class ProgressiveDifficultySystem {
         if (biomeHolder.isIn(ModTags.BiomeTags.MODERATE_BIOMES)) {
             return MODERATE_STAT_MULT; // 1.2x - Forest is slightly dangerous
         }
-
-        return PEACEFUL_STAT_MULT; // 1.0x - Plains are vanilla
+        if (biomeHolder.isIn(ModTags.BiomeTags.PEACEFUL_BIOMES))
+            return PEACEFUL_STAT_MULT; // 1.0x - Plains are vanilla
+        return PEACEFUL_STAT_MULT;
     }
 
     /**
@@ -389,7 +390,6 @@ public class ProgressiveDifficultySystem {
                 }
             }
         }
-
         entity.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(variant.baseArmor);
 //        System.out.printf("[ArmorBoost] %s armor: %d (base 4 + rarity + random)\n",
 //                entity.getType().getName().getString(), variant.baseArmor);
@@ -409,9 +409,9 @@ public class ProgressiveDifficultySystem {
 
         // Debug summary for rare monsters
         if (variant.rarity != MonsterRarity.COMMON) {
-            System.out.printf("[EnhancedSpawn] %s Lv.%d: ×%.1f stats, %d armor, ×%.1f biome\n",
-                    variant.rarity.name(), variant.dynamicLevel, variant.totalStatMultiplier,
-                    variant.baseArmor, variant.biomeStatMultiplier);
+//            System.out.printf("[EnhancedSpawn] %s Lv.%d: ×%.1f stats, %d armor, ×%.1f biome\n",
+//                    variant.rarity.name(), variant.dynamicLevel, variant.totalStatMultiplier,
+//                    variant.baseArmor, variant.biomeStatMultiplier);
         }
     }
 
