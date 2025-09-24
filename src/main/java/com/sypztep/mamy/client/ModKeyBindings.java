@@ -33,6 +33,12 @@ public class ModKeyBindings {
     private static final long[] keyVisualPressTimes = new long[8];
     private static final long KEY_HIGHLIGHT_DURATION = 150;
 
+    // Chord detection
+    private static boolean[] keyDown = new boolean[4];
+    private static int chordMask = 0;
+    private static long chordTimeout = 0;
+    private static final long CHORD_TIMEOUT_MS = 25;
+
     public static void register() {
         SWITCH_STANCE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.mamy.switch_stance",
@@ -89,7 +95,6 @@ public class ModKeyBindings {
         if (SWITCH_STANCE.wasPressed()) ToggleStancePayloadC2S.send();
         if (CLASS_SELECTOR.wasPressed()) client.setScreen(new ClassEvolutionScreen(client));
 
-
         PlayerStanceComponent stanceComponent = ModEntityComponents.PLAYERSTANCE.get(client.player);
         PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(client.player);
 
@@ -98,19 +103,68 @@ public class ModKeyBindings {
         long currentTime = System.currentTimeMillis();
         updateVisualStates(currentTime);
 
-        boolean shiftPressed = InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_SHIFT);
+        boolean[] currentDown = new boolean[4];
+        currentDown[0] = SKILL_SLOT_1.isPressed();
+        currentDown[1] = SKILL_SLOT_2.isPressed();
+        currentDown[2] = SKILL_SLOT_3.isPressed();
+        currentDown[3] = SKILL_SLOT_4.isPressed();
 
-        handleSkillKeyPress(SKILL_SLOT_1, shiftPressed ? 4 : 0, classComponent);
-        handleSkillKeyPress(SKILL_SLOT_2, shiftPressed ? 5 : 1, classComponent);
-        handleSkillKeyPress(SKILL_SLOT_3, shiftPressed ? 6 : 2, classComponent);
-        handleSkillKeyPress(SKILL_SLOT_4, shiftPressed ? 7 : 3, classComponent);
+        boolean anyPressEvent = false;
+        int pressEventMask = 0;
+        for (int i = 0; i < 4; i++) {
+            if (currentDown[i] && !keyDown[i]) {
+                anyPressEvent = true;
+                pressEventMask |= 1 << i;
+            }
+        }
+
+        int currentMask = 0;
+        for (int i = 0; i < 4; i++) {
+            if (currentDown[i]) currentMask |= 1 << i;
+        }
+
+        if (anyPressEvent) {
+            chordMask |= pressEventMask;
+            chordTimeout = currentTime + CHORD_TIMEOUT_MS;
+        }
+
+        if (currentMask == 0) {
+            if (chordMask != 0 && chordTimeout > 0) {
+                triggerSlot(classComponent, chordMask, currentTime);
+            }
+            chordMask = 0;
+            chordTimeout = 0;
+        }
+
+        if (chordTimeout > 0 && currentTime >= chordTimeout && chordMask != 0) {
+            triggerSlot(classComponent, chordMask, currentTime);
+            chordMask = 0;
+            chordTimeout = 0;
+        }
+
+        keyDown = currentDown.clone();
     }
 
-    private static void handleSkillKeyPress(KeyBinding keyBinding, int slotIndex, PlayerClassComponent classComponent) {
-        if (keyBinding.wasPressed()) {
-            setKeyVisualPressed(slotIndex);
-            attemptSkillUse(classComponent, slotIndex);
+    private static void triggerSlot(PlayerClassComponent classComponent, int mask, long currentTime) {
+        int slot = getSlotFromMask(mask);
+        if (slot != -1) {
+            attemptSkillUse(classComponent, slot);
+            setKeyVisualPressed(slot, currentTime);
         }
+    }
+
+    private static int getSlotFromMask(int mask) {
+        return switch (mask) {
+            case 1 -> 0;   // Z
+            case 2 -> 1;   // X
+            case 4 -> 2;   // C
+            case 8 -> 3;   // V
+            case 3 -> 4;   // Z + X
+            case 6 -> 5;   // X + C
+            case 12 -> 6;  // C + V
+            case 9 -> 7;   // Z + V
+            default -> -1;
+        };
     }
 
     private static void attemptSkillUse(PlayerClassComponent classComponent, int slot) {
@@ -126,9 +180,10 @@ public class ModKeyBindings {
             SkillCastingManager.getInstance().startCasting(skillId, skillLevel);
     }
 
-    private static void setKeyVisualPressed(int keyIndex) {
+    private static void setKeyVisualPressed(int keyIndex, long currentTime) {
+        if (keyIndex < 0 || keyIndex >= keyVisualStates.length) return;
         keyVisualStates[keyIndex] = true;
-        keyVisualPressTimes[keyIndex] = System.currentTimeMillis();
+        keyVisualPressTimes[keyIndex] = currentTime;
     }
 
     private static void updateVisualStates(long currentTime) {
@@ -149,6 +204,23 @@ public class ModKeyBindings {
             case 2 -> SKILL_SLOT_3;
             case 3 -> SKILL_SLOT_4;
             default -> null;
+        };
+    }
+    public static String getKeybindDisplayName(int slotIndex) {
+        return switch (slotIndex) {
+            case 0 -> SKILL_SLOT_1.getBoundKeyLocalizedText().getString(); // Z
+            case 1 -> SKILL_SLOT_2.getBoundKeyLocalizedText().getString(); // X
+            case 2 -> SKILL_SLOT_3.getBoundKeyLocalizedText().getString(); // C
+            case 3 -> SKILL_SLOT_4.getBoundKeyLocalizedText().getString(); // V
+            case 4 -> SKILL_SLOT_1.getBoundKeyLocalizedText().getString() + "+" +
+                    SKILL_SLOT_2.getBoundKeyLocalizedText().getString(); // Z+X
+            case 5 -> SKILL_SLOT_2.getBoundKeyLocalizedText().getString() + "+" +
+                    SKILL_SLOT_3.getBoundKeyLocalizedText().getString(); // X+C
+            case 6 -> SKILL_SLOT_3.getBoundKeyLocalizedText().getString() + "+" +
+                    SKILL_SLOT_4.getBoundKeyLocalizedText().getString(); // C+V
+            case 7 -> SKILL_SLOT_1.getBoundKeyLocalizedText().getString() + "+" +
+                    SKILL_SLOT_4.getBoundKeyLocalizedText().getString(); // Z+V
+            default -> "?";
         };
     }
 }

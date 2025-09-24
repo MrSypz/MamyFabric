@@ -173,7 +173,7 @@ public final class SkillHudOverlayRenderer {
         }
 
         // Render keybinding text
-        String keyText = getKeybindDisplayName(slotIndex);
+        String keyText = ModKeyBindings.getKeybindDisplayName(slotIndex);
         int baseKeyTextColor = isPressed ? 0xFFFFFF00 : 0xFFAAAAAA;
 
         // Apply dimming to text color
@@ -196,20 +196,6 @@ public final class SkillHudOverlayRenderer {
         int finalSlotNumColor = (baseSlotNumColor & 0x00FFFFFF) | (alphaValue << 24);
 
         context.drawText(client.textRenderer, Text.literal(slotNum), x + SKILL_SLOT_SIZE - client.textRenderer.getWidth(slotNum) - 2, y + 2, finalSlotNumColor, false);
-    }
-
-    private static String getKeybindDisplayName(int slotIndex) {
-        if (slotIndex < 4) {
-            KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex);
-            if (keyBinding != null) return keyBinding.getBoundKeyLocalizedText().getString();
-
-            return "?";
-        } else {
-            // Shift combinations (slots 5-8): ⇧ Z, ⇧ X, ⇧ C, ⇧ V
-            KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex - 4);
-            if (keyBinding != null) return "⇧" + keyBinding.getBoundKeyLocalizedText().getString();
-            return "⇧?";
-        }
     }
 
     private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill, boolean shouldDim) {

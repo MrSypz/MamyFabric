@@ -1,5 +1,6 @@
 package com.sypztep.mamy.client.screen;
 
+import com.sypztep.mamy.client.ModKeyBindings;
 import com.sypztep.mamy.client.screen.widget.ActionWidgetButton;
 import com.sypztep.mamy.client.screen.widget.ScrollBehavior;
 import com.sypztep.mamy.client.util.DrawContextUtils;
@@ -47,9 +48,6 @@ public final class SkillBindingScreen extends Screen {
     // UI Components
     private final ScrollBehavior learnedSkillsScroll;
     private final List<SkillSlotButton> skillSlotButtons = new ArrayList<>();
-
-    // Slot positions
-    private static final String[] SLOT_KEYS = {"Z", "X", "C", "V", "⇧Z", "⇧X", "⇧C", "⇧V"};
 
     public SkillBindingScreen(MinecraftClient client) {
         super(Text.literal("Skill Binding"));
@@ -517,7 +515,7 @@ public final class SkillBindingScreen extends Screen {
         protected void renderAdditionalOverlays(DrawContext context, int mouseX, int mouseY, float delta,
                                                 boolean isHovered, boolean isPressed) {
             // Draw keybinding label
-            String keyText = SLOT_KEYS[slotIndex];
+            String keyText = ModKeyBindings.getKeybindDisplayName(slotIndex);
             int keyColor = boundSkill != null ? 0xFFFFFFFF : 0xFFAAAAAA;
             context.drawText(client.textRenderer, Text.literal(keyText),
                     getX() + 2, getY() - 12, keyColor, false);
@@ -591,7 +589,7 @@ public final class SkillBindingScreen extends Screen {
 
         public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
             List<Text> tooltip = new ArrayList<>();
-            tooltip.add(Text.literal("Slot " + (slotIndex + 1) + " (" + SLOT_KEYS[slotIndex] + ")")
+            tooltip.add(Text.literal("Slot " + (slotIndex + 1) + " (" + ModKeyBindings.getSkillKeybinding(slotIndex) + ")")
                     .formatted(Formatting.YELLOW));
 
             if (boundSkill != null) {
