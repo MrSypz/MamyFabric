@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.init.*;
 import com.sypztep.mamy.common.system.classes.PlayerClass;
 import com.sypztep.mamy.common.system.damage.*;
 import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.system.skill.SkillDamage;
 import com.sypztep.mamy.common.util.SkillUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -22,7 +23,7 @@ import net.minecraft.particle.ParticleTypes;
 
 import java.util.List;
 
-public class BashingBlowSkill extends Skill {
+public class BashingBlowSkill extends Skill implements SkillDamage {
 
     public BashingBlowSkill(Identifier identifier) {
         super(identifier, "Bashing Blow", "Attack the single target deal massive Physical+Fire damage to the first enemy hit",

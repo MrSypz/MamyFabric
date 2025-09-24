@@ -3,7 +3,7 @@ package com.sypztep.mamy.common.init;
 import com.sypztep.mamy.Mamy;
 import com.sypztep.mamy.common.system.damage.DamageComponent;
 import com.sypztep.mamy.common.system.damage.HybridDamageSource;
-import com.sypztep.mamy.common.system.skill.Skill;
+import com.sypztep.mamy.common.system.skill.SkillDamage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -44,9 +44,9 @@ public class ModDamageTypes {
     }
 
     public static class HybridSkillDamageSource extends DamageSource implements HybridDamageSource {
-        private final Skill skill;
+        private final SkillDamage skill;
 
-        public HybridSkillDamageSource(RegistryEntry.Reference<DamageType> type, LivingEntity attacker, Skill skill) {
+        public HybridSkillDamageSource(RegistryEntry.Reference<DamageType> type, LivingEntity attacker, SkillDamage skill) {
             super(type, attacker);
             this.skill = skill;
         }
@@ -55,7 +55,8 @@ public class ModDamageTypes {
         public List<DamageComponent> getDamageComponents() {
             return skill.getDamageComponents();
         }
-        public static HybridSkillDamageSource create(World world, RegistryKey<DamageType> key, LivingEntity attacker, Skill skill) {
+
+        public static HybridSkillDamageSource create(World world, RegistryKey<DamageType> key, LivingEntity attacker, SkillDamage skill) {
             return new HybridSkillDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(key), attacker, skill);
         }
     }
