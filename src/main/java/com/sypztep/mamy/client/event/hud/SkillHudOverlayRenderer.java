@@ -8,6 +8,7 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.skill.ClientSkillCooldowns;
 import com.sypztep.mamy.common.system.skill.Skill;
 import com.sypztep.mamy.common.init.ModClassesSkill;
+import com.sypztep.mamy.common.system.skill.SkillCastDelayManager;
 import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
@@ -55,10 +56,8 @@ public final class SkillHudOverlayRenderer {
         }
 
         // Force resource bar visibility based on combat stance
-        if (currentCombatStance)
-            ResourceBarHudRenderer.resourceBarHud.forceShow();
-        else
-            ResourceBarHudRenderer.resourceBarHud.forceHide();
+        if (currentCombatStance) ResourceBarHudRenderer.resourceBarHud.forceShow();
+        else ResourceBarHudRenderer.resourceBarHud.forceHide();
 
         // Update animations
         float deltaTime = tickCounter.getTickDelta(false) / 20.0f;
@@ -88,9 +87,7 @@ public final class SkillHudOverlayRenderer {
 
     private static void renderStanceIndicator(DrawContext context, PlayerStanceComponent stanceComponent) {
         int screenWidth = context.getScaledWindowWidth();
-        Text stanceText = stanceComponent.isInCombatStance() ?
-                Text.literal("⚔ COMBAT").formatted(Formatting.RED, Formatting.BOLD) :
-                Text.literal("✋ NORMAL").formatted(Formatting.GRAY);
+        Text stanceText = stanceComponent.isInCombatStance() ? Text.literal("⚔ COMBAT").formatted(Formatting.RED, Formatting.BOLD) : Text.literal("✋ NORMAL").formatted(Formatting.GRAY);
         int xPadding = 5;
 
         int stanceX = screenWidth - MinecraftClient.getInstance().textRenderer.getWidth(stanceText) - xPadding;
@@ -105,10 +102,8 @@ public final class SkillHudOverlayRenderer {
 
         // Calculate hotbar position
         int totalHotbarHeight = 8 * SKILL_SLOT_SPACING;
-        int availableHeight = screenHeight - HOTBAR_MARGIN_BOTTOM * 2;
 
-        int hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM,
-                screenHeight - HOTBAR_MARGIN_BOTTOM - totalHotbarHeight);
+        int hotbarStartY = Math.max(HOTBAR_MARGIN_BOTTOM, screenHeight - HOTBAR_MARGIN_BOTTOM - totalHotbarHeight);
 
         // Position hotbar with fade animation
         int baseHotbarX = screenWidth - SKILL_SLOT_SIZE + 1;
@@ -148,6 +143,10 @@ public final class SkillHudOverlayRenderer {
             shouldDim = SkillUsabilityChecker.shouldDimSkillInUI(client.player, skillId, skillLevel);
         }
 
+        // NEW: Check if we're in global cast delay (affects all skills)
+        boolean isInCastDelay = SkillCastDelayManager.getInstance().isInCastDelay();
+        if (isInCastDelay) shouldDim = true;
+
         // Apply dimming to slot rendering
         float slotAlpha = shouldDim ? alpha * 0.4f : alpha;
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, slotAlpha);
@@ -169,7 +168,7 @@ public final class SkillHudOverlayRenderer {
             Skill skill = ModClassesSkill.getSkill(skillId);
             if (skill != null) {
                 renderSkillIcon(context, x + 3, y + 3, skill, shouldDim);
-                renderSkillOverlays(context, x + 3, y + 3, skill, classComponent, shouldDim);
+                renderSkillOverlays(context, x + 3, y + 3, skill, classComponent, shouldDim, isInCastDelay);
             }
         }
 
@@ -196,25 +195,19 @@ public final class SkillHudOverlayRenderer {
         int baseSlotNumColor = shouldDim ? 0xFF555555 : 0xFF888888;
         int finalSlotNumColor = (baseSlotNumColor & 0x00FFFFFF) | (alphaValue << 24);
 
-        context.drawText(client.textRenderer, Text.literal(slotNum),
-                x + SKILL_SLOT_SIZE - client.textRenderer.getWidth(slotNum) - 2,
-                y + 2, finalSlotNumColor, false);
+        context.drawText(client.textRenderer, Text.literal(slotNum), x + SKILL_SLOT_SIZE - client.textRenderer.getWidth(slotNum) - 2, y + 2, finalSlotNumColor, false);
     }
 
     private static String getKeybindDisplayName(int slotIndex) {
         if (slotIndex < 4) {
-            // Single keys (slots 1-4): Z, X, C, V
             KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex);
-            if (keyBinding != null) {
-                return keyBinding.getBoundKeyLocalizedText().getString();
-            }
+            if (keyBinding != null) return keyBinding.getBoundKeyLocalizedText().getString();
+
             return "?";
         } else {
-            // Shift combinations (slots 5-8): ⇧Z, ⇧X, ⇧C, ⇧V
+            // Shift combinations (slots 5-8): ⇧ Z, ⇧ X, ⇧ C, ⇧ V
             KeyBinding keyBinding = ModKeyBindings.getSkillKeybinding(slotIndex - 4);
-            if (keyBinding != null) {
-                return "⇧" + keyBinding.getBoundKeyLocalizedText().getString();
-            }
+            if (keyBinding != null) return "⇧" + keyBinding.getBoundKeyLocalizedText().getString();
             return "⇧?";
         }
     }
@@ -222,7 +215,6 @@ public final class SkillHudOverlayRenderer {
     private static void renderSkillIcon(DrawContext context, int x, int y, Skill skill, boolean shouldDim) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        // Apply dimming to skill icon
         float iconAlpha = shouldDim ? 0.5f : 1.0f;
         RenderSystem.setShaderColor(iconAlpha, iconAlpha, iconAlpha, iconAlpha);
 
@@ -246,74 +238,55 @@ public final class SkillHudOverlayRenderer {
             context.drawText(client.textRenderer, Text.literal(abbreviation), textX, textY, textColor, false);
         }
 
-        // Reset shader color
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    private static void renderSkillOverlays(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent, boolean shouldDim) {
+    private static void drawCenteredText(DrawContext context, MinecraftClient client, String text, int x, int y, int boxSize, int color) {
+        int textWidth = client.textRenderer.getWidth(text);
+        context.drawText(client.textRenderer, Text.literal(text), x + (boxSize - textWidth) / 2, y + (boxSize - 8) / 2, color, true);
+    }
+
+    private static void renderSkillOverlays(DrawContext context, int x, int y, Skill skill, PlayerClassComponent classComponent, boolean shouldDim, boolean isInCastDelay) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) return;
 
         int availableSpace = SKILL_SLOT_SIZE - 6;
         int skillLevel = classComponent.getSkillLevel(skill.getId());
 
-        // Check different overlay types
+        if (isInCastDelay) {
+            SkillCastDelayManager delayManager = SkillCastDelayManager.getInstance();
+            float remainingDelay = delayManager.getRemainingDelay();
+
+            context.fill(x, y, x + availableSpace, y + availableSpace, 0x88FF6600);
+
+            if (remainingDelay > 0.1f)
+                drawCenteredText(context, client, String.format("%.1f", remainingDelay), x, y, availableSpace, 0xFFFFFFFF);
+            return;
+        }
+
         float remainingCooldown = ClientSkillCooldowns.getRemaining(skill.getId());
         boolean hasInsufficientResource = false;
 
-        // Check if skill has insufficient resource
-        if (remainingCooldown <= 0) { // Only check resource if not on cooldown
+        if (remainingCooldown <= 0) {
             float resourceCost = skill.getResourceCost(skillLevel);
             float currentResource = classComponent.getClassManager().getCurrentResource();
             hasInsufficientResource = currentResource < resourceCost;
         }
 
-        // Render cooldown overlay (priority over resource)
         if (remainingCooldown > 0) {
             float cooldownProgress = remainingCooldown / skill.getCooldown(skillLevel);
             int overlayHeight = (int) (availableSpace * cooldownProgress);
 
-            context.fill(x, y + availableSpace - overlayHeight,
-                    x + availableSpace, y + availableSpace,
-                    0x88222222);
+            context.fill(x, y + availableSpace - overlayHeight, x + availableSpace, y + availableSpace, 0x88222222);
 
-            if (remainingCooldown > 0.1f) {
-                String cooldownText = String.format("%.1f", remainingCooldown);
-                int textWidth = client.textRenderer.getWidth(cooldownText);
-                context.drawText(client.textRenderer,
-                        Text.literal(cooldownText),
-                        x + (availableSpace - textWidth) / 2,
-                        y + (availableSpace - 8) / 2,
-                        0xFFFFFFFF, true);
-            }
-        }
-        // Render resource overlay if insufficient resource and not on cooldown
-        else if (hasInsufficientResource) {
-            // Semi-transparent red overlay for insufficient resource
+            if (remainingCooldown > 0.1f)
+                drawCenteredText(context, client, String.format("%.1f", remainingCooldown), x, y, availableSpace, 0xFFFFFFFF);
+        } else if (hasInsufficientResource) {
             context.fill(x, y, x + availableSpace, y + availableSpace, 0x55AA0000);
-
-            // Show "!" indicator for insufficient resource
-            String resourceIndicator = "!";
-            int textWidth = client.textRenderer.getWidth(resourceIndicator);
-            context.drawText(client.textRenderer,
-                    Text.literal(resourceIndicator),
-                    x + (availableSpace - textWidth) / 2,
-                    y + (availableSpace - 8) / 2,
-                    0xFFFFAAAA, true);
-        }
-        // Additional dimming overlay for other unusable states (like not learned, wrong class)
-        else if (shouldDim && skillLevel == 0) {
-            // Dark overlay for unlearned skills
+            drawCenteredText(context, client, "!", x, y, availableSpace, 0xFFFFAAAA);
+        } else if (shouldDim && skillLevel == 0) {
             context.fill(x, y, x + availableSpace, y + availableSpace, 0x88000000);
-
-            // Show "?" for unlearned skills
-            String unlearned = "?";
-            int textWidth = client.textRenderer.getWidth(unlearned);
-            context.drawText(client.textRenderer,
-                    Text.literal(unlearned),
-                    x + (availableSpace - textWidth) / 2,
-                    y + (availableSpace - 8) / 2,
-                    0xFF666666, true);
+            drawCenteredText(context, client, "?", x, y, availableSpace, 0xFF666666);
         }
     }
 }

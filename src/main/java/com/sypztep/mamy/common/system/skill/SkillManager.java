@@ -26,7 +26,6 @@ public class SkillManager {
         SkillUsabilityChecker.UsabilityCheck usabilityCheck = SkillUsabilityChecker.checkServerUsability(player, skillId, skillLevel);
 
         if (!usabilityCheck.isUsable()) {
-            SkillUsabilityChecker.sendUsabilityFeedback(player, usabilityCheck);
             return;
         }
 

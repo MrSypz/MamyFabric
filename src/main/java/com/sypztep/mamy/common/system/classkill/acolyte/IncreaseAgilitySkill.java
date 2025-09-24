@@ -58,6 +58,11 @@ public class IncreaseAgilitySkill extends Skill implements CastableSkill {
     }
 
     @Override
+    public float getCastDelay(int skillLevel) {
+        return 2;
+    }
+
+    @Override
     protected SkillTooltipData getSkillTooltipData(PlayerEntity player, int skillLevel) {
         SkillTooltipData data = new SkillTooltipData();
 

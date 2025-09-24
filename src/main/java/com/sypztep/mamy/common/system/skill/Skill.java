@@ -14,7 +14,6 @@ import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.system.damage.HybridDamageSource;
 import com.sypztep.mamy.common.system.damage.DamageComponent;
 import com.sypztep.mamy.common.system.damage.CombatType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +25,7 @@ public abstract class Skill implements HybridDamageSource {
     protected final String description;
     protected final float baseResourceCost;
     protected final float baseCooldown;
+    protected final float baseCastDelay;
     protected final int baseClassPointCost;
     protected final int upgradeClassPointCost;
     protected final int maxSkillLevel;
@@ -34,7 +34,7 @@ public abstract class Skill implements HybridDamageSource {
     protected final List<SkillRequirement> prerequisites;
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
-                 float baseCooldown, int baseClassPointCost, int upgradeClassPointCost,
+                 float baseCooldown, float baseCastDelay, int baseClassPointCost, int upgradeClassPointCost,
                  int maxSkillLevel, boolean isDefaultSkill, Identifier icon,
                  List<SkillRequirement> prerequisites) {
         this.id = id;
@@ -42,6 +42,7 @@ public abstract class Skill implements HybridDamageSource {
         this.description = description;
         this.baseResourceCost = baseResourceCost;
         this.baseCooldown = baseCooldown;
+        this.baseCastDelay = baseCastDelay;
         this.baseClassPointCost = baseClassPointCost;
         this.upgradeClassPointCost = upgradeClassPointCost;
         this.maxSkillLevel = maxSkillLevel;
@@ -54,29 +55,35 @@ public abstract class Skill implements HybridDamageSource {
                  float baseCooldown,
                  int maxSkillLevel, Identifier icon,
                  List<SkillRequirement> prerequisites) {
-        this(id, name, description, baseResourceCost, baseCooldown, 1,
+        this(id, name, description, baseResourceCost, baseCooldown, 0f, 1,
                 1, maxSkillLevel, false, icon, prerequisites);
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown,
                  int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
-        this(id, name, description, baseResourceCost, baseCooldown, 1,
+        this(id, name, description, baseResourceCost, baseCooldown, 0f, 1,
                 1, maxSkillLevel, isDefaultSkill, icon, null);
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
                  float baseCooldown,
                  int maxSkillLevel, Identifier icon) {
-        this(id, name, description, baseResourceCost, baseCooldown, 1,
+        this(id, name, description, baseResourceCost, baseCooldown, 0f, 1,
                 1, maxSkillLevel, false, icon, null);
     }
 
     public Skill(Identifier id, String name, String description, float baseResourceCost,
-                 float baseCooldown,  int baseClassPointCost,
+                 float baseCooldown, int baseClassPointCost,
                  int upgradeClassPointCost, int maxSkillLevel, boolean isDefaultSkill, Identifier icon) {
-        this(id, name, description, baseResourceCost, baseCooldown,
+        this(id, name, description, baseResourceCost, baseCooldown, 0f,
                 baseClassPointCost, upgradeClassPointCost, maxSkillLevel, isDefaultSkill, icon, null);
+    }
+
+    public Skill(Identifier id, String name, String description, float baseResourceCost,
+                 float baseCooldown, float baseCastDelay, int maxSkillLevel, Identifier icon) {
+        this(id, name, description, baseResourceCost, baseCooldown, baseCastDelay, 1,
+                1, maxSkillLevel, false, icon, null);
     }
 
     // ============================================================================
@@ -252,8 +259,14 @@ public abstract class Skill implements HybridDamageSource {
         tooltip.add(Text.literal("Cooldown: ").formatted(Formatting.GRAY)
                 .append(Text.literal(String.format("%.1f", cooldown)).formatted(Formatting.YELLOW))
                 .append(Text.literal(" sec").formatted(Formatting.GRAY)));
-    }
 
+        float castDelay = getCastDelay(skillLevel);
+        if (castDelay > 0) {
+            tooltip.add(Text.literal("Cast Delay: ").formatted(Formatting.GRAY)
+                    .append(Text.literal(String.format("%.1f", castDelay)).formatted(Formatting.YELLOW))
+                    .append(Text.literal(" sec").formatted(Formatting.GRAY)));
+        }
+    }
     protected void addContextInfo(List<Text> tooltip, PlayerEntity player, int skillLevel, boolean isLearned, TooltipContext context) {
         switch (context) {
             case LEARNING_SCREEN -> addLearningInfo(tooltip, player, skillLevel, isLearned);
@@ -355,6 +368,9 @@ public abstract class Skill implements HybridDamageSource {
     public float getCooldown(int skillLevel) {
         return baseCooldown;
     }
+    public float getCastDelay(int skillLevel) {
+        return baseCastDelay;
+    }
 
     // ============================================================================
     // ABSTRACT METHODS FOR SKILL BEHAVIOR
@@ -363,7 +379,6 @@ public abstract class Skill implements HybridDamageSource {
     public abstract boolean canUse(LivingEntity caster, int skillLevel);
     public abstract boolean use(LivingEntity caster, int skillLevel);
     public abstract boolean isAvailableForClass(PlayerClass playerClass);
-    public Text condition() {return Text.literal("Skill cannot be used right now");}
     // ============================================================================
     // GETTERS
     // ============================================================================

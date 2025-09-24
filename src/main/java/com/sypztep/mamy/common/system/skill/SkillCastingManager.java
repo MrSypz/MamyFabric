@@ -9,8 +9,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -32,14 +30,8 @@ public class SkillCastingManager {
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
 
-        // Comprehensive usability check using the new utility
         SkillUsabilityChecker.UsabilityCheck usabilityCheck = SkillUsabilityChecker.checkClientUsability(player, skillId, skillLevel);
-
-        if (!usabilityCheck.isUsable()) {
-            // Send feedback for failed attempts
-            SkillUsabilityChecker.sendUsabilityFeedback(player, usabilityCheck);
-            return;
-        }
+        if (!usabilityCheck.isUsable()) return;
 
         Skill skill = ModClassesSkill.getSkill(skillId);
         if (skill == null) return; // Already checked in usability check, but keep for safety
@@ -53,6 +45,8 @@ public class SkillCastingManager {
         // Handle instant vs castable skills
         if (!(skill instanceof CastableSkill castable)) {
             UseSkillPayloadC2S.send(skillId); // Instant skill
+            float castDelay = skill.getCastDelay(skillLevel);
+            if (castDelay > 0) SkillCastDelayManager.getInstance().startCastDelay(castDelay);
             return;
         }
 
@@ -90,9 +84,7 @@ public class SkillCastingManager {
 
         SkillUsabilityChecker.UsabilityCheck check = SkillUsabilityChecker.checkClientUsability(player, currentSkillId, skillLevel);
         if (!check.isUsable()) {
-            // If it's not usable anymore, interrupt the cast
             interruptCast();
-            SkillUsabilityChecker.sendUsabilityFeedback(player, check);
             return;
         }
 
@@ -112,11 +104,17 @@ public class SkillCastingManager {
                 hasCastedAnimation = SkillAnimationManager.startSkillCastedAnimation(castable.getCastedAnimation());
             else if (hasAnimation) SkillAnimationManager.stopCastAnimation();
 
-
             castable.playSound(player, castable.getCastCompleteSound());
         } else if (hasAnimation) SkillAnimationManager.stopCastAnimation();
 
         UseSkillPayloadC2S.send(currentSkillId);
+
+        PlayerClassComponent classComponent = ModEntityComponents.PLAYERCLASS.get(player);
+        int skillLevel = classComponent.getSkillLevel(currentSkillId);
+        float castDelay = skill.getCastDelay(skillLevel);
+        if (castDelay > 0) {
+            SkillCastDelayManager.getInstance().startCastDelay(castDelay);
+        }
 
         // Reset casting state
         isCasting = false;
@@ -142,8 +140,6 @@ public class SkillCastingManager {
 
         PlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            player.sendMessage(Text.literal("Cast cancelled").formatted(Formatting.YELLOW), true);
-
             Skill skill = ModClassesSkill.getSkill(currentSkillId);
             if (skill instanceof CastableSkill castable) castable.playSound(player, castable.getCastCancelSound());
         }
