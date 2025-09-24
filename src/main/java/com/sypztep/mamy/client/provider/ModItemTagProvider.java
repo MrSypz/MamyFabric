@@ -1,9 +1,9 @@
 package com.sypztep.mamy.client.provider;
 
+import com.sypztep.mamy.common.init.ModItems;
 import com.sypztep.mamy.common.init.ModTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryWrapper;
 
@@ -35,13 +35,15 @@ public class ModItemTagProvider extends FabricTagProvider.ItemTagProvider {
                 .add(Items.TRIDENT);
 
         // Daggers (placeholder for custom weapons)
-        getOrCreateTagBuilder(ModTags.Items.DAGGERS);
+        getOrCreateTagBuilder(ModTags.Items.DAGGERS)
+                .add(ModItems.NOVICE_DAGGER);
 
         // Staffs (placeholder for custom weapons)
         getOrCreateTagBuilder(ModTags.Items.STAFFS);
 
         // Maces (placeholder for custom weapons)
-        getOrCreateTagBuilder(ModTags.Items.MACES);
+        getOrCreateTagBuilder(ModTags.Items.MACES)
+                .add(ModItems.DARKSTEEL_MACE);
 
         // Knuckles (placeholder for custom weapons)
         getOrCreateTagBuilder(ModTags.Items.KNUCKLES);

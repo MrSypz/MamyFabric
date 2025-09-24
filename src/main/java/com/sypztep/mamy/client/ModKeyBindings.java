@@ -5,6 +5,7 @@ import com.sypztep.mamy.common.component.living.PlayerClassComponent;
 import com.sypztep.mamy.common.component.living.PlayerStanceComponent;
 import com.sypztep.mamy.common.init.ModEntityComponents;
 import com.sypztep.mamy.common.network.server.ToggleStancePayloadC2S;
+import com.sypztep.mamy.common.system.skill.SkillCastDelayManager;
 import com.sypztep.mamy.common.system.skill.SkillCastingManager;
 import com.sypztep.mamy.common.system.skill.SkillUsabilityChecker;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -83,6 +84,7 @@ public class ModKeyBindings {
         if (client.isPaused()) return;
 
         SkillCastingManager.getInstance().tick();
+        SkillCastDelayManager.getInstance().tick();
 
         if (SWITCH_STANCE.wasPressed()) ToggleStancePayloadC2S.send();
         if (CLASS_SELECTOR.wasPressed()) client.setScreen(new ClassEvolutionScreen(client));
@@ -120,20 +122,8 @@ public class ModKeyBindings {
 
         int skillLevel = classComponent.getSkillLevel(skillId);
 
-        // Quick validation before attempting to cast
-        SkillUsabilityChecker.UsabilityCheck check =
-                SkillUsabilityChecker.checkClientUsability(client.player, skillId, skillLevel);
-
-        if (check.isUsable()) {
-            // Skill is usable, attempt casting
+        if (SkillUsabilityChecker.checkClientUsability(client.player, skillId, skillLevel).isUsable())
             SkillCastingManager.getInstance().startCasting(skillId, skillLevel);
-        } else {
-            // Only provide feedback for certain failure types to avoid spam
-            if (check.result == SkillUsabilityChecker.SkillUsabilityResult.INSUFFICIENT_RESOURCE ||
-                    check.result == SkillUsabilityChecker.SkillUsabilityResult.NOT_LEARNED) {
-                SkillUsabilityChecker.sendUsabilityFeedback(client.player, check);
-            }
-        }
     }
 
     private static void setKeyVisualPressed(int keyIndex) {
@@ -142,11 +132,9 @@ public class ModKeyBindings {
     }
 
     private static void updateVisualStates(long currentTime) {
-        for (int i = 0; i < keyVisualStates.length; i++) {
-            if (keyVisualStates[i] && currentTime - keyVisualPressTimes[i] > KEY_HIGHLIGHT_DURATION) {
+        for (int i = 0; i < keyVisualStates.length; i++)
+            if (keyVisualStates[i] && currentTime - keyVisualPressTimes[i] > KEY_HIGHLIGHT_DURATION)
                 keyVisualStates[i] = false;
-            }
-        }
     }
 
     public static boolean isKeyVisuallyPressed(int keyIndex) {

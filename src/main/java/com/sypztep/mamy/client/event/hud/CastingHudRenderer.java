@@ -38,9 +38,7 @@ public final class CastingHudRenderer implements HudRenderCallback {
         boolean isCasting = castingManager.isCasting() && client.player != null;
 
         pulseAnimation += deltaTime * 0.1f;
-        if (pulseAnimation > Math.PI * 2) {
-            pulseAnimation -= (float) (Math.PI * 2);
-        }
+        if (pulseAnimation > Math.PI * 2) pulseAnimation -= (float) (Math.PI * 2);
 
         float targetAlpha = isCasting ? 1f : 0f;
         float alphaLerpSpeed = isCasting ? deltaTime * LERP_TIME * 3f : deltaTime * LERP_TIME;
@@ -105,9 +103,7 @@ public final class CastingHudRenderer implements HudRenderCallback {
             String skillName = "Unknown";
             if (skillId != null) {
                 Skill skill = ModClassesSkill.getSkill(skillId);
-                if (skill != null) {
-                    skillName = skill.getName();
-                }
+                if (skill != null) skillName = skill.getName();
             }
 
             Text castingText = Text.literal("Casting: ")
@@ -127,8 +123,7 @@ public final class CastingHudRenderer implements HudRenderCallback {
             int cancelWidth = client.textRenderer.getWidth(cancelText);
             int cancelColor = ((int)(textAlpha * 170) << 24) | 0xAAAAAA;
 
-            context.drawTextWithShadow(client.textRenderer, cancelText,
-                    (screenWidth - cancelWidth) / 2, y + barHeight + 4, cancelColor);
+            context.drawTextWithShadow(client.textRenderer, cancelText,(screenWidth - cancelWidth) / 2, y + barHeight + 4, cancelColor);
         }
     }
 }
