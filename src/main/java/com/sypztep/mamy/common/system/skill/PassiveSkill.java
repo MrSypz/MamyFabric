@@ -23,7 +23,7 @@ public abstract class PassiveSkill extends Skill {
     public PassiveSkill(Identifier id, String name, String description,
                         int maxSkillLevel,
                         boolean isDefaultSkill, Identifier icon, List<SkillRequirement> prerequisites) {
-        super(id, name, description, 0.0f, 0.0f,0.0f, 1,
+        super(id, name, description, 0.0f, 0.0f, 1,
                 1, maxSkillLevel, isDefaultSkill, icon, prerequisites);
         this.attributeModifications = new ArrayList<>();
         this.passiveEffects = new ArrayList<>();
